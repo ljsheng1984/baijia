@@ -1,0 +1,11 @@
+﻿@{
+    ViewBag.Title = "城市管理";
+    Layout = "~/Views/Shared/_ILayout.cshtml";
+}
+<h3 class="city"><span class="location">@LJSheng.Common.LCookie.GetCity()</span><span>当前定位城市</span></h3>
+<ul class="city-ul">
+    @foreach (var item in Model)
+    {
+        <li class="cell"><a href="/Home/Index?city=@item.City">@item.City</a></li>
+    }
+</ul>

@@ -1,0 +1,58 @@
+﻿@{
+    ViewBag.Title = "合伙人-抢单";
+    Layout = "~/Views/Shared/_LLayout.cshtml";
+}
+<div id="search" hidden>
+    <input class="text" name="type" id="type" value="1" />
+</div>
+<div class="order-tabs">
+    <a onclick="getlist(1);" class="active">@LJSheng.Common.LCookie.GetOrderCity()</a>
+    <a onclick="getlist(0);">全部区域</a>
+</div>
+<div class="mescroll" id="scroll">
+    <ul class="order-list" id="dataList">
+        <script id="tpl" type="text/html">
+            {{each list as item index}}
+            <li class="cell" onclick="self.location='/Member/OrderDetail?OrderGid={{item.Gid}}&Number={{item.Number}}&type=1';">
+                <span class="status">等待抢单</span>
+                <a class="icon-arrow"></a>
+                <h1>订单编号： {{item.OrderNo}}</h1>
+                <div class="text">{{item.Product}}</div>
+                <div class="address">{{item.Address}}</div>
+                <div class="info">
+                    <a class="icon-user">{{item.RealName}}</a>
+                    <a class="icon-tel">{{item.ContactNumber}}</a>
+                    <span class="price">￥{{item.TotalPrice}}</span>
+                </div>
+            </li>
+            {{/each}}
+        </script>
+    </ul>
+</div>
+<audio id="audio-notification"><source src="~/images/msg.mp3" type="audio/mpeg" /></audio>
+<script>
+    function getlist(type,ev) {
+        $("#type").val(type);
+        $(".order-tabs a").removeClass("active");
+        ev = ev || window.event;
+        var tmp = ev.target || ev.srcElement;
+        tmp.className = "active";
+        //重置列表数据
+        scroll.resetUpScroll();
+        //隐藏回到顶部按钮
+        scroll.hideTopBtn();
+    }
+    function order(gid, li) {
+        $("#OrderDetail").removeClass("hide");
+    }
+    function getorder() {
+        scroll.resetUpScroll();
+        scroll.hideTopBtn();
+        if ($("#dataList li").length != 0) {
+            $("#audio-notification").get(0).play();
+        }
+        setTimeout(function () { getorder(); }, 19888);
+    }
+    setTimeout(function () { getorder(); }, 1988);
+</script>
+

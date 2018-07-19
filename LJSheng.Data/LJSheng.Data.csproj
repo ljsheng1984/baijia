@@ -1,0 +1,149 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{C6F51766-062B-40A2-BD60-92DBA5BEED4C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>LJSheng.Data</RootNamespace>
+    <AssemblyName>LJSheng.Data</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>bin\Debug\LJSheng.Data.XML</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.Extended">
+      <HintPath>bin\EntityFramework.Extended.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="EF\Achievement.cs" />
+    <Compile Include="EF\AD.cs" />
+    <Compile Include="EF\Address.cs" />
+    <Compile Include="EF\AdminLog.cs" />
+    <Compile Include="EF\ApiBug.cs" />
+    <Compile Include="EF\App.cs" />
+    <Compile Include="EF\AppApi.cs" />
+    <Compile Include="EF\Consignor.cs" />
+    <Compile Include="EF\FrozenIntegral.cs" />
+    <Compile Include="EF\Level.cs" />
+    <Compile Include="EF\LV.cs" />
+    <Compile Include="EF\MoneyRecord.cs" />
+    <Compile Include="EF\MProduct.cs" />
+    <Compile Include="EF\MRelation.cs" />
+    <Compile Include="EF\OpenCity.cs" />
+    <Compile Include="EF\Classify.cs" />
+    <Compile Include="EF\Comment.cs" />
+    <Compile Include="EF\Dictionaries.cs" />
+    <Compile Include="EF\DictionariesList.cs" />
+    <Compile Include="EF\Express.cs" />
+    <Compile Include="EF\LJSheng.cs" />
+    <Compile Include="EF\Member.cs" />
+    <Compile Include="EF\News.cs" />
+    <Compile Include="EF\Order.cs" />
+    <Compile Include="EF\OrderDetails.cs" />
+    <Compile Include="EF\Product.cs" />
+    <Compile Include="EF\Report.cs" />
+    <Compile Include="EF\ReportList.cs" />
+    <Compile Include="EF\Shop.cs" />
+    <Compile Include="EF\ShopClassify.cs" />
+    <Compile Include="EF\ShopOrder.cs" />
+    <Compile Include="EF\ShopProduct.cs" />
+    <Compile Include="EF\ShopRecord.cs" />
+    <Compile Include="EF\ShopToken.cs" />
+    <Compile Include="EF\ShopWithdrawals.cs" />
+    <Compile Include="EF\SMS.cs" />
+    <Compile Include="EF\Stock.cs" />
+    <Compile Include="EF\StockRight.cs" />
+    <Compile Include="EF\Transformation.cs" />
+    <Compile Include="EF\Withdrawals.cs" />
+    <Compile Include="EF\WXKeyword.cs" />
+    <Compile Include="LAttribute.cs" />
+    <Compile Include="CommandInfo.cs" />
+    <Compile Include="DbHelperSQL.cs" />
+    <Compile Include="DBHelpers\ColumnInfo.cs" />
+    <Compile Include="DBHelpers\DBHelper.cs" />
+    <Compile Include="DBHelpers\DBtoFile.cs" />
+    <Compile Include="DBHelpers\TableInfo.cs" />
+    <Compile Include="EFExpand.cs" />
+    <Compile Include="EFOperation.cs" />
+    <Compile Include="EFDB.cs" />
+    <Compile Include="Initializer.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PubConstant.cs" />
+    <Compile Include="Tables.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="bin\EntityFramework.dll" />
+    <Content Include="bin\EntityFramework.Extended.dll" />
+    <Content Include="bin\EntityFramework.SqlServer.dll" />
+    <Content Include="DBHelpers\SQL.SQL" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.Config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LJSheng.Common\LJSheng.Common.csproj">
+      <Project>{e5dc1ea6-856a-4250-8dee-6f1d2247fd9a}</Project>
+      <Name>LJSheng.Common</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

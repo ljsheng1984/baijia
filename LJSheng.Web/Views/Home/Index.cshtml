@@ -1,0 +1,35 @@
+﻿@{
+    ViewBag.Class = "Index";
+    ViewBag.Title = "彩链";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="index-header">
+    <!--搜索栏-->
+    <div class="search-box">
+        <i class="icon-search"></i>
+        <div onclick="self.location = '/Home/Search';">
+            <input class="text" placeholder="请输入你要搜索的关键字" />
+        </div>
+    </div>
+</div>
+<!-- banner -->
+<div class="index-banner">
+    <a href="@ViewBag.ADTopUrl"><img src="/uploadfiles/ad/@ViewBag.ADTopPicture" /></a>
+</div>
+<!-- 热门推荐 -->
+<div class="index-hot">
+    彩链包
+</div>
+<ul class="index-groom">
+    @(new HtmlString(ViewBag.Product))
+    @*@foreach (var item in ViewBag.Product)
+        {
+            <li>
+                <a href="/Home/Detail?gid=@item.Gid">
+                    <p><img src="/uploadfiles/product/@item.Picture" /></p>
+                    <p class="title">@item.Prefix@item.Name</p>
+                    <p class="price">￥@item.Price/@item.Stock @item.Company</p>
+                </a>
+            </li>
+        }*@
+</ul>

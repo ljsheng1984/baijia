@@ -1,0 +1,60 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>商城搜索</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+    <link href="~/css/main.css" rel="stylesheet" />
+    <link href="~/plugins/mescroll/mescroll.css" rel="stylesheet">
+</head>
+<body class="index user-center">
+    <div class="sub-header">
+        <a class="icon-arrow-left" onclick="history.go(-1);">&nbsp;</a>
+        <div class="search-box" id="search">
+            <input class="text" placeholder="商品名称" name="Name" />
+        </div>
+        <a class="icon-right" onclick="scrollSearch();">
+            <i class="icon-search"></i>
+        </a>
+    </div>
+    <!--搜索内容-->
+    <div class="classify-container">
+        <div class="detail mescroll" id="scroll">
+            <ul class="index-groom" id="dataList">
+                <script id="tpl" type="text/html">
+                    {{each list as item index}}
+                    <li>
+                        <a href="/Home/ShopDetail?gid={{item.Gid}}">
+                            <p>
+                                <img src="/uploadfiles/product/{{item.Picture}}" />
+                            </p>
+                            <p class="title">{{item.Name}}</p>
+                            <p class="price">￥{{item.Price}}/{{item.Company}}</p>
+                        </a>
+                    </li>
+                    {{/each}}
+                </script>
+            </ul>
+        </div>
+    </div>
+    <script src="~/js/jquery.js"></script>
+    <script src="~/js/template-web.js"></script>
+    <script src="~/plugins/mescroll/mescroll.js"></script>
+    <script src="~/js/mlist.js"></script>
+    <script>
+        function getlist(type) {
+            $("#type").val(type);
+            $(".order-tabs a").removeClass("active");
+            //重置列表数据
+            scroll.resetUpScroll();
+            //隐藏回到顶部按钮
+            scroll.hideTopBtn();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" Content="width=device-width" />
+    <title>快递跟踪</title>
+    <style type="text/css">
+        /*纵向时间轴*/
+        .time-vertical {
+            list-style-type: none;
+            border-left: 1px solid #707070;
+            padding: 0px;
+            height: auto;
+            margin-left: 30%;
+        }
+
+        .time-vertical li {
+            height: 50px;
+            position: relative;
+        }
+
+        .time-vertical li a {
+            display: inline-block;
+            margin-left: 20px;
+            margin-top: 15px;
+            text-decoration: none;
+            color: #000;
+        }
+
+        .time-vertical li b:before {
+            Content: '';
+            position: absolute;
+            top: 15px;
+            left: -12px;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #98FB98;
+            border-radius: 10px;
+            background: #98FB98;
+        }
+
+        .time-vertical li span {
+            position: absolute;
+            top: 18px;
+            left: -150px;
+        }
+        .cbutton {
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div div="container">
+        <div class="cbutton"><button id="cha" class="btn" onclick="Express('@Request.QueryString["Express"]','@Request.QueryString["ExpressNumber"]');">查询接口是按次收费,建议不要频繁查询,确定查询(@Request.QueryString["ExpressNumber"])的物流信息,请单击</button></div>
+        <ul class="time-vertical" id="kd">
+            <script id="wl" type="text/html">
+                {{each list as item index}}
+                <li><b></b><span>{{item.time}}</span><a href="javascript:void(0)">{{item.status}}</a></li>
+                {{/each}}
+            </script>
+        </ul>
+    </div>
+    <script src="~/js/jquery.js"></script>
+    <script src="~/js/template-web.js"></script>
+    <script>
+        function Express(Express, ExpressNumber) {
+            $.ajax({
+                url: "/ajax/api.ashx?ff=Express",
+                data: "{Express:\"" + Express + "\",ExpressNumber:\"" + ExpressNumber + "\"}",
+                type: "post",
+                cache: false,
+                timeout: 8000,
+                dataType: "json",
+                ContentType: "application/json; charset=utf-8",
+                error: function () { alert("请求超时"); },
+                beforeSend: function () { $("#cha").text("查询中,请稍等!!!"); },
+                success: function (data) {
+                    if (data.result == 200) {
+                        var html = template('wl', data.data);
+                        document.getElementById('kd').innerHTML = html;
+                        $("#cha").text("请查看下面查询结果,一片空白代表当前没有物流信息!"); 
+                    }
+                    else {
+                        $("#cha").text(data.data); 
+                    }
+                },
+            });
+        }
+    </script>
+</body>
+</html>

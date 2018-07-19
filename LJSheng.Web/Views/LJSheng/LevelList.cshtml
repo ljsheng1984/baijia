@@ -1,0 +1,123 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" Content="width=device-width, initial-scale=1" />
+    <title>等级管理</title>
+    <link rel="stylesheet" href="~/plugins/zui/css/zui.min.css">
+</head>
+<body>
+    <div class="row" id="search">
+        <div class="col-sm-8">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="icon-search"></i></span>
+                <span class="input-group-addon">名称</span>
+                <input type="text" name="Name" class="form-control">
+                <span class="input-group-addon">时间</span>
+                <input type="text" class="form-control" placeholder="开始时间" name="STime" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd HH:mm:ss',alwaysUseStartDate:true})" />
+                <span class="input-group-addon fix-padding">-</span>
+                <input type="text" class="form-control" placeholder="结束时间" name="ETime" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd HH:mm:ss',alwaysUseStartDate:true})" />
+                <span class="input-group-btn">
+                    <input type="text" name="Project" class="form-control" value="@Request.QueryString["project"]" hidden>
+                    <button type="button" class="btn btn-info" onclick="GetList(1);">给偶搜</button>
+                </span>
+            </div>
+        </div>
+    </div>
+    <br />
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>标识</th>
+                <th>等级名称</th>
+                <th>购物比例%</th>
+                <th>分红比例%</th>
+                <th>项目比例%</th>
+                <th class="hidden">分红收益%</th>
+                <th>分享奖%</th>
+                <th>级差奖%</th>
+                <th>需消费金额</th>
+                <th>需下级数量</th>
+                <th>倍数</th>
+                <th class="@(Request.QueryString["project"]=="2"?"":"hidden")">升级条件</th>
+                <th class="@(Request.QueryString["project"]=="2"?"":"hidden")">出售</th>
+                <th>添加时间</th>
+                <th>管理操作</th>
+            </tr>
+        </thead>
+        <tbody id="tbody">
+            <script id="tpl" type="text/html">
+                {{each list as item index}}
+                <tr id="{{item.Gid}}" style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
+                    <td>{{item.LV}}</td>
+                    <td><span class="label {{item.Label}}">{{item.Name}}</span></td>
+                    <td>{{item.ShopProfit!=0?item.ShopProfit * 100:""}}</td>
+                    <td>{{item.Bonus!=0?item.Bonus * 100:""}}</td>
+                    <td>{{item.Profit!=0?item.Profit * 100:""}}</td>
+                    <td class="hidden">{{item.EquityProfit!=0?item.EquityProfit * 100:""}}</td>
+                    <td>{{item.Recommendation!=0?item.Recommendation * 100:""}}</td>
+                    <td>
+                        {{if item.Differential!=0}}
+                        <button class="btn btn-mini" onclick="Show('{{item.Name}}','LVList?lvid={{item.LV}}');">点这里设置</button>
+                        {{else}}
+                        {{/if}}
+                    </td>
+                    <td class="hide">{{item.Differential!=0?item.Differential * 100:""}}</td>
+                    <td class="hide">{{item.SameLevel!=0?item.SameLevel * 100:""}}</td>
+                    <td>{{item.BuyAmount!=0?item.BuyAmount:""}}</td>
+                    <td>{{item.LNumber!=0?item.LNumber:""}}</td>
+                    <td>{{item.Multiple}}</td>
+                    <td class="@(Request.QueryString["project"]=="2"?"":"hidden")"><button class="btn btn-danger btn-mini" type="button" onclick="UP('{{item.Gid}}',1);" id="{{item.Gid}}1">{{item.UP==1?"一次性":"累计"}}</button></td>
+                    <td class="@(Request.QueryString["project"]=="2"?"":"hidden")"><button class="btn btn-danger btn-mini" type="button" onclick="UP('{{item.Gid}}',2);" id="{{item.Gid}}2">{{item.SellStock==1?"不允许":"允许"}}</button></td>
+                    <td>{{item.AddTime}}</td>
+                    <td>
+                        <div class="btn-group">
+                            <button class="btn btn-mini" onclick="Show('{{item.Gid}}');">编辑</button>
+                            <button class="btn btn-mini btn-danger hidden" onclick="Delete('{{item.Gid}}');">删除</button>
+                        </div>
+                    </td>
+                </tr>
+                {{/each}}
+            </script>
+        </tbody>
+    </table>
+    <ul class="pager" id="pager"></ul>
+    <ul class="pager" id="pages" style="overflow:hidden;"></ul>
+    <script src="~/plugins/zui/lib/jquery/jquery.js"></script>
+    <script src="~/plugins/zui/js/zui.min.js"></script>
+    <script src="~/js/template-web.js"></script>
+    <script src="~/plugins/My97DatePicker/WdatePicker.js"></script>
+    <script src="~/js/list.js"></script>
+    <script>
+        function UP(Gid,Type) {
+            if (window.confirm('你确定你的操作,更改条件会立即生效新的规则!')) {
+                $.ajax({
+                    url: "/LJSheng/UPSellStock",
+                    data: "Gid=" + Gid + "&Type=" + Type,
+                    type: "post",
+                    cache: false,
+                    timeout: 8000,
+                    dataType: "json",
+                    ContentType: "application/json; charset=utf-8",
+                    error: function () { new $.zui.Messager('请求超时!').show(); },
+                    beforeSend: function () { },
+                    success: function (data) {
+                        Messager(data.data, data.result);
+                        if (data.result == 200) {
+                            $("#" + Gid + Type).text("请重新进来确认");
+                        }
+                    },
+                });
+                return true;
+            } else {
+                return false;
+            }
+        }
+    </script>
+</body>
+</html>

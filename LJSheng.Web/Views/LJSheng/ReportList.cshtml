@@ -1,0 +1,94 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" Content="width=device-width, initial-scale=1" />
+    <title>分红日报管理</title>
+    <link rel="stylesheet" href="~/plugins/zui/css/zui.min.css">
+</head>
+<body>
+    <div class="row" id="search">
+        <div class="col-sm-8">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="icon-search"></i></span>
+                <span class="input-group-addon">项目</span>
+                <select class="form-control" name="Project">
+                    <option value="0">=全 部=</option>
+                    @foreach (var item in Model)
+                    {
+                        <option value="@item.Value">@item.Key</option>
+                    }
+                </select>
+                <span class="input-group-addon">时间</span>
+                <input type="text" class="form-control" placeholder="分红时间" name="STime" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd',alwaysUseStartDate:true})" value="@Request.QueryString["date"]" />
+                <span class="input-group-btn">
+                    <button type="button" class="btn btn-info" onclick="GetList(1);">给偶搜</button>
+                </span>
+            </div>
+        </div>
+    </div>
+    <br />
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>标识</th>
+                <th>分红日期</th>
+                <th>项目</th>
+                <th>订单收入</th>
+                <th>订单利润</th>
+                <th>分红积分</th>
+                <th>分享奖</th>
+                <th>级差奖</th>
+                <th>平级奖</th>
+                <th>添加时间</th>
+                <th>管理操作</th>
+            </tr>
+        </thead>
+        <tbody id="tbody">
+            <script id="tpl" type="text/html">
+                {{each list as item index}}
+                <tr id="{{item.Gid}}" style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
+                    <td rowspan="2">{{index+1}}</td>
+                    <td>{{item.RTime}}</td>
+                    <td>{{item.ProjectName}}</td>
+                    <td>{{item.OrderPrice}}</td>
+                    <td>{{item.ProfitPrice}}</td>
+                    <td>{{item.Money}}</td>
+                    <td>{{item.Recommendation}}</td>
+                    <td>{{item.Differential}}</td>
+                    <td>{{item.SameLevel}}</td>
+                    <td>{{item.AddTime}}</td>
+                    <td>
+                        <button class="btn btn-mini" onclick="Show('{{item.ProjectName}}','MReportList?gid={{item.Gid}}&auto=0');">手动分红</button>
+                    </td>
+                </tr>
+                <tr id="{{item.Gid}}" style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
+                    <td colspan="3">{{item.Remarks}}</td>
+                    <td>购物积分</td>
+                    <td>{{item.Integral}}</td>
+                    <td>{{item.SRecommendation}}</td>
+                    <td>{{item.SDifferential}}</td>
+                    <td>{{item.SSameLevel}}</td>
+                    <td>@*{{item.Remarks}}*@</td>
+                    <td>
+                        <button class="btn btn-mini label-danger" onclick="Show('{{item.ProjectName}}','MReportList?gid={{item.Gid}}&auto=1');">自动分红</button>
+                    </td>
+                </tr>
+                {{/each}}
+            </script>
+        </tbody>
+    </table>
+    <ul class="pager" id="pager"></ul>
+    <ul class="pager" id="pages" style="overflow:hidden;"></ul>
+    <script src="~/plugins/zui/lib/jquery/jquery.js"></script>
+    <script src="~/plugins/zui/js/zui.min.js"></script>
+    <script src="~/js/template-web.js"></script>
+    <script src="~/plugins/My97DatePicker/WdatePicker.js"></script>
+    <script src="~/js/list.js"></script>
+</body>
+</html>

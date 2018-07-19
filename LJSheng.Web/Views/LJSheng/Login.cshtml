@@ -1,0 +1,133 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>后台登录</title>
+    <style type="text/css">
+        body {
+            background: #303f52 url(/images/LJSheng/log.jpg) center -50px;
+            height: 100%;
+        }
+
+        ul, dl {
+            list-style: none;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        .login {
+            width: 335px;
+            margin: 0 auto;
+            margin-top: 252px;
+            *margin-top: 250px;
+            position: relative;
+            left: 77px;
+        }
+
+        .log li {
+            height: 45px;
+        }
+
+        .log input {
+            border: 0 none;
+            font-size: 12px;
+            width: 208px;
+            color: #303f52;
+            font-family: tahoma;
+            margin-left: 4px;
+            vertical-align: middle;
+            padding: 4px 0;
+        }
+
+        .log .yzm {
+            position: relative;
+        }
+
+        .log .yzm input {
+            width: 85px;
+        }
+
+        .log .yzm img {
+            width: 78px;
+            height: 26px;
+            position: absolute;
+            left: 105px;
+            top: -1px;
+            _top: 1px;
+        }
+
+        .log .logbtn button {
+            width: 82px;
+            height: 34px;
+            background: url(/images/ljsheng/logbtn.png);
+            cursor: pointer;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    @using (Html.BeginForm("Login", "LJSheng", FormMethod.Post))
+    {
+        <div class="login">
+            <ul class="log">
+                <li>
+                    <input name="Account" type="text" id="Account">
+                </li>
+                <li>
+                    <input name="PWD" type="password" id="PWD">
+                </li>
+                <li class="yzm">
+                    <input name="Code" type="text" id="Code"><img alt="点击更换" width="60" height="25" src="~/plugins/VerifyCode.aspx" onclick="this.src=this.src + '?' + getURLDateTimePar();" id="imgVerify" title="看不清？请点击图片更换" style="cursor: pointer;">
+                </li>
+                <li class="logbtn">
+                    <button type="submit" onclick="return checkData();" />
+                </li>
+            </ul>
+        </div>
+    }
+    <script>
+        //创建当前日期＋随机数
+        function getURLDateTimePar() {
+            var today = new Date();
+            var intYear = "" + today.getYear() + "";
+            var intMonth = "" + today.getMonth() + 1 + "";
+            var intDay = "" + today.getDate() + "";
+            var intHours = "" + today.getHours() + "";
+            var intMinutes = "" + today.getMinutes() + "";
+            var intSeconds = "" + today.getSeconds() + "";
+
+            var RandomNumber = getRandomNumber();
+            RandomNumber = "" + RandomNumber + "";
+            return intYear + intMonth + intDay + intHours + intMinutes + intSeconds + RandomNumber;
+        }
+        //生成随机数
+        function getRandomNumber() {
+            return parseInt(Math.random() * (10000 - 1 + 1) + 1);
+        }
+        function checkData() {
+            if (document.getElementById("Account").value == "") {
+                alert("请输入用户名");
+                return false;
+            }
+            if (document.getElementById("PWD").value == "") {
+                alert("请输入密码");
+                return false;
+            }
+            if (document.getElementById("Code").value == "") {
+                alert("请输入验证码");
+                return false;
+            }
+        }
+    </script>
+</body>
+</html>

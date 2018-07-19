@@ -1,0 +1,51 @@
+﻿@{
+    ViewBag.Title = "我的订单";
+    Layout = "~/Views/Shared/_LLayout.cshtml";
+}
+<div id="search" hidden>
+    <input class="text" name="ExpressStatus" id="ExpressStatus" value="@Request.QueryString["tab"]" />
+</div>
+<div class="order-tabs">
+    <a onclick="getlist(0);">全部</a>
+    <a onclick="getlist(1);">待发货</a>
+    <a onclick="getlist(2);">待收货</a>
+    <a onclick="getlist(3);">已收货</a>
+</div>
+<div class="order-item mescroll" id="scroll">
+    <ul id="dataList">
+        <script id="tpl" type="text/html">
+            {{each list as item index}}
+            <div class="order-item">
+                <p class="o-number">订单编号： <span>{{item.OrderNo}}</span></p>
+                {{each item.list as od index}}
+                <a class="shop-info" href="/Home/Detail?gid={{od.ProductGid}}">
+                    <img src="/uploadfiles/product/{{od.Picture}}" />
+                    <h1>{{od.Name}}</h1>
+                    <div class="price">￥{{od.Price}}</div>
+                    <span class="plus">x<b>{{od.Number}}</b></span>
+                </a>
+                {{/each}}
+                <div class="shop-number"><span>共<em>{{item.Number}}</em>件商品</span> <span>合计：<b>￥{{item.TotalPrice}}</b></span></div>
+                <div class="setting">
+                    <a class="btn btn-line" href="/Member/OrderDetail?OrderGid={{item.Gid}}&Number={{item.Number}}&type=0">查看订单</a>
+                </div>
+            </div>
+            {{/each}}
+        </script>
+    </ul>
+</div>
+<script>
+    $(".order-tabs a").removeClass("active");
+    $(".order-tabs a")[@Request.QueryString["tab"]].className = "active";
+    function getlist(ExpressStatus, ev) {
+        $("#ExpressStatus").val(ExpressStatus);
+        $(".order-tabs a").removeClass("active");
+        ev = ev || window.event;
+        var tmp = ev.target || ev.srcElement;
+        tmp.className = "active";
+        //重置列表数据
+        scroll.resetUpScroll();
+        //隐藏回到顶部按钮
+        scroll.hideTopBtn();
+    }
+</script>

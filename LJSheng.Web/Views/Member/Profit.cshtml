@@ -1,0 +1,31 @@
+﻿@{
+    ViewBag.Title = Request.QueryString["LevelName"] + "分红";
+    Layout = "~/Views/Shared/_LLayout.cshtml";
+}
+<div id="search" hidden></div>
+<div class="tj">积分=@ViewBag.Money,购物积分=@ViewBag.Integral</div>
+<div class="mescroll" id="scroll">
+    <ul class="bonus-detail-stock" id="dataList">
+        <script id="tpl" type="text/html">
+            {{each list as item index}}
+            <li class="cell profitli">
+                <h1>{{item.ProjectName}}</h1>
+                <div class="i">
+                    <a class="icon-arrow">
+                        <span class="icon_rank">
+                            {{if item.State=="1"}}
+                                待审核
+                            {{else}}
+                                已分红
+                            {{/if}}
+                        </span>
+                        <span class="label {{item.Label}}">{{item.LevelName}}</span>
+                    </a>
+                    <a class="icon-time">{{item.RTime}}</a>
+                </div>
+                <span class="number">积分+{{item.Money}} 购物积分+{{item.Integral}}</span>
+            </li>
+            {{/each}}
+        </script>
+    </ul>
+</div>

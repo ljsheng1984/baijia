@@ -1,0 +1,110 @@
+﻿<html>
+<head>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+    <title>找回密码</title>
+    <link rel="stylesheet" href="~/css/main.css">
+</head>
+<body class="index">
+    <div class="sub-header">
+        <a href="/Home/Login" class="icon-arrow-left">&nbsp;</a>
+        <div class="title">找回密码</div>
+    </div>
+    <div>
+        @using (Html.BeginForm("RetrievePWD", "Home", FormMethod.Get, new { @class = "login-form" }))
+        {
+            <div class="login-logo">
+                <img src="~/images/login-logo.png" />
+            </div>
+            <div class="label">
+                <input type="text" name="account" id="account" class="text" placeholder="注册时的11位手机号手机号" />
+            </div>
+            <div class="label">
+                <input type="text" name="identifyingCode" class="text" placeholder="4位验证码" />
+                <a class="code" id="code">点击获取验证码</a>
+            </div>
+            <div class="label">
+                <input type="password" name="pwd" class="text" placeholder="设置新密码6-20位" />
+            </div>
+            <div class="label">
+                <button class="login-btn" id="btn" type="submit" onclick="return check();">找回密码</button>
+                <a class="fl h2" href="~/Home/Login">立即登录</a>
+                <a class="fr h2" href="~/Home/Register">注册帐号</a>
+            </div>
+        }
+    </div>
+    <script src="~/js/jquery.js"></script>
+    <script src="~/plugins/mlayer/layer.js"></script>
+    <script>
+        var wait = 120;
+        function time() {
+            if (wait == 0) {
+                wait = 120;
+                document.getElementById("code").innerHTML = "重新获取验证码";
+            } else {
+                wait--;
+                document.getElementById("code").innerHTML = "(" + wait + ")秒后可重发";
+                setTimeout(function () {
+                    time();
+                }, 1000)
+            }
+        }
+        $("#code").click(function () {
+            if (wait != 120) { tip("请注意查看你的手机短信");return false; }
+            if ($("#account").val().length == 11) {
+                $.ajax({
+                    url: "/ajax/api.ashx",
+                    data: "ff=GetICode&account=" + $("#account").val() + "&type=2&cache=" + Math.random(),
+                    type: "post",
+                    cache: false,
+                    timeout: 8000,
+                    dataType: "json",
+                    ContentType: "application/json; charset=utf-8",
+                    async: false,//一定要是同步请求，否则会跳转；（ajax默认是异步的）
+                    error: function () { alert("AJAX Error"); },
+                    beforeSend: function () {  },
+                    success: function (data) {
+                        if (data.result == 200) {
+                            time();
+                        }
+                        tip(data.data);
+                    },
+                });
+            }
+            else {
+                tip("请输入正确的手机号");
+            }
+        });
+        function check() {
+            var field = $("input[name='account']");
+            if (field.val().length != 11) {
+                tooltip(field);
+                return false;
+            }
+            field = $("input[name='pwd']");
+            if (field.val().length < 6) {
+                tooltip(field);
+                return false;
+            }
+            field = $("input[name='identifyingCode']");
+            if (field.val().length != 4) {
+                tooltip(field);
+                return false;
+            }
+            document.getElementById("btn").innerText = "正在验证...";
+            document.getElementById("btn").disabled = true;
+            document.forms[0].submit();
+        }
+        function tooltip(field) {
+            field.focus();
+            tip(field.attr('placeholder'));
+        }
+        function tip(msg) {
+            layer.open({
+                content: msg
+                , skin: 'msg'
+                , time: 2
+            });
+        }
+    </script>
+</body>
+</html>

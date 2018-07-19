@@ -1,0 +1,23 @@
+﻿@{
+    ViewBag.Title = "我的项目";
+    Layout = "~/Views/Shared/_LLayout.cshtml";
+}
+<div id="search" hidden></div>
+<div class="mescroll" id="scroll">
+    <ul class="bonus-detail-guquan" id="dataList">
+        <script id="tpl" type="text/html">
+            {{each list as item index}}
+            <li class="cell">
+                <a class="img">
+                    {{item.Project}}
+                </a>
+                <h1>{{item.Product}}(对应订单 {{item.OrderNo}})</h1>
+                <div class="i">
+                    <a class="icon-time">{{item.AddTime}}</a>
+                </div>
+                <span class="number">+<b>{{item.Number}}</b></span>
+            </li>
+            {{/each}}
+        </script>
+    </ul>
+</div>

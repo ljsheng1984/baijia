@@ -1,0 +1,87 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" Content="width=device-width, initial-scale=1" />
+    <title>键值管理</title>
+    <link rel="stylesheet" href="~/plugins/zui/css/zui.min.css">
+</head>
+<body>
+    @using (Html.BeginForm("DicList", "LJSheng", new { gid = Request.QueryString["gid"] }, FormMethod.Post))
+    {
+        <div class="row" id="search">
+            <div class="col-sm-10">
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="icon-search"></i></span>
+                    <span class="input-group-addon">键</span>
+                    <input type="text" name="Key" class="form-control">
+                    <span class="input-group-addon">值</span>
+                    <input type="text" name="Value" class="form-control">
+                    <span class="input-group-addon">说明</span>
+                    <input type="text" name="Remarks" class="form-control">
+                    <span class="input-group-addon">排序</span>
+                    <input type="text" name="Sort" value="1" style="width:50px;" class="form-control" onkeyup="value=value.replace(/[^\d]/g,'');">
+                    <span class="input-group-btn">
+                        <button class="btn btn-primary" type="submit">增加字典</button>
+                    </span>
+                    <span class="input-group-btn">
+                        <input type="text" name="gid" value="@Request.QueryString["gid"]" class="hidden" />
+                        <button type="button" class="btn btn-info" onclick="GetList(1);">给偶搜</button>
+                    </span>
+                </div>
+            </div>
+        </div>
+    }
+    <br />
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>键</th>
+                <th>值</th>
+                <th>说明</th>
+                <th>排序</th>
+                <th>添加时间</th>
+                <th>管理操作</th>
+            </tr>
+        </thead>
+        <tbody id="tbody">
+            <script id="tpl" type="text/html">
+                {{each list as item index}}
+                <tr id="{{item.Gid}}" style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
+                    <td>{{index+1}}</td>
+                    <td>{{item.Key}}</td>
+                    <td>{{item.Value}}</td>
+                    <td>{{item.Remarks}}</td>
+                    <td>{{item.Sort}}</td>
+                    <td>{{item.AddTime}}</td>
+                    <td>
+                        <div class="btn-group">
+                            <button class="btn btn-danger btn-mini" onclick="Delete('{{item.Gid}}');">删除</button>
+                        </div>
+                    </td>
+                </tr>
+                {{/each}}
+            </script>
+        </tbody>
+    </table>
+    <ul class="pager" id="pager"></ul>
+    <ul class="pager" id="pages" style="overflow:hidden;"></ul>
+    <script src="~/plugins/zui/lib/jquery/jquery.js"></script>
+    <script src="~/plugins/zui/js/zui.min.js"></script>
+    <script src="~/js/template-web.js"></script>
+    <script>
+        $("input[name='Key']").val("");
+        $("input[name='Value']").val("");
+        $("input[name='Remarks']").val("");
+    </script>
+
+    <script src="~/js/list.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,85 @@
+﻿@{
+    ViewBag.Class = "Shop";
+    ViewBag.Title = "商品详情";
+    Layout = "~/Views/Shared/_SSLayout.cshtml";
+}
+<div class="list">
+    <div class="item multi-lines white">
+        <div class="content">
+            <div><img src="@ViewBag.Picture" onerror="this.src = '/images/nopic.png'" style="height:250px;width:100%;" /></div>
+            <div class="row tiles" style="margin-top:0.1rem;">
+                <div class="cell"><div class="label info outline">@ViewBag.Profile</div></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="divider"></div>
+<div class="item white" data-display data-backdrop="true" data-target="#map">
+    <div class="heading">
+        <div class="title"><strong><i class="icon-map-marker"></i></strong> <label id="addr">@ViewBag.Address</label></div>
+    </div>
+</div>
+<div id="map" class="affix dock-bottom modal hidden">
+    <div class="heading">
+        <div class="title"><strong>商家地图</strong></div>
+        <nav class="nav"><a data-dismiss="display"><i class="icon-remove muted"></i></a></nav>
+    </div>
+    <div id="allmap" style="width:100%;height:300px;"></div>
+</div>
+<div class="divider"></div>
+<div class="item white">
+    <div class="heading">
+        <div class="title"><strong><i class="icon-phone"></i></strong> <a href="tel:@ViewBag.ContactNumber">@ViewBag.ContactNumber</a></div>
+    </div>
+    <div class="divider"></div>
+</div>
+<div class="section">
+    <div class="heading">
+        <div class="title"><strong>商家详情</strong></div>
+    </div>
+    <div class="divider"></div>
+    <div class="box">
+        @Html.Raw(ViewBag.Content)
+    </div>
+</div>
+<nav class="nav affix dock-top justified">
+    <a onclick="history.go(-1);"><i class="icon-5x icon-arrow-left"></i></a>
+    <a>@ViewBag.Name</a>
+    <a href="/Home/Url"><i class="icon-home"></i></a>
+</nav>
+<nav class="nav affix dock-bottom justified">
+    <a href="/Home/ShopClassify?Gid=@ViewBag.Gid">查看出售的商品</a>
+</nav>
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=ctYMfgeMnH3VDdzetRa1fed2FpclBS2T"></script>
+<script>
+    // 百度地图API功能
+    var map = new BMap.Map("allmap");
+    var point = new BMap.Point(116.331398, 39.897445);
+    map.centerAndZoom(point, 12);
+    // 创建地址解析器实例
+    var myGeo = new BMap.Geocoder();
+    // 将地址解析结果显示在地图上,并调整地图视野
+    myGeo.getPoint(document.getElementById("addr").innerHTML, function (point) {
+        if (point) {
+            map.centerAndZoom(point, 16);
+            map.addOverlay(new BMap.Marker(point));
+            map.panBy(305, 165);
+            var opts = {
+                width: 200,     // 信息窗口宽度
+                height: 50,     // 信息窗口高度
+                title: "@ViewBag.Name", // 信息窗口标题
+                enableMessage: true,//设置允许信息窗发送短息
+                message: "来这吧.优惠多多.老板在等你哦~"
+            }
+            var infoWindow = new BMap.InfoWindow(document.getElementById("addr").innerHTML, opts);  // 创建信息窗口对象
+            map.openInfoWindow(infoWindow, point);
+        }
+    }, "福州市");
+</script>
+<script src="~/plugins/shop/cookie.js"></script>
+<script>
+    cookieObj.set({
+        name: "shopdatas",
+        value: "[]"
+    });
+</script>

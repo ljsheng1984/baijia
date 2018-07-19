@@ -1,0 +1,20 @@
+﻿@{
+    ViewBag.Class = "Classify";
+    ViewBag.Title = "分类";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="sub-header" id="search">
+    <div class="search-box" onclick="self.location = '/Home/Search';">
+        <input type="text" name="Name" class="text" placeholder="商品名称" />
+    </div>
+    <input type="text" name="pageindex" value="1" hidden />
+    <input type="text" name="pagesize" value="50" hidden />
+    <input type="text" name="ClassifyGid" hidden />
+    <input type="text" name="number" value="1" hidden />
+</div>
+<!--分类内容-->
+<div class="classify-container">
+    <ul class="menu" id="menu"></ul>
+    <div class="detail" id="list"></div>
+</div>
+<script src="~/js/shopcart.js"></script>

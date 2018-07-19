@@ -1,0 +1,113 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" Content="width=device-width, initial-scale=1" />
+    <title>团队管理</title>
+    <link rel="stylesheet" href="~/plugins/zui/css/zui.min.css">
+</head>
+<body>
+    <div class="row" id="search">
+        <div class="col-xs-12">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="icon-search"></i></span>
+                <select class="form-control" name="Level" style="@(Request.QueryString["Project"]=="1"?"":"display:none");">
+                    <option value="0" selected>全部级别</option>
+                    @foreach (var item in ViewBag.Level)
+                    {
+                        <option value="@item.LV" class="label @item.Label">@item.Name</option>
+                    }
+                </select>
+                <span class="input-group-addon fix-padding">-</span>
+                <select class="form-control" name="CLLevel" style="@(Request.QueryString["Project"]=="2"?"":"display:none");">
+                    <option value="0" selected>全部级别</option>
+                    @foreach (var item in ViewBag.CLLevel)
+                    {
+                        <option value="@item.LV" class="label @item.Label">@item.Name</option>
+                    }
+                </select>
+                <span class="input-group-addon fix-padding">-</span>
+                <select class="form-control" name="Number">
+                    <option value="0">全部等级</option>
+                    @for (int i = 1; i < 4; i++)
+                    {
+                        <option value="@i">第 @i 级</option>
+                    }
+                </select>
+                <span class="input-group-addon">手机号</span>
+                <input type="text" name="Account" class="form-control" onkeyup="value=value.replace(/[^\d]/g,'');">
+                <span class="input-group-addon">真实姓名</span>
+                <input type="text" name="RealName" class="form-control">
+                <span class="input-group-addon">时间</span>
+                <input type="text" class="form-control" placeholder="开始时间" name="STime" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd HH:mm:ss',alwaysUseStartDate:true})" />
+                <span class="input-group-addon fix-padding">-</span>
+                <input type="text" class="form-control" placeholder="结束时间" name="ETime" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd HH:mm:ss',alwaysUseStartDate:true})" />
+                <span class="input-group-btn">
+                    <input type="text" value="@Request.QueryString["Type"]" name="Type" class="hidden" />
+                    <input type="text" value="@Request.QueryString["membergid"]" name="MemberGid" class="hidden" />
+                    <input type="text" value="@Request.QueryString["Year"]" name="Year" class="hidden" />
+                    <input type="text" value="@Request.QueryString["Month"]" name="Month" class="hidden" />
+                    <button type="button" class="btn btn-info" onclick="GetList(1);">给偶搜</button>
+                </span>
+                <span class="input-group-addon hidden">推荐人手机</span>
+                <input type="text" name="MAccount" class="form-control hidden" onkeyup="value=value.replace(/[^\d]/g,'');">
+                <span class="input-group-addon hidden">ID</span>
+                <input type="text" name="MID" class="form-control hidden" onkeyup="value=value.replace(/[^\d]/g,'');">
+            </div>
+        </div>
+    </div>
+    <br />
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>级</th>
+                <th>帐号</th>
+                <th>真实姓名</th>
+                <th>推荐人</th>
+                <th>业绩</th>
+                <th>库存</th>
+                <th>头像</th>
+                <th>状态</th>
+                <th>推荐时间</th>
+            </tr>
+        </thead>
+        <tbody id="tbody">
+            <script id="tpl" type="text/html">
+                {{each list as item index}}
+                <tr id="{{item.Gid}}" style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
+                    <td>{{item.Number}}</td>
+                    <td>{{item.Account}}</td>
+                    <td>
+                        {{item.RealName}}
+                        <br />
+                        <span class="label {{item.Label}}">{{item.LevelName}}</span>
+                    </td>
+                    <td>{{item.MAccount}}<br />{{item.MRealName}}</td>
+                    <td onclick="Show('{{item.Account}}','OrderList?membergid={{item.Gid}}&Project=2&Year=@Request.QueryString["Year"]&Month=@Request.QueryString["Month"]&Type=3');">
+                        <button class="btn btn-mini">查看 <span class="label label-badge">{{item.AllMoney}}</span></button>
+                    </td>
+                    <td>{{item.Stock}}</td>
+                    <td>
+                        <img data-caption="{{item.Account}}" data-toggle="lightbox" src="/uploadfiles/member/{{item.Picture}}" class="img-thumbnail" onerror="this.src='/images/nopic.png'" style="width:50px;height:50px;">
+                    </td>
+                    <td>{{item.Jurisdiction}}</td>
+                    <td>{{item.MAddTime}}</td>
+                </tr>
+                {{/each}}
+            </script>
+        </tbody>
+    </table>
+    <ul class="pager" id="pager"></ul>
+    <ul class="pager" id="pages" style="overflow:hidden;"></ul>
+    <script src="~/plugins/zui/lib/jquery/jquery.js"></script>
+    <script src="~/plugins/zui/js/zui.min.js"></script>
+    <script src="~/js/template-web.js"></script>
+    <script src="~/plugins/My97DatePicker/WdatePicker.js"></script>
+    <script src="~/js/list.js"></script>
+</body>
+</html>

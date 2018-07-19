@@ -1,0 +1,76 @@
+﻿@{
+    ViewBag.Title = "收款信息";
+    Layout = "~/Views/Shared/_MLayout.cshtml";
+}
+@using (Html.BeginForm("AddBank", "Member", FormMethod.Get))
+{
+<div class="signle-item">
+    <div class="cell">
+        <div class="cell-left">开户行</div>
+        <div class="cell-right">
+            <input type="text" class="text" placeholder="请开户银行(支付宝帐号写支付宝)" value="@ViewBag.Bank" name="Bank" />
+        </div>
+    </div>
+    <div class="cell">
+        <div class="cell-left">收款人</div>
+        <div class="cell-right">
+            <input type="text" class="text" placeholder="请输入收款姓名" value="@ViewBag.BankName" name="BankName" />
+        </div>
+    </div>
+    <div class="cell">
+        <div class="cell-left">收款帐号</div>
+        <div class="cell-right">
+            <input type="text" class="text" placeholder="请输入收款帐号" value="@ViewBag.BankNumber" name="BankNumber" />
+        </div>
+    </div>
+    <div class="cell">
+        <div class="cell-left">请输入密码</div>
+        <div class="cell-right">
+            <input type="text" class="text" placeholder="请输入帐号密码" name="PWD" />
+        </div>
+    </div>
+</div>
+    <div class="padding-btn-group">
+        <button type="button" id="btn" class="btn-block btn-green" onclick="return check();">确认</button>
+    </div>
+}
+<script>
+    function check() {
+        var field = $("input[name='BankName']");
+        if (field.val().length < 2) {
+            tooltip(field);
+            return false;
+        }
+        field = $("input[name='BankNumber']");
+        if (field.val().length < 6) {
+            tooltip(field);
+            return false;
+        }
+        field = $("input[name='Bank']");
+        if (field.val().length < 2) {
+            tooltip(field);
+            return false;
+        }
+        field = $("input[name='PWD']");
+        if (field.val().length < 6) {
+            tooltip(field);
+            return false;
+        }
+        document.getElementById("btn").innerText = "正在提交...";
+        document.getElementById("btn").disabled = true;
+        document.forms[0].submit();
+    }
+    function tooltip(field) {
+        field.focus();
+        tip(field.attr('placeholder'));
+    }
+    function tip(msg) {
+        layer.open({
+            content: msg
+            , skin: 'msg'
+            , time: 2
+            , fixed: false
+            , top : 20
+        });
+    }
+</script>

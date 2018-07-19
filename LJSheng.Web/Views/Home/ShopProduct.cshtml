@@ -1,0 +1,50 @@
+﻿@{
+    ViewBag.Title = ViewBag.Name;
+    Layout = "~/Views/Shared/_ILayout.cshtml";
+}
+<div class="hide shop">@ViewBag.Gid</div>
+<div class="hide shop">@ViewBag.Type</div>
+<div class="carousel-inner" role="listbox">
+    <div class="item active shop">
+        <img src="@ViewBag.Picture" alt="baner">
+        <div class="carousel-caption"></div>
+    </div>
+</div>
+<div class="shop-info">
+    <div class="tit shop">
+        @ViewBag.Prefix@ViewBag.Name
+    </div>
+    <div class="price color-red">¥<b class="shop">@ViewBag.Price</b></div>
+</div>
+<!-- 商品信息 -->
+<div class="goods-info">
+    <div class="cell">
+        <span class="lab">付款方式</span>
+        <span class="text">积分/在线支付</span>
+    </div>
+</div>
+<div class="good-detail">
+    @(new HtmlString(ViewBag.Content))
+</div>
+<div class="good-detail">
+    @ViewBag.Remarks
+</div>
+<footer class="nav-footer">
+    <ul class="f-ul">
+        <li>
+            <a class="server" href="tel:18688888888">
+                <p><i class="icon-serves"></i></p>
+                <p>客服</p>
+            </a>
+        </li>
+        <li>
+            <a class="cart" href="~/Home/Cart">
+                <p><i class="icon-sc"></i></p>
+                <p>清单</p>
+            </a>
+        </li>
+        <li><a class="btn btn-success btn-lg btn-block addcart">加入清单<i id="ccount">0</i></a></li>
+        <li><a class="btn btn-danger btn-lg btn-block addcart">立即购买</a></li>
+    </ul>
+</footer>
+@Scripts.Render("~/shop")

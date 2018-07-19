@@ -1,0 +1,81 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" Content="width=device-width, initial-scale=1" />
+    <title>奖励比例</title>
+    <link rel="stylesheet" href="~/plugins/zui/css/zui.min.css">
+</head>
+<body>
+    @using (Html.BeginForm("LVList", "LJSheng", new { lvid = Request.QueryString["lvid"] }, FormMethod.Post))
+    {
+        <div class="row hidden" id="search">
+            <div class="col-sm-10">
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="icon-search"></i></span>
+                    <span class="input-group-addon">推荐等级</span>
+                    <input type="text" name="Number" value="0" style="width:50px;" class="form-control" onkeyup="value=value.replace(/[^\d]/g,'');">
+                    <span class="input-group-addon">级差比例%</span>
+                    <input type="text" name="Differential" value="0" style="width:50px;" class="form-control" onkeyup="value=value.replace(/[^\d]/g,'');">
+                    <span class="input-group-addon">平级比例%</span>
+                    <input type="text" name="SameLevel" value="0" style="width:50px;" class="form-control" onkeyup="value=value.replace(/[^\d]/g,'');">
+                    <span class="input-group-btn">
+                        <button class="btn btn-primary" type="submit">增加</button>
+                    </span>
+                    <span class="input-group-btn">
+                        <input type="text" name="LVID" value="@Request.QueryString["lvid"]" class="hidden" />
+                        <button type="button" class="btn btn-info" onclick="GetList(1);">给偶搜</button>
+                    </span>
+                </div>
+            </div>
+        </div>
+    }
+    <br />
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>层级</th>
+                <th>级差比例%</th>
+                <th>购物比例%</th>
+                <th>添加时间</th>
+                <th>管理操作</th>
+            </tr>
+        </thead>
+        <tbody id="tbody">
+            <script id="tpl" type="text/html">
+                {{each list as item index}}
+                <tr id="{{item.Gid}}" style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
+                    <td>第{{item.Number}}级</td>
+                    <td>{{item.Differential * 100}}</td>
+                    <td>{{item.ShopProfit * 100}}</td>
+                    <td>{{item.AddTime}}</td>
+                    <td>
+                        <div class="btn-group">
+                            <button class="btn btn-mini" onclick="Show('{{item.Gid}}');">编辑</button>
+                            <button class="btn btn-danger btn-mini hidden" onclick="Delete('{{item.Gid}}');">删除</button>
+                        </div>
+                    </td>
+                </tr>
+                {{/each}}
+            </script>
+        </tbody>
+    </table>
+    <ul class="pager" id="pager"></ul>
+    <ul class="pager" id="pages" style="overflow:hidden;"></ul>
+    <script src="~/plugins/zui/lib/jquery/jquery.js"></script>
+    <script src="~/plugins/zui/js/zui.min.js"></script>
+    <script src="~/js/template-web.js"></script>
+    <script>
+        $("input[name='Number']").val("");
+        $("input[name='Differential']").val("");
+        $("input[name='SameLevel']").val("");
+    </script>
+    <script src="~/js/list.js"></script>
+</body>
+
+</html>

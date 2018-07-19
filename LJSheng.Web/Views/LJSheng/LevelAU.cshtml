@@ -1,0 +1,187 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" Content="width=device-width, initial-scale=1" />
+    <title>管理员操作</title>
+    <link rel="stylesheet" href="~/plugins/zui/css/zui.min.css">
+    <link href="~/plugins/zui/lib/uploader/zui.uploader.min.css" rel="stylesheet">
+</head>
+<body>
+    @using (Html.BeginForm("LevelAU", "LJSheng", new { gid = Request.QueryString["gid"], project = Request.QueryString["project"] }, FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data" }))
+    {
+        <div class="form-group">
+            <label class="col-sm-2">等级名称</label>
+            <div class="col-md-3 col-sm-5 has-success">
+                <input type="text" name="Name" value="@ViewBag.Name" data-placement="auto" class="form-control" placeholder="必填项">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2">分享奖比例</label>
+            <div class="col-md-2 col-sm-2 has-success">
+                <input type="text" name="Recommendation" value="@ViewBag.Recommendation" class="form-control" placeholder="必填,填1代表100拿1快" onkeyup="value=value.replace(/[^\d]/g,'');">
+            </div>
+        </div>
+        <div class="form-group hidden">
+            <label class="col-sm-2">级差奖比例</label>
+            <div class="col-md-2 col-sm-2 has-success">
+                <input type="text" name="Differential" value="@ViewBag.Differential" class="form-control" placeholder="必填,填1代表100拿1快" onkeyup="value=value.replace(/[^\d]/g,'');">
+            </div>
+        </div>
+        <div class="form-group hidden">
+            <label class="col-sm-2">平级奖比例</label>
+            <div class="col-md-2 col-sm-2 has-success">
+                <input type="text" name="SameLevel" value="1" class="form-control" placeholder="必填,填1代表100拿1快" onkeyup="value=value.replace(/[^\d]/g,'');">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2">购物积分比例</label>
+            <div class="col-md-2 col-sm-2 has-success">
+                <input type="text" name="ShopProfit" value="@ViewBag.ShopProfit" class="form-control" placeholder="分红利润里拿多少比例做购物积分" onkeyup="value=value.replace(/[^\d]/g,'');">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2">全站利润分红比例</label>
+            <div class="col-md-2 col-sm-2 has-success">
+                <input type="text" name="Bonus" value="@ViewBag.Bonus" class="form-control" placeholder="必填,填1代表100拿1快" onkeyup="value=value.replace(/[^\d]/g,'');">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2">项目利润分红比例</label>
+            <div class="col-md-2 col-sm-2 has-success">
+                <input type="text" name="Profit" value="@ViewBag.Profit" class="form-control" placeholder="必填,填1代表100拿1快" onkeyup="value=value.replace(/[^\d]/g,'');">
+            </div>
+        </div>
+        <div class="form-group hidden">
+            <label class="col-sm-2">分红收益</label>
+            <div class="col-md-2 col-sm-2 has-success">
+                <input type="text" name="EquityProfit" value="0" class="form-control" placeholder="必填,填1代表100拿1快" onkeyup="value=value.replace(/[^\d]/g,'');">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2">需要几个下级</label>
+            <div class="col-md-2 col-sm-2 has-success">
+                <input type="text" name="LNumber" value="@ViewBag.LNumber" class="form-control" placeholder="必填,只能是数字" onkeyup="value=value.replace(/[^\d]/g,'');">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2">需消费金额</label>
+            <div class="col-md-2 col-sm-2 has-success">
+                <input type="text" name="BuyAmount" value="@ViewBag.BuyAmount" class="form-control" placeholder="必填,只能是数字" onkeyup="value=value.replace(/[^\d]/g,'');">
+            </div>
+        </div>
+        <div class="form-group hidden">
+            <label class="col-sm-2">分销数量</label>
+            <div class="col-md-2 col-sm-2 has-success">
+                <input type="text" name="Distribution" value="@ViewBag.Distribution" class="form-control" placeholder="必填,只能是数字" onkeyup="value=value.replace(/[^\d]/g,'');">
+            </div>
+        </div>
+        <div class="form-group hidden">
+            <label class="col-sm-2">消费倍数</label>
+            <div class="col-md-2 col-sm-2 has-success">
+                <input type="text" name="Multiple" value="@ViewBag.Multiple" class="form-control" placeholder="必填,只能是数字" onkeyup="value=value.replace(/[^\d]/g,'');">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2">标识</label>
+            <div class="col-md-2 col-sm-2 has-success">
+                <input type="text" name="LV" value="@ViewBag.LV" class="form-control" placeholder="输入后不能修改,值必须唯一" onkeyup="value=value.replace(/[^\d]/g,'');" @(ViewBag.LV > 0 ? "readonly" : "")>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2">标签</label>
+            <div class="col-md-3 col-sm-5">
+                <input type="text" name="Label" value="@ViewBag.Label" class="form-control">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2">备注</label>
+            <div class="col-md-3 col-sm-5">
+                <textarea class="form-control" rows="3" placeholder="会员条件说明" name="Remarks">@ViewBag.Remarks</textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-3">
+                <button class="btn btn-primary btn-lg btn-block" type="submit" onclick="return check();">提交</button>
+            </div>
+        </div>
+    }
+    <script src="~/plugins/zui/lib/jquery/jquery.js"></script>
+    <script src="~/plugins/zui/js/zui.min.js"></script>
+    <script src="~/plugins/zui/lib/uploader/zui.uploader.min.js"></script>
+    <script>
+        $(":radio[name='Jurisdiction'][value='@ViewBag.Jurisdiction']").prop("checked", "checked");
+        $(":radio[name='Gender'][value='@ViewBag.Gender']").prop("checked", "checked");
+        function check()
+        {
+            var field = $("input[name='Name']");
+            if (field.val().length < 1 || field.val().length > 10) {
+                tooltip(field);
+                return false;
+            }
+            field = $("input[name='Recommendation']");
+            if (field.val().length == 0) {
+                tooltip(field);
+                return false;
+            }
+            field = $("input[name='Differential']");
+            if (field.val().length == 0) {
+                tooltip(field);
+                return false;
+            }
+            field = $("input[name='SameLevel']");
+            if (field.val().length == 0) {
+                tooltip(field);
+                return false;
+            }
+            field = $("input[name='Profit']");
+            if (field.val().length == 0) {
+                tooltip(field);
+                return false;
+            }
+            field = $("input[name='EquityProfit']");
+            if (field.val().length == 0) {
+                tooltip(field);
+                return false;
+            }
+            field = $("input[name='ShopProfit']");
+            if (field.val().length == 0) {
+                tooltip(field);
+                return false;
+            }
+            field = $("input[name='LNumber']");
+            if (field.val().length == 0) {
+                tooltip(field);
+                return false;
+            }
+            field = $("input[name='BuyAmount']");
+            if (field.val().length == 0) {
+                tooltip(field);
+                return false;
+            }
+            field = $("input[name='Distribution']");
+            if (field.val().length == 0) {
+                tooltip(field);
+                return false;
+            }
+            field = $("input[name='LV']");
+            if (field.val().length == 0) {
+                tooltip(field);
+                return false;
+            }
+            return true;
+        }
+        function tooltip(field)
+        {
+            field.focus();
+            field.tooltip('show', field.attr('placeholder'));
+            setTimeout(function () { field.tooltip('destroy');}, 3000);
+        }
+    </script>
+</body>
+</html>

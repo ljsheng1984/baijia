@@ -1,0 +1,253 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" Content="width=device-width, initial-scale=1" />
+    <title>彩链业绩</title>
+    <link rel="stylesheet" href="~/plugins/zui/css/zui.min.css">
+</head>
+<body>
+    <div class="row" id="search">
+        <div class="col-sm-10">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="icon-search"></i></span>
+                <select class="form-control" name="CLLevel">
+                    <option value="0" selected>彩链级别</option>
+                    @foreach (var item in ViewBag.CLLevel)
+                    {
+                        <option value="@item.LV" class="label @item.Label">@item.Name</option>
+                    }
+                </select>
+                <span class="input-group-addon">分红状态</span>
+                <select class="form-control" name="State">
+                    <option value="0" selected>=全 部=</option>
+                    <option value="1">未分红</option>
+                    <option value="2">待分红</option>
+                    <option value="3">已分红</option>
+                </select>
+                <span class="input-group-addon">年份</span>
+                <select class="form-control" name="Year" id="Year">
+                    <option value="0" selected>=全 部=</option>
+                    <option value="2018">2018</option>
+                    <option value="2019">2019</option>
+                    <option value="2020">2020</option>
+                </select>
+                <span class="input-group-addon">月份</span>
+                <select class="form-control" name="Month" id="Month">
+                    <option value="0" selected>=全 部=</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12">12</option>
+                </select>
+                <span class="input-group-btn">
+                    <button type="button" class="btn btn-danger" onclick="CLAllBonus();">统计选中的月份分红</button>
+                </span>
+            </div>
+        </div>
+        <div class="col-sm-10">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="icon-search"></i></span>
+                <span class="input-group-addon">会员帐号</span>
+                <input type="text" name="Account" class="form-control" onkeyup="value=value.replace(/[^\d]/g,'');">
+                <span class="input-group-addon">真实姓名</span>
+                <input type="text" name="RealName" class="form-control">
+                <span class="input-group-addon">分红时间</span>
+                <input type="text" class="form-control" placeholder="开始时间" name="STime" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd HH:mm:ss',alwaysUseStartDate:true})" />
+                <span class="input-group-addon fix-padding">-</span>
+                <input type="text" class="form-control" placeholder="结束时间" name="ETime" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd HH:mm:ss',alwaysUseStartDate:true})" />
+                <span class="input-group-btn">
+                    <input type="text" value="@Request.QueryString["gid"]" name="Gid" class="hidden" />
+                    <button type="button" class="btn btn-info" onclick="GetList(1);">给偶搜</button>
+                </span>
+            </div>
+        </div>
+    </div>
+    <br />
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>帐号</th>
+                <th>项目分红</th>
+                <th>股东分红</th>
+                <th>下级冻结</th>
+                <th>总分红</th>
+                <th>分红时间</th>
+                <th>分红状态</th>
+            </tr>
+        </thead>
+        <tbody id="tbody">
+            <script id="tpl" type="text/html">
+                {{each list as item index}}
+                <tr style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
+                    <td rowspan="2">{{index+1}}</td>
+                    <td>
+                        {{item.Account}}({{item.RealName}})
+                    </td>
+                    <td title="{{item.ProjectRemarks}}">
+                        <div class="btn-group">
+                            <button class="btn btn-info btn-mini disabled">积分 <span class="label label-badge">{{item.ProjectMoney}}</span></button>
+                            <button class="btn btn-info btn-mini disabled">购物 <span class="label label-badge">{{item.ProjectIntegral}}</span></button>
+                        </div>
+                    </td>
+                    <td title="{{item.StockRightRemarks}}">
+                        <div class="btn-group">
+                            <button class="btn btn-info btn-mini disabled">积分 <span class="label label-badge">{{item.Money}}</span></button>
+                            <button class="btn btn-info btn-mini disabled">购物 <span class="label label-badge">{{item.Integral}}</span></button>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            <button class="btn btn-info btn-mini disabled">积分 <span class="label label-badge">{{item.FrozenMoney}}</span></button>
+                            <button class="btn btn-info btn-mini disabled">购物 <span class="label label-badge">{{item.FrozenIntegral}}</span></button>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            <button class="btn btn-success btn-mini disabled">积分 <span class="label label-badge">{{item.TeamMoney+ item.FrozenMoney+ item.ProjectMoney+ item.Money}}</span></button>
+                            <button class="btn btn-success btn-mini disabled">购物 <span class="label label-badge">{{item.TeamIntegral+item.FrozenIntegral+item.ProjectIntegral+item.Integral}}</span></button>
+                        </div>
+                    </td>
+                    <td>{{item.BonusTime}}</td>
+                    <td id="{{item.Gid}}">
+                        {{if item.State=="2"}}
+                        <button class="btn btn-danger btn-mini" onclick="Bonus('{{item.Gid}}');">确认分红</button>
+                        {{else if item.State=="1"}}
+                        <span class="label label-success">待分红</span>
+                        {{else}}
+                        <span class="label label-danger">已分红</span>
+                        {{/if}}
+                        <br />
+                        {{item.Remarks}}
+                    </td>
+                </tr>
+                <tr style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
+                    <td onclick="Show('{{item.Account}}','TeamList?membergid={{item.MemberGid}}&Project=2&Year={{item.Year}}&Month={{item.Month}}&Type=1');">
+                        <button class="btn btn-mini">团队业绩 <span class="label label-badge">{{item.TMoney}}</span></button>
+                    </td>
+                    <td onclick="Show('{{item.Account}}','TeamList?membergid={{item.MemberGid}}&Project=2&Year={{item.Year}}&Month={{item.Month}}');">
+                        <div class="btn-group">
+                            <button class="btn btn-mini disabled">业绩分红</button>
+                            <button class="btn btn-mini disabled">积分 <span class="label label-badge">{{item.TeamMoney}}</span></button>
+                            <button class="btn btn-mini disabled">购物 <span class="label label-badge">{{item.TeamIntegral}}</span></button>
+                        </div>
+                    </td>
+                    <td colspan="3">
+                        <div class="btn-group">
+                            <button class="btn btn-mini disabled">扣除下级分红</button>
+                            <button class="btn btn-primary btn-mini disabled">一级</button>
+                            <button class="btn btn-mini disabled">积分 <span class="label label-badge">{{item.DM1Money}}</span></button>
+                            <button class="btn btn-mini disabled">购物 <span class="label label-badge">{{item.DM1Integral}}</span></button>
+                            <button class="btn btn-primary btn-mini disabled">二级</button>
+                            <button class="btn btn-mini disabled">积分 <span class="label label-badge">{{item.DM2Money}}</span></button>
+                            <button class="btn btn-mini disabled">购物 <span class="label label-badge">{{item.DM2Integral}}</span></button>
+                            <button class="btn btn-primary btn-mini disabled">三级</button>
+                            <button class="btn btn-mini disabled">积分 <span class="label label-badge">{{item.DM3Money}}</span></button>
+                            <button class="btn btn-mini disabled">购物 <span class="label label-badge">{{item.DM3Integral}}</span></button>
+                        </div>
+                    </td>
+                    <td>{{item.Year}}年{{item.Month}}月分红</td>
+                    <td><span class="label {{item.Label}}">{{item.LevelName}}</span></td>
+                </tr>
+                {{/each}}
+            </script>
+        </tbody>
+    </table>
+    <div class="modal modal-for-page fade in" id="myModal" aria-hidden="false" style="display: none;">
+        <div class="modal-dialog" style="margin-top: 260.333px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">正在分红操作中</h4>
+                </div>
+                <div id="ajaxmsg" class="modal-body">
+                    <h4>系统正在后台正在分红操作中..........</h4>
+                    <p>请不要离开或做其他操作.等待提示自动消失</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <ul class="pager" id="pager"></ul>
+    <ul class="pager" id="pages" style="overflow:hidden;"></ul>
+    <script src="~/plugins/zui/lib/jquery/jquery.js"></script>
+    <script src="~/plugins/zui/js/zui.min.js"></script>
+    <script src="~/js/template-web.js"></script>
+    <script src="~/plugins/My97DatePicker/WdatePicker.js"></script>
+    <script src="~/js/list.js"></script>
+    <script>
+        function Bonus(gid) {
+            if (window.confirm('你确定要分红给用户吗？')) {
+                $("#" + gid).html("后台分红中");
+                $.ajax({
+                    url: "/LJSheng/CLBonus",
+                    data: "Gid=" + gid,
+                    type: "post",
+                    cache: false,
+                    timeout: 8000,
+                    dataType: "json",
+                    ContentType: "application/json; charset=utf-8",
+                    error: function () { new $.zui.Messager("请求失败").show(); },
+                    beforeSend: function () { },
+                    success: function (data) {
+                        if (data.result === 200) {
+                            $("#" + gid).html("已分红");
+                        }
+                        else {
+                            $("#" + gid).html(data.data);
+                        }
+                        new $.zui.Messager(data.data).show();
+                    },
+                });
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        function CLAllBonus() {
+            if (document.getElementById("Year").value != "0" && document.getElementById("Month").value != "0") {
+                if (window.confirm('你确定要统计当前月份的分红吗？包括统计项目和股东分红哦！')) {
+                    $.ajax({
+                        url: "/LJSheng/CLAllBonus",
+                        data: "Year=" + document.getElementById("Year").value + "&Month=" + document.getElementById("Month").value,
+                        type: "post",
+                        cache: false,
+                        timeout: 8000,
+                        dataType: "json",
+                        ContentType: "application/json; charset=utf-8",
+                        error: function () { new $.zui.Messager("请求失败").show(); },
+                        beforeSend: function () { $('#myModal').modal('toggle', 'center'); },
+                        success: function (data) {
+                            if (data.result == 200) {
+                                location.reload();
+                            }
+                            else {
+                                $("#myModal div")[3].innerHTML = data.data
+                            }
+                        },
+                    });
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            else {
+                new $.zui.Messager("年份和月份必须选择!").show();
+            }
+        }
+    </script>
+</body>
+</html>

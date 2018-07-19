@@ -1,0 +1,96 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" Content="width=device-width, initial-scale=1" />
+    <title>城市管理</title>
+    <link rel="stylesheet" href="~/plugins/zui/css/zui.min.css">
+</head>
+<body>
+    @using (Html.BeginForm("OpenCityList", "LJSheng", FormMethod.Post))
+    {
+        <div class="row" id="search">
+            <div class="col-xs-11">
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="icon-search"></i></span>
+                    <span class="input-group-addon">省份</span>
+                    <select class="form-control" name="Province" id="Province"></select>
+                    <span class="input-group-addon">城市</span>
+                    <select class="form-control" name="City" id="City"></select>
+                    <span class="input-group-addon">排序</span>
+                    <input type="text" name="Sort" value="1" style="width:50px;" class="form-control" onkeyup="value=value.replace(/[^\d]/g,'');">
+                    <span class="input-group-addon">显示</span>
+                    <select class="form-control" name="Show">
+                        <option value="1" selected>显示</option>
+                        <option value="2">不显示</option>
+                    </select>
+                    <span class="input-group-btn">
+                        <button class="btn btn-primary" type="submit">开通城市</button>
+                    </span>
+                    <span class="input-group-addon">时间</span>
+                    <input type="text" class="form-control" placeholder="开始时间" name="STime" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd HH:mm:ss',alwaysUseStartDate:true})" />
+                    <span class="input-group-addon fix-padding">-</span>
+                    <input type="text" class="form-control" placeholder="结束时间" name="ETime" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd HH:mm:ss',alwaysUseStartDate:true})" />
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-info" onclick="GetList(1);">给偶搜</button>
+                    </span>
+                </div>
+            </div>
+        </div>
+    }
+    <br />
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>省份</th>
+                <th>城市</th>
+                <th>排序</th>
+                <th>是否显示</th>
+                <th>添加时间</th>
+                <th>管理操作</th>
+            </tr>
+        </thead>
+        <tbody id="tbody">
+            <script id="tpl" type="text/html">
+                {{each list as item index}}
+                <tr id="{{item.Gid}}" style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
+                    <td>{{index+1}}</td>
+                    <td>{{item.Province}}</td>
+                    <td>{{item.City}}</td>
+                    <td>{{item.Sort}}</td>
+                    <td>{{item.Show==1?"显示":"不显示"}}</td>
+                    <td>{{item.AddTime}}</td>
+                    <td>
+                        <div class="btn-group">
+                            <button class="btn btn-danger btn-mini" onclick="Delete('{{item.Gid}}');">删除</button>
+                        </div>
+                    </td>
+                </tr>
+                {{/each}}
+            </script>
+        </tbody>
+    </table>
+    <ul class="pager" id="pager"></ul>
+    <ul class="pager" id="pages" style="overflow:hidden;"></ul>
+    <script src="~/plugins/zui/lib/jquery/jquery.js"></script>
+    <script src="~/plugins/zui/js/zui.min.js"></script>
+    <script src="~/js/template-web.js"></script>
+    <script src="~/plugins/My97DatePicker/WdatePicker.js"></script>
+    <script src="~/js/pca.js" charset="gb2312"></script>
+    <script src="~/js/list.js"></script>
+    <script>
+        setup();
+        if ("@ViewBag.province".length > 0) {
+            preselect("@ViewBag.province");
+            document.getElementById("City").value = "@ViewBag.city";
+        }
+    </script>
+</body>
+
+</html>

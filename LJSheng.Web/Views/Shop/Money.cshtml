@@ -1,0 +1,145 @@
+﻿@{
+    ViewBag.Title = "提现";
+    Layout = "~/Views/Shared/_LLayout.cshtml";
+}
+<div id="tx" class="padding-btn-group">
+    <button type="button" id="btn" class="btn-block btn-green" onclick="tx();">我要提现</button>
+</div>
+<div class="order-tabs" id="search">
+    <a onclick="getlist(0);" class="active">全部</a>
+    <a onclick="getlist(2);">已打款</a>
+    <a onclick="getlist(1);">待付款</a>
+    <a onclick="getlist(3);">退回</a>
+    <input type="text" id="type" name="type" value="0" hidden />
+</div>
+<div class="mescroll" id="scroll">
+    <ul class="money-ul" id="dataList">
+        <script id="tpl" type="text/html">
+            {{each list as item index}}
+            <li class="cell">
+                <a class="img" onclick="remarks('{{item.Remarks}}')">查看</a>
+                <h1>{{item.Bank}}({{item.BankName}})</h1>
+                <div class="number">
+                    <a class="tel">{{item.BankNumber}}</a>
+                    <a class="time">{{item.AddTime}}</a>
+                </div>
+                <a>{{item.State==1?"待付款":""}}</a>
+                <div class="price">{{item.Money}}</div>
+            </li>
+            {{/each}}
+        </script>
+    </ul>
+</div>
+<div class="a-dialog hide">
+    @using (Html.BeginForm("Money", "Shop", FormMethod.Get))
+    {
+        <div id="txshow" class="">
+            <div class="signle-item">
+                <div class="cell">
+                    <div class="cell-left">持卡人</div>
+                    <div class="cell-right">
+                        <input type="text" class="text" placeholder="请到个人中心完善你的提款信息" value="@ViewBag.BankName" name="BankName" disabled />
+                    </div>
+                </div>
+                <div class="cell">
+                    <div class="cell-left">卡号</div>
+                    <div class="cell-right">
+                        <input type="text" class="text" placeholder="请到个人中心完善你的提款信息" value="@ViewBag.BankNumber" name="BankNumber" disabled />
+                    </div>
+                </div>
+                <div class="cell">
+                    <div class="cell-left">开户行</div>
+                    <div class="cell-right">
+                        <input type="text" class="text" placeholder="请到个人中心完善你的提款信息" value="@ViewBag.Bank" name="Bank" disabled />
+                    </div>
+                </div>
+                <div class="cell">
+                    <div class="cell-left">提现积分</div>
+                    <div class="cell-right">
+                        <input type="text" class="text" placeholder="最少100起提" name="Money" onkeyup="value=value.replace(/[^\d.]/g,'');" />
+                    </div>
+                </div>
+                <div class="info" style="text-align: right;">
+                    你当前可提现积分为:@ViewBag.Money
+                </div>
+            </div>
+            <div class="padding-btn-group">
+                <button type="button" id="btn" class="btn-block btn-green" onclick="return check();">确认</button>
+                <a class="padd-a" href="/Member/AddBank">修改提款信息</a>
+            </div>
+        </div>
+    }
+</div>
+<div class="dialog-modal hide" onclick="out();"></div>
+<script>
+    function getlist(type,ev) {
+        $("#type").val(type);
+        $(".order-tabs a").removeClass("active");
+        ev = ev || window.event;
+        var tmp = ev.target || ev.srcElement;
+        tmp.className = "active";
+        //重置列表数据
+        scroll.resetUpScroll();
+        //隐藏回到顶部按钮
+        scroll.hideTopBtn();
+    }
+    function tx() {
+        $("#tx").addClass("hide");
+        $(".a-dialog").removeClass("hide");
+        $(".dialog-modal").removeClass("hide");
+    }
+    function out() {
+        $("#tx").removeClass("hide");
+        $(".a-dialog").addClass("hide");
+        $(".dialog-modal").addClass("hide");
+    }
+    function remarks(remarks) {
+        if (remarks.length > 0) {
+            tip(remarks);
+        }
+        else
+        {
+            tip("正常审核");
+        }
+    }
+    function check() {
+        var field = $("input[name='BankName']");
+        if (field.val().length < 2) {
+            tooltip(field);
+            return false;
+        }
+        field = $("input[name='BankNumber']");
+        if (field.val().length < 6) {
+            tooltip(field);
+            return false;
+        }
+        field = $("input[name='Bank']");
+        if (field.val().length < 2) {
+            tooltip(field);
+            return false;
+        }
+        field = $("input[name='Money']");
+        if (field.val()< 100) {
+            tooltip(field);
+            return false;
+        }
+        if (field.val()>@ViewBag.Money) {
+            tip("可提积分不足");
+            return false;
+        }
+        document.getElementById("btn").innerText = "正在提交...";
+        document.getElementById("btn").disabled = true;
+        document.forms[0].submit();
+    }
+    function tooltip(field) {
+        field.focus();
+        tip(field.attr('placeholder'));
+    }
+    function tip(msg) {
+        layer.open({
+            content: msg
+            , skin: 'msg'
+            , time: 2
+        });
+    }
+</script>

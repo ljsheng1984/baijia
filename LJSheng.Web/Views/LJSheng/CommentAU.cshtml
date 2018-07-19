@@ -1,0 +1,78 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" Content="width=device-width, initial-scale=1" />
+    <title>评论操作</title>
+    <link rel="stylesheet" href="~/plugins/zui/css/zui.min.css">
+</head>
+<body>
+    @using (Html.BeginForm("CommentAU", "LJSheng", new { gid = Request.QueryString["gid"] }, FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data" }))
+    {
+        <div class="form-group">
+            <label class="col-sm-2">评论内容</label>
+            <div class="col-md-3 col-sm-5">
+                <textarea class="form-control" rows="3" name="Content">@ViewBag.Content</textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2">回复内容</label>
+            <div class="col-md-3 col-sm-5">
+                <textarea class="form-control" rows="3" name="Reply">@ViewBag.Reply</textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2">排序</label>
+            <div class="col-md-2 col-sm-2 has-success">
+                <input type="text" name="Sort" value="@ViewBag.Sort" class="form-control" placeholder="必填,只能是数字" onkeyup="value=value.replace(/[^\d]/g,'');">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2">显示设置</label>
+            <div class="col-md-3 col-sm-5">
+                <label class="radio-inline">
+                    <input type="radio" name="Show" value="1"> 显示
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" name="Show" value="2"> 不显示
+                </label>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-3">
+                <button class="btn btn-primary btn-lg btn-block" type="submit" onclick="return check();">提交</button>
+            </div>
+        </div>
+    }
+    <script src="~/plugins/zui/lib/jquery/jquery.js"></script>
+    <script src="~/plugins/zui/js/zui.min.js"></script>
+    <script src="~/js/pca.js" charset="gb2312"></script>
+    <script>
+        $(":radio[name='Show'][value='@ViewBag.Show']").prop("checked", "checked");
+        $(":radio[name='Type'][value='@ViewBag.Type']").prop("checked", "checked");
+        function check() {
+            var field = $("input[name='Name']");
+            if (field.val().length ==0) {
+                tooltip(field);
+                return false;
+            }
+            field = $("input[name='Sort']");
+            if (field.val().length ==0) {
+                tooltip(field);
+                return false;
+            }
+            return true;
+        }
+        function tooltip(field) {
+            field.focus();
+            field.tooltip('show', field.attr('placeholder'));
+            setTimeout(function () { field.tooltip('destroy'); }, 3000);
+        }
+    </script>
+</body>
+</html>

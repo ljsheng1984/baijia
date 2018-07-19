@@ -1,0 +1,156 @@
+﻿@{
+    ViewBag.Title = "订单详情";
+    Layout = "~/Views/Shared/_MLayout.cshtml";
+}
+<div class="double-icon-item">
+    <a class="icon-left icon-location">&nbsp;</a>
+    <div class="text">
+        <p class="tit">@ViewBag.RealName</p>
+        <p class="small-tit">@ViewBag.Address</p>
+        <span class="pos">@ViewBag.ContactNumber</span>
+    </div>
+    <div>@ViewBag.Remarks</div>
+</div>
+<div class="order-item">
+    @foreach (var item in Model)
+    {
+        <a class="shop-info shop-info-none">
+            @(new HtmlString(LJSheng.Web.Helper.GetShopProduct(item.ProductGid)))
+            <div class="price">￥@item.Price X @item.Number</div><div class="stock @(Request.QueryString["type"]=="1"?"":"hide")">@(LJSheng.Web.Helper.GetStock(item.ProductGid))</div>
+        </a>
+    }
+    <div class="shop-number"><span>共<em>@Request.QueryString["Number"]</em>件商品</span> <span>合计：<b>￥@ViewBag.TotalPrice</b></span></div>
+</div>
+<div class="order-detail">
+    <p class="o-number">订单单号: <span>@ViewBag.OrderNo</span></p>
+    <p class="o-time">订单时间: <span>@ViewBag.AddTime</span></p>
+    <p class="o-time">快递公司: <span>@ViewBag.Express</span></p>
+    <p class="o-time">快递单号: <span>@ViewBag.ExpressNumber</span></p>
+</div>
+<div class="rob">
+    <a class="fix-btn-loading @(ViewBag.Status==2?"hide":"") @(Request.QueryString["type"]=="1"?"":"hide")" onclick="rob('@Request.QueryString["OrderGid"]');" style="left:20%;">
+        <span id="name">发货</span>
+        <span class="default"></span>
+        <span class="active"></span>
+    </a>
+    <div class="task hide exp">
+        <div class="i">
+            <div class="remarks">请录入物流信息</div>
+            <div class="signle-item">
+                <div class="cell">
+                    <div class="cell-left">快递公司</div>
+                    <div class="cell-right">
+                        <select class="form-control" id="Express">
+                            @foreach (var item in ViewBag.ExpressList)
+                            {
+                                <option value="@item.Type" @(item.Type == ViewBag.Express ? "selected" : "")>@item.Name</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="cell">
+                    <div class="cell-left">物流号</div>
+                    <div class="cell-right">
+                        <input class="text" type="text" id="ExpressNumber" placeholder="请输入物流号" value="@ViewBag.ExpressNumber" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <span class="cert-down"></span>
+    </div>
+    <a class="fix-btn-loading @(ViewBag.Status==2?"hide":"") @(Request.QueryString["type"]=="1"?"":"hide")" onclick="code('@Request.QueryString["OrderGid"]');" style="left:80%;">
+        <span id="name">验证</span>
+        <span class="default"></span>
+        <span class="active"></span>
+    </a>
+    <div class="task hide code">
+        <div class="i">
+            <div class="remarks">请让会员给你消费码</div>
+            <div class="signle-item">
+                <div class="cell">
+                    <div class="cell-left">消费码</div>
+                    <div class="cell-right">
+                        <input class="text" type="text" id="ConsumptionCode" placeholder="请输入消费码" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <span class="cert-down"></span>
+    </div>
+    <div class="mask hide" onclick="out();"></div>
+</div>
+<script>
+    function rob(gid) {
+        if ($(".exp").hasClass("hide")) {
+            $(".exp").removeClass("hide");
+            $(".mask").removeClass("hide");
+            $(".code").addClass("hide");
+        }
+        else {
+            if ($("#ExpressNumber").val().length > 5 && $("#Express").val().length > 1) {
+                $.ajax({
+                    url: "/ajax/api.ashx",
+                    data: "ff=setShopExpress&gid=@Request.QueryString["OrderGid"]&Express=" + $("#Express").val() + "&ExpressNumber=" + $("#ExpressNumber").val() + "&cache=" + Math.random(),
+                    type: "post",
+                    cache: false,
+                    timeout: 8000,
+                    dataType: "json",
+                    ContentType: "application/json; charset=utf-8",
+                    async: false,//一定要是同步请求，否则会跳转；（ajax默认是异步的）
+                    error: function () { },
+                    beforeSend: function () { },
+                    success: function (data) {
+                        tip(data.data);
+                    },
+                });
+            }
+            else {
+                tip("请录入正确的物流信息");
+            }
+        }
+    }
+    function code(gid) {
+        if ($(".code").hasClass("hide")) {
+            $(".code").removeClass("hide");
+            $(".mask").removeClass("hide");
+            $(".exp").addClass("hide");
+        }
+        else {
+            if ($("#ConsumptionCode").val().length == 8) {
+                $.ajax({
+                    url: "/ajax/api.ashx",
+                    data: "ff=setCode&gid=@Request.QueryString["OrderGid"]&ConsumptionCode=" + $("#ConsumptionCode").val() + "&cache=" + Math.random(),
+                    type: "post",
+                    cache: false,
+                    timeout: 8000,
+                    dataType: "json",
+                    ContentType: "application/json; charset=utf-8",
+                    async: false,//一定要是同步请求，否则会跳转；（ajax默认是异步的）
+                    error: function () { },
+                    beforeSend: function () { },
+                    success: function (data) {
+                        tip(data.data);
+                        if (data.result === 200) {
+                            location.reload();
+                        }
+                    },
+                });
+            }
+            else {
+                tip("请录入正确的消费码");
+            }
+        }
+    }
+    function tip(msg) {
+        layer.open({
+            content: msg
+            , skin: 'msg'
+            , time: 2
+        });
+    }
+    function out()
+    {
+        $(".task").addClass("hide");
+        $(".mask").addClass("hide");
+    }
+</script>

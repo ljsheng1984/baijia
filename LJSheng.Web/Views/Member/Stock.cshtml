@@ -1,0 +1,21 @@
+﻿@{
+    ViewBag.Title = "库存管理";
+    Layout = "~/Views/Shared/_LLayout.cshtml";
+}
+<div id="search" hidden></div>
+<div class="mescroll" id="scroll">
+    <ul id="dataList">
+        <script id="tpl" type="text/html">
+            {{each list as item index}}
+            <div class="order-stock">
+                <a class="shop-info" href="/Home/Detail?gid={{item.ProductGid}}">
+                    <p class="o-number">产品名称： <span>{{item.Name}}</span></p>
+                    <img src="/uploadfiles/product/{{item.Picture}}">
+                    <h1>售价：{{item.Price}}</h1>
+                    <div class="price">库存： {{item.Number}}</div>
+                </a>
+            </div>
+            {{/each}}
+        </script>
+    </ul>
+</div>

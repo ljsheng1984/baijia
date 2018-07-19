@@ -1,0 +1,100 @@
+﻿@{
+    ViewBag.Title = Request.QueryString["type"] == "0" ? "添加收货地址" : "联系方式";
+    Layout = "~/Views/Shared/_MLayout.cshtml";
+}
+
+@using (Html.BeginForm("AddAddress", "Member", FormMethod.Get))
+{
+    <input type="text" name="type" value="@Request.QueryString["type"]" hidden />
+    <input type="text" name="url" value="@Request.QueryString["url"]" hidden />
+    <div class="signle-item">
+        <div class="cell">
+            <div class="cell-left">真实姓名</div>
+            <div class="cell-right">
+                <input class="text" type="text" name="RealName" placeholder="请输入真实的姓名" value="@ViewBag.RealName" />
+            </div>
+        </div>
+        <div class="cell">
+            <div class="cell-left">联系电话</div>
+            <div class="cell-right">
+                <input class="text" type="text" name="ContactNumber" placeholder="请输入真实的联系方式" value="@ViewBag.ContactNumber" />
+            </div>
+        </div>
+        <div class="cell">
+            <div class="cell-left">省市区</div>
+            <div class="cell-right">
+                <div>
+                    <select class="form-control" name="Province" id="Province" placeholder="请选择省份"></select>
+                    <select class="form-control" name="City" id="City" placeholder="请选择城市"></select>
+                    <select class="form-control" name="Area" id="Area" placeholder="请选择区域"></select>
+                </div>
+            </div>
+        </div>
+        <div class="cell">
+            <div class="cell-left">详细地址</div>
+            <div class="cell-right">
+                <input class="text" type="text" name="Addr" placeholder="请输入详细地址" value="@ViewBag.Address" />
+            </div>
+        </div>
+    </div>
+    <div class="footer-bar">
+        <button class="btn-block btn-green" id="btn" onclick="return check();">确定</button>
+    </div>
+}
+
+<script src="~/js/pca.js" charset="gb2312"></script>
+<script>
+        setup();
+        if ("@ViewBag.province".length > 0) {
+            preselect("@ViewBag.province");
+            document.getElementById("City").value = "@ViewBag.city";
+            change(2);
+            document.getElementById("Area").value = "@ViewBag.area";
+        }
+        function check() {
+            var field = $("input[name='RealName']");
+            if (field.val().length < 1) {
+                tooltip(field);
+                return false;
+            }
+            field = $("input[name='ContactNumber']");
+            if (field.val().length < 10) {
+                tooltip(field);
+                return false;
+            }
+            field = $("#Province");
+            if (field.val()=="请选择省份") {
+                tooltip(field);
+                return false;
+            }
+            field = $("#City");
+            if (field.val() == "请选择城市") {
+                tooltip(field);
+                return false;
+            }
+            field = $("#Area");
+            if (field.val() == "请选择区域") {
+                tooltip(field);
+                return false;
+            }
+            field = $("input[name='Addr']");
+            if (field.val().length < 5) {
+                tooltip(field);
+                return false;
+            }
+            document.getElementById("btn").innerText = "正在提交...";
+            document.getElementById("btn").disabled = true;
+            document.forms[0].submit();
+        }
+        function tooltip(field) {
+            field.focus();
+            tip(field.attr('placeholder'));
+        }
+        function tip(msg) {
+            layer.open({
+                content: msg
+                , skin: 'msg'
+                , time: 2
+            });
+        }
+</script>

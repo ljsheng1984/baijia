@@ -1,0 +1,74 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" Content="width=device-width, initial-scale=1" />
+    <title>短信管理</title>
+    <link rel="stylesheet" href="~/plugins/zui/css/zui.min.css">
+</head>
+<body>
+    <div class="row" id="search">
+        <div class="col-sm-8">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="icon-search"></i></span>
+                <span class="input-group-addon">名称</span>
+                <input type="text" name="Content" class="form-control">
+                <span class="input-group-addon">时间</span>
+                <input type="text" class="form-control" placeholder="开始时间" name="STime" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd HH:mm:ss',alwaysUseStartDate:true})" />
+                <span class="input-group-addon fix-padding">-</span>
+                <input type="text" class="form-control" placeholder="结束时间" name="ETime" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd HH:mm:ss',alwaysUseStartDate:true})" />
+                <span class="input-group-btn">
+                    <button type="button" class="btn btn-info" onclick="GetList(1);">给偶搜</button>
+                </span>
+            </div>
+        </div>
+    </div>
+    <br />
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>标识</th>
+                <th>发送号码</th>
+                <th>短信内容</th>
+                <th>类型</th>
+                <th>条数</th>
+                <th>回执内容</th>
+                <th>添加时间</th>
+                <th>管理操作</th>
+            </tr>
+        </thead>
+        <tbody id="tbody">
+            <script id="tpl" type="text/html">
+                {{each list as item index}}
+                <tr id="{{item.Gid}}" style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
+                    <td>{{index+1}}</td>
+                    <td>{{item.PhoneNumber}}</td>
+                    <td>{{item.Content}}</td>
+                    <td>{{item.Type==1?"验证码":"系统短信"}}</td>
+                    <td>{{item.Number}}</td>
+                    <td title="{{item.ReceiptContent}}">移动查看</td>
+                    <td>{{item.AddTime}}</td>
+                    <td>
+                        <div class="btn-group">
+                            <button class="btn btn-mini btn-danger hidden" onclick="Delete('{{item.Gid}}');">删除</button>
+                        </div>
+                    </td>
+                </tr>
+                {{/each}}
+            </script>
+        </tbody>
+    </table>
+    <ul class="pager" id="pager"></ul>
+    <ul class="pager" id="pages" style="overflow:hidden;"></ul>
+    <script src="~/plugins/zui/lib/jquery/jquery.js"></script>
+    <script src="~/plugins/zui/js/zui.min.js"></script>
+    <script src="~/js/template-web.js"></script>
+    <script src="~/plugins/My97DatePicker/WdatePicker.js"></script>
+    <script src="~/js/list.js"></script>
+</body>
+</html>

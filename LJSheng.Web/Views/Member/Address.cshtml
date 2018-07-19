@@ -1,0 +1,71 @@
+﻿@{
+    ViewBag.Title = "收货地址管理";
+    Layout = "~/Views/Shared/_MLayout.cshtml";
+}
+@foreach (var item in Model)
+{
+    <div class="bgc" id="@item.Gid">
+        <div class="double-icon-item" onclick="Default('@item.Gid');">
+            <div class="text">
+                <p class="tit">@item.RealName <span class="color-999">@item.ContactNumber</span></p>
+                <p class="small-tit">@item.Addr</p>
+                <span class="pos"></span>
+            </div>
+            <a class="icon-right icon-arrow-right @(Request.QueryString["type"]=="2"?"hide":"")">&nbsp;</a>
+        </div>
+        <div class="address-btm">
+            <a class="hide icon-radio @(item.Default==1?"":"icon-radio-off")"><span>设为默认</span></a>
+            <a class="btn-line" onclick="Delete('@item.Gid')">删除</a>
+        </div>
+    </div>
+}
+<div class="footer-bar">
+    <a class="btn-block btn-green" href="~/Member/AddAddress?type=@Request.QueryString["type"]&url=@Request.QueryString["url"]">添加收货地址</a>
+</div>
+<script>
+        function Delete(gid) {
+            if (window.confirm('你确定要删除吗？')) {
+                $.ajax({
+                    url: "/Member/AddressDelete",
+                    data: "Gid=" + gid,
+                    type: "post",
+                    cache: false,
+                    timeout: 8000,
+                    dataType: "json",
+                    ContentType: "application/json; charset=utf-8",
+                    error: function () { new $.zui.Messager('请求超时!').show(); },
+                    beforeSend: function () { },
+                    success: function (data) {
+                        if (data.result === 200) {
+                            $("#" + gid).hide(5);
+                        }
+                        Messager(data.data, data.result);
+                    },
+                });
+                return true;
+            } else {
+                return false;
+            }
+        }
+        function Default(gid) {
+            if (@Request.QueryString["type"]==0) {
+                $.ajax({
+                    url: "/Member/AddressSet",
+                    data: "Gid=" + gid,
+                    type: "post",
+                    cache: false,
+                    timeout: 8000,
+                    dataType: "json",
+                    ContentType: "application/json; charset=utf-8",
+                    error: function () { new $.zui.Messager('请求超时!').show(); },
+                    beforeSend: function () { },
+                    success: function (data) {
+                        if (data.result === 200) {
+                            window.location.href=document.referrer;
+                        }
+                        else { Messager(data.data, data.result); }
+                    },
+                });
+            }
+        }
+</script>

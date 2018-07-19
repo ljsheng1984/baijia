@@ -1,0 +1,57 @@
+﻿@{
+    ViewBag.Class = "CLMoney";
+    ViewBag.Title = "彩链包额度";
+    Layout = "~/Views/Shared/_SLayout.cshtml";
+}
+<section class="section">
+    @using (Html.BeginForm("CLMoney", "Shop", FormMethod.Get, new { @class = "box", enctype = "multipart/form-data" }))
+    {
+        <div class="control">
+            <label>你可兑换的彩链包=@ViewBag.Stock (1:@ViewBag.CLB)</label>
+            <div>
+                <input id="Stock" name="Stock" value="" type="text" class="input" placeholder="兑换数量" onkeyup="value=value.replace(/[^\d]/g,'');" onchange="money();">
+            </div>
+        </div>
+        <div class="control">
+            <label>你当前剩余额度=@ViewBag.CLMoney</label>
+            <div>
+                <input id="CLMoney" name="CLMoney" value="" type="text" class="input" placeholder="额度" onkeyup="value=value.replace(/[^\d]/g,'');">
+            </div>
+        </div>
+    }
+</section>
+<nav class="nav affix dock-bottom justified">
+    <a class="info" onclick="return Add();">提交</a>
+</nav>
+<script src="~/plugins/zui/lib/jquery/jquery.js"></script>
+<script src="~/plugins/mlayer/layer.js"></script>
+<script src="~/js/image.js"></script>
+<script>
+    function Add() {
+        if (document.getElementById("Stock").value.length < 1) {
+            tip("请填写兑换数量");
+            return false;
+        }
+        document.forms[0].submit();
+        return true;
+    }
+    function tip(msg) {
+        layer.open({
+            content: msg
+            , skin: 'msg'
+            , time: 5
+        });
+    }
+    function money() {
+        var Number = document.getElementById("Stock").value;
+        if (Number <=@ViewBag.Stock && Number > 0)
+        {
+            document.getElementById("CLMoney").value = Number * @ViewBag.CLB;
+        }
+        else {
+            document.getElementById("Stock").value = "";
+            document.getElementById("CLMoney").value = "";
+            tip("你的库存只有 @ViewBag.Stock");
+        }
+    }
+</script>

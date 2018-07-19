@@ -1,0 +1,64 @@
+﻿@{
+    ViewBag.Title = "库存不足提醒";
+    Layout = "~/Views/Shared/_SLayout.cshtml";
+}
+<div id="search" hidden>
+    <input name="Type" value="@Request.QueryString["Type"]" hidden />
+</div>
+<div class="mescroll" id="scroll">
+    <div class="list section" id="dataList">
+        <script id="tpl" type="text/html">
+            {{each list as item index}}
+            <a id="{{item.Gid}}" class="item multi-lines with-avatar">
+                <div class="content">
+                    <div>
+                        <small class="muted">{{item.Account}}申请购买数量={{item.Stock}}(积分={{item.Money}},购物积分={{item.Integral}})</small>
+                        <div class="pull-right"><i class="icon icon-times" onclick="Delete('{{item.Gid}}')"></i></div>
+                    </div>
+                </div>
+            </a>
+            <div class="divider"></div>
+            {{/each}}
+        </script>
+    </div>
+</div>
+<nav class="nav affix dock-top justified">
+    <a href="/Member/Index"><i class="icon-5x icon-arrow-left"></i></a>
+    <a>库存不足提醒</a>
+    <a href="/Home/Url"><i class="icon-home"></i></a>
+</nav>
+<script>
+    function Delete(gid) {
+        layer.open({
+            content: '确定删除吗？'
+            , btn: ['确定', '取消']
+            , yes: function (index) {
+                $.ajax({
+                    url: "/Member/MProductDelete",
+                    data: "Gid=" + gid,
+                    type: "post",
+                    cache: false,
+                    timeout: 8000,
+                    dataType: "json",
+                    ContentType: "application/json; charset=utf-8",
+                    async: false,//一定要是同步请求，否则会跳转；（ajax默认是异步的）
+                    error: function () { },
+                    beforeSend: function () { },
+                    success: function (data) {
+                        tip(data.data);
+                        if (data.result == 200) {
+                            $("#" + gid).hide();
+                        }
+                    },
+                });
+            }
+        });
+    }
+    function tip(msg) {
+        layer.open({
+            content: msg
+            , skin: 'msg'
+            , time: 2
+        });
+    }
+</script>

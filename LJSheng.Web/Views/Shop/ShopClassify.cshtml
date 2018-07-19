@@ -1,0 +1,109 @@
+﻿@{
+    ViewBag.Title = "分类列表";
+    Layout = "~/Views/Shared/_SLayout.cshtml";
+}
+<div id="search" hidden></div>
+<div class="mescroll" id="scroll">
+    <div class="list section" id="dataList">
+        <script id="tpl" type="text/html">
+            {{each list as item index}}
+            <a id="{{item.Gid}}" class="item multi-lines with-avatar">
+                <div class="content">
+                    <span class="title" onclick="PList('{{item.Gid}}');">{{item.Name}}</span>
+                    <div class="pull-right"><i class="icon icon-times" onclick="Delete('{{item.Gid}}');"></i></div>
+                </div>
+            </a>
+            <div class="divider"></div>
+            {{/each}}
+        </script>
+    </div>
+</div>
+<div id="ss" class="affix dock-bottom modal hidden">
+    <div class="heading">
+        <div class="title"><strong>添加分类</strong></div>
+        <nav class="nav"><a data-dismiss="display"><i class="icon-remove muted"></i></a></nav>
+    </div>
+    <div class="divider"></div>
+    <div class="section box">
+        <div class="control has-success">
+            <label for="address">分类名称</label>
+            <input id="Name" name="Name" type="text" class="input" placeholder="请输入分类名称">
+        </div>
+        <div class="control">
+            <button type="button" class="btn block primary" onclick="Add();">添加</button>
+        </div>
+    </div>
+</div>
+<nav class="nav affix dock-top justified">
+    <a href="/shop/index"><i class="icon-5x icon-arrow-left"></i></a>
+    <a>分类列表</a>
+    <a href="/Home/Url"><i class="icon-home"></i></a>
+</nav>
+<nav class="nav affix dock-bottom justified">
+    <a class="active text-info" data-display data-backdrop="true" data-target="#ss">添加分类</a>
+</nav>
+<script>
+    function PList(gid) {
+        self.location = "/Shop/Product?Gid=" + gid;
+    }
+    function Add(gid) {
+        if ($("#Name").val().length >0) {
+                $.ajax({
+                    url: "/ajax/api.ashx",
+                    data: "ff=AddSC&Name=" + $("#Name").val()+"&cache=" + Math.random(),
+                    type: "post",
+                    cache: false,
+                    timeout: 8000,
+                    dataType: "json",
+                    ContentType: "application/json; charset=utf-8",
+                    async: false,//一定要是同步请求，否则会跳转；（ajax默认是异步的）
+                    error: function () { },
+                    beforeSend: function () { },
+                    success: function (data) {
+                        tip(data.data);
+                        if (data.result == 200) {
+                            location.reload();
+                        } 
+                    },
+                });
+            }
+            else
+            {
+                tip("请输入分类名称");
+            }
+        }
+    function tip(msg) {
+        layer.open({
+            content: msg
+            , skin: 'msg'
+            , time: 2
+        });
+    }
+    function Delete(gid)
+    {
+        layer.open({
+            content: '删除分类前请确保该分类下没有商品？'
+            , btn: ['确定', '取消']
+            , yes: function (index) {
+                $.ajax({
+                    url: "/Shop/ShopClassifyDelete",
+                    data: "Gid=" + gid,
+                    type: "post",
+                    cache: false,
+                    timeout: 8000,
+                    dataType: "json",
+                    ContentType: "application/json; charset=utf-8",
+                    async: false,//一定要是同步请求，否则会跳转；（ajax默认是异步的）
+                    error: function () { },
+                    beforeSend: function () { },
+                    success: function (data) {
+                        tip(data.data);
+                        if (data.result == 200) {
+                            $("#" + gid).hide();
+                        }
+                    },
+                });
+            }
+        });
+    }
+</script>

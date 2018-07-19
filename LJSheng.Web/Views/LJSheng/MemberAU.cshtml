@@ -1,0 +1,239 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" Content="width=device-width, initial-scale=1" />
+    <title>会员操作</title>
+    <link rel="stylesheet" href="~/plugins/zui/css/zui.min.css">
+    <link href="~/plugins/zui/lib/uploader/zui.uploader.min.css" rel="stylesheet">
+</head>
+<body>
+    @using (Html.BeginForm("MemberAU", "LJSheng", new { gid = Request.QueryString["gid"] }, FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data" }))
+    {
+        <div class="form-group">
+            <label class="col-sm-2">登录手机号</label>
+            <div class="col-md-3 col-sm-5 has-success">
+                <input type="text" name="Account" value="@ViewBag.Account" data-placement="auto" class="form-control" placeholder="11位的手机号码" onkeyup="value=value.replace(/[^\d]/g,'');" @(string.IsNullOrEmpty(ViewBag.Account) ? "" : "readonly")>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2">密码</label>
+            <div class="col-md-3 col-sm-5 has-success">
+                <input type="password" name="PWD" value="@ViewBag.PWD" data-placement="auto" class="form-control" placeholder="密码只能6-50位">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2">真实姓名</label>
+            <div class="col-md-3 col-sm-5">
+                <input type="text" name="RealName" value="@ViewBag.RealName" class="form-control">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2">联系方式</label>
+            <div class="col-md-3 col-sm-5">
+                <input type="text" name="ContactNumber" value="@ViewBag.ContactNumber" class="form-control">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2"><input type="text" name="Picture" value="" class="form-control hidden"></label>
+            <div class="col-md-3 col-sm-5">
+                <img data-toggle="lightbox" src="@ViewBag.Picture" data-caption="@ViewBag.Account" class="img-thumbnail" onerror="this.src='/images/nopic.png'" width="200">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2">选择头像</label>
+            <div id="Picture" class="col-md-3 col-sm-5 uploader">
+                <div class="file-list" data-drag-placeholder="请拖拽文件到此处"></div>
+                <button type="button" class="btn btn-primary uploader-btn-browse"><i class="icon icon-cloud-upload"></i> 选择图片</button>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2">性别</label>
+            <div class="col-md-3 col-sm-5">
+                <label class="radio-inline">
+                    <input type="radio" name="Gender" value="男"> 男
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" name="Gender" value="女"> 女
+                </label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2">权限</label>
+            <div class="col-md-3 col-sm-5">
+                <label class="radio-inline">
+                    <input type="radio" name="Jurisdiction" value="正常"> 正常
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" name="Jurisdiction" value="审核中"> 审核中
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" name="Jurisdiction" value="冻结"> 冻结
+                </label>
+            </div>
+        </div>
+        <div class="form-group @(LJSheng.Common.LCookie.Getljsheng("Jurisdiction")=="管理员"?"":"hidden")">
+            <label class="col-sm-2">会员级别</label>
+            <div class="col-md-5 col-sm-5">
+                @foreach (var item in ViewBag.LevelList)
+                {
+                    <label class="radio-inline">
+                        <input type="radio" name="Level" value="@item.LV"> <span class="label @item.Label">@item.Name</span>
+                    </label>
+                }
+            </div>
+        </div>
+        <div class="form-group @(LJSheng.Common.LCookie.Getljsheng("Jurisdiction")=="管理员"?"":"hidden")">
+            <label class="col-sm-2">彩链等级</label>
+            <div class="col-md-5 col-sm-5">
+                @foreach (var item in ViewBag.CLLevelList)
+                {
+                    <label class="radio-inline">
+                        <input type="radio" name="CLLevel" value="@item.LV"> <span class="label @item.Label">@item.Name</span>
+                    </label>
+                }
+            </div>
+        </div>
+        <div class="form-group @(LJSheng.Common.LCookie.Getljsheng("Jurisdiction")=="管理员"?"":"hidden")">
+            <label class="col-sm-2">股东分红点</label>
+            <div class="col-md-2 col-sm-2">
+                <input type="text" name="StockRight" value="@ViewBag.StockRight" class="form-control">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2">省市区</label>
+            <div class="col-sm-2">
+                <select class="form-control" name="Province" id="Province"></select>
+            </div>
+            <div class="col-xs-2">
+                <select class="form-control" name="City" id="City"></select>
+            </div>
+            <div class="col-xs-2">
+                <select class="form-control" name="Area" id="Area"></select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2">地址</label>
+            <div class="col-md-3 col-sm-5">
+                <input type="text" name="Address" value="@ViewBag.Address" class="form-control">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2">昵称</label>
+            <div class="col-md-3 col-sm-5">
+                <input type="text" name="NickName" value="@ViewBag.NickName" class="form-control">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2">开户行</label>
+            <div class="col-md-3 col-sm-5">
+                <input type="text" name="Bank" value="@ViewBag.Bank" class="form-control">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2">开户名</label>
+            <div class="col-md-3 col-sm-5">
+                <input type="text" name="BankName" value="@ViewBag.BankName" class="form-control">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2">卡号</label>
+            <div class="col-md-3 col-sm-5">
+                <input type="text" name="BankNumber" value="@ViewBag.BankNumber" class="form-control">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2">注册IP</label>
+            <div class="col-md-3 col-sm-5">
+                <input type="text" name="IP" value="@ViewBag.IP" class="form-control" readonly>
+            </div>
+        </div>
+        <div class="form-group hidden">
+            <label class="col-sm-2">合伙人进货</label>
+            <div class="col-md-2 col-sm-2">
+                <input type="text" name="ProductMoney" value="@ViewBag.ProductMoney" class="form-control" readonly>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2">可提积分</label>
+            <div class="col-md-2 col-sm-2">
+                <input type="text" name="Money" value="@ViewBag.Money" class="form-control" readonly>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2">购物积分</label>
+            <div class="col-md-2 col-sm-2">
+                <input type="text" name="Integral" value="@ViewBag.Integral" class="form-control" readonly>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2">用户ID</label>
+            <div class="col-md-2 col-sm-2">
+                <input type="text" name="MID" value="@ViewBag.MID" class="form-control" readonly>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-3">
+                <button class="btn btn-primary btn-lg btn-block" type="submit" onclick="return check();">提交</button>
+            </div>
+        </div>
+    }
+    <script src="~/plugins/zui/lib/jquery/jquery.js"></script>
+    <script src="~/plugins/zui/js/zui.min.js"></script>
+    <script src="~/plugins/zui/lib/uploader/zui.uploader.min.js"></script>
+    <script src="~/js/pca.js" charset="gb2312"></script>
+    <script>
+        $(":radio[name='Jurisdiction'][value='@ViewBag.Jurisdiction']").prop("checked", "checked");
+        $(":radio[name='Gender'][value='@ViewBag.Gender']").prop("checked", "checked");
+        $(":radio[name='Level'][value='@ViewBag.Level']").prop("checked", "checked");
+        $(":radio[name='CLLevel'][value='@ViewBag.CLLevel']").prop("checked", "checked");
+        setup();
+        if ("@ViewBag.province".length > 0) {
+            preselect("@ViewBag.province");
+            document.getElementById("City").value = "@ViewBag.city";
+            change(2);
+            document.getElementById("Area").value = "@ViewBag.area";
+        }
+        function check() {
+            var field = $("input[name='Account']");
+            if (field.val().length !=11) {
+                tooltip(field);
+                return false;
+            }
+            field = $("input[name='PWD']");
+            if (field.val().length < 6 || field.val().length > 50) {
+                tooltip(field);
+                return false;
+            }
+            return true;
+        }
+        function tooltip(field) {
+            field.focus();
+            field.tooltip('show', field.attr('placeholder'));
+            setTimeout(function () { field.tooltip('destroy'); }, 3000);
+        }
+        $('#Picture').uploader({
+            autoUpload: true,
+            limitFilesCount: 1,
+            url: '/LJSheng/UploadPicture?Path=/uploadfiles/member/',
+            filters: {
+                mime_types: [
+                    { title: '图片', extensions: 'jpg,gif,png' }
+                ],
+                max_file_size: '518kb',
+                prevent_duplicates: true
+            },
+            deleteActionOnDone: function (file, doRemoveFile) { $("input[name='Picture']").val(""); $(".form-group img").attr("src", ""); return true; },
+            responseHandler: function (responseObject, file) {
+                $("input[name='Picture']").val(file.remoteData.title);
+                $(".form-group img").attr("src", file.remoteData.src);
+            }
+        });
+    </script>
+</body>
+</html>

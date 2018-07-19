@@ -1,0 +1,66 @@
+﻿@{
+    ViewBag.Class= "Index";
+    ViewBag.Title = "链商";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="index-header">
+    <!--搜索栏-->
+    <div class="search-box">
+        <a class="icon-loaction" href="~/Home/City">@LJSheng.Common.LCookie.GetCity()</a>
+        <i class="icon-search"></i>
+        <div onclick="self.location = '/Home/Search';">
+            <input class="text" placeholder="请输入你要搜索的关键字" />
+        </div>
+    </div>
+</div>
+<!--滚动图-->
+<div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
+    <div class="carousel-inner" role="listbox">
+        <div class="item">
+            <a href="@ViewBag.ADTopUrl">
+                <img src="/uploadfiles/ad/@ViewBag.ADTopPicture" alt="baner">
+            </a>
+            <div class="carousel-caption"></div>
+        </div>
+    </div>
+</div>
+<!--分类-->
+<ul class="classify">
+    @foreach (var item in ViewBag.Classify)
+    {
+        <li><a href="/Home/Classify"><p><img src="/uploadfiles/classify/@item.Picture" /></p><div class="text">@item.Name</div></a></li>
+    }
+</ul>
+<!-- 推荐商品 -->
+<ul class="index-time">
+    @foreach (var item in ViewBag.Product)
+    {
+        <li>
+            <a href="/Home/Detail?gid=@item.Gid">
+                <p>@item.Prefix@item.Name</p>
+                <div class="labels"><span class="color-violet"> ¥@item.Price/@item.Company</span></div>
+                <div class="shop-img"><img src="/uploadfiles/product/@item.Picture" /></div>
+            </a>
+        </li>
+    }
+</ul>
+<!-- banner -->
+<div class="index-banner">
+    <a href="@ViewBag.ADCUrl"><img src="/uploadfiles/ad/@ViewBag.ADCPicture" /></a>
+</div>
+<!-- 热门推荐 -->
+<div class="index-hot">
+    热卖商品
+</div>
+<ul class="index-groom">
+    @foreach (var item in ViewBag.HotShow)
+    {
+        <li>
+            <a href="/Home/Detail?gid=@item.Gid">
+                <p><img src="/uploadfiles/product/@item.Picture" /></p>
+                <p class="title">@item.Prefix@item.Name</p>
+                <p class="price">￥@item.Price/@item.Company</p>
+            </a>
+        </li>
+    }
+</ul>

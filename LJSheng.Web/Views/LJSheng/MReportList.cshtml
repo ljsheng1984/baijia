@@ -1,0 +1,186 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" Content="width=device-width, initial-scale=1" />
+    <title>分红明细</title>
+    <link rel="stylesheet" href="~/plugins/zui/css/zui.min.css">
+</head>
+<body>
+    <div class="row" id="search">
+        <div class="col-sm-10">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="icon-search"></i></span>
+                <select class="form-control" name="Level">
+                    <option value="0" selected>会员级别</option>
+                    @foreach (var item in ViewBag.Level)
+        {
+            <option value="@item.LV" class="label @item.Label">@item.Name</option>
+}
+                </select>
+                <span class="input-group-addon fix-padding">-</span>
+                <select class="form-control" name="CLLevel">
+                    <option value="0" selected>彩链级别</option>
+                    @foreach (var item in ViewBag.CLLevel)
+        {
+            <option value="@item.LV" class="label @item.Label">@item.Name</option>
+}
+                </select>
+                <span class="input-group-addon">分红级别</span>
+                <select class="form-control" name="Type">
+                    <option value="0" selected="">=全 部=</option>
+                    <option value="6" class="label label-primary">项目分红</option>
+                    <option value="10" class="label label-warning">生态圈</option>
+                    <option value="11" class="label label-danger">股东</option>
+                </select>
+                @*<select class="form-control" name="Type">
+            <option value="0" selected>=全 部=</option>
+            @foreach (var item in Model)
+            {
+                if(item.LV > 5)
+                {
+                    <option value="@item.LV" class="label @item.Label">@item.Name</option>
+                }
+            }
+        </select>*@
+                <span class="input-group-addon">项目类型</span>
+                <select class="form-control" name="Project">
+                    <option value="0" selected>=全 部=</option>
+                    @foreach (var item in ViewBag.Project)
+        {
+            <option value="@item.Value">@item.Key</option>
+}
+                </select>
+                <span class="input-group-addon">分红状态</span>
+                <select class="form-control" name="State">
+                    <option value="0" selected>=全 部=</option>
+                    <option value="1">冻结中</option>
+                    <option value="2">已分红</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-sm-10">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="icon-search"></i></span>
+                <span class="input-group-addon">会员帐号</span>
+                <input type="text" name="Account" class="form-control" onkeyup="value=value.replace(/[^\d]/g,'');">
+                <span class="input-group-addon">真实姓名</span>
+                <input type="text" name="RealName" class="form-control">
+                <span class="input-group-addon">分红时间</span>
+                <input type="text" class="form-control" placeholder="开始时间" name="STime" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd HH:mm:ss',alwaysUseStartDate:true})" />
+                <span class="input-group-addon fix-padding">-</span>
+                <input type="text" class="form-control" placeholder="结束时间" name="ETime" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd HH:mm:ss',alwaysUseStartDate:true})" />
+                <span class="input-group-btn">
+                    <input type="text" value="@Request.QueryString["gid"]" name="Gid" class="hidden" />
+                    <button type="button" class="btn btn-info" onclick="GetList(1);">给偶搜</button>
+                </span>
+            </div>
+        </div>
+    </div>
+    <br />
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>帐号</th>
+                <th>真实姓名</th>
+                <th>会员等级</th>
+                <th>分红级别</th>
+                <th>分红数量</th>
+                <th>分红积分</th>
+                <th>购物积分</th>
+                <th>添加时间</th>
+                <th>分红状态</th>
+            </tr>
+        </thead>
+        <tbody id="tbody">
+            <script id="tpl" type="text/html">
+                {{each list as item index}}
+                <tr style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
+                    <td>{{index+1}}</td>
+                    <td>{{item.Account}}</td>
+                    <td>{{item.RealName}}</td>
+                    <td><span class="label {{item.Label}}">{{item.LevelName}}</span></td>
+                    <td>{{item.TypeName=="项目合伙人"?"项目分红":item.TypeName}}</td>
+                    <td>{{item.Number}}</td>
+                    <td>{{item.Money}}</td>
+                    <td>{{item.Integral}}</td>
+                    <td>{{item.AddTime}}</td>
+                    <td id="{{item.Gid}}">
+                        {{if item.State=="1"}}
+                        <button class="btn btn-danger" onclick="Bonus('{{item.Gid}}');">确认分红</button>
+                        {{else}}
+                        <span class="label label-success">已分红</span>
+                        {{/if}}
+                    </td>
+                </tr>
+                {{/each}}
+            </script>
+        </tbody>
+    </table>
+    <div class="modal modal-for-page fade in" id="myModal" aria-hidden="false" style="display: none;">
+        <div class="modal-dialog" style="margin-top: 260.333px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">正在分红操作中</h4>
+                </div>
+                <div class="modal-body">
+                    <h4>系统正在后台正在分红操作中..........</h4>
+                    <p>请不要离开或做其他操作.等待提示自动消失</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <ul class="pager" id="pager"></ul>
+    <ul class="pager" id="pages" style="overflow:hidden;"></ul>
+    <script src="~/plugins/zui/lib/jquery/jquery.js"></script>
+    <script src="~/plugins/zui/js/zui.min.js"></script>
+    <script src="~/js/template-web.js"></script>
+    <script src="~/plugins/My97DatePicker/WdatePicker.js"></script>
+    <script src="~/js/list.js"></script>
+    <script>
+        if (@Request.QueryString["auto"]=="1")
+        {
+            if (window.confirm('暂时不支持自动分红'))
+            {
+
+            }
+        }
+        function Bonus(gid)
+        {
+            if (window.confirm('你确定要分红吗？')) {
+                $("#" + gid).html("后台分红中");
+                $.ajax({
+                    url: "/LJSheng/Bonus",
+                    data: "Gid=" + gid,
+                    type: "post",
+                    cache: false,
+                    timeout: 8000,
+                    dataType: "json",
+                    ContentType: "application/json; charset=utf-8",
+                    error: function () { new $.zui.Messager("请求失败").show();},
+                    beforeSend: function () {  },
+                    success: function (data) {
+                        if (data.result === 200) {
+                            $("#" + gid).html("已分红");
+                        }
+                        else
+                        {
+                            $("#" + gid).html(data.data);
+                        }
+                        new $.zui.Messager(data.data).show();
+                    },
+                });
+                return true;
+            } else {
+                return false;
+            }
+        }
+    </script>
+</body>
+</html>

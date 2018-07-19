@@ -1,0 +1,41 @@
+﻿@{
+    ViewBag.Class = "Shop";
+    ViewBag.Title = "营业执照";
+    Layout = "~/Views/Shared/_SLayout.cshtml";
+}
+<section class="section">
+    @using (Html.BeginForm("USCIAU", "Shop", FormMethod.Post, new { @class = "box", enctype = "multipart/form-data" }))
+    {
+
+        <div class="control">
+            <label>营业执照</label>
+            <div>
+                <input type="file" name="Picture" id="Picture" style="position:absolute;opacity:0.0;filter:alpha(opacity=20);width:300px;height:100px;" />
+                <img id="upimg" src="/uploadfiles/shop/@LJSheng.Common.LCookie.GetCK("shop","USCI")" onerror="this.src='/images/nopic.png'" />
+            </div>
+            <div id="picturebt" class="help-text text-red"></div>
+        </div>
+
+        <textarea id="base64Data" name="base64Data" hidden></textarea>
+    }
+</section>
+<nav class="nav affix dock-top justified">
+    <a href="/shop/index"><i class="icon-5x icon-arrow-left"></i></a>
+    <a>营业执照</a>
+    <a href="/Home/Url"><i class="icon-home"></i></a>
+</nav>
+<nav class="nav affix dock-bottom justified">
+    <a class="info" onclick="return shop();">提交</a>
+</nav>
+<script src="~/plugins/zui/lib/jquery/jquery.js"></script>
+<script src="~/js/image.js"></script>
+<script>
+        function shop() {
+            if (document.getElementById("base64Data").value.length <18) {
+                document.getElementById("picturebt").innerHTML = "请上传图片";
+                return false;
+            }
+            document.forms[0].submit();
+            return true;
+        }
+</script>

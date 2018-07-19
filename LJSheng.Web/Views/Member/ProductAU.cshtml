@@ -1,0 +1,88 @@
+﻿@{
+    ViewBag.Class = "Shop";
+    ViewBag.Title = "出售";
+    Layout = "~/Views/Shared/_SSLayout.cshtml";
+}
+<section class="section">
+    @using (Html.BeginForm("ProductAU", "Member", new { gid = Request.QueryString["gid"] }, FormMethod.Post, new { @class = "box", enctype = "multipart/form-data" }))
+    {
+        <div class="control hidden">
+            <label>商品图片</label>
+            <div>
+                <input type="file" name="Picture" id="Picture" style="position:absolute;opacity:0.0;filter:alpha(opacity=20);width:300px;height:100px;" />
+                <img id="upimg" src="@ViewBag.Picture" onerror="this.src='/images/nopic.png'" style="min-width:300px; min-height:100px;" />
+            </div>
+            <div id="picturebt" class="help-text text-red hidden"></div>
+        </div>
+        <div class="divider"></div>
+        <div class="control hidden">
+            <label>商品名称</label>
+            <input id="Name" name="Name" value="@ViewBag.Name" type="text" class="input" placeholder="输入商品名称">
+        </div>
+        <div class="control">
+            <label>转让数量(你的库存=@ViewBag.Stock)</label>
+            <input id="Number" name="Number" value=""  type="text" class="input" placeholder="转让数量" onkeyup="value=value.replace(/[^\d]/g,'');" onchange="money();" @(string.IsNullOrEmpty(Request.QueryString["Gid"])?"":"readonly")>
+        </div>
+        <div class="control">
+            <label>转让价格(你的进货价=@Request.QueryString["BuyPrice"])</label>
+            <input id="Price" name="Price" value="@ViewBag.Price" type="text" class="input" placeholder="你的进货价 X 数量 X 75%" onkeyup="value=value.replace(/[^\d]/g,'');" readonly>
+        </div>
+        <div class="control hidden">
+            <label>转让介绍</label>
+            <textarea type="text" name="Profile" autocomplete="off" class="input" style="height:5rem;">@ViewBag.Profile</textarea>
+        </div>
+        <div class="control hidden">
+            <label>转让详情</label>
+            <textarea type="text" name="Content" autocomplete="off" class="input" style="height:8rem;">@ViewBag.Content</textarea>
+        </div>
+        <textarea id="base64Data" name="base64Data" hidden></textarea>
+    }
+</section>
+<nav class="nav affix dock-top justified">
+    <a href="/Member/Index"><i class="icon-5x icon-arrow-left"></i></a>
+    <a>转让商品</a>
+    <a href="/Home/Url"><i class="icon-home"></i></a>
+</nav>
+<nav class="nav affix dock-bottom justified">
+    <a class="info" onclick="return Add();">提交</a>
+</nav>
+<script src="~/plugins/zui/lib/jquery/jquery.js"></script>
+<script src="~/plugins/mlayer/layer.js"></script>
+<script src="~/js/image.js"></script>
+<script>
+    function Add() {
+        //if (document.getElementById("Name").value.length < 1) {
+        //    tip("商品名称不少于2个字");
+        //    return false;
+        //}
+        if (document.getElementById("Number").value.length < 1) {
+            tip("请填写转让数量");
+            return false;
+        }
+        if (document.getElementById("Price").value.length < 1) {
+            tip("请填写要转让的价格");
+            return false;
+        }
+        document.forms[0].submit();
+        return true;
+    }
+    function tip(msg) {
+        layer.open({
+            content: msg
+            , skin: 'msg'
+            , time: 5
+        });
+    }
+    function money() {
+        var Number = document.getElementById("Number").value;
+        if (Number <=@ViewBag.Stock && Number > 0)
+        {
+            var BuyPrice =@Request.QueryString["BuyPrice"];
+            document.getElementById("Price").value = (Number * BuyPrice) * 0.75;
+        }
+        else {
+            document.getElementById("Number").value = "";
+            tip("你的库存只有 @ViewBag.Stock");
+        }
+    }
+</script>

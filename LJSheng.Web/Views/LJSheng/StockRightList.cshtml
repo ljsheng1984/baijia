@@ -1,0 +1,79 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" Content="width=device-width, initial-scale=1" />
+    <title>会员分红</title>
+    <link rel="stylesheet" href="~/plugins/zui/css/zui.min.css">
+</head>
+<body>
+    <div class="row" id="search">
+        <div class="col-xs-12">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="icon-search"></i></span>
+                <span class="input-group-addon">项目</span>
+                <select class="form-control" name="Project">
+                    <option value="0">=全 部=</option>
+                    @foreach (var item in Model)
+                    {
+                        <option value="@item.Value">@item.Key</option>
+                    }
+                </select>
+                <span class="input-group-addon">会员帐号</span>
+                <input type="text" name="Account" class="form-control">
+                <span class="input-group-addon">时间</span>
+                <input type="text" class="form-control" placeholder="开始时间" name="STime" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd HH:mm:ss',alwaysUseStartDate:true})" />
+                <span class="input-group-addon fix-padding">-</span>
+                <input type="text" class="form-control" placeholder="结束时间" name="ETime" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd HH:mm:ss',alwaysUseStartDate:true})" />
+                <span class="input-group-btn">
+                    <input type="text" value="@Request.QueryString["membergid"]" name="MemberGid" class="hidden" />
+                    <button type="button" class="btn btn-info" onclick="GetList(1);">给偶搜</button>
+                </span>
+            </div>
+        </div>
+    </div>
+    <br />
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>项目</th>
+                <th>订单名称</th>
+                <th>订单号</th>
+                <th>购买金额</th>
+                <th>会员</th>
+                <th>分红</th>
+                <th>添加时间</th>
+            </tr>
+        </thead>
+        <tbody id="tbody">
+            <script id="tpl" type="text/html">
+                {{each list as item index}}
+                <tr id="{{item.Gid}}" style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
+                    <td>{{index+1}}</td>
+                    <td>{{item.TypeName}}</td>
+                    <td>{{item.Product}}</td>
+                    <td onclick="Show('{{item.OrderNo}}','OrderList?OrderNo={{item.OrderNo}}');" title="单击查看订单详情"><button class="btn btn-block btn-mini" type="button">{{item.OrderNo}}</button></td>
+                    <td>{{item.Price}}</td>
+                    <td>{{item.Account}}</td>
+                    <td>{{item.Number}}</td>
+                    <td>{{item.AddTime}}</td>
+                </tr>
+                {{/each}}
+            </script>
+        </tbody>
+    </table>
+    <ul class="pager" id="pager"></ul>
+    <ul class="pager" id="pages" style="overflow:hidden;"></ul>
+    <script src="~/plugins/zui/lib/jquery/jquery.js"></script>
+    <script src="~/plugins/zui/js/zui.min.js"></script>
+    <script src="~/js/template-web.js"></script>
+    <script src="~/plugins/My97DatePicker/WdatePicker.js"></script>
+    <script src="~/js/list.js"></script>
+</body>
+</html>

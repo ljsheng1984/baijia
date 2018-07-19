@@ -1,0 +1,114 @@
+﻿@{
+    ViewBag.Title = "个人信息";
+    Layout = "~/Views/Shared/_MLayout.cshtml";
+}
+@using (Html.BeginForm("Info", "Member", new { Type = 1 }, FormMethod.Post, new { @class = "", enctype = "multipart/form-data" }))
+{
+    <div class="signle-item">
+        <a class="cell">
+            <div class="cell-left">头像</div>
+            <div class="cell-right">
+                <input type="file" name="Picture" id="Picture" style="position:absolute;opacity:0.0;filter:alpha(opacity=20);width:388px;height:158px;" />
+                <div class="text text-right"><img id="upimg" src="/uploadfiles/member/@ViewBag.Picture" onerror="this.src='/images/@(ViewBag.Gender+".png")'" /></div>
+            </div>
+        </a>
+        <a class="cell">
+            <div class="cell-left">真实姓名</div>
+            <div class="cell-right">
+                <input class="text text-right" type="text" name="RealName" value="@ViewBag.RealName" placeholder="请输入真实姓名" />
+            </div>
+        </a>
+        <a class="cell">
+            <div class="cell-left">昵称</div>
+            <div class="cell-right">
+                <div class="text text-right">
+                    <input class="text text-right" type="text" name="NickName" value="@ViewBag.NickName" placeholder="请输入昵称" />
+                </div>
+            </div>
+        </a>
+        <a class="cell" onclick="gender();">
+            <div class="cell-left">性别</div>
+            <div class="cell-right">
+                <input class="text text-right" type="text" name="Gender" value="@ViewBag.Gender" readonly />
+            </div>
+        </a>
+    </div>
+    <div class="signle-item">
+        <a class="cell" href="~/Member/AddAddress?type=1">
+            <div class="cell-left">联系方式</div>
+            <div class="cell-right">
+                <div class="text text-right"></div>
+                <i class="icon-arrow"></i>
+            </div>
+        </a>
+    </div>
+    <div class="signle-item">
+        <a class="cell" href="~/Member/Address?type=2">
+            <div class="cell-left">收货地址信息</div>
+            <div class="cell-right">
+                <div class="text text-right"></div>
+                <i class="icon-arrow"></i>
+            </div>
+        </a>
+    </div>
+    <div class="signle-item">
+        <a class="cell" href="~/Member/AddBank">
+            <div class="cell-left">收款信息</div>
+            <div class="cell-right">
+                <div class="text text-right"></div>
+                <i class="icon-arrow"></i>
+            </div>
+        </a>
+    </div>
+    <div class="signle-item">
+        <a href="/Member/PWD" class="cell">
+            <div class="cell-left">修改密码</div>
+            <div class="cell-right">
+                <div class="text text-right"></div>
+                <i class="icon-arrow"></i>
+            </div>
+        </a>
+    </div>
+    <div class="padding-btn-group">
+        <textarea id="base64Data" name="base64Data" hidden></textarea>
+        <button type="button" id="btn" class="btn-block btn-green" onclick="return check();">确认</button>
+    </div>
+}
+<script src="~/js/image.js"></script>
+<script>
+    function check() {
+        var field = $("input[name='RealName']");
+        if (field.val().length < 1) {
+            tooltip(field);
+            return false;
+        }
+        field = $("input[name='NickName']");
+        if (field.val().length == 0) {
+            tooltip(field);
+            return false;
+        }
+        document.getElementById("btn").innerText = "正在提交...";
+        document.getElementById("btn").disabled = true;
+        document.forms[0].submit();
+    }
+    function tooltip(field) {
+        field.focus();
+        tip(field.attr('placeholder'));
+    }
+    function tip(msg) {
+        layer.open({
+            content: msg
+            , skin: 'msg'
+            , time: 2
+        });
+    }
+    function gender() {
+        var g = document.getElementsByName("Gender")[0];
+        if (g.value == "男") {
+            g.setAttribute("value", "女");
+        }
+        else {
+            g.setAttribute("value", "男");
+        }
+    }
+</script>

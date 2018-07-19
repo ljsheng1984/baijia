@@ -1,0 +1,65 @@
+﻿@{
+    ViewBag.Title = "我的团队";
+    Layout = "~/Views/Shared/_LLayout.cshtml";
+}
+<div class="bonus-tabs">
+    <div class="cell active" onclick="getlist(0);">
+        <p>查看</p>
+        <h3>全部</h3>
+    </div>
+    <div class="cell" onclick="getlist(22);">
+        <p>VIP</p>
+        <h3>@ViewBag.Level22</h3>
+    </div>
+    <div class="cell" onclick="getlist(23);">
+        <p>总代</p>
+        <h3>@ViewBag.Level23</h3>
+    </div>
+    <div class="cell" onclick="getlist(24);">
+        <p>联创</p>
+        <h3>@ViewBag.Level24</h3>
+    </div>
+    <div class="cell" onclick="getlist(25);">
+        <p>合伙人</p>
+        <h3>@ViewBag.Level25</h3>
+    </div>
+    <div class="cell" onclick="getlist(26);">
+        <p>创始人</p>
+        <h3>@ViewBag.Level26</h3>
+    </div>
+</div>
+<div id="search" hidden>
+    <input type="text" name="type" id="type" value="0" />
+</div>
+<div class="mescroll" id="scroll">
+    <ul class="team-detail-ul" id="dataList">
+        <script id="tpl" type="text/html">
+            {{each list as item index}}
+            <li class="cell">
+                <a class="img">
+                    <img src="/uploadfiles/member/{{item.Picture}}" onerror="this.src='/images/{{item.Gender}}.png'" />
+                    <span class="rank">{{item.Number}}</span>
+                </a>
+                <h1><span class="label {{item.Label}}">{{item.LevelName}}</span> {{item.RealName}}</h1>
+                <div class="number">
+                    <a class="tel">{{item.Account}}</a>
+                    <a class="time">{{item.AddTime}}</a>
+                </div>
+            </li>
+            {{/each}}
+        </script>
+    </ul>
+</div>
+<script>
+    function getlist(type, ev) {
+        $("#type").val(type);
+        $(".bonus-tabs div").removeClass("active");
+        ev = ev || window.event;
+        var tmp = ev.target || ev.srcElement;
+        tmp.className = "active";
+        //重置列表数据
+        scroll.resetUpScroll();
+        //隐藏回到顶部按钮
+        scroll.hideTopBtn();
+    }
+</script>

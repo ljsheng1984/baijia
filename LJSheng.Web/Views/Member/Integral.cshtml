@@ -1,0 +1,99 @@
+﻿@{
+    ViewBag.Title = ViewBag.Integral;
+    Layout = "~/Views/Shared/_LLayout.cshtml";
+}
+<div class="bonus-tabs">
+    <div class="cell active" onclick="getlist(0);">
+        <p>全部</p>
+        <h3>@ViewBag.Money</h3>
+    </div>
+    <div class="cell" onclick="getlist(20);">
+        <p>分享</p>
+        <h3>@ViewBag.Money20</h3>
+    </div>
+    <div class="cell" onclick="getlist(22);">
+        <p>业绩</p>
+        <h3>@ViewBag.Money22</h3>
+    </div>
+    <div class="cell" onclick="getlist(23);">
+        <p>项目</p>
+        <h3>@ViewBag.Money23</h3>
+    </div>
+    <div class="cell" onclick="getlist(9);">
+        <p>分红</p>
+        <h3>@ViewBag.Money9</h3>
+    </div>
+    <div class="cell" onclick="getlist(1);">
+        <p>消费</p>
+        <h3>@ViewBag.Money1</h3>
+    </div>
+</div>
+<div id="search" hidden>
+    <input class="text" name="type" id="type" value="0" />
+    <input type="text" name="tab" value="@Request.QueryString["tab"]" />
+</div>
+<div class="mescroll" id="scroll">
+    <ul class="bonus-team-ul" id="dataList">
+        <script id="tpl" type="text/html">
+            {{each list as item index}}
+            <li class="cell">
+                <a class="img">
+                    <img src="/uploadfiles/member/{{item.Picture}}" onerror="this.src='/images/{{item.Gender}}.png'" />
+                </a>
+                <span>
+                    {{if item.Type=="1"}}
+                    消费
+                    {{else if item.Type=="2"}}
+                    提现
+                    {{else if item.Type=="3"}}
+                    合伙人进货
+                    {{else if item.Type=="4"}}
+                    购物分成
+                    {{else if item.Type=="5"}}
+                    分享奖
+                    {{else if item.Type=="6"}}
+                    级差
+                    {{else if item.Type=="7"}}
+                    平级
+                    {{else if item.Type=="8"}}
+                    合伙人分红
+                    {{else if item.Type=="9"}}
+                    股东分红
+                    {{else if item.Type=="20"}}
+                    分享奖
+                    {{else if item.Type=="22"}}
+                    彩链团队分红
+                    {{else if item.Type=="23"}}
+                    彩链项目分红
+                    {{else if item.Type=="24"}}
+                    发货人积分扣除
+                    {{else if item.Type=="25"}}
+                    发货人积分解除
+                    {{else}}
+                    未知
+                    {{/if}}
+                </span>
+                <span>{{item.Account}}({{item.RealName}})</span>
+                <h1>{{item.Product}}</h1>
+                <div class="i">
+                    <a class="time">时间: {{item.AddTime}}</a>
+                </div>
+                <div class="number"><b>{{item.Integral}}</b>积分</div>
+            </li>
+            {{/each}}
+        </script>
+    </ul>
+</div>
+<script>
+    function getlist(type, ev) {
+        $("#type").val(type);
+        $(".bonus-tabs div").removeClass("active");
+        ev = ev || window.event;
+        var tmp = ev.target || ev.srcElement;
+        tmp.className = "active";
+        //重置列表数据
+        scroll.resetUpScroll();
+        //隐藏回到顶部按钮
+        scroll.hideTopBtn();
+    }
+</script>

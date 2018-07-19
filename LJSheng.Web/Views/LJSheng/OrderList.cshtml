@@ -1,0 +1,184 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" Content="width=device-width, initial-scale=1" />
+    <title>订单管理</title>
+    <link rel="stylesheet" href="~/plugins/zui/css/zui.min.css">
+</head>
+<body>
+    <div class="row" id="search">
+        <div class="col-xs-11">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="icon-search"></i></span>
+                <select class="form-control" name="PayType">
+                    <option value="0" selected>= 支付类型 =</option>
+                    @foreach (string name in Enum.GetNames(typeof(LJSheng.Common.Help.PayType)))
+        {
+            LJSheng.Common.Help.PayType type = (LJSheng.Common.Help.PayType)Enum.Parse(typeof(LJSheng.Common.Help.PayType), name, true);
+            <option value="@((int)type)">@name</option>
+}
+                </select>
+                <span class="input-group-addon fix-padding">-</span>
+                <select class="form-control" name="PayStatus">
+                    <option value="0" selected>= 支付状态 =</option>
+                    @foreach (string name in Enum.GetNames(typeof(LJSheng.Common.Help.PayStatus)))
+        {
+            LJSheng.Common.Help.PayStatus type = (LJSheng.Common.Help.PayStatus)Enum.Parse(typeof(LJSheng.Common.Help.PayStatus), name, true);
+            <option value="@((int)type)" @(name == "支付成功" ? "selected" : "")>@name</option>
+}
+                </select>
+                <span class="input-group-addon fix-padding">-</span>
+                <select class="form-control" name="ExpressStatus">
+                    <option value="0" selected>= 货物状态 =</option>
+                    <option value="1" @(Request.QueryString["ExpressStatus"] == "1" ? "selected" : "")>待出货</option>
+                    <option value="2">快递中</option>
+                    <option value="3">已签收</option>
+                    <option value="4">退回</option>
+                </select>
+                <span class="input-group-addon fix-padding">-</span>
+                <select class="form-control" name="Status">
+                    <option value="0" selected>= 货款状态 =</option>
+                    <option value="1" @(Request.QueryString["Status"] == "1" ? "selected" : "")>冻结中</option>
+                    <option value="2">已支付</option>
+                </select>
+                <span class="input-group-addon fix-padding">-</span>
+                <select class="form-control" name="Type">
+                    <option value="0" selected>订单类型</option>
+                    <option value="3" @(Request.QueryString["Type"] == "3" ? "selected" : "")>公司发货</option>
+                    <option value="4">合伙人发货</option>
+                    <option value="5">转让订单</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-xs-11">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="icon-search"></i></span>
+                <span class="input-group-addon">会员帐号</span>
+                <input type="text" class="form-control" name="Account" placeholder="注册手机号" />
+                <span class="input-group-addon">产品名称</span>
+                <input type="text" class="form-control" name="Product" value="@Request.QueryString["Product"]" placeholder="产品名称" />
+                <span class="input-group-addon">系统订单号</span>
+                <input type="text" class="form-control" name="OrderNo" placeholder="系统订单号" value="@Request.QueryString["OrderNo"]" />
+                <span class="input-group-addon">网银订单号</span>
+                <input type="text" class="form-control" name="TradeNo" placeholder="网银订单号" />
+                <span class="input-group-addon">时间</span>
+                <input type="text" class="form-control" placeholder="开始时间" name="STime" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd HH:mm:ss',alwaysUseStartDate:true})" />
+                <span class="input-group-addon fix-padding">-</span>
+                <input type="text" class="form-control" placeholder="结束时间" name="ETime" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd HH:mm:ss',alwaysUseStartDate:true})" />
+                <span class="input-group-btn">
+                    <input type="text" value="@Request.QueryString["Year"]" name="Year" class="hidden" />
+                    <input type="text" value="@Request.QueryString["Month"]" name="Month" class="hidden" />
+                    <input type="text" value="@Request.QueryString["ShopGid"]" name="ShopGid" class="hidden" />
+                    <input type="text" value="@Request.QueryString["membergid"]" name="MemberGid" class="hidden" />
+                    <input type="text" value="@Request.QueryString["Project"]" name="Project" class="hidden" />
+                    <button type="button" class="btn btn-info" onclick="GetList(1);">给偶搜</button>
+                </span>
+            </div>
+        </div>
+    </div>
+    <br />
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>系统/网银订单号</th>
+                <th>下单/支付时间</th>
+                <th>购买商品</th>
+                <th>会员帐号</th>
+                <th>支付信息</th>
+                <th>支付金额</th>
+                <th>管理操作</th>
+            </tr>
+        </thead>
+        <tbody id="tbody">
+            <script id="tpl" type="text/html">
+                {{each list as item index}}
+                <tr id="{{item.Gid}}" style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
+                    <td rowspan="2">{{index+1}}</td>
+                    <td>{{item.OrderNo}}<br />{{item.TradeNo}}</td>
+                    <td>{{item.AddTime}}<br />{{item.PayTime}}</td>
+                    <td onclick="Show('{{item.OrderNo}}','OrderDetailsList?gid={{item.Gid}}');"><button class="btn btn-block " type="button">{{item.Product}}</button></td>
+                    <td>{{item.Account}}<br />{{item.RealName}}</td>
+                    <td>
+                        {{if item.PayStatus=="1"}}
+                        <span class="label label-success">支付成功</span>
+                        {{else if item.PayStatus=="2"}}
+                        <span class="label label-danger">未支付</span>
+                        {{else if item.PayStatus=="3"}}
+                        已退款
+                        {{else if item.PayStatus=="5"}}
+                        金额不对
+                        {{else}}
+                        交易关闭
+                        {{/if}}
+                        <br />
+                        {{if item.PayType=="1"}}
+                        支付宝
+                        {{else if item.PayType=="2"}}
+                        微信
+                        {{else if item.PayType=="4"}}
+                        余额
+                        {{else if item.PayType=="5"}}
+                        积分
+                        {{else}}
+                        线下汇款
+                        {{/if}}
+                    </td>
+                    <td>
+                        订单金额:{{item.TotalPrice}}<br />
+                        支付金额:{{item.Price}}/{{item.PayPrice}}
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            <button class="btn" onclick="Show('{{item.OrderNo}}','OrderAU?gid={{item.Gid}}&account={{item.Account}}&realName={{item.RealName}}');">编辑</button>
+                            <button class="btn btn-danger hidden" onclick="Delete('{{item.Gid}}');">删除</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr id="{{item.Gid}}" style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
+                    <td onclick="Show('{{item.OrderNo}}','IntegralList?OrderNo={{item.OrderNo}}');">
+                        <div class="btn-group">
+                            <button class="btn btn-mini">详情</button>
+                            <button class="btn btn-mini">总积分 <span class="label label-badge">{{item.AllMoney + item.Money}}</span></button>
+                            <button class="btn btn-mini">购物积分 <span class="label label-badge">{{item.AllIntegral + item.Integral}}</span></button>
+                            <button class="btn btn-mini">数量 <span class="label label-badge">{{item.Stock}}</span></button>
+                        </div>
+                    </td>
+                    <td><button class="btn btn-mini disabled">发货人 <span class="label label-badge">{{item.Shop}}</span></button></td>
+                    <td>
+                        <span class="label label-info">
+                            {{if item.ExpressStatus=="1"}}
+                            待出货
+                            {{else if item.ExpressStatus=="2"}}
+                            快递中
+                            {{else if item.ExpressStatus=="3"}}
+                            已签收
+                            {{else}}
+                            退回
+                            {{/if}}
+                        </span>
+                    </td>
+                    <td>购买时级别</td>
+                    <td><span class="label {{item.Label}}">{{item.LevelName}}</span></td>
+                    <td><button class="btn btn-info btn-mini disabled hidden">利润 <span class="label label-badge">{{item.Profit}}</span></button></td>
+                    <td><button class="btn btn-mini" onclick="Show('{{item.OrderNo}}','Express?express={{item.Express}}&expressnumber={{item.ExpressNumber}}');" {{item.ExpressStatus==1?"disabled":""}}>查看物流</button></td>
+                </tr>
+                {{/each}}
+            </script>
+        </tbody>
+    </table>
+    <ul class="pager" id="pager"></ul>
+    <ul class="pager" id="pages" style="overflow:hidden;"></ul>
+    <script src="~/plugins/zui/lib/jquery/jquery.js"></script>
+    <script src="~/plugins/zui/js/zui.min.js"></script>
+    <script src="~/js/template-web.js"></script>
+    <script src="~/plugins/My97DatePicker/WdatePicker.js"></script>
+    <script src="~/js/list.js"></script>
+</body>
+</html>

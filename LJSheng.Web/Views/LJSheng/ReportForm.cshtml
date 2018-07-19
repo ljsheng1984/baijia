@@ -1,0 +1,145 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" Content="width=device-width, initial-scale=1" />
+    <title>报表</title>
+    <link rel="stylesheet" href="~/plugins/zui/css/zui.min.css">
+</head>
+<body>
+    <div class="row" id="search">
+        <div class="col-sm-8">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="icon-search"></i></span>
+                <span class="input-group-addon">项目</span>
+                <select class="form-control" name="Project">
+                    <option value="0">=全 部=</option>
+                    @foreach (var item in Model)
+                    {
+                        <option value="@item.Value">@item.Key</option>
+                    }
+                </select>
+                <span class="input-group-addon">时间</span>
+                <input type="text" class="form-control" placeholder="开始时间" name="STime" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd HH:mm:ss',alwaysUseStartDate:true})" />
+                <span class="input-group-addon fix-padding">-</span>
+                <input type="text" class="form-control" placeholder="结束时间" name="ETime" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd HH:mm:ss',alwaysUseStartDate:true})" />
+                <span class="input-group-btn">
+                    <button type="button" class="btn btn-info" onclick="GetList();">给偶搜</button>
+                </span>
+            </div>
+        </div>
+    </div>
+    <br />
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th></th>
+                <th>全部订单</th>
+                <th>利润</th>
+                <th>提现</th>
+                <th>合伙人订单</th>
+                <th>支付宝</th>
+                <th>微信</th>
+                <th>线下付款</th>
+                <th>积分购物</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>全部(金额)</td>
+                <td>@ViewBag.order</td>
+                <td>@ViewBag.profit</td>
+                <td>@ViewBag.bank</td>
+                <td>@ViewBag.lv</td>
+                <td>@ViewBag.alipay</td>
+                <td>@ViewBag.wxpay</td>
+                <td>@ViewBag.rmb</td>
+                <td>@ViewBag.integral</td>
+            </tr>
+            <tr>
+                <td>按时间查询</td>
+                <td>@ViewBag.ordertime</td>
+                <td>@ViewBag.profittime</td>
+                <td>@ViewBag.banktime</td>
+                <td>@ViewBag.lvtime</td>
+                <td>@ViewBag.alipaytime</td>
+                <td>@ViewBag.wxpaytime</td>
+                <td>@ViewBag.rmbtime</td>
+                <td>@ViewBag.integraltime</td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th></th>
+                <th>会员总数</th>
+                <th>项目合伙人</th>
+                <th>主任</th>
+                <th>经理</th>
+                <th>总裁</th>
+                <th>生态圈</th>
+                <th>股东</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>全部</td>
+                <td>@ViewBag.member</td>
+                <td>@ViewBag.lv6</td>
+                <td>@ViewBag.lv7</td>
+                <td>@ViewBag.lv8</td>
+                <td>@ViewBag.lv9</td>
+                <td>@ViewBag.lv10</td>
+                <td>@ViewBag.lv11</td>
+            </tr>
+            <tr>
+                <td>按时间查询</td>
+                <td>@ViewBag.membertime</td>
+                <td>@ViewBag.lv6time</td>
+                <td>@ViewBag.lv7time</td>
+                <td>@ViewBag.lv8time</td>
+                <td>@ViewBag.lv9time</td>
+                <td>@ViewBag.lv10time</td>
+                <td>@ViewBag.lv11time</td>
+            </tr>
+        </tbody>
+    </table>
+    <script src="~/plugins/zui/lib/jquery/jquery.js"></script>
+    <script src="~/plugins/zui/js/zui.min.js"></script>
+    <script src="~/plugins/My97DatePicker/WdatePicker.js"></script>
+    <script>
+        function GetList() {
+            var parames = new Array();
+            var div = document.getElementById("search");
+            var input = div.getElementsByTagName("input");
+            var select = div.getElementsByTagName("select");
+            for (var i = 0; i < input.length; i++) {
+                parames.push({ name: input[i].name, value: input[i].value });
+            }
+            for (var i = 0; i < select.length; i++) {
+                parames.push({ name: select[i].name, value: select[i].value });
+            }
+            var temp_form = document.createElement("form");
+            temp_form.action = window.location.href;
+            temp_form.target = "_self";
+            temp_form.method = "post";
+            temp_form.style.display = "none";
+            for (var item in parames) {
+                var opt = document.createElement("textarea");
+                opt.name = parames[item].name;
+                opt.value = parames[item].value;
+                temp_form.appendChild(opt);
+            }
+            document.body.appendChild(temp_form);
+            temp_form.submit();
+            return false;
+        }
+    </script>
+</body>
+</html>

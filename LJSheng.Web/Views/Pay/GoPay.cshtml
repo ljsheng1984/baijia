@@ -1,0 +1,101 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+    <title>支付</title>
+    <link rel="stylesheet" href="~/css/main.css">
+</head>
+<body class="index">
+    <div class="sub-header">
+        <a class="icon-arrow-left" href="@(ViewBag.Project == 1 ? "/Home/ShopCart" : "/Home/Index")">返回</a>
+        <div class="title">支付</div>
+    </div>
+    @using (Html.BeginForm("Pay", "Pay", FormMethod.Post))
+    {
+        <div class="cart-alert">
+            请在5分钟之内付款!
+        </div>
+        <div class="double-icon-item" onclick="self.location = '/Member/Address?type=0&url=GoPay';">
+            <a class="icon-left icon-location">&nbsp;</a>
+            <div class="text">
+                <p class="tit">@ViewBag.RealName</p>
+                <p class="small-tit">@ViewBag.Addr</p>
+                <span class="pos">@ViewBag.ContactNumber</span>
+            </div>
+            <a class="icon-right icon-arrow-right">&nbsp;</a>
+        </div>
+        <p class="note">
+            <textarea name="Remarks" placeholder="备注"></textarea>
+        </p>
+        <div class="item-divider">
+            请选择以下支付方式(支付金额:<b class="price">0</b>)
+        </div>
+        <div class="item-avatar" onclick="return check(1);">
+            <a class="icon-avatar"><img src="~/images/ic-alipay.png" /></a>
+            <div class="item-text">支付宝</div>
+        </div>
+        <input hidden type="text" name="RealName" value="@ViewBag.RealName" />
+        <input hidden type="text" name="ContactNumber" value="@ViewBag.ContactNumber" />
+        <input hidden type="text" name="Addr" value="@ViewBag.Addr" />
+        <textarea hidden name="shopcart" id="shopcart"></textarea>
+        <input hidden type="text" name="PayType" id="PayType" />
+        <input hidden type="text" name="OrderNo" id="OrderNo" value="@Request.QueryString["OrderNo"]" />
+    }
+    <script src="~/js/jquery.js"></script>
+    <script src="~/plugins/shopcart/cookie.js"></script>
+    <script src="~/plugins/shopcart/server.js"></script>
+    <script src="~/plugins/mlayer/layer.js"></script>
+    <script>
+        var price = @ViewBag.Project==1 ? getTotalPrice() : @Request.QueryString["Price"];
+        if (price <= 0) {
+            self.location = "/Member/Order?tab=0";
+        }
+        document.getElementsByClassName("price")[0].innerHTML = price;
+        function check(PayType) {
+            var ua = navigator.userAgent.toLowerCase();
+            if (PayType != 2 && ua.match(/MicroMessenger/i) == "micromessenger")
+            {
+                layer.open({
+                    content: '不能在微信里使用支付,请在浏览器打开重新登录下单'
+                    , btn: '我知道了'
+                });
+            }
+            else {
+                if (document.getElementsByName("RealName")[0].value.length > 1 && document.getElementsByName("ContactNumber")[0].value.length > 10 && document.getElementsByName("Addr")[0].value.length > 3) {
+                    document.getElementById("shopcart").value = @ViewBag.Project==1 ? cookieObj.get("datas") : "@Request.QueryString["PGid"]";
+                    document.getElementById("PayType").value = PayType;
+                    if (document.getElementById("shopcart").value.length > 10 || document.getElementById("OrderNo").value.length > 10) {
+                        layer.open({
+                            type: 2
+                            , content: '正在请求支付网关...'
+                        });
+                        cookieObj.del("datas");
+                        document.forms[0].submit();
+                    }
+                    else {
+                        layer.open({
+                            content: '该订单已经提交过了,请重新下单'
+                            , btn: '我知道了'
+                        });
+                        return false;
+                    }
+                }
+                else {
+                    layer.open({
+                        content: '请选择收货方式'
+                        , skin: 'msg'
+                        , time: 2
+                    });
+                    return false;
+                }
+            }
+        }
+    </script>
+</body>
+</html>

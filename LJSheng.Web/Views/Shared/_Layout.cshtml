@@ -1,0 +1,68 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+    <title>@ViewBag.Title</title>
+    @Styles.Render("~/css")
+    @Scripts.Render("~/js")
+</head>
+<body class="index@(ViewBag.Class =="Member"?" user-center":"")">
+    @RenderBody()
+    <footer class="nav-footer">
+        <ul class="web-nav">
+            <li>
+                <a href="/Home/@(LJSheng.Common.LCookie.Project()==1?"Tea":"Index")" id="Index">
+                    <p>
+                        <i class="icon-home"></i>
+                    </p>
+                    <p>首页</p>
+                </a>
+            </li>
+            <li class="@(LJSheng.Common.LCookie.Project()==1?"hide":"")">
+                <a href="/Home/Market" id="Market">
+                    <p>
+                        <i class="icon-class"></i>
+                    </p>
+                    <p>市场</p>
+                </a>
+            </li>
+            <li class="@(LJSheng.Common.LCookie.Project()==2?"hide":"")">
+                <a href="/Home/Classify" id="Classify">
+                    <p>
+                        <i class="icon-class"></i>
+                    </p>
+                    <p>分类</p>
+                </a>
+            </li>
+            <li class="@(LJSheng.Common.LCookie.Project()==2?"hide":"")">
+                <a href="/Home/ShopCart" id="ShopCart">
+                    <p>
+                        <i class="icon-cart"></i>
+                    </p>
+                    <p>购物车</p>
+                </a>
+            </li>
+            <li>
+                <a href="/Home/Shop" id="Shop">
+                    <p>
+                        <i class="icon-shop"></i>
+                    </p>
+                    <p>商城</p>
+                </a>
+            </li>
+            <li>
+                <a href="/Member/Index" id="Member">
+                    <p>
+                        <i class="icon-user"></i>
+                    </p>
+                    <p>我的</p>
+                </a>
+            </li>
+        </ul>
+    </footer>
+    <script>
+        $("#@ViewBag.Class").addClass("active");
+    </script>
+</body>
+</html>

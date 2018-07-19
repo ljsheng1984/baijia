@@ -1,0 +1,132 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" Content="width=device-width" />
+    <title>后台头部</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        a {
+            color: #3b4c65;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .head {
+            height: 50px;
+            background-color: #336699;
+            padding-left: 220px;
+        }
+
+        .hcon {
+            color: #d1ecff;
+            line-height: 50px;
+            margin-right: 10px;
+            height: 50px;
+        }
+
+        .hcon p {
+            float: left;
+        }
+
+        .hcon tt {
+            float: right;
+        }
+
+        .hcon a {
+            color: #c0ccdf;
+            margin: 0 10px;
+        }
+
+        .hcon font {
+            _position: relative;
+            top: 2px;
+        }
+
+        p a {
+            float: left;
+            font-size: 12px;
+            background-color: dimgray;
+            padding: 3px 10px;
+            border: 1px solid #a2ceff;
+            line-height: 20px;
+            margin: 0 5px;
+            color: #00336c;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        p a:hover {
+            background-color: brown;
+            text-decoration: none;
+        }
+        .msg {
+            background-color:orangered;
+        }
+    </style>
+</head>
+<body>
+    <div class="head">
+        <div class="hcon">
+            <p>
+                <a target="list" href="~/LJSheng/MemberList">会员总数<br /><em id="member">0</em></a>
+                <a>订单收入<br /><em id="money">0</em></a>
+                <a>积分收入<br /><em id="integral">0</em></a>
+                <a target="list" href="@(LJSheng.Common.LCookie.Getljsheng("Jurisdiction")=="管理员"?"/LJSheng/OrderList":"#")">订单总数<br /><em id="order">0</em></a>
+                <a target="list" href="@(LJSheng.Common.LCookie.Getljsheng("Jurisdiction")=="管理员"?"/LJSheng/OrderList?ExpressStatus=1":"#")">需要发货<br /><em id="orderES">0</em></a>
+                <a target="list" href="@(LJSheng.Common.LCookie.Getljsheng("Jurisdiction")=="管理员"?"/LJSheng/WithdrawalsList":"#")">提现金额<br /><em id="bank">0</em></a>
+                <a target="list" href="@(LJSheng.Common.LCookie.Getljsheng("Jurisdiction")=="管理员"?"/LJSheng/WithdrawalsList?State=1":"#")">待提现<br /><em id="bankState">0</em></a>
+                <a target="list" href="@(LJSheng.Common.LCookie.Getljsheng("Jurisdiction")=="管理员"?"/LJSheng/ShopList?State=1":"#")">商家<br /><em id="shop">0</em></a>
+            </p>
+            <tt><a href="/LJSheng/index" target="list">后台首页</a>|<a href="/Home/Url" target="_blank">前台首页</a>|<a href="/Home/LoginOut?login=/LJSheng/Login" target="_top">您好,@(LJSheng.Common.LCookie.Getljsheng("Jurisdiction")) 安全退出</a></tt>
+        </div>
+    </div>
+    <audio id="audio-notification"><source src="~/images/msg.mp3" type="audio/mpeg" /></audio>
+    <script src="~/js/jquery.js"></script>
+    <script>
+        function GetTB() {
+            $.ajax({
+                type: "post",
+                url: "/ajax/api.ashx",
+                data: "ff=top&cache=" + Math.random(),
+                cache: false,
+                dataType: "json",
+                timeout: 5000,
+                //出错处理
+                error: function () {},
+                beforeSend: function () { },
+                success: function (data) {
+                    if (data.result == 200) {
+                        if (data.data.orderES != 0 || data.data.orderStatus != 0) {
+                            $("#audio-notification").get(0).play();//播放提示音
+                        }
+                        $("#member").html(data.data.member);
+                        $("#order").html(data.data.order);
+                        $("#orderES").html(data.data.orderES);
+                        //$("#orderStatus").html(data.data.orderStatus);
+                        $("#money").html(data.data.money);
+                        $("#integral").html(data.data.integral);
+                        $("#bank").html(data.data.bank);
+                        $("#bankState").html(data.data.orderState);
+                        $("#shop").html(data.data.shop);
+                    }
+                }
+            });
+            setTimeout(function () { GetTB(); }, 198888);
+        }
+        setTimeout(function () { GetTB(); }, 100);
+    </script>
+</body>
+</html>

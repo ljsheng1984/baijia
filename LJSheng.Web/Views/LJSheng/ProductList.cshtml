@@ -1,0 +1,140 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" Content="width=device-width, initial-scale=1" />
+    <title>商品管理</title>
+    <link rel="stylesheet" href="~/plugins/zui/css/zui.min.css">
+</head>
+<body>
+    <div class="row" id="search">
+        <div class="col-xs-10">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="icon-search"></i></span>
+                <span class="input-group-addon">分类</span>
+                <select class="form-control" name="ClassifyGid">
+                    <option value="0">=全 部=</option>
+                    @foreach (var item in Model)
+                    {
+                        <option value="@item.Gid">@item.Name</option>
+                    }
+                </select>
+                <span class="input-group-addon">名称</span>
+                <input type="text" name="Name" class="form-control">
+                <span class="input-group-addon">时间</span>
+                <input type="text" class="form-control" placeholder="开始时间" name="STime" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd HH:mm:ss',alwaysUseStartDate:true})" />
+                <span class="input-group-addon fix-padding">-</span>
+                <input type="text" class="form-control" placeholder="结束时间" name="ETime" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd HH:mm:ss',alwaysUseStartDate:true})" />
+                <span class="input-group-btn">
+                    <input type="text" name="Project" value="@Request.QueryString["project"]" class="form-control hidden">
+                    <button type="button" class="btn btn-info" onclick="GetList(1);">给偶搜</button>
+                </span>
+                <span class="input-group-btn">
+                    <button type="button" class="btn" onclick="ProductShow();">清空推荐</button>
+                </span>
+            </div>
+        </div>
+    </div>
+    <br />
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>分类</th>
+                <th>名称</th>
+                <th>销售价</th>
+                <th>会员价</th>
+                <th>进货价</th>
+                <th>库存</th>
+                <th>购买获得</th>
+                <th>排序</th>
+                <th>显示</th>
+                <th>图片</th>
+                <th>添加时间</th>
+                <th>管理操作</th>
+            </tr>
+        </thead>
+        <tbody id="tbody">
+            <script id="tpl" type="text/html">
+                {{each list as item index}}
+                <tr id="{{item.Gid}}" style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
+                    <td>{{index+1}}</td>
+                    <td>{{item.ClassifyName}}</td>
+                    <td>
+                        {{item.Prefix}}{{item.Name}}<br />
+                        品牌:{{item.Brand}}
+                    </td>
+                    <td>{{item.Price}}</td>
+                    <td>{{item.MPrice}}</td>
+                    <td>{{item.BuyPrice}}</td>
+                    <td>{{item.Stock}}</td>
+                    <td>
+                        积分:{{item.Money}}<br />
+                        购物分:{{item.Integral}}
+                    </td>
+                    <td>{{item.Sort}}</td>
+                    <td>
+                        {{if item.Show=="1"}}
+                        显示
+                        {{else if item.Show=="2"}}
+                        不显示
+                        {{else}}
+                        推荐
+                        {{/if}}
+                    </td>
+                    <td>
+                        <img data-caption="{{item.Name}}" data-toggle="lightbox" src="/uploadfiles/product/{{item.Picture}}" class="img-thumbnail" onerror="this.src='/images/nopic.png'" width="50">
+                    </td>
+                    <td>{{item.AddTime}}</td>
+                    <td>
+                        <div class="btn-group">
+                            <button class="btn" onclick="Show('{{item.Gid}}','ProductAU?gid={{item.Gid}}&project=@Request.QueryString["project"]');">编辑</button>
+                            <button class="btn btn-danger hidden" onclick="Delete('{{item.Gid}}');">删除</button>
+                        </div>
+                    </td>
+                </tr>
+                {{/each}}
+            </script>
+        </tbody>
+    </table>
+    <ul class="pager" id="pager"></ul>
+    <ul class="pager" id="pages" style="overflow:hidden;"></ul>
+    <script src="~/plugins/zui/lib/jquery/jquery.js"></script>
+    <script src="~/plugins/zui/js/zui.min.js"></script>
+    <script src="~/js/template-web.js"></script>
+    <script src="~/plugins/My97DatePicker/WdatePicker.js"></script>
+    <script src="~/js/list.js"></script>
+    <script>
+        function ProductShow() {
+            if (window.confirm('你确定要执行此操作吗？')) {
+                $.ajax({
+                    url: "/LJSheng/ProductShow",
+                    data: "",
+                    type: "post",
+                    cache: false,
+                    timeout: 8000,
+                    dataType: "json",
+                    ContentType: "application/json; charset=utf-8",
+                    error: function () {  },
+                    beforeSend: function () { },
+                    success: function (data) {
+                        new $.zui.Messager(data.data, {
+                            icon: data.result == 200 ? 'smile' : 'frown',
+                            placement: 'center'
+                        }).show();
+                    },
+                });
+                return true;
+            } else {
+                return false;
+            }
+        }
+    </script>
+
+</body>
+</html>

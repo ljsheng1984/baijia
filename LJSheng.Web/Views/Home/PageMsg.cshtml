@@ -1,0 +1,14 @@
+﻿@{
+    ViewBag.Class = "Index";
+    ViewBag.Title = "操作提示";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="sub-header">
+    <div class="title">@Request.QueryString["title"]</div>
+</div>
+<div class="register-box">
+    <form class="login-form register-form">
+        <h3 class="center">@Request.QueryString["msg"]</h3>
+        <div class="mt20 center"><a @(Request.QueryString["url"].IndexOf("history.go") > -1 ? "onclick" : "href")="@Request.QueryString["url"]" class="back-btn">点这里跳转</a></div>
+    </form>
+</div>

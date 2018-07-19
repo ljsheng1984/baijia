@@ -1,0 +1,32 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" Content="width=device-width, initial-scale=1" />
+    <script src="~/plugins/zui/js/zui.min.js"></script>
+    <link href="~/plugins/zui/css/zui.min.css" rel="stylesheet" />
+    <title>操作提示</title>
+</head>
+<body>
+    <div class="modal modal-for-page" style="display: block; background-size: cover; ">
+        <div class="modal-dialog" style="margin-top: 198px;">
+            <div class="modal-Content">
+                <div class="modal-header">
+                    <h4 class="modal-Title">@ViewBag.Title</h4>
+                </div>
+                <div class="modal-body">
+                    @ViewBag.Msg
+                </div>
+                <div class="modal-footer">
+                    <a onclick="@ViewBag.Url" class="btn btn-primary">确定</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

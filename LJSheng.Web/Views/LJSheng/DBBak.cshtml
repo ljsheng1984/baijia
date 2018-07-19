@@ -1,0 +1,85 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" Content="width=device-width, initial-scale=1" />
+    <title>数据备份</title>
+    <link rel="stylesheet" href="~/plugins/zui/css/zui.min.css">
+</head>
+<body>
+    <div class="row">
+        <div class="col-sm-8">
+            <div class="input-group">
+                <span class="input-group-addon">这备份只是备份在服务器,为了数据安全请备份后下载到你的本地电脑上</span>
+                <span class="input-group-btn">
+                    <a class="btn btn-info" href="~/LJSheng/DBBak">立即备份当前时间的数据</a>
+                </span>
+                <span class="input-group-addon">备份数据过多时可以删除,但是请最少保留最新3天的备份数据</span>
+            </div>
+        </div>
+    </div>
+    <br />
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>备份文件名</th>
+                <th>文件大小(字节)</th>
+                <th>备份时间</th>
+                <th>管理操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr id="@(LJSheng.Common.LCommon.TimeToUNIX(item.CreationTime))">
+                    <td>@item.Name</td>
+                    <td>@item.Length</td>
+                    <td>@item.CreationTime</td>
+                    <td>
+                        <div class="btn-group">
+                            <a class="btn btn-mini" target="_blank" href="~/uploadfiles/dbbak/@item.Name">下载备份</a>
+                            <button class="btn btn-danger btn-mini" onclick="Delete('@item.Name','@(LJSheng.Common.LCommon.TimeToUNIX(item.CreationTime))');">删除</button>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <script src="~/plugins/zui/lib/jquery/jquery.js"></script>
+    <script src="~/plugins/zui/js/zui.min.js"></script>
+    <script>
+        function Delete(name, id) {
+            if (window.confirm('你确定要删除吗？')) {
+                $.ajax({
+                    url: "/LJSheng/DBBakdelete",
+                    data: "name=" + name,
+                    type: "post",
+                    cache: false,
+                    timeout: 8000,
+                    dataType: "json",
+                    ContentType: "application/json; charset=utf-8",
+                    error: function () { new $.zui.Messager('请求超时!').show(); },
+                    beforeSend: function () { },
+                    success: function (data) {
+                        if (data.result === 200) {
+                            $("#" + id).hide(5);
+                        }
+                        new $.zui.Messager(data.data, {
+                            icon: 'smile',
+                            placement: 'center' // 定义显示位置
+                        }).show();
+                    },
+                });
+                return true;
+            } else {
+                return false;
+            }
+        }
+    </script>
+</body>
+</html>

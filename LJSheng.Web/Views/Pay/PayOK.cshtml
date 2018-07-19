@@ -1,0 +1,36 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+    <link href="~/css/main.css" rel="stylesheet" />
+</head>
+<body class="index">
+    <div class="sub-header">
+        <a class="icon-arrow-left">返回</a>
+        <div class="title">支付成功</div>
+    </div>
+    <div class="item-avatar bg-green">
+        <a class="icon-avatar"><img src="~/images/ic-cart-success.png" /></a>
+        <div class="item-text">
+            <p class="font36px">支付成功</p>
+            <p>您的包裹整装待发</p>
+        </div>
+    </div>
+    <div class="cart-success">
+        <p>收货人：@ViewBag.RealName</p>
+        <p>联系方式：@ViewBag.ContactNumber</p>
+        <p>收货地址： @ViewBag.Address</p>
+        <p class="price">实付款： <span class="color-red">￥@ViewBag.TotalPrice</span></p>
+        <div class="btns">
+            <a class="btn-line" href="/Member/@(Request.QueryString["type"]=="0"?"ShopOrder":"Order")?tab=0">查看订单</a>
+            <a class="btn-line btn-green" href="~/Home/Index">返回首页</a>
+        </div>
+    </div>
+</body>
+</html>

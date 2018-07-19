@@ -1,0 +1,130 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" Content="width=device-width, initial-scale=1" />
+    <title>商家提现管理</title>
+    <link rel="stylesheet" href="~/plugins/zui/css/zui.min.css">
+</head>
+<body>
+    <div class="row" id="search">
+        <div class="col-sm-12">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="icon-search"></i></span>
+                <select class="form-control" name="State">
+                    <option value="0" selected>= 全部 =</option>
+                    <option value="1" @(Request.QueryString["State"] == "1" ? "selected" : "")>待付款</option>
+                    <option value="1">已付款</option>
+                    <option value="1">退  回</option>
+                </select>
+                <span class="input-group-addon fix-padding">-</span>
+                <span class="input-group-addon">银行</span>
+                <input type="text" name="Bank" class="form-control">
+                <span class="input-group-addon">提现人</span>
+                <input type="text" name="BankName" class="form-control">
+                <span class="input-group-addon">卡号</span>
+                <input type="text" name="BankNumber" class="form-control">
+                <span class="input-group-addon">商家名称</span>
+                <input type="text" name="Name" class="form-control">
+                <span class="input-group-addon">时间</span>
+                <input type="text" class="form-control" placeholder="开始时间" name="STime" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd HH:mm:ss',alwaysUseStartDate:true})" />
+                <span class="input-group-addon fix-padding">-</span>
+                <input type="text" class="form-control" placeholder="结束时间" name="ETime" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd HH:mm:ss',alwaysUseStartDate:true})" />
+                <span class="input-group-btn">
+                    <input type="text" name="ShopGid" value="@Request.QueryString["ShopGid"]" hidden>
+                    <button type="button" class="btn btn-info" onclick="GetList(1);">给偶搜</button>
+                </span>
+            </div>
+        </div>
+    </div>
+    <br />
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>标识</th>
+                <th>商家名称</th>
+                <th>开户行</th>
+                <th>提现人</th>
+                <th>卡号</th>
+                <th>金额</th>
+                <th>提现时间</th>
+                <th>状态</th>
+                <th>备注</th>
+                <th>申请时间</th>
+            </tr>
+        </thead>
+        <tbody id="tbody">
+            <script id="tpl" type="text/html">
+                {{each list as item index}}
+                <tr style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
+                    <td>{{index}}</td>
+                    <td>{{item.Name}}</td>
+                    <td>{{item.Bank}}</td>
+                    <td>{{item.BankName}}</td>
+                    <td>{{item.BankNumber}}</td>
+                    <td>{{item.Money}}</td>
+                    <td>{{item.PayTime}}</td>
+                    <td id="{{item.Gid}}">
+                        {{if item.State=="1"}}
+                        <div class="btn-group">
+                            <button class="btn btn-mini" onclick="Pay('{{item.Gid}}',2);">确认付款</button>
+                            <button class="btn btn-mini hidden" onclick="Pay('{{item.Gid}}',3);">退回</button>
+                        </div>
+                        {{else if item.State=="2"}}
+                        <span class="label label-success">已付款</span>
+                        {{else}}
+                        退回
+                        {{/if}}
+                    </td>
+                    <td>{{item.Remarks}}</td>
+                    <td>{{item.AddTime}}</td>
+                </tr>
+                {{/each}}
+                <tr>
+                    <td colspan="10" class="center"><a href="javascript: daochu();" class="btn">导出当前查询的数据</a></td>
+                </tr>
+            </script>
+        </tbody>
+    </table>
+    <ul class="pager" id="pager"></ul>
+    <ul class="pager" id="pages" style="overflow:hidden;"></ul>
+    <script src="~/plugins/zui/lib/jquery/jquery.js"></script>
+    <script src="~/plugins/zui/js/zui.min.js"></script>
+    <script src="~/js/template-web.js"></script>
+    <script src="~/plugins/My97DatePicker/WdatePicker.js"></script>
+    <script src="~/js/list.js"></script>
+    <script src="~/js/daochu.js"></script>
+    <script>
+        function Pay(gid, state) {
+            if (window.confirm(state == 3 ? '你确定要撤销用户的提现吗' : '你确定已打款成功了吗？请确认你已经银行打款成功操作')) {
+                $.ajax({
+                    url: "/LJSheng/ShopPayMoney",
+                    data: "Gid=" + gid + "&state=" + state,
+                    type: "post",
+                    cache: false,
+                    timeout: 8000,
+                    dataType: "json",
+                    ContentType: "application/json; charset=utf-8",
+                    error: function () { new $.zui.Messager('请求超时!').show(); },
+                    beforeSend: function () { },
+                    success: function (data) {
+                        if (data.result === 200) {
+                            $("#" + gid).html(state == 3 ? "退回" : "已付款");
+                        }
+                        new $.zui.Messager(data.data).show();
+                    },
+                });
+                return true;
+            } else {
+                return false;
+            }
+        }
+    </script>
+
+</body>
+</html>

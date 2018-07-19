@@ -1,0 +1,49 @@
+﻿@{
+    ViewBag.Class = "ShopCart";
+    ViewBag.Title = "购物车";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="sub-header">
+    <div class="title">购物车</div>
+</div>
+<!--空状态-->
+<div class="cart-blank" style="display:none;" id="box">
+    <p>
+        <img src="~/images/ic-cart-default.png" />
+    </p>
+    <h2 class="pt20">购物车空空如也</h2>
+    <div class="pt20 center">
+        <a class="button button-red" href="~/Home/Classify">去抢购</a>
+    </div>
+</div>
+<!--购物状态-->
+<div id="table"></div>
+<div id="pay" class="sub-footer-bar">
+    <div class="bgc-fff padding-24 pt20 pb20 border-bottom border-top">
+        <div class="cart-btm">
+            <div class="input hide">
+                <p id="check">
+                    <input type="checkbox" id="allCheck" class="ck icon-check" /> 全选
+                </p>
+            </div>
+            <div class="flex-left">
+                <p>
+                    <b class="font24px">合计:</b>
+                    <span class="color-red font36px">￥<span id="totalPrice">0</span></span>
+                </p>
+            </div>
+            <div class="flex-right">
+                <a class="btn-submit" href="~/Pay/GoPay">去支付（<i id="ccount">0</i>）</a>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/plugins/shopcart/cookie.js"></script>
+<script src="~/plugins/shopcart/server.js"></script>
+<script src="~/plugins/shopcart/cart.js"></script>
+<script>
+    var price = getTotalPrice();
+    if (price <= 0) {
+        $("#pay").hide();
+    }
+</script>

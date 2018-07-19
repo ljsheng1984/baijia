@@ -1,0 +1,50 @@
+﻿@{
+    ViewBag.Class = "Shop";
+    ViewBag.Title = "市场";
+    Layout = "~/Views/Shared/_SLayout.cshtml";
+}
+<div class="mescroll" id="scroll">
+    <div class="list" id="dataList">
+        <script id="tpl" type="text/html">
+            {{each list as item index}}
+            <a href="/Pay/GoPay?OrderNo={{item.OrderNo}}&Price={{item.Price}}" class="item multi-lines white">
+                <div class="avatar avatar-xl"><img src="/uploadfiles/market/dr.jpg" onerror="this.src = '/images/nopic.png'" /></div>
+                <div class="content">
+                    <div class="title">
+                        {{item.RealName}}转让的商品
+                    </div>
+                    <div class="subtitle">转让人:{{item.RealName}}</div>
+                    <div class="row tiles">
+                        <div class="cell">转让价格<div class="label info outline">{{item.Price}}</div> 数量<div class="label info outline">{{item.Number}}</div></div>
+                    </div>
+                </div>
+            </a>
+            <div class="divider"></div>
+            {{/each}}
+        </script>
+    </div>
+</div>
+<div id="search" class="affix dock-bottom modal hidden">
+    <div class="heading">
+        <div class="title"><strong>搜索</strong></div>
+        <nav class="nav"><a data-dismiss="display"><i class="icon-remove muted"></i></a></nav>
+    </div>
+    <div class="divider"></div>
+    <div class="section box">
+        <div class="control has-success">
+            <label for="address">商品名称</label>
+            <input name="Name" type="text" class="input" placeholder="请输入你要搜索的商品名称">
+        </div>
+        <div class="control">
+            <button type="button" class="btn block primary" onclick="scrollSearch();">给我搜</button>
+        </div>
+    </div>
+</div>
+<nav class="nav affix dock-top justified">
+    <a onclick="history.go(-1);"><i class="icon-5x icon-arrow-left"></i></a>
+    <a>市场</a>
+    <a href="/Home/Url"><i class="icon-home"></i></a>
+</nav>
+<nav class="nav affix dock-bottom justified hidden">
+    <a data-display data-backdrop="true" data-target="#search"><i class="icon icon-search"></i> 搜索</a>
+</nav>

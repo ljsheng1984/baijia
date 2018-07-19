@@ -1,0 +1,56 @@
+﻿@{
+    ViewBag.Title = "我的推荐人";
+    Layout = "~/Views/Shared/_MLayout.cshtml";
+}
+<div class="signle-item">
+    <div class="cell">
+        <div class="cell-left">推荐人</div>
+        <div class="cell-right">
+            <input type="text" class="text" id="referee" value="@ViewBag.Member" @(ViewBag.Member == "" ? "" : "disabled" ) />
+        </div>
+    </div>
+    <p class="signle-item-info">绑定推荐人以后不可更改,请认真填写你的推荐人手机号</p>
+</div>
+<div class="padding-btn-group">
+    <button class="btn-block btn-green" type="button" id="bt" onclick="referee();">确认</button>
+</div>
+<script>
+    if ("@ViewBag.Member" != "")
+    {
+        $("#bt").attr({ "disabled": "disabled" });
+    }
+    function referee() {
+        if ($("#referee").val().length == 11) {
+            $.ajax({
+                url: "/ajax/api.ashx",
+                data: "ff=referee&referee=" + $("#referee").val() + "&cache=" + Math.random(),
+                type: "post",
+                cache: false,
+                timeout: 8000,
+                dataType: "json",
+                ContentType: "application/json; charset=utf-8",
+                async: false,//一定要是同步请求，否则会跳转；（ajax默认是异步的）
+                error: function () { alert("AJAX Error"); },
+                beforeSend: function () { },
+                success: function (data) {
+                    layer.open({
+                        content: data.data
+                        , skin: 'msg'
+                        , time: 2
+                    });
+                    if (data.result == 200) {
+                        location.reload();
+                    }
+                },
+            });
+        }
+        else
+        {
+            layer.open({
+                content:'请输入推荐人正确的手机号'
+                , skin: 'msg'
+                , time: 2
+            });
+        }
+    }
+</script>

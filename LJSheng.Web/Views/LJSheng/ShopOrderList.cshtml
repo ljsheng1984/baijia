@@ -1,0 +1,135 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" Content="width=device-width, initial-scale=1" />
+    <title>商家订单管理</title>
+    <link rel="stylesheet" href="~/plugins/zui/css/zui.min.css">
+</head>
+<body>
+    <div class="row" id="search">
+        <div class="col-xs-11">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="icon-search"></i></span>
+                <span class="input-group-addon">会员帐号</span>
+                <input type="text" class="form-control" name="Account" placeholder="会员手机号" />
+                <span class="input-group-addon fix-padding">-</span>
+                <select class="form-control" name="PayStatus">
+                    <option value="0" selected>= 支付状态 =</option>
+                    @foreach (string name in Enum.GetNames(typeof(LJSheng.Common.Help.PayStatus)))
+                    {
+                        LJSheng.Common.Help.PayStatus type = (LJSheng.Common.Help.PayStatus)Enum.Parse(typeof(LJSheng.Common.Help.PayStatus), name, true);
+                        <option value="@((int)type)" @(name == "支付成功" ? "selected" : "")>@name</option>
+                    }
+                </select>
+                <span class="input-group-addon fix-padding">-</span>
+                <select class="form-control" name="ExpressStatus">
+                    <option value="0" selected>= 货物状态 =</option>
+                    <option value="1" @(Request.QueryString["ExpressStatus"] == "1" ? "selected" : "")>待出货</option>
+                    <option value="2">快递中</option>
+                    <option value="3">已签收</option>
+                    <option value="4">退回</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-xs-11">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="icon-search"></i></span>
+                <span class="input-group-addon">商家名称</span>
+                <input type="text" class="form-control" name="Name" placeholder="商家名称" />
+                <span class="input-group-addon">产品名称</span>
+                <input type="text" class="form-control" name="Product" value="@Request.QueryString["Product"]" placeholder="产品名称" />
+                <span class="input-group-addon">系统订单号</span>
+                <input type="text" class="form-control" name="OrderNo" placeholder="系统订单号" value="@Request.QueryString["OrderNo"]" />
+                <span class="input-group-addon">时间</span>
+                <input type="text" class="form-control" placeholder="开始时间" name="STime" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd HH:mm:ss',alwaysUseStartDate:true})" />
+                <span class="input-group-addon fix-padding">-</span>
+                <input type="text" class="form-control" placeholder="结束时间" name="ETime" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd HH:mm:ss',alwaysUseStartDate:true})" />
+                <span class="input-group-btn">
+                    <input type="text" value="@Request.QueryString["MemberGid"]" name="MemberGid" class="hidden" />
+                    <input type="text" value="@Request.QueryString["ShopGid"]" name="ShopGid" class="hidden" />
+                    <button type="button" class="btn btn-info" onclick="GetList(1);">给偶搜</button>
+                </span>
+            </div>
+        </div>
+    </div>
+    <br />
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>系统订单号</th>
+                <th>下单时间</th>
+                <th>购买商品</th>
+                <th>商家</th>
+                <th>会员帐号</th>
+                <th>支付信息</th>
+                <th>支付积分</th>
+                <th>订单状态</th>
+                <th>管理操作</th>
+            </tr>
+        </thead>
+        <tbody id="tbody">
+            <script id="tpl" type="text/html">
+                {{each list as item index}}
+                <tr id="{{item.Gid}}" style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
+                    <td>{{index+1}}</td>
+                    <td>{{item.OrderNo}}</td>
+                    <td>{{item.AddTime}}</td>
+                    <td onclick="Show('{{item.OrderNo}}','ShopOrderDetailsList?gid={{item.Gid}}');">{{item.Product}}</td>
+                    <td>{{item.Name}}<br />{{item.ContactNumber}}</td>
+                    <td>{{item.Account}}<br />{{item.RealName}}</td>
+                    <td>
+                        {{if item.PayStatus=="1"}}
+                        <span class="label label-success">支付成功</span>
+                        {{else if item.PayStatus=="2"}}
+                        <span class="label label-danger">未支付</span>
+                        {{else if item.PayStatus=="3"}}
+                        已退款
+                        {{else if item.PayStatus=="5"}}
+                        金额不对
+                        {{else}}
+                        交易关闭
+                        {{/if}}
+                    </td>
+                    <td>
+                        {{item.Price}}
+                    </td>
+                    <td>
+                        <span class="label label-info">
+                            {{if item.ExpressStatus=="1"}}
+                            待出货
+                            {{else if item.ExpressStatus=="2"}}
+                            快递中
+                            {{else if item.ExpressStatus=="3"}}
+                            已签收
+                            {{else}}
+                            退回
+                            {{/if}}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            <button class="btn" onclick="Show('{{item.OrderNo}}','ShopOrderAU?gid={{item.Gid}}&account={{item.Account}}&realName={{item.RealName}}&Name={{item.Name}}');">编辑</button>
+                            <button class="btn btn-danger hidden" onclick="Delete('{{item.Gid}}');">删除</button>
+                        </div>
+                    </td>
+                </tr>
+                {{/each}}
+            </script>
+        </tbody>
+    </table>
+    <ul class="pager" id="pager"></ul>
+    <ul class="pager" id="pages" style="overflow:hidden;"></ul>
+    <script src="~/plugins/zui/lib/jquery/jquery.js"></script>
+    <script src="~/plugins/zui/js/zui.min.js"></script>
+    <script src="~/js/template-web.js"></script>
+    <script src="~/plugins/My97DatePicker/WdatePicker.js"></script>
+    <script src="~/js/list.js"></script>
+</body>
+</html>

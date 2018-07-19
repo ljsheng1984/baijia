@@ -1,0 +1,72 @@
+﻿@{
+    ViewBag.Title = "商品列表";
+    Layout = "~/Views/Shared/_SLayout.cshtml";
+}
+<div id="search" hidden>
+    <input name="ClassifyGid" value="@Request.QueryString["Gid"]" hidden />
+</div>
+<div class="mescroll" id="scroll">
+    <div class="list section" id="dataList">
+        <script id="tpl" type="text/html">
+            {{each list as item index}}
+            <a id="{{item.Gid}}" class="item multi-lines with-avatar {{item.Show!=1?"primary grayscale":""}}">
+                <div class="avatar circle red outline">{{item.Stock}}</div>
+                <div class="content">
+                    <span class="title">{{item.Name}} <i onclick="Edit('{{item.Gid}}');" class="icon icon-edit"></i></span>
+                    <div>
+                        <small class="muted">{{item.ClassifyName}}</small>
+                        <div class="pull-right"><i class="icon icon-times" onclick="Delete('{{item.Gid}}')"></i></div>
+                    </div>
+                </div>
+            </a>
+            <div class="divider"></div>
+            {{/each}}
+        </script>
+    </div>
+</div>
+<nav class="nav affix dock-top justified">
+    <a href="/shop/index"><i class="icon-5x icon-arrow-left"></i></a>
+    <a>商品列表</a>
+    <a href="/Home/Url"><i class="icon-home"></i></a>
+</nav>
+<nav class="nav affix dock-bottom justified">
+    <a>灰色代表下架状态</a>
+</nav>
+<script>
+    function Edit(gid) {
+        self.location = "/Shop/ProductAU?Gid=" + gid;
+    }
+    function Delete(gid) {
+        layer.open({
+            content: '确定下架该商品吗？'
+            , btn: ['确定', '取消']
+            , yes: function (index) {
+                $.ajax({
+                    url: "/Shop/ShopProductDelete",
+                    data: "Gid=" + gid,
+                    type: "post",
+                    cache: false,
+                    timeout: 8000,
+                    dataType: "json",
+                    ContentType: "application/json; charset=utf-8",
+                    async: false,//一定要是同步请求，否则会跳转；（ajax默认是异步的）
+                    error: function () { },
+                    beforeSend: function () { },
+                    success: function (data) {
+                        tip(data.data);
+                        if (data.result == 200) {
+                            $("#" + gid).addClass("primary grayscale");
+                        }
+                    },
+                });
+            }
+        });
+    }
+    function tip(msg) {
+        layer.open({
+            content: msg
+            , skin: 'msg'
+            , time: 2
+        });
+    }
+</script>

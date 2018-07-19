@@ -1,0 +1,83 @@
+﻿@{
+    ViewBag.Title = "转售列表";
+    Layout = "~/Views/Shared/_SLayout.cshtml";
+}
+<div id="search" hidden>
+    <input name="Type" value="@Request.QueryString["Type"]" hidden />
+</div>
+<div class="mescroll" id="scroll">
+    <div class="list section" id="dataList">
+        <script id="tpl" type="text/html">
+            {{each list as item index}}
+            <a id="{{item.Gid}}" class="item multi-lines with-avatar" {{item.State!=2?"disabled":""}}>
+                <div class="avatar circle red outline">
+                    {{if item.State=="1"}}
+                    <span class="label label-success">已售</span>
+                    {{else if item.State=="2"}}
+                    <span class="label label-danger">出售</span>
+                    {{else if item.State=="3"}}
+                    锁定
+                    {{else if item.State=="4"}}
+                    赎回
+                    {{else}}
+                    未知
+                    {{/if}}
+                </div>
+                <div class="content">
+                    <div>
+                        <small class="muted">转让价格={{item.Price}},转让数量={{item.Number}}</small>
+                        <div class="pull-right {{item.State==2?"":"hidden"}}"><i class="icon icon-times" onclick="Delete('{{item.Gid}}')"></i></div>
+                    </div>
+                </div>
+            </a>
+            <div class="divider"></div>
+            {{/each}}
+        </script>
+    </div>
+</div>
+<nav class="nav affix dock-top justified">
+    <a href="/Member/Index"><i class="icon-5x icon-arrow-left"></i></a>
+    <a>转售列表</a>
+    <a href="/Home/Url"><i class="icon-home"></i></a>
+</nav>
+<nav class="nav affix dock-bottom justified">
+    <a>锁定代表用户下单未付款,24小时解锁</a>
+</nav>
+<script>
+    function Edit(gid, BuyPrice) {
+        self.location = "/Member/ProductAU?Gid=" + gid + "&BuyPrice=" + BuyPrice;
+    }
+    function Delete(gid) {
+        layer.open({
+            content: '确定转回到自己账户吗？'
+            , btn: ['确定', '取消']
+            , yes: function (index) {
+                $.ajax({
+                    url: "/Member/RedeemOrder",
+                    data: "Gid=" + gid,
+                    type: "post",
+                    cache: false,
+                    timeout: 8000,
+                    dataType: "json",
+                    ContentType: "application/json; charset=utf-8",
+                    async: false,//一定要是同步请求，否则会跳转；（ajax默认是异步的）
+                    error: function () { },
+                    beforeSend: function () { },
+                    success: function (data) {
+                        tip(data.data);
+                        if (data.result == 200) {
+                            $("#" + gid).addClass("primary grayscale");
+                        }
+                    },
+                });
+            }
+        });
+    }
+    function tip(msg) {
+        layer.open({
+            content: msg
+            , skin: 'msg'
+            , time: 2
+        });
+    }
+</script>

@@ -1,0 +1,19 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+    <title>@ViewBag.Title</title>
+    @Styles.Render("~/css")
+    @Styles.Render("~/mcss")
+    @Scripts.Render("~/js")
+</head>
+<body class="index user-center">
+    <div class="sub-header">
+        <a class="icon-arrow-left" onclick="history.go(-1);">返回</a>
+        <div class="title">@ViewBag.Title</div>
+    </div>
+    @RenderBody()
+    @Scripts.Render("~/mlist")
+</body>
+</html>

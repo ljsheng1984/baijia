@@ -1,0 +1,11 @@
+﻿@{
+    ViewBag.Title = "邀请注册";
+    Layout = "~/Views/Shared/_MLayout.cshtml";
+}
+<div class="qr-code" onclick="self.location ='@ViewBag.URL';">
+    <p class="name">不会扫码的直接单击这里跳转注册</p>
+    <p class="link">你的邀请码: @ViewBag.MID</p>
+    <p class="img"><img src="/uploadfiles/member/@ViewBag.Account" /></p>
+    <p class="text">通过二维码扫描注册,你就是TA的推荐人哦!</p>
+    <p class="text">注意:非会员推荐会提示失败!</p>
+</div>
