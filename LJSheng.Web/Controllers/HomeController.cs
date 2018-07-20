@@ -240,6 +240,7 @@ namespace LJSheng.Web.Controllers
                                                 Helper.MRelation(Gid, list);
                                             }
                                             LCookie.DelCookie("linjiansheng");
+                                            AppApi.AppMR(account, pwd, paypwd, account, MID);
                                             return Helper.Redirect("成功", "/Home/Login", "注册成功,请登录");
                                         }
                                         else
@@ -313,6 +314,7 @@ namespace LJSheng.Web.Controllers
                                 if (db.Member.Where(l => l.Account == account).Update(l => new Member { PWD = pwdMD5, LoginIdentifier = LCommon.TimeToUNIX(DateTime.Now) }) == 1)
                                 {
                                     LCookie.DelCookie("linjiansheng");
+                                    AppApi.PWD(account, pwd, 2);
                                     return Helper.Redirect("成功！", "/Home/Login", "修改密码成功,请点确定重新登录!");
                                 }
                                 else

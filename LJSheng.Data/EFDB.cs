@@ -176,10 +176,7 @@ namespace LJSheng.Data
         /// 发货人
         /// </summary>
         public DbSet<Consignor> Consignor { get; set; }
-        /// <summary>
-        /// 积分转换记录
-        /// </summary>
-        public DbSet<Transformation> Transformation { get; set; }
+
         /// <summary>
         /// 积分冻结
         /// </summary>
@@ -187,7 +184,7 @@ namespace LJSheng.Data
         /// <summary>
         /// 积分转Token记录
         /// </summary>
-        public DbSet<ShopToken> ShopToken { get; set; }
+        public DbSet<Token> Token { get; set; }
         /// <summary>
         /// 商城积分记录
         /// </summary>

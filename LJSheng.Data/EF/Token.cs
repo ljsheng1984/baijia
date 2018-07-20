@@ -4,9 +4,9 @@ using System.ComponentModel.DataAnnotations;
 namespace LJSheng.Data
 {
     /// <summary>
-    /// 积分转换记录
+    /// 积分转Token记录
     /// </summary>
-    public partial class Transformation
+    public partial class Token
     {
         /// <summary>
         /// 主键
@@ -18,10 +18,6 @@ namespace LJSheng.Data
         /// 添加时间
         /// </summary>
         public DateTime AddTime { get; set; }
-        /// <summary>
-        /// 类型[1=积分 2=商城个人积分 3=商城团队积分]
-        /// </summary>
-        public int Type { get; set; }
 
         /// <summary>
         /// 会员Gid
@@ -29,13 +25,23 @@ namespace LJSheng.Data
         public Guid MemberGid { get; set; }
 
         /// <summary>
-        /// 积分
+        /// 转换积分
         /// </summary>
         public decimal Integral { get; set; }
 
         /// <summary>
-        /// 消费Token
+        /// 类型[1=积分 2=商城个人积分 3=商城团队积分]
         /// </summary>
-        public decimal Token { get; set; }
+        public int Type { get; set; }
+
+        /// <summary>
+        /// 兑换币种[1=BCCB, 2=FBCC]
+        /// </summary>
+        public int BB { get; set; }
+
+        /// <summary>
+        /// 兑换Token
+        /// </summary>
+        public decimal AToken { get; set; }
     }
 }

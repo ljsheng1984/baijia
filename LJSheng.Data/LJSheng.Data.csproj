@@ -96,12 +96,11 @@
     <Compile Include="EF\ShopOrder.cs" />
     <Compile Include="EF\ShopProduct.cs" />
     <Compile Include="EF\ShopRecord.cs" />
-    <Compile Include="EF\ShopToken.cs" />
+    <Compile Include="EF\Token.cs" />
     <Compile Include="EF\ShopWithdrawals.cs" />
     <Compile Include="EF\SMS.cs" />
     <Compile Include="EF\Stock.cs" />
     <Compile Include="EF\StockRight.cs" />
-    <Compile Include="EF\Transformation.cs" />
     <Compile Include="EF\Withdrawals.cs" />
     <Compile Include="EF\WXKeyword.cs" />
     <Compile Include="LAttribute.cs" />

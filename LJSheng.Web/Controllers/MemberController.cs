@@ -360,6 +360,7 @@ namespace LJSheng.Web.Controllers
                         b.LoginIdentifier = "";
                         if (db.SaveChanges() == 1)
                         {
+                            AppApi.PWD(b.Account, pwd, 2);
                             return Helper.Redirect("成功", "/Home/Login", "修改成功,请用新密码重新登录");
                         }
                         else

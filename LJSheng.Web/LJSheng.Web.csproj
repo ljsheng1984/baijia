@@ -840,6 +840,7 @@
     <Compile Include="Controllers\PayController.cs" />
     <Compile Include="Controllers\ShopController.cs" />
     <Compile Include="lin\AjaxResult.cs" />
+    <Compile Include="lin\AppApi.cs" />
     <Compile Include="lin\KDAPI.cs" />
     <Compile Include="lin\LJSController.cs" />
     <Compile Include="lin\BaseController.cs" />

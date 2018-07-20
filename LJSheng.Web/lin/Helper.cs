@@ -2553,10 +2553,23 @@ namespace LJSheng.Web
             dicPara = FilterPara(sParaTemp);
             //组合参数数组
             string prestr = CreateLinkString(dicPara);
-            LogManager.WriteLog("url", prestr);
-            LogManager.WriteLog("MD5", MD5.GetMD5(prestr).ToUpper());
             //获得加密结果转换为大写的加密串
             return MD5.GetMD5(prestr).ToUpper();
+        }
+        /// <summary>
+        /// 把参数串成URL
+        /// </summary>
+        /// <param name="sParaTemp"></param>
+        /// <returns></returns>
+        public static string PostUrl(SortedDictionary<string, string> sParaTemp)
+        {
+            Dictionary<string, string> dicArray = new Dictionary<string, string>();
+            foreach (KeyValuePair<string, string> temp in sParaTemp)
+            {
+                dicArray.Add(temp.Key, temp.Value);
+            }
+            //组合参数数组
+            return CreateLinkString(dicArray);
         }
 
         /// <summary>

@@ -23,7 +23,7 @@ namespace LJSheng.Web.Controllers
             Boolean b = false;
             if (!string.IsNullOrEmpty(Request.QueryString["PayType"]))
             {
-                b = Helper.PayOrder(Request.QueryString["OrderNo"], Request.QueryString["TradeNo"], int.Parse(Request.QueryString["PayType"]), decimal.Parse(Request.QueryString["PayPrice"]));
+                b = Request.QueryString["type"]=="1"?Helper.PayOrder(Request.QueryString["OrderNo"], Request.QueryString["TradeNo"], int.Parse(Request.QueryString["PayType"]), decimal.Parse(Request.QueryString["PayPrice"])): Helper.ShopPayOrder(Request.QueryString["OrderNo"], Request.QueryString["TradeNo"], int.Parse(Request.QueryString["PayType"]), decimal.Parse(Request.QueryString["PayPrice"]));
             }
             return View(b);
         }
@@ -1130,6 +1130,7 @@ namespace LJSheng.Web.Controllers
                     b.LoginIdentifier = LCommon.TimeToUNIX(DateTime.Now);
                     if (db.SaveChanges() == 1)
                     {
+                        AppApi.PWD(b.Account, PWD, 2);
                         return Json(new AjaxResult("新密码为:" + PWD));
                     }
                     else
