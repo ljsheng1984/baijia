@@ -200,29 +200,36 @@ namespace LJSheng.Web.Controllers
                     ViewBag.CLMoney = b.CLMoney;
                     Guid ProductGid = Helper.GetProductGid();
                     var p = db.Stock.Where(l => l.MemberGid == gid && l.ProductGid == ProductGid).FirstOrDefault();
-                    ViewBag.Stock = p.Number;
-                    ViewBag.CLB = db.DictionariesList.Where(dl => dl.Key == "CLB" && dl.DGid == db.Dictionaries.Where(d => d.DictionaryType == "CL").FirstOrDefault().Gid).FirstOrDefault().Value;
-                    if (!string.IsNullOrEmpty(Request["Stock"]))
+                    if (p != null)
                     {
-                        int Stock = int.Parse(Request["Stock"]);
-                        p.Number = p.Number - Stock;
-                        if (p.Number >= 0 && db.SaveChanges() == 1)
+                        ViewBag.Stock = p.Number;
+                        ViewBag.CLB = db.DictionariesList.Where(dl => dl.Key == "CLB" && dl.DGid == db.Dictionaries.Where(d => d.DictionaryType == "CL").FirstOrDefault().Gid).FirstOrDefault().Value;
+                        if (!string.IsNullOrEmpty(Request["Stock"]))
                         {
-                            b.CLMoney = b.CLMoney + Stock * ViewBag.CLB;
-                            if (db.SaveChanges() == 1)
+                            int Stock = int.Parse(Request["Stock"]);
+                            p.Number = p.Number - Stock;
+                            if (p.Number >= 0 && db.SaveChanges() == 1)
                             {
-                                return Helper.Redirect("成功", "/Shop/Index", "恭喜你,兑换成功!");
+                                b.CLMoney = b.CLMoney + Stock * int.Parse(ViewBag.CLB);
+                                if (db.SaveChanges() == 1)
+                                {
+                                    return Helper.Redirect("成功", "/Shop/Index", "恭喜你,兑换成功!");
+                                }
+                                else
+                                {
+                                    LogManager.WriteLog("彩链库存扣除成功兑换失败", "MemberGid=" + gid.ToString() + ",Stock=" + Stock.ToString());
+                                    return Helper.Redirect("失败", "history.go(-1);", "彩链库存扣除成功兑换失败,请联系客服人员!");
+                                }
                             }
                             else
                             {
-                                LogManager.WriteLog("彩链库存扣除成功兑换失败", "MemberGid=" + gid.ToString() + ",Stock=" + Stock.ToString());
-                                return Helper.Redirect("失败", "history.go(-1);", "彩链库存扣除成功兑换失败,请联系客服人员!");
+                                return Helper.Redirect("失败", "history.go(-1);", "彩链库存不足!");
                             }
                         }
-                        else
-                        {
-                            return Helper.Redirect("失败", "history.go(-1);", "彩链库存不足!");
-                        }
+                    }
+                    else
+                    {
+                        return Helper.Redirect("库存不足", "history.go(-1);", "库存不足");
                     }
                 }
                 else

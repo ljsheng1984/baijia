@@ -3,11 +3,66 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Web;
+using System.Net.Http;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace LJSheng.Common
 {
     public static class PostGet
     {
+        /// <summary>
+        /// POST
+        /// </summary>
+        /// <param name="posturl">请求URL</param>
+        /// <param name="postData">请求请求的数据</param>
+        /// <returns>返回查询的数据</returns>
+        public static string Post(string posturl, SortedDictionary<string, string> sParaTemp)
+        {
+            using (var client = new HttpClient())
+            {
+                //var values = new List<KeyValuePair<string, string>>();
+                //foreach (KeyValuePair<string, string> temp in sParaTemp)
+                //{
+                //    if (temp.Key != "api_key")
+                //    {
+                //        values.Add(new KeyValuePair<string, string>(temp.Key, temp.Value));
+                //    }
+                //}
+                //var content = new FormUrlEncodedContent(values);
+                //var response = await client.PostAsync(posturl, content);
+                //var responseString = await response.Content.ReadAsStringAsync();
+                //return responseString;
+
+                //client.BaseAddress = new Uri(posturl);
+                var values = new List<KeyValuePair<string, string>>();
+                foreach (KeyValuePair<string, string> temp in sParaTemp)
+                {
+                    if (temp.Key != "api_key")
+                    {
+                        values.Add(new KeyValuePair<string, string>(temp.Key, temp.Value));
+                    }
+                }
+                var content = new FormUrlEncodedContent(values);
+                var result = client.PostAsync(posturl, content).Result;
+                return result.Content.ReadAsStringAsync().Result;
+            }
+        }
+
+        /// <summary>
+        /// Get
+        /// </summary>
+        /// <param name="geturl">请求URL</param>
+        /// <returns>返回查询的数据</returns>
+        public static string Get(string geturl)
+        {
+            using (var client = new HttpClient())
+            {
+                var responseString = client.GetStringAsync(geturl).Result;
+                return responseString;
+            }
+        }
+
         /// <summary>
         /// 发送请求
         /// </summary>

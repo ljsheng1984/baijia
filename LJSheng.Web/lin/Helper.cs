@@ -1429,7 +1429,7 @@ namespace LJSheng.Web
                 {
                     //支付类型
                     string payname = ((PayType)Enum.Parse(typeof(LJShengHelper.PayType), PayType.ToString())).ToString();
-                    var b = db.Order.Where(l => l.OrderNo == OrderNo).FirstOrDefault();
+                    var b = db.ShopOrder.Where(l => l.OrderNo == OrderNo).FirstOrDefault();
                     if (b != null && b.PayStatus == 2)
                     {
                         msg += "购买会员=" + b.MemberGid.ToString() + ",发货会员=" + b.ShopGid == null ? "没有发货人" : b.ShopGid.ToString() + rn;
@@ -1445,8 +1445,17 @@ namespace LJSheng.Web
                             Pay = true;
                             if (b.PayStatus == 1)
                             {
+                                //团队获取比例
+                                List<DictionariesList> dl = db.DictionariesList.Where(l => l.DGid == db.Dictionaries.Where(d => d.DictionaryType == "CL").FirstOrDefault().Gid).ToList();
+                                //获取货款利润比例
+                                decimal bl = decimal.Parse(dl.Where(l => l.Key == "CLLR").FirstOrDefault().Value) / 100;
+                                //增加货款
+                                if (ShopRecordAdd(b.Gid, b.MemberGid, 0, 0, PayPrice * bl, "利润比例=" + bl.ToString()) == null)
+                                {
+                                    msg += "货款失败:会员=" + b.MemberGid.ToString() + ",PayPrice=" + PayPrice.ToString();
+                                }
                                 //基数积分增加
-                                if (ShopRecordAdd(b.Gid, b.MemberGid, PayPrice, 0, "积分基数") == null)
+                                if (ShopRecordAdd(b.Gid, b.MemberGid, PayPrice, 0, 0, "积分基数") == null)
                                 {
                                     msg += "基数积分失败:PayPrice=" + PayPrice.ToString() + rn;
                                 }
@@ -1455,7 +1464,7 @@ namespace LJSheng.Web
                                     msg += "基数积分成功=" + PayPrice.ToString() + rn;
                                 }
                                 //累计团队积分
-                                msg += "商城团队业绩=" + ShopTeamIntegral(b.MemberGid, PayPrice, b.Gid) + rn;
+                                msg += "商城团队业绩=" + ShopTeamIntegral(b.MemberGid, PayPrice, b.Gid, dl) + rn;
                                 LogManager.WriteLog(payname + "商城对账记录", LogMsg + rn + msg);
                             }
                             else
@@ -1492,7 +1501,7 @@ namespace LJSheng.Web
         /// <remarks>
         /// 2018-08-18 林建生
         /// </remarks>
-        public static string ShopTeamIntegral(Guid MemberGid, decimal Price, Guid OrderGid)
+        public static string ShopTeamIntegral(Guid MemberGid, decimal Price, Guid OrderGid, List<DictionariesList> dl)
         {
             string msg = "";
             try
@@ -1508,12 +1517,10 @@ namespace LJSheng.Web
                     }).FirstOrDefault();
                     if (mr != null)
                     {
-                        //团队获取比例
-                        var b = db.DictionariesList.Where(l => l.DGid == db.Dictionaries.Where(d => d.DictionaryType == "CL").FirstOrDefault().Gid).ToList();
-                        if (b!=null && mr.M1 != null)
+                        if (dl!=null && mr.M1 != null)
                         {
-                            decimal TIntegral = Price *  decimal.Parse(b.Where(l => l.Key == "T1").FirstOrDefault().Value) / 100;
-                            if (ShopRecordAdd(OrderGid, (Guid)mr.M1,0, TIntegral, "第1级") == null)
+                            decimal TIntegral = Price *  decimal.Parse(dl.Where(l => l.Key == "T1").FirstOrDefault().Value) / 100;
+                            if (ShopRecordAdd(OrderGid, (Guid)mr.M1,0, TIntegral, 0, "第1级") == null)
                             {
                                 msg += "第1级失败:会员=" + mr.M1.ToString() + ",Price=" + Price.ToString();
                             }
@@ -1521,15 +1528,15 @@ namespace LJSheng.Web
                             {
                                 if (mr.M2 != null)
                                 {
-                                    TIntegral = Price * decimal.Parse(b.Where(l => l.Key == "T2").FirstOrDefault().Value) / 100;
-                                    if (ShopRecordAdd(OrderGid, (Guid)mr.M1, 0, TIntegral, "第2级") == null)
+                                    TIntegral = Price * decimal.Parse(dl.Where(l => l.Key == "T2").FirstOrDefault().Value) / 100;
+                                    if (ShopRecordAdd(OrderGid, (Guid)mr.M1, 0, TIntegral, 0, "第2级") == null)
                                     {
                                         msg += "第2级失败:会员=" + mr.M1.ToString() + ",Price=" + Price.ToString();
                                     }
                                     if (mr.M3 != null)
                                     {
-                                        TIntegral = Price * decimal.Parse(b.Where(l => l.Key == "T3").FirstOrDefault().Value) / 100;
-                                        if (ShopRecordAdd(OrderGid, (Guid)mr.M1, 0, TIntegral, "第3级") == null)
+                                        TIntegral = Price * decimal.Parse(dl.Where(l => l.Key == "T3").FirstOrDefault().Value) / 100;
+                                        if (ShopRecordAdd(OrderGid, (Guid)mr.M1, 0, TIntegral, 0, "第3级") == null)
                                         {
                                             msg += "第3级失败:会员=" + mr.M1.ToString() + ",Price=" + Price.ToString();
                                         }
@@ -2167,10 +2174,10 @@ namespace LJSheng.Web
         /// <param name="Integral">积分</param>
         /// <param name="Remarks">备注</param>
         /// <returns>返回调用结果</returns>
-        public static Guid? ShopRecordAdd(Guid? OrderGid, Guid Gid, decimal MIntegral, decimal TIntegral,string Remarks = "")
+        public static Guid? ShopRecordAdd(Guid? OrderGid, Guid Gid, decimal MIntegral, decimal TIntegral, decimal ShopMoney, string Remarks = "")
         {
             Guid? MRGid = null;
-            string LogMsg = "订单=" + OrderGid + ",会员=" + Gid + ",MIntegral=" + MIntegral + ",TIntegral=" + TIntegral;
+            string LogMsg = "订单=" + OrderGid + ",会员=" + Gid + ",MIntegral=" + MIntegral + ",TIntegral=" + TIntegral + ",ShopMoney=" + ShopMoney;
             try
             {
                 using (EFDB db = new EFDB())
@@ -2184,6 +2191,8 @@ namespace LJSheng.Web
                         b.AddTime = DateTime.Now;
                         b.OrderGid = OrderGid;
                         b.MemberGid = Gid;
+                        b.ShopMoney = ShopMoney;
+                        b.OldShopMoney = m.ShopMoney;
                         b.MIntegral = MIntegral;
                         b.TIntegral = TIntegral;
                         b.OldMIntegral = m.MIntegral;
@@ -2195,6 +2204,7 @@ namespace LJSheng.Web
                             //更新用户数据
                             m.MIntegral = m.MIntegral + MIntegral;
                             m.TIntegral = m.TIntegral + TIntegral;
+                            m.ShopMoney = m.ShopMoney + ShopMoney;
                             if (db.SaveChanges() == 1)
                             {
                                 MRGid = b.Gid;
@@ -2530,7 +2540,10 @@ namespace LJSheng.Web
                     }
                     else
                     {
-                        CLSMS(M.Account, MemberAccount, ShopGid, MemberGid, Number, Money, Integral);
+                        if (M != null)
+                        {
+                            CLSMS(M.Account, MemberAccount, ShopGid, MemberGid, Number, Money, Integral);
+                        }
                         return JsonConvert.SerializeObject(new { OrderNo = "", Title = "发货人库存不足", Error = "请联系你的发货人(" + M.Account + ")补货!" });
                     }
                 }
@@ -2566,7 +2579,10 @@ namespace LJSheng.Web
             Dictionary<string, string> dicArray = new Dictionary<string, string>();
             foreach (KeyValuePair<string, string> temp in sParaTemp)
             {
-                dicArray.Add(temp.Key, temp.Value);
+                if (temp.Key != "api_key")
+                {
+                    dicArray.Add(temp.Key, temp.Value);
+                }
             }
             //组合参数数组
             return CreateLinkString(dicArray);
@@ -2582,7 +2598,7 @@ namespace LJSheng.Web
             Dictionary<string, string> dicArray = new Dictionary<string, string>();
             foreach (KeyValuePair<string, string> temp in dicArrayPre)
             {
-                if (temp.Key != "sign" && !string.IsNullOrEmpty(temp.Value))
+                if (temp.Key != "sign" && temp.Key != "ff")
                 {
                     dicArray.Add(temp.Key, temp.Value);
                 }

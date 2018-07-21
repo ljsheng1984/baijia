@@ -104,5 +104,61 @@ namespace LJSheng.Common
             return outStr;
         }
         #endregion
+
+        #region ASCII码含中文字符的编解码处理
+        /// <summary>
+        /// 含中文字符串转ASCII
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static string Str2ASCII(String str)
+        {
+            try
+            {
+                //这里我们将采用2字节一个汉字的方法来取出汉字的16进制码
+                byte[] textbuf = Encoding.Default.GetBytes(str);
+                //用来存储转换过后的ASCII码
+                string textAscii = string.Empty;
+
+                for (int i = 0; i < textbuf.Length; i++)
+                {
+                    textAscii += textbuf[i].ToString("X");
+                }
+                return textAscii;
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+        }
+
+        /// <summary>
+        /// ASCII转含中文字符串
+        /// </summary>
+        /// <param name="textAscii">ASCII字符串</param>
+        /// <returns></returns>
+        public static string ASCII2Str(string textAscii)
+        {
+            try
+            {
+                int k = 0;//字节移动偏移量
+
+                byte[] buffer = new byte[textAscii.Length / 2];//存储变量的字节
+
+                for (int i = 0; i < textAscii.Length / 2; i++)
+                {
+                    //每两位合并成为一个字节
+                    buffer[i] = byte.Parse(textAscii.Substring(k, 2), System.Globalization.NumberStyles.HexNumber);
+                    k = k + 2;
+                }
+                //将字节转化成汉字
+                return Encoding.Default.GetString(buffer);
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+        }
+        #endregion
     }
 }

@@ -1,6 +1,10 @@
 ﻿using System;
 using LJSheng.Common;
 using System.Collections.Generic;
+using System.IO;
+using System.Web;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace LJSheng.Web
 {
@@ -19,8 +23,9 @@ namespace LJSheng.Web
         /// <param name="phone">手机号</param>
         /// <param name="invite_code">邀请码</param>
         /// <returns>返回调用结果</returns>
-        public static void AppMR(string username, string password, string pay_password, string phone, int invite_code)
+        public static bool AppMR(string username, string password, string pay_password, string phone, string invite_code)
         {
+            bool tl = false;
             try
             {
                 SortedDictionary<string, string> dic = new SortedDictionary<string, string>();
@@ -28,17 +33,18 @@ namespace LJSheng.Web
                 dic.Add("password", password);
                 dic.Add("pay_password", pay_password);
                 dic.Add("phone", phone);
-                dic.Add("invite_code", invite_code.ToString());
-                //防止apikey传递
-                string postdata = Helper.PostUrl(dic);
+                dic.Add("invite_code", invite_code);
                 dic.Add("sign", Helper.BuildRequest(dic));
-                string data = PostGet.GetPage("http://bccbtoken.com/api/Memberapi/register", postdata);
-                LogManager.WriteLog("APP接口", data);
-                LogManager.WriteLog("APP参数", postdata);
+                string json = PostGet.Post("http://bccbtoken.com/api/member/register", dic);
+                JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
+                tl = bool.Parse(paramJson["success"].ToString());
+                LogManager.WriteLog("APP接口", paramJson["message"].ToString());
+                LogManager.WriteLog("APP参数", Helper.PostUrl(dic));
             }
             catch(Exception err) {
                 LogManager.WriteLog("APP接口异常", "注册=" + err.Message);
             }
+            return tl;
         }
 
         /// <summary>
@@ -179,13 +185,40 @@ namespace LJSheng.Web
         {
             try
             {
-                string data = PostGet.GetPage("http://bccbtoken.com/api/Memberapi/dailyAvg", "");
+                string data = PostGet.Get("http://bccbtoken.com/api/Memberapi/dailyAvg");
                 LogManager.WriteLog("APP接口", data);
             }
             catch (Exception err)
             {
                 LogManager.WriteLog("APP接口异常", "24小时均值=" + err.Message);
             }
+        }
+
+
+        public static bool TEST(string account, string pwd, string paypwd, string mid, string id)
+        {
+            bool tl = false;
+            try
+            {
+                SortedDictionary<string, string> dic = new SortedDictionary<string, string>();
+                dic.Add("ff", "appmr");
+                dic.Add("account", account);
+                dic.Add("pwd", pwd);
+                dic.Add("paypwd", paypwd);
+                dic.Add("mid", mid);
+                dic.Add("id", id);
+                dic.Add("sign", Helper.BuildRequest(dic));
+                string json = PostGet.Post("http://baijmc.com/ajax/api.ashx", dic);
+                //JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
+                //tl = bool.Parse(paramJson["success"].ToString());
+                LogManager.WriteLog("APP接口", json);
+                LogManager.WriteLog("APP参数", Helper.PostUrl(dic));
+            }
+            catch (Exception err)
+            {
+                LogManager.WriteLog("APP接口异常", "注册=" + err.Message);
+            }
+            return tl;
         }
         #endregion
     }

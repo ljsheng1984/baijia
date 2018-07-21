@@ -66,10 +66,10 @@ function list(number, gid, page) {
         error: function () { },
         beforeSend: function () { },
         success: function (data) {
-            console.log(data);
+            //console.log(data);
             if (data.result == 200) {
                 $.each(data.data.list, function (index, content) {
-                    $("#list" + number).append("<li><a href=\"/Home/ShopProduct?gid=" + content.Gid + "\"><p><img src=\"/uploadfiles/product/" + content.Picture + "\" /></p><p class=\"title\">" + content.Prefix + content.Name + "</p><p class=\"price\">￥ " + content.Price + "/" + content.Company + "</p></a></li>");
+                    $("#list" + number).append("<li><a href=\"/Home/ShopProduct?gid=" + content.Gid + "\"><p><img src=\"/uploadfiles/product/" + content.Picture + "\" /></p><p class=\"title\">" + content.Prefix + content.Name + "</p><p class=\"price\">￥ " + content.Price + "</p></a></li>");
                 });
             }
         },

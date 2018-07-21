@@ -426,15 +426,16 @@ namespace LJSheng.Web.Controllers
             string Product = Request.Form["shopcart"];
             string Remarks = Request.Form["Remarks"];
             int PayType = int.Parse(Request.Form["PayType"]);
-            string Order = Helper.ShopOrder(PayType,Product, Guid.Parse(LCookie.GetCookie("ShopGid")), LCookie.GetMemberGid(), Remarks, Address, RealName, ContactNumber);
+            Guid ShopGid = Guid.Parse(LCookie.GetCookie("ShopGid"));
+            string Order = Helper.ShopOrder(PayType, Product, ShopGid, LCookie.GetMemberGid(), Remarks, Address, RealName, ContactNumber);
             JObject paramJson = JsonConvert.DeserializeObject(Order) as JObject;
             if (Order != null)
             {
                 switch (PayType)
                 {
                     case 1:
-                        return Alipay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), "0.01",2);//测试要删 
-                        //return MPay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), paramJson["TotalPrice"].ToString(), Guid.Parse(paramJson["OrderGid"].ToString()));
+                        return Alipay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), "0.01", 2);//测试要删 
+                                                                                                                //return MPay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), paramJson["TotalPrice"].ToString(), Guid.Parse(paramJson["OrderGid"].ToString()));
                     case 5:
                         return MShopPay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), paramJson["TotalPrice"].ToString(), Guid.Parse(paramJson["OrderGid"].ToString()));
                     default:

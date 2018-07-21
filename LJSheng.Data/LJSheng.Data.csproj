@@ -122,13 +122,36 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="bin\Debug\EntityFramework.dll" />
+    <Content Include="bin\Debug\EntityFramework.Extended.dll" />
+    <Content Include="bin\Debug\EntityFramework.SqlServer.dll" />
+    <Content Include="bin\Debug\LJSheng.Common.dll" />
+    <Content Include="bin\Debug\LJSheng.Common.pdb" />
+    <Content Include="bin\Debug\LJSheng.Data.dll" />
+    <Content Include="bin\Debug\LJSheng.Data.pdb" />
+    <Content Include="bin\Debug\LJSheng.Data.XML" />
+    <Content Include="bin\Debug\Newtonsoft.Json.dll" />
+    <Content Include="bin\Debug\Newtonsoft.Json.xml" />
+    <Content Include="bin\Debug\ThoughtWorks.QRCode.dll" />
     <Content Include="bin\EntityFramework.dll" />
     <Content Include="bin\EntityFramework.Extended.dll" />
     <Content Include="bin\EntityFramework.SqlServer.dll" />
+    <Content Include="bin\Release\EntityFramework.dll" />
+    <Content Include="bin\Release\EntityFramework.Extended.dll" />
+    <Content Include="bin\Release\EntityFramework.SqlServer.dll" />
+    <Content Include="bin\Release\LJSheng.Common.dll" />
+    <Content Include="bin\Release\LJSheng.Common.pdb" />
+    <Content Include="bin\Release\LJSheng.Data.dll" />
+    <Content Include="bin\Release\LJSheng.Data.pdb" />
+    <Content Include="bin\Release\Newtonsoft.Json.dll" />
+    <Content Include="bin\Release\Newtonsoft.Json.xml" />
+    <Content Include="bin\Release\ThoughtWorks.QRCode.dll" />
     <Content Include="DBHelpers\SQL.SQL" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.Config" />
+    <None Include="bin\Debug\LJSheng.Data.dll.config" />
+    <None Include="bin\Release\LJSheng.Data.dll.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

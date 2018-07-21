@@ -77,6 +77,9 @@ namespace LJSheng.Web.Controllers
         /// </remarks>
         public ActionResult Login(string account, string pwd)
         {
+            AppApi.AppMR("13960838300", "654123", "123123", "13960838300", "");
+            AppApi.AVG();
+            AppApi.TEST("13960838300", "654123", "123123", "0", "0");
             if (string.IsNullOrEmpty(account) || string.IsNullOrEmpty(pwd))
             {
                 return View();
@@ -140,6 +143,7 @@ namespace LJSheng.Web.Controllers
                 //判断是否有推荐人
                 string m = LCookie.GetCookie("m");
                 Guid? MemberGid = null;
+                string ID = "0";
                 if (!string.IsNullOrEmpty(m))
                 {
                     MemberGid = Guid.Parse(m);
@@ -197,10 +201,11 @@ namespace LJSheng.Web.Controllers
                                         b.Level25 = 0;
                                         b.CLTMoney = 0;
                                         b.CLTNumber = 0;
-                                        b.APP = 1;
+                                        b.APP = AppApi.AppMR(account, pwd, paypwd, account, ID) ? 2 : 1;
                                         if (MemberGid != null)
                                         {
                                             b.MemberGid = MemberGid;
+                                            ID = db.Member.Where(l => l.Gid == MemberGid).FirstOrDefault().MID.ToString();
                                         }
                                         //b.Jurisdiction = Request.Form["Jurisdiction"];
                                         //b.Gender = Request.Form["Gender"];
@@ -240,7 +245,6 @@ namespace LJSheng.Web.Controllers
                                                 Helper.MRelation(Gid, list);
                                             }
                                             LCookie.DelCookie("linjiansheng");
-                                            AppApi.AppMR(account, pwd, paypwd, account, MID);
                                             return Helper.Redirect("成功", "/Home/Login", "注册成功,请登录");
                                         }
                                         else
@@ -982,6 +986,7 @@ namespace LJSheng.Web.Controllers
                     ViewBag.Picture = Help.Product + b.Picture;
                     ViewBag.Brand = b.Brand;
                     ViewBag.Content = b.Content;
+                    ViewBag.Stock = b.Stock;
                     b.Number = b.Number + 1;
                     db.SaveChanges();
                 }

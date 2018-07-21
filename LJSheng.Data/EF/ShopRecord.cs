@@ -50,6 +50,16 @@ namespace LJSheng.Data
         public decimal OldTIntegral { get; set; }
 
         /// <summary>
+        /// 货款
+        /// </summary>
+        public decimal ShopMoney { get; set; }
+
+        /// <summary>
+        /// 原货款
+        /// </summary>
+        public decimal OldShopMoney { get; set; }
+
+        /// <summary>
         /// 备注
         /// </summary>
         [StringLength(500)]
