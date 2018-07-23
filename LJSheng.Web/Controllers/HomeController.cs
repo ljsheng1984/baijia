@@ -77,9 +77,11 @@ namespace LJSheng.Web.Controllers
         /// </remarks>
         public ActionResult Login(string account, string pwd)
         {
-            AppApi.AppMR("13960838300", "654123", "123123", "13960838300", "");
-            AppApi.AVG();
-            AppApi.TEST("13960838300", "654123", "123123", "0", "0");
+            //AppApi.AppMR("13960838300", "654123", "123123", "13960838300", "");
+            //AppApi.AVG();
+            //AppApi.TEST("13960838300", "654123", "123123", "0", "0");
+            //AppApi.PWD("13067237053", "654123",2);
+            AppApi.MB("13067237053", "654123", "BCCB");
             if (string.IsNullOrEmpty(account) || string.IsNullOrEmpty(pwd))
             {
                 return View();
@@ -923,7 +925,7 @@ namespace LJSheng.Web.Controllers
             using (EFDB db = new EFDB())
             {
                 Guid ShopGid = Guid.Parse(paramJson["ShopGid"].ToString());
-                var b = db.ShopProduct.Where(l => l.Show == 1 && l.ShopGid == ShopGid).GroupJoin(db.ShopClassify,
+                var b = db.ShopProduct.Where(l => l.Show == 1 && l.ShopGid == ShopGid && l.Stock>0).GroupJoin(db.ShopClassify,
                     l => l.ClassifyGid,
                     j => j.Gid,
                     (l, j) => new

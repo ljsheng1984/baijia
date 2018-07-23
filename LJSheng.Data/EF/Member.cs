@@ -123,6 +123,11 @@ namespace LJSheng.Data
         public decimal Integral { get; set; }
 
         /// <summary>
+        /// 货款
+        /// </summary>
+        public decimal ProductMoney { get; set; }
+
+        /// <summary>
         /// 商城个人积分
         /// </summary>
         public decimal MIntegral { get; set; }
@@ -133,15 +138,9 @@ namespace LJSheng.Data
         public decimal TIntegral { get; set; }
 
         /// <summary>
-        /// 商城积分
+        /// 商城可转换积分
         /// </summary>
         public decimal ShopIntegral { get; set; }
-
-        /// <summary>
-        /// 货款
-        /// </summary>
-        public decimal ProductMoney { get; set; }
-
         /// <summary>
         /// 商城货款
         /// </summary>

@@ -63,7 +63,7 @@
         <thead>
             <tr>
                 <th>#</th>
-                <th>系统订单号</th>
+                <th>系统/网银订单号</th>
                 <th>下单时间</th>
                 <th>购买商品</th>
                 <th>商家</th>
@@ -78,9 +78,9 @@
             <script id="tpl" type="text/html">
                 {{each list as item index}}
                 <tr id="{{item.Gid}}" style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
-                    <td>{{index+1}}</td>
-                    <td>{{item.OrderNo}}</td>
-                    <td>{{item.AddTime}}</td>
+                    <td rowspan="2">{{index+1}}</td>
+                    <td>{{item.OrderNo}}<br />{{item.TradeNo}}</td>
+                    <td>{{item.AddTime}}<br />{{item.PayTime}}</td>
                     <td onclick="Show('{{item.OrderNo}}','ShopOrderDetailsList?gid={{item.Gid}}');">{{item.Product}}</td>
                     <td>{{item.Name}}<br />{{item.ContactNumber}}</td>
                     <td>{{item.Account}}<br />{{item.RealName}}</td>
@@ -96,9 +96,22 @@
                         {{else}}
                         交易关闭
                         {{/if}}
+                        <br />
+                        {{if item.PayType=="1"}}
+                        支付宝
+                        {{else if item.PayType=="2"}}
+                        微信
+                        {{else if item.PayType=="4"}}
+                        余额
+                        {{else if item.PayType=="5"}}
+                        积分
+                        {{else}}
+                        线下汇款
+                        {{/if}}
                     </td>
                     <td>
-                        {{item.Price}}
+                        订单金额:{{item.TotalPrice}}<br />
+                        支付金额:{{item.Price}}/{{item.PayPrice}}
                     </td>
                     <td>
                         <span class="label label-info">
@@ -119,6 +132,17 @@
                             <button class="btn btn-danger hidden" onclick="Delete('{{item.Gid}}');">删除</button>
                         </div>
                     </td>
+                </tr>
+                <tr id="{{item.Gid}}" style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
+                    <td colspan="5" onclick="Show('{{item.OrderNo}}','ShopRecordList?OrderNo={{item.OrderNo}}');">
+                        <div class="btn-group">
+                            <button class="btn btn-mini">团队分配</button>
+                            <button class="btn btn-mini">第1级 <span class="label label-badge">{{item.T1}}</span></button>
+                            <button class="btn btn-mini">第2级 <span class="label label-badge">{{item.T1}}</span></button>
+                            <button class="btn btn-mini">第3级 <span class="label label-badge">{{item.T3}}</span></button>
+                        </div>
+                    </td>
+                    <td colspan="4" onclick="Show('{{item.OrderNo}}','ShopRecordList?OrderNo={{item.OrderNo}}');"><button class="btn btn-mini">商家利润 <span class="label label-badge">{{item.ShopMoney}}</span></button></td>
                 </tr>
                 {{/each}}
             </script>

@@ -1347,16 +1347,23 @@ namespace LJSheng.Web
                     Guid ProductGid = Guid.Parse(j["gid"].ToString());
                     Number = int.Parse(j["pCount"].ToString());
                     var p = db.ShopProduct.Where(l => l.Gid == ProductGid).FirstOrDefault();
-                    body += p.Name + ",";
-                    //订单详情
-                    var od = new OrderDetails();
-                    od.Gid = Guid.NewGuid();
-                    od.AddTime = DateTime.Now;
-                    od.OrderGid = OrderGid;
-                    od.ProductGid = (Guid)ProductGid;
-                    od.Number = Number;
-                    od.Price = p.Price;
-                    db.OrderDetails.Add(od);
+                    if (p.Stock >= Number)
+                    {
+                        body += p.Name + ",";
+                        //订单详情
+                        var od = new OrderDetails();
+                        od.Gid = Guid.NewGuid();
+                        od.AddTime = DateTime.Now;
+                        od.OrderGid = OrderGid;
+                        od.ProductGid = (Guid)ProductGid;
+                        od.Number = Number;
+                        od.Price = p.Price;
+                        db.OrderDetails.Add(od);
+                    }
+                    else
+                    {
+                        return JsonConvert.SerializeObject(new { body= p.Name, TotalPrice= 1000000, OrderNo= "", OrderGid });
+                    }
                 }
                 if (db.SaveChanges() == json.Count())
                 {
@@ -1443,6 +1450,8 @@ namespace LJSheng.Web
                         if (db.SaveChanges() == 1)
                         {
                             Pay = true;
+                            //扣除库存
+                            OrderStock(b.Gid);
                             if (b.PayStatus == 1)
                             {
                                 //团队获取比例
@@ -1463,8 +1472,11 @@ namespace LJSheng.Web
                                 {
                                     msg += "基数积分成功=" + PayPrice.ToString() + rn;
                                 }
-                                //累计团队积分
-                                msg += "商城团队业绩=" + ShopTeamIntegral(b.MemberGid, PayPrice, b.Gid, dl) + rn;
+                                if (PayType != 5)
+                                {
+                                    //累计团队积分
+                                    msg += "商城团队业绩=" + ShopTeamIntegral(b.MemberGid, PayPrice, b.Gid, dl) + rn;
+                                }
                                 LogManager.WriteLog(payname + "商城对账记录", LogMsg + rn + msg);
                             }
                             else
@@ -1552,6 +1564,28 @@ namespace LJSheng.Web
                 msg += err.Message + "\r\n";
             }
             return msg;
+        }
+
+        /// <summary>
+        /// 扣除商城库存
+        /// </summary>
+        /// <param name="OrderGid">订单Gig</param>
+        /// <returns>返回调用结果</returns>
+        /// <para name="result">200 是成功其他失败</para>
+        /// <para name="data">对象结果</para>
+        /// <Remarks>
+        /// 2018-08-18 林建生
+        /// </Remarks>
+        public static void OrderStock(Guid OrderGid)
+        {
+            using (EFDB db = new EFDB())
+            {
+                var b = db.OrderDetails.Where(l => l.OrderGid == OrderGid).ToList();
+                foreach (var od in b)
+                {
+                    db.ShopProduct.Where(l => l.Gid == od.ProductGid).Update(l => new ShopProduct { Stock = l.Stock - od.Number });
+                }
+            }
         }
         #endregion
 
@@ -2262,9 +2296,9 @@ namespace LJSheng.Web
                         l.TIntegral,
                         Multiple = Type == 2 ? j.FirstOrDefault().Multiple:0
                     }).FirstOrDefault();
-                    //需要团队积分,个人时候为0
+                    //需要团队积分对应的倍数
                     decimal Integral = MIntegral * m.Multiple;
-                    if (TIntegral >= Integral)
+                    if ((Type==1 && MIntegral>0) || (Integral>0 && TIntegral >= Integral))
                     {
                         if (db.Member.Where(l => l.Gid == Gid).Update(l => new Member { MIntegral = l.MIntegral - MIntegral, TIntegral = l.TIntegral - Integral, ShopIntegral = l.ShopIntegral + Integral }) == 1)
                         {

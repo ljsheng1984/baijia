@@ -951,6 +951,12 @@ namespace LJSheng.Web.Controllers
                         l.BuyPrice,
                         l.LockTime,
                         l.UPTime,
+                        l.MIntegral,
+                        l.TIntegral,
+                        l.ShopMoney,
+                        l.ShopIntegral,
+                        l.APP,
+                        l.CLMoney,
                         MRealName = Nullable<Guid>.Equals(l.MemberGid, null) ? "" : j.FirstOrDefault().RealName,
                         MAccount = Nullable<Guid>.Equals(l.MemberGid, null) ? "" : j.FirstOrDefault().Account
                     }).GroupJoin(db.Level,
@@ -983,6 +989,12 @@ namespace LJSheng.Web.Controllers
                         l.BuyPrice,
                         l.LockTime,
                         l.UPTime,
+                        l.MIntegral,
+                        l.TIntegral,
+                        l.ShopMoney,
+                        l.ShopIntegral,
+                        l.APP,
+                        l.CLMoney,
                         LevelName = j.FirstOrDefault().Name,
                         j.FirstOrDefault().Label
                     }).GroupJoin(db.Level,
@@ -1017,6 +1029,12 @@ namespace LJSheng.Web.Controllers
                         l.Label,
                         l.LockTime,
                         l.UPTime,
+                        l.MIntegral,
+                        l.TIntegral,
+                        l.ShopMoney,
+                        l.ShopIntegral,
+                        l.APP,
+                        l.CLMoney,
                         CLLevelName = j.FirstOrDefault().Name,
                         CLLabel = j.FirstOrDefault().Label,
                         AllMoney = db.Order.Where(o => o.MemberGid == l.Gid && o.PayStatus == 1 && o.PayType != 5).Select(o => o.TotalPrice).DefaultIfEmpty(0m).Sum(),
@@ -5079,8 +5097,8 @@ namespace LJSheng.Web.Controllers
                 string STime = paramJson["STime"].ToString();
                 string ETime = paramJson["ETime"].ToString();
                 var b = db.ShopOrder.GroupJoin(db.Shop,
-                    x => x.ShopGid,
-                    y => y.Gid,
+                    l => l.ShopGid,
+                    j => j.Gid,
                     (l, j) => new
                     {
                         l.Gid,
@@ -5092,6 +5110,7 @@ namespace LJSheng.Web.Controllers
                         l.PayType,
                         l.PayStatus,
                         l.TotalPrice,
+                        l.PayPrice,
                         l.Price,
                         l.ExpressStatus,
                         l.Express,
@@ -5115,6 +5134,7 @@ namespace LJSheng.Web.Controllers
                         l.PayStatus,
                         l.TotalPrice,
                         l.Price,
+                        l.PayPrice,
                         l.ExpressStatus,
                         l.Express,
                         l.ExpressNumber,
@@ -5123,7 +5143,11 @@ namespace LJSheng.Web.Controllers
                         l.Name,
                         l.ContactNumber,
                         j.FirstOrDefault().Account,
-                        j.FirstOrDefault().RealName
+                        j.FirstOrDefault().RealName,
+                        T1 = db.ShopRecord.Where(s => s.OrderGid == l.Gid && s.Remarks == "第1级").Select(s => s.TIntegral).DefaultIfEmpty(0m).Sum(),
+                        T2 = db.ShopRecord.Where(s => s.OrderGid == l.Gid && s.Remarks == "第2级").Select(s => s.TIntegral).DefaultIfEmpty(0m).Sum(),
+                        T3 = db.ShopRecord.Where(s => s.OrderGid == l.Gid && s.Remarks == "第3级").Select(s => s.TIntegral).DefaultIfEmpty(0m).Sum(),
+                        ShopMoney = db.ShopRecord.Where(s => s.OrderGid == l.Gid && s.ShopMoney>0).Select(s => s.ShopMoney).DefaultIfEmpty(0m).Sum()
                     }).AsQueryable();
                 string Account = paramJson["Account"].ToString();
                 string OrderNo = paramJson["OrderNo"].ToString();
@@ -6083,6 +6107,72 @@ namespace LJSheng.Web.Controllers
                     count = b.Count(),
                     pageindex,
                     list = b.Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
+                }));
+            }
+        }
+        #endregion
+
+        #region 商城资金记录
+        /// <summary>
+        /// 资金记录
+        /// </summary>
+        /// <returns>返回调用结果</returns>
+        /// <para name="result">200 是成功其他失败</para>
+        /// <para name="data">对象结果</para>
+        /// <remarks>
+        /// 2018-08-18 林建生
+        /// </remarks>
+        public ActionResult ShopRecordList()
+        {
+            return View();
+        }
+        [HttpPost]
+        public JsonResult ShopRecord()
+        {
+            string json = "";
+            using (StreamReader sr = new StreamReader(Request.InputStream))
+            {
+                json = HttpUtility.UrlDecode(sr.ReadLine());
+            }
+            JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
+            string Account = paramJson["Account"].ToString();
+            string OrderNo = paramJson["OrderNo"].ToString();
+            using (EFDB db = new EFDB())
+            {
+                var b = db.ShopRecord.GroupJoin(db.Member,
+                    l => l.MemberGid,
+                    j => j.Gid,
+                    (l, j) => new
+                    {
+                        l.Gid,
+                        l.MIntegral,
+                        l.TIntegral,
+                        l.ShopMoney,
+                        l.OldMIntegral,
+                        l.OldTIntegral,
+                        l.OldShopMoney,
+                        l.AddTime,
+                        l.Remarks,
+                        OrderNo = l.OrderGid == null ? "无订单" : db.ShopOrder.Where(o => o.Gid == l.OrderGid).FirstOrDefault().OrderNo,
+                        j.FirstOrDefault().Account,
+                        j.FirstOrDefault().RealName
+                    }).AsQueryable();
+                if (!string.IsNullOrEmpty(Account))
+                {
+                    b = b.Where(l => l.Account == Account);
+                }
+                if (!string.IsNullOrEmpty(OrderNo))
+                {
+                    b = b.Where(l => l.OrderNo == OrderNo);
+                }
+                int pageindex = Int32.Parse(paramJson["pageindex"].ToString());
+                int pagesize = Int32.Parse(paramJson["pagesize"].ToString());
+                return Json(new AjaxResult(new
+                {
+                    other = " | 当前查询总货款=" + b.Select(l => l.ShopMoney).DefaultIfEmpty(0m).Sum() + ",积分=" + b.Select(l => l.MIntegral).DefaultIfEmpty(0m).Sum() + ",团队积分=" + b.Select(l => l.TIntegral).DefaultIfEmpty(0m).Sum(),
+                    count = b.Count(),
+                    pageindex,
+                    list = b.OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
                 }));
             }
         }

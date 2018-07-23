@@ -429,22 +429,28 @@ namespace LJSheng.Web.Controllers
             Guid ShopGid = Guid.Parse(LCookie.GetCookie("ShopGid"));
             string Order = Helper.ShopOrder(PayType, Product, ShopGid, LCookie.GetMemberGid(), Remarks, Address, RealName, ContactNumber);
             JObject paramJson = JsonConvert.DeserializeObject(Order) as JObject;
-            if (Order != null)
+            if (!string.IsNullOrEmpty(Order))
             {
-                switch (PayType)
+                if (paramJson["OrderNo"].ToString() == "")
                 {
-                    case 1:
-                        return Alipay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), "0.01", 2);//测试要删 
-                                                                                                                //return MPay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), paramJson["TotalPrice"].ToString(), Guid.Parse(paramJson["OrderGid"].ToString()));
-                    case 5:
-                        return MShopPay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), paramJson["TotalPrice"].ToString(), Guid.Parse(paramJson["OrderGid"].ToString()));
-                    default:
-                        return Helper.Redirect("失败", "history.go(-1);", "非法支付");
+                    return Helper.Redirect("失败", "history.go(-1);", paramJson["body"].ToString() + "-的库存少于你购买的数量!");
+                }
+                else
+                {
+                    switch (PayType)
+                    {
+                        case 1:
+                            return Alipay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), "0.01", 2);//测试要删                                                                                  //return MPay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), paramJson["TotalPrice"].ToString(), Guid.Parse(paramJson["OrderGid"].ToString()));
+                        case 5:
+                            return MShopPay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), paramJson["TotalPrice"].ToString(), Guid.Parse(paramJson["OrderGid"].ToString()));
+                        default:
+                            return Helper.Redirect("失败", "history.go(-1);", "非法支付");
+                    }
                 }
             }
             else
             {
-                return Helper.Redirect("失败", "history.go(-1);", "提交订单失败");
+                return Helper.Redirect("失败", "history.go(-1);", "提交订单失败!");
             }
         }
 
@@ -473,15 +479,9 @@ namespace LJSheng.Web.Controllers
                 {
                     if (Helper.MoneyRecordAdd(OrderGid, MemberGid, 0, -Price, 1) != null)
                     {
-                        Stock(OrderGid);
-                        //string ConsumptionCode = LJSheng.Common.RandStr.CreateValidateNumber(8);
-                        if (db.ShopOrder.Where(l => l.OrderNo == out_trade_no).Update(l => new ShopOrder { PayStatus = 1,PayTime = DateTime.Now }) == 1)
+                        if (Helper.ShopPayOrder(out_trade_no, "", 5, decimal.Parse(total_amout)))
                         {
                             return new RedirectResult("/Pay/PayOK?type=2&OrderNo=" + out_trade_no);
-                        }
-                        else
-                        {
-                            LogManager.WriteLog("积分支付成功订单更新失败", out_trade_no);
                         }
                     }
                 }

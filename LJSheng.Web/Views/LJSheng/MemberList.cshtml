@@ -70,7 +70,7 @@
             <script id="tpl" type="text/html">
                 {{each list as item index}}
                 <tr id="{{item.Gid}}" style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
-                    <td rowspan="2">{{index+1}}</td>
+                    <td rowspan="3">{{index+1}}</td>
                     <td>
                         {{item.Account}}
                         <br />
@@ -94,7 +94,7 @@
                             <button class="btn btn-mini">数量:{{item.Stock}}</button>
                         </div>
                         <br />
-                        <div class="btn-group"  onclick="Show('{{item.Account}}','OrderList?ShopGid={{item.Gid}}');">
+                        <div class="btn-group" onclick="Show('{{item.Account}}','OrderList?ShopGid={{item.Gid}}');">
                             <button class="btn btn-mini">发货数据</button>
                             <button class="btn btn-mini">货款:{{item.ProductMoney}}</button>
                         </div>
@@ -137,6 +137,22 @@
                     </td>
                     <td>注册时间:{{item.AddTime}}</td>
                     <td></td>
+                </tr>
+                <tr style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
+                    <td colspan="2"></td>
+                    <td colspan="2">商城数据</td>
+                    <td colspan="2" onclick="Show('{{item.Account}}','ShopRecordList?Account={{item.Account}}');">
+                        <div class="btn-group">
+                            <button class="btn btn-mini">基数积分 <span class="label label-badge">{{item.MIntegral}}</span></button>
+                            <button class="btn btn-mini">团队积分 <span class="label label-badge">{{item.TIntegral}}</span></button>
+                        </div>
+                    </td>
+                    <td colspan="4" onclick="Show('{{item.Account}}','ShopRecordList?Account={{item.Account}}');">
+                        <div class="btn-group">
+                            <button class="btn btn-mini">货款 <span class="label label-badge">{{item.ShopMoney}}</span></button>
+                            <button class="btn btn-mini">可兑换积分 <span class="label label-badge">{{item.ShopIntegral}}</span></button>
+                        </div>
+                    </td>
                 </tr>
                 {{/each}}
             </script>
