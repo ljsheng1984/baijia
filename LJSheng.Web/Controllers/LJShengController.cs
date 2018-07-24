@@ -4618,6 +4618,10 @@ namespace LJSheng.Web.Controllers
                     b.Gid = Guid.NewGuid();
                     b.AddTime = DateTime.Now;
                     b.ShopGid = Guid.Parse(Request.Form["ShopGid"]);
+                    b.Price = decimal.Parse(Request.Form["Price"]);
+                    b.Stock = int.Parse(Request.Form["Stock"]);
+                    b.Prefix = Request.Form["Prefix"];
+                    b.Show = Int32.Parse(Request.Form["Show"]);
                 }
                 else
                 {
@@ -4625,19 +4629,16 @@ namespace LJSheng.Web.Controllers
                 }
                 b.ClassifyGid = Guid.Parse(Request.Form["ClassifyGid"]);
                 b.Name = Request.Form["Name"];
-                b.Price = decimal.Parse(Request.Form["Price"]);
                 b.OriginalPrice = decimal.Parse(Request.Form["OriginalPrice"]);
                 b.Number = int.Parse(Request.Form["Number"]);
-                b.Stock = int.Parse(Request.Form["Stock"]); ;
                 b.Profile = Request.Form["Profile"];
                 b.Content = Request.Form["Content"];
                 b.Remarks = Request.Form["Remarks"];
-                b.Show = Int32.Parse(Request.Form["Show"]);
                 b.Sort = Int32.Parse(Request.Form["Sort"]);
                 b.ExpressFee = Int32.Parse(Request.Form["ExpressFee"]);
                 b.Company = Request.Form["Company"];
                 b.Brand = Request.Form["Brand"];
-                b.Prefix = Request.Form["Prefix"];
+
                 if (!string.IsNullOrEmpty(Request.Form["Picture"]))
                 {
                     b.Picture = Request.Form["Picture"];
@@ -6227,6 +6228,66 @@ namespace LJSheng.Web.Controllers
                 return Json(new AjaxResult(new
                 {
                     other = " | 当前查询总积分=" + b.Select(l => l.MIntegral).DefaultIfEmpty(0m).Sum() + ",团队积分=" + b.Select(l => l.TIntegral).DefaultIfEmpty(0m).Sum(),
+                    count = b.Count(),
+                    pageindex,
+                    list = b.OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
+                }));
+            }
+        }
+        #endregion
+
+        #region 冻结记录
+        /// <summary>
+        /// 冻结记录
+        /// </summary>
+        /// <returns>返回调用结果</returns>
+        /// <para name="result">200 是成功其他失败</para>
+        /// <para name="data">对象结果</para>
+        /// <remarks>
+        /// 2018-08-18 林建生
+        /// </remarks>
+        public ActionResult FrozenIntegralList()
+        {
+            return View();
+        }
+        [HttpPost]
+        public JsonResult FrozenIntegral()
+        {
+            string json = "";
+            using (StreamReader sr = new StreamReader(Request.InputStream))
+            {
+                json = HttpUtility.UrlDecode(sr.ReadLine());
+            }
+            JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
+            string Account = paramJson["Account"].ToString();
+            using (EFDB db = new EFDB())
+            {
+                var b = db.FrozenIntegral.GroupJoin(db.Member,
+                    l => l.MemberGid,
+                    j => j.Gid,
+                    (l, j) => new
+                    {
+                        l.Gid,
+                        l.AddTime,
+                        l.Remarks,
+                        l.Integral,
+                        l.MIntegral,
+                        l.Type,
+                        l.State,
+                        l.Multiple,
+                        l.ThawTime,
+                        j.FirstOrDefault().Account,
+                        j.FirstOrDefault().RealName
+                    }).AsQueryable();
+                if (!string.IsNullOrEmpty(Account))
+                {
+                    b = b.Where(l => l.Account == Account);
+                }
+                int pageindex = Int32.Parse(paramJson["pageindex"].ToString());
+                int pagesize = Int32.Parse(paramJson["pagesize"].ToString());
+                return Json(new AjaxResult(new
+                {
+                    other = " | 当前查询总基数积分=" + b.Select(l => l.MIntegral).DefaultIfEmpty(0m).Sum() + ",团队条件积分=" + b.Select(l => l.Integral).DefaultIfEmpty(0m).Sum(),
                     count = b.Count(),
                     pageindex,
                     list = b.OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()

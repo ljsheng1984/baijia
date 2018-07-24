@@ -1,0 +1,88 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" Content="width=device-width, initial-scale=1" />
+    <title>积分冻结管理</title>
+    <link rel="stylesheet" href="~/plugins/zui/css/zui.min.css">
+</head>
+<body>
+    <div class="row" id="search">
+        <div class="col-sm-11">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="icon-search"></i></span>
+                <span class="input-group-addon">手机号</span>
+                <input type="text" name="Account" class="form-control" onkeyup="value=value.replace(/[^\d]/g,'');" value="@Request.QueryString["Account"]">
+                <span class="input-group-addon">时间</span>
+                <input type="text" class="form-control" placeholder="开始时间" name="STime" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd HH:mm:ss',alwaysUseStartDate:true})" />
+                <span class="input-group-addon fix-padding">-</span>
+                <input type="text" class="form-control" placeholder="结束时间" name="ETime" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd HH:mm:ss',alwaysUseStartDate:true})" />
+                <span class="input-group-btn">
+                    <button type="button" class="btn btn-info" onclick="GetList(1);">给偶搜</button>
+                </span>
+            </div>
+        </div>
+    </div>
+    <br />
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>标识</th>
+                <th>会员帐号</th>
+                <th>冻结类型</th>
+                <th>冻结积分</th>
+                <th>基数分</th>
+                <th>倍数</th>
+                <th>冻结状态</th>
+                <th>备注</th>
+                <th>解冻时间</th>
+                <th>添加时间</th>
+            </tr>
+        </thead>
+        <tbody id="tbody">
+            <script id="tpl" type="text/html">
+                {{each list as item index}}
+                <tr id="{{item.Gid}}" style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
+                    <td>{{++index}}</td>
+                    <td>{{item.Account}}({{item.RealName}})</td>
+                    <td>
+                        {{if item.Type=="1"}}
+                        会员支取
+                        {{else}}
+                        团队满足
+                        {{/if}}
+                    </td>
+                    <td>{{item.Integral}}</td>
+                    <td>{{item.MIntegral}}</td>
+                    <td>{{item.Multiple}}</td>
+                    <td>
+                        {{if item.State=="1"}}
+                        成功
+                        {{else if item.State=="2"}}
+                        冻结
+                        {{else}}
+                        取消
+                        {{/if}}
+                    </td>
+                    <td>{{item.Remarks}}</td>
+                    <td>{{item.ThawTime}}</td>
+                    <td>{{item.AddTime}}</td>
+                </tr>
+                {{/each}}
+            </script>
+        </tbody>
+    </table>
+    <ul class="pager" id="pager"></ul>
+    <ul class="pager" id="pages" style="overflow:hidden;"></ul>
+    <script src="~/plugins/zui/lib/jquery/jquery.js"></script>
+    <script src="~/plugins/zui/js/zui.min.js"></script>
+    <script src="~/js/template-web.js"></script>
+    <script src="~/plugins/My97DatePicker/WdatePicker.js"></script>
+    <script src="~/js/list.js"></script>
+</body>
+</html>

@@ -1021,6 +1021,7 @@
     <Content Include="Views\LJSheng\ShopRecordList.cshtml" />
     <Content Include="Views\LJSheng\CLRecordList.cshtml" />
     <Content Include="Views\Member\PayPWD.cshtml" />
+    <Content Include="Views\LJSheng\FrozenIntegralList.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

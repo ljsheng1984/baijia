@@ -39,12 +39,12 @@
         </div>
         <div class="control">
             <label>售价</label>
-            <input id="Price" name="Price" value="@ViewBag.Price" type="text" class="input" placeholder="售价" onkeyup="value=value.replace(/[^\d]/g,'');" @(string.IsNullOrEmpty(ViewBag.Price)?"":"readonly")>
+            <input id="Price" name="Price" value="@ViewBag.Price" type="text" class="input" placeholder="售价" onkeyup="value=value.replace(/[^\d]/g,'');" @(string.IsNullOrEmpty(ViewBag.Price.ToString())?"":"readonly")>
             <div id="Pricemsg" class="help-text text-red"></div>
         </div>
         <div class="control">
             <label>库存</label>
-            <input id="Stock" name="Stock" value="@ViewBag.Stock" type="text" class="input" placeholder="入库数量" onkeyup="value=value.replace(/[^\d]/g,'');" @(string.IsNullOrEmpty(ViewBag.Stock)?"":"readonly")>
+            <input id="Stock" name="Stock" value="@ViewBag.Stock" type="text" class="input" placeholder="入库数量" onkeyup="value=value.replace(/[^\d]/g,'');" @(string.IsNullOrEmpty(ViewBag.Stock.ToString())?"":"readonly")>
             <div id="Stockmsg" class="help-text text-red"></div>
         </div>
         <div class="control">

@@ -35,9 +35,9 @@
             </div>
         </div>
         <div class="form-group">
-            <label class="col-sm-2">前缀</label>
+            <label class="col-sm-2">商品编号</label>
             <div class="col-md-2 col-sm-2">
-                <input type="text" name="Prefix" value="@ViewBag.Prefix" class="form-control">
+                <input type="text" name="Prefix" value="@ViewBag.Prefix" class="form-control" @(string.IsNullOrEmpty(ViewBag.Prefix)?"":"readonly")>
             </div>
         </div>
         <div class="form-group">
@@ -74,19 +74,19 @@
         <div class="form-group">
             <label class="col-sm-2">宣传价</label>
             <div class="col-md-3 col-sm-5">
-                <input type="text" name="OriginalPrice" value="@ViewBag.OriginalPrice" class="form-control" placeholder="必填项,只能是数字" onkeyup="value=value.replace(/[^\d.]/g,'');">
+                <input type="text" name="OriginalPrice" value="@ViewBag.OriginalPrice" class="form-control" placeholder="必填项,只能是数字" onkeyup="value=value.replace(/[^\d.]/g,'');" @(string.IsNullOrEmpty(ViewBag.OriginalPrice.ToString())?"":"readonly")>
             </div>
         </div>
         <div class="form-group">
             <label class="col-sm-2">售价</label>
             <div class="col-md-3 col-sm-5">
-                <input type="text" name="Price" value="@ViewBag.Price" class="form-control" placeholder="必填项,需要支付价格" onkeyup="value=value.replace(/[^\d.]/g,'');">
+                <input type="text" name="Price" value="@ViewBag.Price" class="form-control" placeholder="必填项,需要支付价格" onkeyup="value=value.replace(/[^\d.]/g,'');" @(string.IsNullOrEmpty(ViewBag.Price.ToString())?"":"readonly")>
             </div>
         </div>
         <div class="form-group">
             <label class="col-sm-2">库存</label>
             <div class="col-md-3 col-sm-5">
-                <input type="text" name="Stock" value="@ViewBag.Stock" class="form-control" placeholder="必填项,只能是数字" onkeyup="value=value.replace(/[^\d]/g,'');">
+                <input type="text" name="Stock" value="@ViewBag.Stock" class="form-control" placeholder="必填项,只能是数字" onkeyup="value=value.replace(/[^\d]/g,'');" @(string.IsNullOrEmpty(ViewBag.Stock.ToString())?"":"readonly")>
             </div>
         </div>
         <div class="form-group hidden">
@@ -121,7 +121,7 @@
                 <input type="text" name="Sort" value="@ViewBag.Sort" class="form-control" placeholder="必填,只能是数字" onkeyup="value=value.replace(/[^\d]/g,'');">
             </div>
         </div>
-        <div class="form-group">
+        <div class="form-group hidden">
             <label class="col-sm-2">显示设置</label>
             <div class="col-md-3 col-sm-5">
                 <label class="radio-inline">

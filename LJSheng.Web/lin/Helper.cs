@@ -2314,7 +2314,7 @@ namespace LJSheng.Web
                     decimal Integral = MIntegral * m.Multiple;
                     if ((Type==1 && MIntegral>0) || (Integral>0 && TIntegral >= Integral))
                     {
-                        if (db.Member.Where(l => l.Gid == Gid).Update(l => new Member { MIntegral = l.MIntegral - MIntegral, TIntegral = l.TIntegral - Integral, ShopIntegral = l.ShopIntegral + Integral }) == 1)
+                        if (db.Member.Where(l => l.Gid == Gid).Update(l => new Member { MIntegral = l.MIntegral - MIntegral, TIntegral = l.TIntegral - Integral }) == 1)
                         {
                             var b = new FrozenIntegral();
                             b.Gid = Guid.NewGuid();
@@ -2326,10 +2326,18 @@ namespace LJSheng.Web
                             b.Multiple = m.Multiple;
                             b.Type = Type;
                             b.State = State;
+                            if (State == 1)
+                            {
+                                b.ThawTime = DateTime.Now;
+                            }
                             b.Remarks = Remarks;
                             db.FrozenIntegral.Add(b);
                             if (db.SaveChanges() == 1)
                             {
+                                if (State == 1)
+                                {
+                                    FrozenIntegral(b.Gid, b.MemberGid, Integral == 0 ? MIntegral : Integral);
+                                }
                                 LogManager.WriteLog("商城积分冻结成功", LogMsg);
                             }
                             else
@@ -2343,6 +2351,39 @@ namespace LJSheng.Web
             catch (Exception err)
             {
                 LogManager.WriteLog("冻结记录异常", LogMsg + "/r/n" + err.Message);
+            }
+        }
+
+        /// <summary>
+        /// 冻结积分
+        /// </summary>
+        /// <param name="Gid">冻结Gid</param>
+        /// <param name="MemberGid">会员Gid</param>
+        /// <param name="Integral">个人基数积分</param>
+        /// <returns>返回调用结果</returns>
+        public static void FrozenIntegral(Guid Gid, Guid MemberGid, decimal Integral)
+        {
+            string LogMsg = "冻结Gid=" + Gid.ToString() + "会员=" + MemberGid.ToString() + ",Integral=" + Integral.ToString();
+            try
+            {
+                using (EFDB db = new EFDB())
+                {
+                    if (db.FrozenIntegral.Where(l => l.Gid == Gid).Update(l => new FrozenIntegral { State = 1 }) == 1)
+                    {
+                        if (db.Member.Where(l => l.Gid == MemberGid).Update(l => new Member { ShopIntegral = l.ShopIntegral + Integral }) == 1)
+                        {
+                            LogManager.WriteLog("商城积分解冻增加积分成功", LogMsg);
+                        }
+                        else
+                        {
+                            LogManager.WriteLog("商城积分解冻成功,更新积分失败", LogMsg);
+                        }
+                    }
+                }
+            }
+            catch (Exception err)
+            {
+                LogManager.WriteLog("商城积分解冻更新积分异常", LogMsg + "/r/n" + err.Message);
             }
         }
         #endregion
@@ -2673,7 +2714,7 @@ namespace LJSheng.Web
 
         #region 额度记录
         /// <summary>
-        /// 商城团队积分记录
+        /// 额度记录
         /// </summary>
         /// <param name="Gid">会员Gid</param>
         /// <param name="Money">操作的额度</param>
@@ -2713,7 +2754,7 @@ namespace LJSheng.Web
                 LogManager.WriteLog("额度记录异常", LogMsg + "/r/n" + err.Message);
             }
         }
-         #endregion
+        #endregion
 
         #region 生成唯一邀请码
         public static int CreateMNumber()
