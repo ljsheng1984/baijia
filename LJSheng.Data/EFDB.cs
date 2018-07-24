@@ -189,5 +189,9 @@ namespace LJSheng.Data
         /// 商城积分记录
         /// </summary>
         public DbSet<ShopRecord> ShopRecord { get; set; }
+        /// <summary>
+        /// 彩链包兑换记录
+        /// </summary>
+        public DbSet<CLRecord> CLRecord { get; set; }
     }
 }

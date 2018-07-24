@@ -4,9 +4,9 @@ using System.ComponentModel.DataAnnotations;
 namespace LJSheng.Data
 {
     /// <summary>
-    /// 商城积分记录
+    /// 彩链包兑换记录
     /// </summary>
-    public partial class ShopRecord
+    public partial class CLRecord
     {
         /// <summary>
         /// 主键
@@ -20,34 +20,29 @@ namespace LJSheng.Data
         public DateTime AddTime { get; set; }
 
         /// <summary>
-        /// 订单Gid
-        /// </summary>
-        public Guid? OrderGid { get; set; }
-
-        /// <summary>
         /// 会员Gid
         /// </summary>
         public Guid MemberGid { get; set; }
 
         /// <summary>
-        /// 个人积分
+        /// 兑换额度
         /// </summary>
-        public decimal MIntegral { get; set; }
+        public decimal Money { get; set; }
 
         /// <summary>
-        /// 团队积分
+        /// 彩链个数
         /// </summary>
-        public decimal TIntegral { get; set; }
+        public decimal Number { get; set; }
 
         /// <summary>
-        /// 原个人积分
+        /// 原兑换额度
         /// </summary>
-        public decimal OldMIntegral { get; set; }
+        public decimal OldMoney { get; set; }
 
         /// <summary>
-        /// 原团队积分
+        /// 原彩链个数
         /// </summary>
-        public decimal OldTIntegral { get; set; }
+        public decimal OldNumber { get; set; }
 
         /// <summary>
         /// 备注

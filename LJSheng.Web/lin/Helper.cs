@@ -1393,6 +1393,7 @@ namespace LJSheng.Web
                     b.Remarks = Remarks;
                     b.Product = body;
                     b.PayPrice = 0;
+                    b.Profit = 0;
                     db.ShopOrder.Add(b);
                     if (db.SaveChanges() == 1)
                     {
@@ -1447,6 +1448,11 @@ namespace LJSheng.Web
                         b.PayType = PayType;
                         b.PayPrice = PayPrice;
                         b.ExpressStatus = 1;
+                        //团队获取比例
+                        List<DictionariesList> dl = db.DictionariesList.Where(l => l.DGid == db.Dictionaries.Where(d => d.DictionaryType == "CL").FirstOrDefault().Gid).ToList();
+                        //获取货款利润比例
+                        decimal bl = decimal.Parse(dl.Where(l => l.Key == "CLLR").FirstOrDefault().Value) / 100;
+                        b.Profit = PayPrice * bl;
                         if (db.SaveChanges() == 1)
                         {
                             Pay = true;
@@ -1454,17 +1460,17 @@ namespace LJSheng.Web
                             OrderStock(b.Gid);
                             if (b.PayStatus == 1)
                             {
-                                //团队获取比例
-                                List<DictionariesList> dl = db.DictionariesList.Where(l => l.DGid == db.Dictionaries.Where(d => d.DictionaryType == "CL").FirstOrDefault().Gid).ToList();
-                                //获取货款利润比例
-                                decimal bl = decimal.Parse(dl.Where(l => l.Key == "CLLR").FirstOrDefault().Value) / 100;
-                                //增加货款
-                                if (ShopRecordAdd(b.Gid, b.MemberGid, 0, 0, PayPrice * bl, "利润比例=" + bl.ToString()) == null)
+                                //增加货款利润
+                                if (db.Member.Where(l=>l.Gid== b.MemberGid).Update(l => new Member { ShopMoney = l.ShopMoney + b.Profit })==1)
                                 {
-                                    msg += "货款失败:会员=" + b.MemberGid.ToString() + ",PayPrice=" + PayPrice.ToString();
+                                    msg += "货款成功=" + b.Profit.ToString() + rn;
+                                }
+                                else
+                                {
+                                    msg += "货款失败:=" + b.Profit.ToString() + rn;
                                 }
                                 //基数积分增加
-                                if (ShopRecordAdd(b.Gid, b.MemberGid, PayPrice, 0, 0, "积分基数") == null)
+                                if (ShopRecordAdd(b.Gid, b.MemberGid, PayPrice, 0,"积分基数") == null)
                                 {
                                     msg += "基数积分失败:PayPrice=" + PayPrice.ToString() + rn;
                                 }
@@ -1532,7 +1538,7 @@ namespace LJSheng.Web
                         if (dl!=null && mr.M1 != null)
                         {
                             decimal TIntegral = Price *  decimal.Parse(dl.Where(l => l.Key == "T1").FirstOrDefault().Value) / 100;
-                            if (ShopRecordAdd(OrderGid, (Guid)mr.M1,0, TIntegral, 0, "第1级") == null)
+                            if (ShopRecordAdd(OrderGid, (Guid)mr.M1,0, TIntegral, "第1级") == null)
                             {
                                 msg += "第1级失败:会员=" + mr.M1.ToString() + ",Price=" + Price.ToString();
                             }
@@ -1541,14 +1547,14 @@ namespace LJSheng.Web
                                 if (mr.M2 != null)
                                 {
                                     TIntegral = Price * decimal.Parse(dl.Where(l => l.Key == "T2").FirstOrDefault().Value) / 100;
-                                    if (ShopRecordAdd(OrderGid, (Guid)mr.M1, 0, TIntegral, 0, "第2级") == null)
+                                    if (ShopRecordAdd(OrderGid, (Guid)mr.M1, 0, TIntegral, "第2级") == null)
                                     {
                                         msg += "第2级失败:会员=" + mr.M1.ToString() + ",Price=" + Price.ToString();
                                     }
                                     if (mr.M3 != null)
                                     {
                                         TIntegral = Price * decimal.Parse(dl.Where(l => l.Key == "T3").FirstOrDefault().Value) / 100;
-                                        if (ShopRecordAdd(OrderGid, (Guid)mr.M1, 0, TIntegral, 0, "第3级") == null)
+                                        if (ShopRecordAdd(OrderGid, (Guid)mr.M1, 0, TIntegral, "第3级") == null)
                                         {
                                             msg += "第3级失败:会员=" + mr.M1.ToString() + ",Price=" + Price.ToString();
                                         }
@@ -2208,10 +2214,10 @@ namespace LJSheng.Web
         /// <param name="Integral">积分</param>
         /// <param name="Remarks">备注</param>
         /// <returns>返回调用结果</returns>
-        public static Guid? ShopRecordAdd(Guid? OrderGid, Guid Gid, decimal MIntegral, decimal TIntegral, decimal ShopMoney, string Remarks = "")
+        public static Guid? ShopRecordAdd(Guid? OrderGid, Guid Gid, decimal MIntegral, decimal TIntegral, string Remarks = "")
         {
             Guid? MRGid = null;
-            string LogMsg = "订单=" + OrderGid + ",会员=" + Gid + ",MIntegral=" + MIntegral + ",TIntegral=" + TIntegral + ",ShopMoney=" + ShopMoney;
+            string LogMsg = "订单=" + OrderGid + ",会员=" + Gid + ",MIntegral=" + MIntegral + ",TIntegral=" + TIntegral;
             try
             {
                 using (EFDB db = new EFDB())
@@ -2225,8 +2231,6 @@ namespace LJSheng.Web
                         b.AddTime = DateTime.Now;
                         b.OrderGid = OrderGid;
                         b.MemberGid = Gid;
-                        b.ShopMoney = ShopMoney;
-                        b.OldShopMoney = m.ShopMoney;
                         b.MIntegral = MIntegral;
                         b.TIntegral = TIntegral;
                         b.OldMIntegral = m.MIntegral;
@@ -2238,7 +2242,6 @@ namespace LJSheng.Web
                             //更新用户数据
                             m.MIntegral = m.MIntegral + MIntegral;
                             m.TIntegral = m.TIntegral + TIntegral;
-                            m.ShopMoney = m.ShopMoney + ShopMoney;
                             if (db.SaveChanges() == 1)
                             {
                                 MRGid = b.Gid;

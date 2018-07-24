@@ -79,6 +79,11 @@ namespace LJSheng.Data
         public decimal PayPrice { get; set; }
 
         /// <summary>
+        /// 利润
+        /// </summary>
+        public decimal Profit { get; set; }
+
+        /// <summary>
         /// 优惠券抵扣金额
         /// </summary>
         public decimal CouponPrice { get; set; }

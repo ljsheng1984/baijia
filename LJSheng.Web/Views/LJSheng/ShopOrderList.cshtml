@@ -138,11 +138,11 @@
                         <div class="btn-group">
                             <button class="btn btn-mini">团队分配</button>
                             <button class="btn btn-mini">第1级 <span class="label label-badge">{{item.T1}}</span></button>
-                            <button class="btn btn-mini">第2级 <span class="label label-badge">{{item.T1}}</span></button>
+                            <button class="btn btn-mini">第2级 <span class="label label-badge">{{item.T2}}</span></button>
                             <button class="btn btn-mini">第3级 <span class="label label-badge">{{item.T3}}</span></button>
                         </div>
                     </td>
-                    <td colspan="4" onclick="Show('{{item.OrderNo}}','ShopRecordList?OrderNo={{item.OrderNo}}');"><button class="btn btn-mini">商家利润 <span class="label label-badge">{{item.ShopMoney}}</span></button></td>
+                    <td colspan="4"><button class="btn btn-mini">商家利润 <span class="label label-badge">{{item.Profit}}</span></button></td>
                 </tr>
                 {{/each}}
             </script>

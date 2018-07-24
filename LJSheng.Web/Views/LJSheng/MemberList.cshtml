@@ -102,7 +102,19 @@
                     <td>
                         <img data-caption="{{item.Account}}" data-toggle="lightbox" src="/uploadfiles/member/{{item.Picture}}" class="img-thumbnail" onerror="this.src='/images/nopic.png'" style="width:50px;height:50px;">
                     </td>
-                    <td title="冻结时间:{{item.LockTime}}">{{item.Jurisdiction}}</td>
+                    <td title="冻结时间:{{item.LockTime}}">
+                        {{item.Jurisdiction}}
+                        <br />
+                        {{if item.APP=="1"}}
+                        <span class="label label-success">未同步</span>
+                        {{else if item.APP=="2"}}
+                        已同步
+                        {{else if item.APP=="3"}}
+                        APP用户
+                        {{else}}
+                        未知
+                        {{/if}}
+                    </td>
                     <td>
                         <div class="btn-group">
                             <button class="btn" onclick="Show('{{item.Account}}','OrderList?MemberGid={{item.Gid}}&Type=3');">业绩</button>
@@ -139,18 +151,23 @@
                     <td></td>
                 </tr>
                 <tr style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
-                    <td colspan="2"></td>
-                    <td colspan="2">商城数据</td>
+                    <td colspan="2">邀请码:{{item.MID}}</td>
+                    <td>商城信息</td>
+                    <td onclick="Show('{{item.Account}}','CLRecordList?Account={{item.Account}}');">商城额度={{item.CLMoney}}</td>
                     <td colspan="2" onclick="Show('{{item.Account}}','ShopRecordList?Account={{item.Account}}');">
                         <div class="btn-group">
                             <button class="btn btn-mini">基数积分 <span class="label label-badge">{{item.MIntegral}}</span></button>
                             <button class="btn btn-mini">团队积分 <span class="label label-badge">{{item.TIntegral}}</span></button>
                         </div>
                     </td>
-                    <td colspan="4" onclick="Show('{{item.Account}}','ShopRecordList?Account={{item.Account}}');">
+                    <td colspan="2" onclick="Show('{{item.Account}}','ShopRecordList?Account={{item.Account}}');">
+                        <div class="btn-group">
+                            <button class="btn btn-mini">可兑换积分 <span class="label label-badge">{{item.ShopIntegral}}</span></button>
+                        </div>
+                    </td>
+                    <td colspan="2" onclick="Show('{{item.Account}}','ShopOrderList?MemberGid={{item.Gid}}');">
                         <div class="btn-group">
                             <button class="btn btn-mini">货款 <span class="label label-badge">{{item.ShopMoney}}</span></button>
-                            <button class="btn btn-mini">可兑换积分 <span class="label label-badge">{{item.ShopIntegral}}</span></button>
                         </div>
                     </td>
                 </tr>

@@ -5112,6 +5112,7 @@ namespace LJSheng.Web.Controllers
                         l.TotalPrice,
                         l.PayPrice,
                         l.Price,
+                        l.Profit,
                         l.ExpressStatus,
                         l.Express,
                         l.ExpressNumber,
@@ -5135,6 +5136,7 @@ namespace LJSheng.Web.Controllers
                         l.TotalPrice,
                         l.Price,
                         l.PayPrice,
+                        l.Profit,
                         l.ExpressStatus,
                         l.Express,
                         l.ExpressNumber,
@@ -5146,8 +5148,7 @@ namespace LJSheng.Web.Controllers
                         j.FirstOrDefault().RealName,
                         T1 = db.ShopRecord.Where(s => s.OrderGid == l.Gid && s.Remarks == "第1级").Select(s => s.TIntegral).DefaultIfEmpty(0m).Sum(),
                         T2 = db.ShopRecord.Where(s => s.OrderGid == l.Gid && s.Remarks == "第2级").Select(s => s.TIntegral).DefaultIfEmpty(0m).Sum(),
-                        T3 = db.ShopRecord.Where(s => s.OrderGid == l.Gid && s.Remarks == "第3级").Select(s => s.TIntegral).DefaultIfEmpty(0m).Sum(),
-                        ShopMoney = db.ShopRecord.Where(s => s.OrderGid == l.Gid && s.ShopMoney>0).Select(s => s.ShopMoney).DefaultIfEmpty(0m).Sum()
+                        T3 = db.ShopRecord.Where(s => s.OrderGid == l.Gid && s.Remarks == "第3级").Select(s => s.TIntegral).DefaultIfEmpty(0m).Sum()
                     }).AsQueryable();
                 string Account = paramJson["Account"].ToString();
                 string OrderNo = paramJson["OrderNo"].ToString();
@@ -6112,6 +6113,64 @@ namespace LJSheng.Web.Controllers
         }
         #endregion
 
+        #region 彩链兑换额度记录
+        /// <summary>
+        /// 资金记录
+        /// </summary>
+        /// <returns>返回调用结果</returns>
+        /// <para name="result">200 是成功其他失败</para>
+        /// <para name="data">对象结果</para>
+        /// <remarks>
+        /// 2018-08-18 林建生
+        /// </remarks>
+        public ActionResult CLRecordList()
+        {
+            return View();
+        }
+        [HttpPost]
+        public JsonResult CLRecord()
+        {
+            string json = "";
+            using (StreamReader sr = new StreamReader(Request.InputStream))
+            {
+                json = HttpUtility.UrlDecode(sr.ReadLine());
+            }
+            JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
+            string Account = paramJson["Account"].ToString();
+            using (EFDB db = new EFDB())
+            {
+                var b = db.CLRecord.GroupJoin(db.Member,
+                    l => l.MemberGid,
+                    j => j.Gid,
+                    (l, j) => new
+                    {
+                        l.Gid,
+                        l.AddTime,
+                        l.Remarks,
+                        l.Money,
+                        l.Number,
+                        l.OldMoney,
+                        l.OldNumber,
+                        j.FirstOrDefault().Account,
+                        j.FirstOrDefault().RealName
+                    }).AsQueryable();
+                if (!string.IsNullOrEmpty(Account))
+                {
+                    b = b.Where(l => l.Account == Account);
+                }
+                int pageindex = Int32.Parse(paramJson["pageindex"].ToString());
+                int pagesize = Int32.Parse(paramJson["pagesize"].ToString());
+                return Json(new AjaxResult(new
+                {
+                    other = " | 当前查询总额度=" + b.Select(l => l.Money).DefaultIfEmpty(0m).Sum() + ",兑换数量=" + b.Select(l => l.Number).DefaultIfEmpty(0m).Sum(),
+                    count = b.Count(),
+                    pageindex,
+                    list = b.OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
+                }));
+            }
+        }
+        #endregion
+
         #region 商城资金记录
         /// <summary>
         /// 资金记录
@@ -6147,10 +6206,8 @@ namespace LJSheng.Web.Controllers
                         l.Gid,
                         l.MIntegral,
                         l.TIntegral,
-                        l.ShopMoney,
                         l.OldMIntegral,
                         l.OldTIntegral,
-                        l.OldShopMoney,
                         l.AddTime,
                         l.Remarks,
                         OrderNo = l.OrderGid == null ? "无订单" : db.ShopOrder.Where(o => o.Gid == l.OrderGid).FirstOrDefault().OrderNo,
@@ -6169,7 +6226,7 @@ namespace LJSheng.Web.Controllers
                 int pagesize = Int32.Parse(paramJson["pagesize"].ToString());
                 return Json(new AjaxResult(new
                 {
-                    other = " | 当前查询总货款=" + b.Select(l => l.ShopMoney).DefaultIfEmpty(0m).Sum() + ",积分=" + b.Select(l => l.MIntegral).DefaultIfEmpty(0m).Sum() + ",团队积分=" + b.Select(l => l.TIntegral).DefaultIfEmpty(0m).Sum(),
+                    other = " | 当前查询总积分=" + b.Select(l => l.MIntegral).DefaultIfEmpty(0m).Sum() + ",团队积分=" + b.Select(l => l.TIntegral).DefaultIfEmpty(0m).Sum(),
                     count = b.Count(),
                     pageindex,
                     list = b.OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()

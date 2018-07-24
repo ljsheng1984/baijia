@@ -8,7 +8,7 @@
 <html>
 <head>
     <meta name="viewport" Content="width=device-width, initial-scale=1" />
-    <title>商城积分管理</title>
+    <title>彩链兑换管理</title>
     <link rel="stylesheet" href="~/plugins/zui/css/zui.min.css">
 </head>
 <body>
@@ -18,8 +18,6 @@
                 <span class="input-group-addon"><i class="icon-search"></i></span>
                 <span class="input-group-addon">手机号</span>
                 <input type="text" name="Account" class="form-control" onkeyup="value=value.replace(/[^\d]/g,'');" value="@Request.QueryString["Account"]">
-                <span class="input-group-addon">订单号</span>
-                <input type="text" name="OrderNo" class="form-control" value="@Request.QueryString["OrderNo"]">
                 <span class="input-group-addon">时间</span>
                 <input type="text" class="form-control" placeholder="开始时间" name="STime" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd HH:mm:ss',alwaysUseStartDate:true})" />
                 <span class="input-group-addon fix-padding">-</span>
@@ -36,12 +34,10 @@
             <tr>
                 <th>标识</th>
                 <th>会员帐号</th>
-                <th>订单号</th>
-                <th>积分</th>
-                <th>团队分</th>
-                <th>货款</th>
-                <th>原积分</th>
-                <th>原团队分</th>
+                <th>兑换额度</th>
+                <th>兑换数量</th>
+                <th>原额度</th>
+                <th>原数量</th>
                 <th>备注</th>
                 <th>添加时间</th>
             </tr>
@@ -52,11 +48,10 @@
                 <tr id="{{item.Gid}}" style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
                     <td>{{++index}}</td>
                     <td>{{item.Account}}({{item.RealName}})</td>
-                    <td onclick="Show('{{item.OrderNo}}','ShopOrderList?OrderNo={{item.OrderNo}}');" title="单击查看订单详情"><button class="btn btn-block btn-mini" type="button">{{item.OrderNo}}</button></td>
-                    <td>{{item.MIntegral}}</td>
-                    <td>{{item.TIntegral}}</td>
-                    <td>{{item.OldMIntegral}}</td>
-                    <td>{{item.OldTIntegral}}</td>
+                    <td>{{item.Money}}</td>
+                    <td>{{item.Number}}</td>
+                    <td>{{item.OldMoney}}</td>
+                    <td>{{item.OldNumber}}</td>
                     <td>{{item.Remarks}}</td>
                     <td>{{item.AddTime}}</td>
                 </tr>

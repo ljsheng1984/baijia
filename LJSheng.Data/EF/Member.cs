@@ -265,7 +265,7 @@ namespace LJSheng.Data
         /// </summary>
         public DateTime? LockTime { get; set; }
         /// <summary>
-        /// 同步状态[1=未同步 2=已同步 3=APP注册]
+        /// 同步状态[1=未同步 2=已同步 3=APP用户]
         /// </summary>
         public int APP { get; set; }
     }

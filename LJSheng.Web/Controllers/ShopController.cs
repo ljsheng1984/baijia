@@ -197,22 +197,36 @@ namespace LJSheng.Web.Controllers
                 var b = db.Member.Where(l => l.Gid == gid).FirstOrDefault();
                 if (b.CLLevel > 21)
                 {
-                    ViewBag.CLMoney = b.CLMoney;
+                    //会员原来的彩链金额
+                    decimal CLMoney = ViewBag.CLMoney = b.CLMoney;
                     Guid ProductGid = Helper.GetProductGid();
                     var p = db.Stock.Where(l => l.MemberGid == gid && l.ProductGid == ProductGid).FirstOrDefault();
                     if (p != null)
                     {
-                        ViewBag.Stock = p.Number;
-                        ViewBag.CLB = db.DictionariesList.Where(dl => dl.Key == "CLB" && dl.DGid == db.Dictionaries.Where(d => d.DictionaryType == "CL").FirstOrDefault().Gid).FirstOrDefault().Value;
+                        //会员原来的彩链库存
+                        int MStock = ViewBag.Stock = p.Number;
+                        //一个彩链兑换多少额度
+                        decimal CLM = ViewBag.CLB = db.DictionariesList.Where(dl => dl.Key == "CLB" && dl.DGid == db.Dictionaries.Where(d => d.DictionaryType == "CL").FirstOrDefault().Gid).FirstOrDefault().Value;
                         if (!string.IsNullOrEmpty(Request["Stock"]))
                         {
+                            //要兑换的数量
                             int Stock = int.Parse(Request["Stock"]);
                             p.Number = p.Number - Stock;
                             if (p.Number >= 0 && db.SaveChanges() == 1)
                             {
-                                b.CLMoney = b.CLMoney + Stock * int.Parse(ViewBag.CLB);
+                                b.CLMoney = b.CLMoney + Stock * CLM;
                                 if (db.SaveChanges() == 1)
                                 {
+                                    var cl = new CLRecord();
+                                    cl.Gid = Guid.NewGuid();
+                                    cl.AddTime = DateTime.Now;
+                                    cl.MemberGid = gid;
+                                    cl.Money = Stock * CLM;
+                                    cl.OldMoney = CLMoney;
+                                    cl.Number = Stock;
+                                    cl.OldNumber = MStock;
+                                    db.CLRecord.Add(cl);
+                                    db.SaveChanges();
                                     return Helper.Redirect("成功", "/Shop/Index", "恭喜你,兑换成功!");
                                 }
                                 else

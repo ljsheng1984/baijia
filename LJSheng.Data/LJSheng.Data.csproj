@@ -70,6 +70,7 @@
     <Compile Include="EF\ApiBug.cs" />
     <Compile Include="EF\App.cs" />
     <Compile Include="EF\AppApi.cs" />
+    <Compile Include="EF\CLRecord.cs" />
     <Compile Include="EF\Consignor.cs" />
     <Compile Include="EF\FrozenIntegral.cs" />
     <Compile Include="EF\Level.cs" />
