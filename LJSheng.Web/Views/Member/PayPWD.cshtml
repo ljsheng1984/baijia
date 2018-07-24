@@ -1,0 +1,56 @@
+﻿@{
+    ViewBag.Title = "订单";
+    Layout = "~/Views/Shared/_MLayout.cshtml";
+}
+<div class="sub-header">
+    <a class="icon-arrow-left" onclick="history.go(-1);">返回</a>
+    <div class="title">修改密码</div>
+</div>
+@using (Html.BeginForm("PayPWD", "Member", FormMethod.Get))
+{
+<div class="signle-item">
+    <div class="cell">
+        <div class="cell-left">原支付密码</div>
+        <div class="cell-right">
+            <input type="password" class="text" name="oldpaypwd" maxlength="6" placeholder="请输入6位原支付密码" />
+        </div>
+    </div>
+    <div class="cell">
+        <div class="cell-left">新支付密码</div>
+        <div class="cell-right">
+            <input type="password" class="text" name="paypwd" maxlength="6" placeholder="请输入6位新支付密码" />
+        </div>
+    </div>
+</div>
+<div class="padding-btn-group">
+    <button type="button" id="btn" class="btn-block btn-green" onclick="return check();">确认</button>
+</div>
+}
+<script>
+    function check() {
+        var field = $("input[name='oldpaypwd']");
+        if (field.val().length != 6) {
+            tooltip(field);
+            return false;
+        }
+        field = $("input[name='paypwd']");
+        if (field.val().length != 6) {
+            tooltip(field);
+            return false;
+        }
+        document.getElementById("btn").innerText = "正在提交...";
+        document.getElementById("btn").disabled = true;
+        document.forms[0].submit();
+    }
+    function tooltip(field) {
+        field.focus();
+        tip(field.attr('placeholder'));
+    }
+    function tip(msg) {
+        layer.open({
+            content: msg
+            , skin: 'msg'
+            , time: 2
+        });
+    }
+</script>

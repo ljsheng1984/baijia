@@ -1,6 +1,8 @@
 ﻿@{
-    ViewBag.Title = "个人信息";
-    Layout = "~/Views/Shared/_MLayout.cshtml";
+                /**/
+
+                ViewBag.Title = "个人信息";
+                Layout = "~/Views/Shared/_MLayout.cshtml";
 }
 @using (Html.BeginForm("Info", "Member", new { Type = 1 }, FormMethod.Post, new { @class = "", enctype = "multipart/form-data" }))
 {
@@ -63,6 +65,15 @@
     <div class="signle-item">
         <a href="/Member/PWD" class="cell">
             <div class="cell-left">修改密码</div>
+            <div class="cell-right">
+                <div class="text text-right"></div>
+                <i class="icon-arrow"></i>
+            </div>
+        </a>
+    </div>
+    <div class="signle-item">
+        <a href="/Member/PayPWD" class="cell">
+            <div class="cell-left">支付密码</div>
             <div class="cell-right">
                 <div class="text text-right"></div>
                 <i class="icon-arrow"></i>

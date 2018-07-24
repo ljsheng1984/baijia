@@ -153,7 +153,11 @@
                 <tr style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
                     <td colspan="2">邀请码:{{item.MID}}</td>
                     <td>商城信息</td>
-                    <td onclick="Show('{{item.Account}}','CLRecordList?Account={{item.Account}}');">商城额度={{item.CLMoney}}</td>
+                    <td onclick="Show('{{item.Account}}','CLRecordList?Account={{item.Account}}');">
+                        <div class="btn-group">
+                            <button class="btn btn-mini">商城额度 <span class="label label-badge">{{item.CLMoney}}</span></button>
+                        </div>
+                    </td>
                     <td colspan="2" onclick="Show('{{item.Account}}','ShopRecordList?Account={{item.Account}}');">
                         <div class="btn-group">
                             <button class="btn btn-mini">基数积分 <span class="label label-badge">{{item.MIntegral}}</span></button>

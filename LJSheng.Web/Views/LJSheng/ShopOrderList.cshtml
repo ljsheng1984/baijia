@@ -134,7 +134,7 @@
                     </td>
                 </tr>
                 <tr id="{{item.Gid}}" style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
-                    <td colspan="5" onclick="Show('{{item.OrderNo}}','ShopRecordList?OrderNo={{item.OrderNo}}');">
+                    <td colspan="3" onclick="Show('{{item.OrderNo}}','ShopRecordList?OrderNo={{item.OrderNo}}');">
                         <div class="btn-group">
                             <button class="btn btn-mini">团队分配</button>
                             <button class="btn btn-mini">第1级 <span class="label label-badge">{{item.T1}}</span></button>
@@ -142,7 +142,17 @@
                             <button class="btn btn-mini">第3级 <span class="label label-badge">{{item.T3}}</span></button>
                         </div>
                     </td>
-                    <td colspan="4"><button class="btn btn-mini">商家利润 <span class="label label-badge">{{item.Profit}}</span></button></td>
+                    <td colspan="2"><button class="btn btn-mini disabled">商家利润 <span class="label label-badge">{{item.Profit}}</span></button></td>
+                    <td colspan="2"><button class="btn btn-mini disabled">消费码 <span class="label label-badge">{{item.ConsumptionCode}}</span></button></td>
+                    <td colspan="2">
+                        <span class="label label-info">
+                            {{if item.Status=="1"}}
+                            未验证
+                            {{else}}
+                            已验证
+                            {{/if}}
+                        </span>
+                    </td>
                 </tr>
                 {{/each}}
             </script>

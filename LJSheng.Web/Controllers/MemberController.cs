@@ -375,6 +375,52 @@ namespace LJSheng.Web.Controllers
                 }
             }
         }
+
+        /// <summary>
+        /// 修改支付密码
+        /// </summary>
+        /// <param name="oldpwd">旧密码</param>
+        /// <param name="pwd">新密码</param>
+        /// <returns>返回调用结果</returns>
+        /// <para name="result">200 是成功其他失败</para>
+        /// <para name="data">结果提示</para>
+        /// <remarks>
+        /// 2016-06-30 林建生
+        /// </remarks>
+        public ActionResult PayPWD(string oldpaypwd, string paypwd)
+        {
+            if (string.IsNullOrEmpty(oldpaypwd) || string.IsNullOrEmpty(paypwd))
+            {
+                return View();
+            }
+            else
+            {
+                using (EFDB db = new EFDB())
+                {
+                    oldpaypwd = MD5.GetMD5ljsheng(oldpaypwd);
+                    paypwd = MD5.GetMD5ljsheng(paypwd);
+                    Guid Gid = LCookie.GetMemberGid();
+                    var b = db.Member.Where(l => l.Gid == Gid && l.PayPWD == oldpaypwd).FirstOrDefault();
+                    if (b != null)
+                    {
+                        b.PayPWD = paypwd;
+                        if (db.SaveChanges() == 1)
+                        {
+                            AppApi.PWD(b.Account, paypwd, 3);
+                            return Helper.Redirect("成功", "/Home/Index", "修改成功!");
+                        }
+                        else
+                        {
+                            return Helper.Redirect("失败", "history.go(-1);", "失败,请重试");
+                        }
+                    }
+                    else
+                    {
+                        return Helper.Redirect("失败", "history.go(-1);", "旧支付密码不正确");
+                    }
+                }
+            }
+        }
         #endregion
 
         #region 订单中心

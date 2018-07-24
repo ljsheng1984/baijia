@@ -411,11 +411,8 @@ namespace LJSheng.Web
                                 {
                                     //会员的等级数据
                                     var ml = lv.Where(l => l.LV == m.CLLevel).FirstOrDefault();
-                                    //公司发货的订单全部算团队业绩
-                                    if (b.Type == 3)
-                                    {
-                                        msg += "团队业绩=" + CLTeamMoney(b.MemberGid, PayPrice, b.Gid) + rn;
-                                    }
+                                    //团队业绩和级差积分
+                                    msg += "团队业绩=" + CLTeamMoney(b.MemberGid, PayPrice, b.Gid, b.Type) + rn;
                                     //非创始人需要判断是否升级
                                     if (m.CLLevel < 26)
                                     {
@@ -544,7 +541,7 @@ namespace LJSheng.Web
         /// <remarks>
         /// 2018-08-18 林建生
         /// </remarks>
-        public static string CLTeamMoney(Guid MemberGid, decimal Price, Guid OrderGid)
+        public static string CLTeamMoney(Guid MemberGid, decimal Price, Guid OrderGid,int Type)
         {
             string msg = "";
             try
@@ -565,13 +562,16 @@ namespace LJSheng.Web
                         int Year = DateTime.Now.Year;
                         int Month = DateTime.Now.Month;
                         //自己购买业绩增加
-                        msg += Achievement("累计团队业绩", MemberGid, Year, Month, Price, Price);
+                        if (Type == 3)
+                        {
+                            msg += Achievement("累计团队业绩", MemberGid, Year, Month, Price, Price);
+                        }
                         if (mr.M1 != null)
                         {
                             //是否第一次购买
                             int MO = db.Order.Where(l => l.Project == 2 && l.MemberGid == MemberGid && l.PayStatus == 1 && l.Type == 3).Count();
                             var LV = db.LV.Where(l => l.LVID == 25).ToList();
-                            if (mr.LM1 > 24 && MO > 1)
+                            if (mr.LM1 > 24)
                             {
                                 var LVM1 = LV.Where(l => l.Number == 1).FirstOrDefault();
                                 decimal Money = Price * LVM1.Differential;
@@ -581,7 +581,10 @@ namespace LJSheng.Web
                                     msg += "级差失败:会员=" + mr.M1.ToString() + ",Price=" + Price.ToString();
                                 }
                             }
-                            msg += Achievement("累计团队业绩", (Guid)mr.M1, Year, Month, Price, 0);
+                            if (Type == 3)
+                            {
+                                msg += Achievement("累计团队业绩", (Guid)mr.M1, Year, Month, Price, 0);
+                            }
                             if (mr.M2 != null)
                             {
                                 if (mr.LM2 > 24 && MO > 1)
@@ -594,7 +597,10 @@ namespace LJSheng.Web
                                         msg += "级差失败:会员=" + mr.M2.ToString() + ",Price=" + Price.ToString();
                                     }
                                 }
-                                msg += Achievement("累计团队业绩", (Guid)mr.M2, Year, Month, Price, 0);
+                                if (Type == 3)
+                                {
+                                    msg += Achievement("累计团队业绩", (Guid)mr.M2, Year, Month, Price, 0);
+                                }
                                 if (mr.M3 != null)
                                 {
                                     if (mr.LM3 > 24 && MO > 1)
@@ -607,9 +613,12 @@ namespace LJSheng.Web
                                             msg += "级差失败:会员=" + mr.M3.ToString() + ",Price=" + Price.ToString();
                                         }
                                     }
-                                    msg += Achievement("累计团队业绩", (Guid)mr.M3, Year, Month, Price, 0);
-                                    //超过三级的业绩无限查找上一级累计
-                                    CSR((Guid)mr.M3, Year, Month, Price);
+                                    if (Type == 3)
+                                    {
+                                        msg += Achievement("累计团队业绩", (Guid)mr.M3, Year, Month, Price, 0);
+                                        //超过三级的业绩无限查找上一级累计
+                                        CSR((Guid)mr.M3, Year, Month, Price);
+                                    }
                                 }
                             }
                         }
@@ -1394,6 +1403,8 @@ namespace LJSheng.Web
                     b.Product = body;
                     b.PayPrice = 0;
                     b.Profit = 0;
+                    b.ConsumptionCode = RandStr.CreateValidateNumber(8);
+                    b.Status = 1;
                     db.ShopOrder.Add(b);
                     if (db.SaveChanges() == 1)
                     {
@@ -1547,16 +1558,16 @@ namespace LJSheng.Web
                                 if (mr.M2 != null)
                                 {
                                     TIntegral = Price * decimal.Parse(dl.Where(l => l.Key == "T2").FirstOrDefault().Value) / 100;
-                                    if (ShopRecordAdd(OrderGid, (Guid)mr.M1, 0, TIntegral, "第2级") == null)
+                                    if (ShopRecordAdd(OrderGid, (Guid)mr.M2, 0, TIntegral, "第2级") == null)
                                     {
-                                        msg += "第2级失败:会员=" + mr.M1.ToString() + ",Price=" + Price.ToString();
+                                        msg += "第2级失败:会员=" + mr.M2.ToString() + ",Price=" + Price.ToString();
                                     }
                                     if (mr.M3 != null)
                                     {
                                         TIntegral = Price * decimal.Parse(dl.Where(l => l.Key == "T3").FirstOrDefault().Value) / 100;
-                                        if (ShopRecordAdd(OrderGid, (Guid)mr.M1, 0, TIntegral, "第3级") == null)
+                                        if (ShopRecordAdd(OrderGid, (Guid)mr.M3, 0, TIntegral, "第3级") == null)
                                         {
-                                            msg += "第3级失败:会员=" + mr.M1.ToString() + ",Price=" + Price.ToString();
+                                            msg += "第3级失败:会员=" + mr.M3.ToString() + ",Price=" + Price.ToString();
                                         }
                                     }
                                 }
@@ -2222,7 +2233,7 @@ namespace LJSheng.Web
             {
                 using (EFDB db = new EFDB())
                 {
-                    if (OrderGid == null || db.MoneyRecord.Where(l => l.OrderGid == OrderGid && l.MemberGid == Gid && l.Remarks == Remarks).Count() == 0)
+                    if (OrderGid == null || db.ShopRecord.Where(l => l.OrderGid == OrderGid && l.MemberGid == Gid && l.Remarks == Remarks).Count() == 0)
                     {
                         //查询用户之前的数据
                         var m = db.Member.Where(l => l.Gid == Gid).FirstOrDefault();
@@ -2659,6 +2670,50 @@ namespace LJSheng.Web
             return prestr.ToString();
         }
         #endregion
+
+        #region 额度记录
+        /// <summary>
+        /// 商城团队积分记录
+        /// </summary>
+        /// <param name="Gid">会员Gid</param>
+        /// <param name="Money">操作的额度</param>
+        /// <param name="CLMoney">原额度</param>
+        /// <param name="Number">操作的彩链包</param>
+        /// <param name="OldNumber">原彩链包</param>
+        /// <param name="Remarks">备注</param>
+        /// <returns>返回调用结果</returns>
+        public static void CLRecordAdd(Guid Gid, decimal Money, decimal CLMoney, int Number, int OldNumber, string Remarks = "")
+        {
+            string LogMsg = "会员=" + Gid + ",Money=" + Money;
+            try
+            {
+                using (EFDB db = new EFDB())
+                {
+                    var b = new CLRecord();
+                    b.Gid = Guid.NewGuid();
+                    b.AddTime = DateTime.Now;
+                    b.MemberGid = Gid;
+                    b.Money = Money;
+                    b.OldMoney = CLMoney;
+                    b.Number = Number;
+                    b.OldNumber = OldNumber;
+                    b.Remarks = Remarks;
+                    db.CLRecord.Add(b);
+                    if (db.SaveChanges() == 1)
+                    {
+                    }
+                    else
+                    {
+                        LogManager.WriteLog("额度记录失败", LogMsg);
+                    }
+                }
+            }
+            catch (Exception err)
+            {
+                LogManager.WriteLog("额度记录异常", LogMsg + "/r/n" + err.Message);
+            }
+        }
+         #endregion
 
         #region 生成唯一邀请码
         public static int CreateMNumber()

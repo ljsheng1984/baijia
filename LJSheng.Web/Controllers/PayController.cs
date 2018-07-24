@@ -442,7 +442,7 @@ namespace LJSheng.Web.Controllers
                         case 1:
                             return Alipay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), "0.01", 2);//测试要删                                                                                  //return MPay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), paramJson["TotalPrice"].ToString(), Guid.Parse(paramJson["OrderGid"].ToString()));
                         case 5:
-                            return MShopPay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), paramJson["TotalPrice"].ToString(), Guid.Parse(paramJson["OrderGid"].ToString()));
+                            return MShopPay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), paramJson["TotalPrice"].ToString(), Guid.Parse(paramJson["OrderGid"].ToString()), Request.Form["PayPWD"]);
                         default:
                             return Helper.Redirect("失败", "history.go(-1);", "非法支付");
                     }
@@ -462,30 +462,38 @@ namespace LJSheng.Web.Controllers
         /// <param name="subject">订单名称</param>
         /// <param name="total_amout">会员帐号</param>
         /// <param name="OrderGid">订单Gid</param>
+        /// <param name="PayPWD">支付密码</param>
         /// <returns>返回调用结果</returns>
         /// <para name="result">200 是成功其他失败</para>
         /// <para name="data">结果提示</para>
         /// <remarks>
         /// 2016-06-30 林建生
         /// </remarks>
-        public ActionResult MShopPay(string out_trade_no, string subject, string total_amout, Guid OrderGid)
+        public ActionResult MShopPay(string out_trade_no, string subject, string total_amout, Guid OrderGid,string PayPWD)
         {
             Guid MemberGid = LCookie.GetMemberGid();
             using (EFDB db = new EFDB())
             {
                 var b = db.Member.Where(l => l.Gid == MemberGid).FirstOrDefault();
-                decimal Price = decimal.Parse(total_amout);
-                if (b.Integral - Price >= 0)
+                if (b.PayPWD == MD5.GetMD5ljsheng(PayPWD))
                 {
-                    if (Helper.MoneyRecordAdd(OrderGid, MemberGid, 0, -Price, 1) != null)
+                    decimal Price = decimal.Parse(total_amout);
+                    if (b.Integral - Price >= 0)
                     {
-                        if (Helper.ShopPayOrder(out_trade_no, "", 5, decimal.Parse(total_amout)))
+                        if (Helper.MoneyRecordAdd(OrderGid, MemberGid, 0, -Price, 1) != null)
                         {
-                            return new RedirectResult("/Pay/PayOK?type=2&OrderNo=" + out_trade_no);
+                            if (Helper.ShopPayOrder(out_trade_no, "", 5, decimal.Parse(total_amout)))
+                            {
+                                return new RedirectResult("/Pay/PayOK?type=2&OrderNo=" + out_trade_no);
+                            }
                         }
                     }
+                    return Helper.Redirect("失败", "history.go(-1);", "积分不足!");
                 }
-                return Helper.Redirect("失败", "history.go(-1);", "积分不足!");
+                else
+                {
+                    return Helper.Redirect("失败", "/Home/Shop", "支付密码错误!");
+                }
             }
         }
 

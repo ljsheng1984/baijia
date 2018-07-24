@@ -206,7 +206,7 @@ namespace LJSheng.Web.Controllers
                         //会员原来的彩链库存
                         int MStock = ViewBag.Stock = p.Number;
                         //一个彩链兑换多少额度
-                        decimal CLM = ViewBag.CLB = db.DictionariesList.Where(dl => dl.Key == "CLB" && dl.DGid == db.Dictionaries.Where(d => d.DictionaryType == "CL").FirstOrDefault().Gid).FirstOrDefault().Value;
+                        decimal CLM = ViewBag.CLB = decimal.Parse(db.DictionariesList.Where(dl => dl.Key == "CLB" && dl.DGid == db.Dictionaries.Where(d => d.DictionaryType == "CL").FirstOrDefault().Gid).FirstOrDefault().Value);
                         if (!string.IsNullOrEmpty(Request["Stock"]))
                         {
                             //要兑换的数量
@@ -217,16 +217,7 @@ namespace LJSheng.Web.Controllers
                                 b.CLMoney = b.CLMoney + Stock * CLM;
                                 if (db.SaveChanges() == 1)
                                 {
-                                    var cl = new CLRecord();
-                                    cl.Gid = Guid.NewGuid();
-                                    cl.AddTime = DateTime.Now;
-                                    cl.MemberGid = gid;
-                                    cl.Money = Stock * CLM;
-                                    cl.OldMoney = CLMoney;
-                                    cl.Number = Stock;
-                                    cl.OldNumber = MStock;
-                                    db.CLRecord.Add(cl);
-                                    db.SaveChanges();
+                                    Helper.CLRecordAdd(gid, Stock * CLM, CLMoney, Stock, MStock, "额度兑换");
                                     return Helper.Redirect("成功", "/Shop/Index", "恭喜你,兑换成功!");
                                 }
                                 else
@@ -370,7 +361,15 @@ namespace LJSheng.Web.Controllers
                     ViewBag.ClassifyGid = 0;
                 }
                 Guid ShopGid = LCookie.GetShopGid();
-                return View(db.ShopClassify.Where(l => l.ShopGid == ShopGid).ToList());
+                var sc = db.ShopClassify.Where(l => l.ShopGid == ShopGid).ToList();
+                if (sc.Count() != 0)
+                {
+                    return View(sc);
+                }
+                else
+                {
+                    return Helper.Redirect("错误！", "/Shop/ShopClassify", "请先设置商品分类!");
+                }
             }
         }
         [HttpPost]
@@ -391,16 +390,23 @@ namespace LJSheng.Web.Controllers
                     if (m.CLMoney >= RMB)
                     {
                         m.CLMoney = m.CLMoney - RMB;
-                        if (db.SaveChanges() == 1)
+                        if (Gid!=null || db.SaveChanges() == 1)
                         {
                             ShopProduct b;
                             if (Gid == null)
                             {
+                                Guid spgid= Guid.NewGuid();
+                                Helper.CLRecordAdd(gid, -RMB, m.CLMoney, 0, 0, "额度扣除="+ spgid.ToString());
                                 b = new ShopProduct();
-                                b.Gid = Guid.NewGuid();
+                                b.Gid = spgid;
                                 b.AddTime = DateTime.Now;
                                 b.ShopGid = LCookie.GetShopGid();
                                 b.Prefix = Request.Form["Prefix"];
+                                b.Stock = Stock;
+                                b.Price = Price;
+                                b.OriginalPrice = Price;
+                                b.Show = 1;
+                                b.Number = 0;
                             }
                             else
                             {
@@ -408,15 +414,10 @@ namespace LJSheng.Web.Controllers
                             }
                             b.ClassifyGid = Guid.Parse(Request.Form["ClassifyGid"]);
                             b.Name = Request.Form["Name"];
-                            b.Price = Price;
-                            b.OriginalPrice = decimal.Parse(Request.Form["Price"]);
-                            b.Number = 0;
-                            b.Stock = Stock;
                             b.Profile = Request.Form["Profile"];
                             b.Content = Request.Form["Content"];
                             //b.Remarks = Request.Form["Remarks"];
-                            b.Show = 1;
-                            b.Sort = 1;
+                            b.Sort = 1;//为0代表额度已退还
                             b.ExpressFee = 0;
                             //b.Company = Request.Form["Company"];
                             //b.Brand = Request.Form["Brand"];
@@ -527,9 +528,25 @@ namespace LJSheng.Web.Controllers
             {
                 using (EFDB db = new EFDB())
                 {
-                    if (db.ShopProduct.Where(l => l.Gid == Gid).Update(l => new ShopProduct { Show = 2 })== 1)
+                    var b = db.ShopProduct.Where(l => l.Gid == Gid).FirstOrDefault();
+                    b.Show = 2;
+                    if (db.SaveChanges()== 1)
                     {
-                        return Json(new AjaxResult("下架成功"));
+                        Guid gid = LCookie.GetMemberGid();
+                        decimal Money = b.Stock * b.Price;
+                        var m = db.Member.Where(l => l.Gid == gid).FirstOrDefault();
+                        decimal CLMoney = m.CLMoney;
+                        m.CLMoney = m.CLMoney + Money;
+                        if (db.SaveChanges() == 1)
+                        {
+                            Helper.CLRecordAdd(gid, Money, CLMoney, 0, 0, "额度退回="+ Gid.ToString());
+                            return Json(new AjaxResult("下架成功,额度返回=" + Money.ToString()));
+                        }
+                        else
+                        {
+                            LogManager.WriteLog("下架成功额度失败", "会员=" + gid.ToString() + ",商品=" + Gid.ToString() + ",额度=" + Money.ToString());
+                            return Json(new AjaxResult("下架成功,额度返回失败,请联系客服!"));
+                        }
                     }
                     else
                     {

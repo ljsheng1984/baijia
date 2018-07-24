@@ -34,17 +34,17 @@
         </div>
         <div class="control">
             <label>商品编号</label>
-            <input id="Prefix" name="Prefix" value="@ViewBag.Prefix" type="text" class="input" maxlength="6" placeholder="输入6位编号" onkeyup="value=value.replace(/[^\a-\z\A-\Z0-9]/g,'')" onpaste="value=value.replace(/[^\a-\z\A-\Z0-9]/g,'')" oncontextmenu = "value=value.replace(/[^\a-\z\A-\Z0-9]/g,'')">
+            <input id="Prefix" name="Prefix" value="@ViewBag.Prefix" type="text" class="input" maxlength="6" placeholder="输入6位编号" onkeyup="value=value.replace(/[^\a-\z\A-\Z0-9]/g,'')" onpaste="value=value.replace(/[^\a-\z\A-\Z0-9]/g,'')" oncontextmenu = "value=value.replace(/[^\a-\z\A-\Z0-9]/g,'')" @(string.IsNullOrEmpty(ViewBag.Prefix)?"":"readonly")>
             <div id="Prefixmsg" class="help-text text-red"></div>
         </div>
         <div class="control">
             <label>售价</label>
-            <input id="Price" name="Price" value="@ViewBag.Price" type="text" class="input" placeholder="售价" onkeyup="value=value.replace(/[^\d]/g,'');">
+            <input id="Price" name="Price" value="@ViewBag.Price" type="text" class="input" placeholder="售价" onkeyup="value=value.replace(/[^\d]/g,'');" @(string.IsNullOrEmpty(ViewBag.Price)?"":"readonly")>
             <div id="Pricemsg" class="help-text text-red"></div>
         </div>
         <div class="control">
             <label>库存</label>
-            <input id="Stock" name="Stock" value="@ViewBag.Stock" type="text" class="input" placeholder="入库数量" onkeyup="value=value.replace(/[^\d]/g,'');">
+            <input id="Stock" name="Stock" value="@ViewBag.Stock" type="text" class="input" placeholder="入库数量" onkeyup="value=value.replace(/[^\d]/g,'');" @(string.IsNullOrEmpty(ViewBag.Stock)?"":"readonly")>
             <div id="Stockmsg" class="help-text text-red"></div>
         </div>
         <div class="control">
