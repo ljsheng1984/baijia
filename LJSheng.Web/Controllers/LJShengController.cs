@@ -5123,6 +5123,7 @@ namespace LJSheng.Web.Controllers
                         l.ExpressNumber,
                         l.Remarks,
                         l.Status,
+                        l.ConsumptionCode,
                         j.FirstOrDefault().Name,
                         j.FirstOrDefault().ContactNumber
                     }).GroupJoin(db.Member,
@@ -5147,6 +5148,7 @@ namespace LJSheng.Web.Controllers
                         l.ExpressNumber,
                         l.Remarks,
                         l.Status,
+                        l.ConsumptionCode,
                         l.Name,
                         l.ContactNumber,
                         j.FirstOrDefault().Account,
@@ -5486,23 +5488,12 @@ namespace LJSheng.Web.Controllers
                         l.Year,
                         l.Month,
                         l.TMoney,
-                        l.TeamMoney,
-                        l.TeamIntegral,
-                        l.DM1Money,
-                        l.DM2Money,
-                        l.DM3Money,
-                        l.DM1Integral,
-                        l.DM2Integral,
-                        l.DM3Integral,
-                        l.FrozenMoney,
-                        l.FrozenIntegral,
                         l.MemberGid,
                         l.CLLevel,
                         l.BonusTime,
                         l.Remarks,
                         l.ProjectRemarks,
                         l.StockRightRemarks,
-                        l.MRGid,
                         l.ProjectMRGid,
                         l.StockRightMRGid,
                         l.ProjectMoney,
@@ -5522,23 +5513,12 @@ namespace LJSheng.Web.Controllers
                         l.Year,
                         l.Month,
                         l.TMoney,
-                        l.TeamMoney,
-                        l.TeamIntegral,
-                        l.DM1Money,
-                        l.DM2Money,
-                        l.DM3Money,
-                        l.DM1Integral,
-                        l.DM2Integral,
-                        l.DM3Integral,
-                        l.FrozenMoney,
-                        l.FrozenIntegral,
                         l.MemberGid,
                         l.CLLevel,
                         l.BonusTime,
                         l.Remarks,
                         l.ProjectRemarks,
                         l.StockRightRemarks,
-                        l.MRGid,
                         l.ProjectMRGid,
                         l.StockRightMRGid,
                         l.ProjectMoney,
@@ -5588,8 +5568,6 @@ namespace LJSheng.Web.Controllers
                 }
                 int pageindex = Int32.Parse(paramJson["pageindex"].ToString());
                 int pagesize = Int32.Parse(paramJson["pagesize"].ToString());
-                decimal TeamMoney = b.Select(l => l.TeamMoney).DefaultIfEmpty(0m).Sum() + b.Select(l => l.FrozenMoney).DefaultIfEmpty(0m).Sum();
-                decimal TeamIntegral = b.Select(l => l.TeamIntegral).DefaultIfEmpty(0m).Sum() + b.Select(l => l.FrozenIntegral).DefaultIfEmpty(0m).Sum();
                 decimal ProjectMoney = b.Select(l => l.ProjectMoney).DefaultIfEmpty(0m).Sum();
                 decimal ProjectIntegral =  b.Select(l => l.ProjectIntegral).DefaultIfEmpty(0m).Sum();
                 decimal Money = b.Select(l => l.Money).DefaultIfEmpty(0m).Sum();
@@ -5597,7 +5575,7 @@ namespace LJSheng.Web.Controllers
 
                 return Json(new AjaxResult(new
                 {
-                    other = " | 当前查询总积分=" + (TeamMoney + ProjectMoney + Money).ToString() +  ",购=" + (TeamIntegral + ProjectIntegral + Integral).ToString() + ",其中项目="+ ProjectMoney.ToString() + ",购=" + ProjectIntegral.ToString() + ",股东="+ Money.ToString()+",购="+ Integral.ToString(),
+                    other = " | 当前查询总积分=" + (ProjectMoney + Money).ToString() +  ",购=" + (ProjectIntegral + Integral).ToString() + ",其中项目="+ ProjectMoney.ToString() + ",购=" + ProjectIntegral.ToString() + ",股东="+ Money.ToString()+",购="+ Integral.ToString(),
                     count = b.Count(),
                     pageindex,
                     list = b.OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
@@ -5647,7 +5625,7 @@ namespace LJSheng.Web.Controllers
                     }
                     else
                     {
-                        LogManager.WriteLog("彩链更新分红失败", "资金增加成功.更新分红状态失败,Gid=" + Gid.ToString() + ",MRGid=" + b.MRGid.ToString() + ",ProjectMRGid=" + b.ProjectMRGid.ToString() + ",StockRightMRGid=" + b.StockRightMRGid.ToString());
+                        LogManager.WriteLog("彩链更新分红失败", "资金增加成功.更新分红状态失败,Gid=" + Gid.ToString() + ",ProjectMRGid=" + b.ProjectMRGid.ToString() + ",StockRightMRGid=" + b.StockRightMRGid.ToString());
                     }
                     return Json(new AjaxResult(300, "用户分红失败!"));
                 }
@@ -5655,84 +5633,6 @@ namespace LJSheng.Web.Controllers
                 {
                     return Json(new AjaxResult(300, "用户分红失败,请先统计月份分红"));
                 }
-            }
-        }
-
-        /// <summary>
-        /// 统计之前的会员归类
-        /// </summary>
-        /// <returns>返回调用结果</returns>
-        /// <para Name="result">200 是成功其他失败</para>
-        /// <para Name="data">对象结果</para>
-        /// <Remarks>
-        /// 2018-08-18 林建生
-        /// </Remarks>
-        [HttpPost]
-        public JsonResult DMember(int Year, int Month)
-        {
-            using (EFDB db = new EFDB())
-            {
-                //统计月份的第一天和最后一天
-                DateTime MonthFirst = DTime.FirstDayOfMonth(DateTime.Parse(Year + "-" + Month + "-" + "01"));
-                DateTime MonthLast = DTime.LastDayOfMonth(DateTime.Parse(Year + "-" + Month + "-" + "01 23:59:59"));
-                //只能分红上一个月和之前的数据
-                if (Year <= DateTime.Now.Year && Month < DateTime.Now.Month)
-                {
-                    #region 分红会员
-                    var b = db.Achievement.GroupJoin(db.Member,
-                    x => x.MemberGid,
-                    y => y.Gid,
-                    (x, y) => new
-                    {
-                        x.Gid,
-                        x.TMoney,
-                        MGid = x.MemberGid,
-                        y.FirstOrDefault().MemberGid
-                    }).ToList();
-                    //查询分红日期之前的会员推荐数据
-                    var mr = db.MRelation.Where(l => l.AddTime <= MonthLast).ToList();
-                    //排除有推荐人的会员
-                    for (int i = 0; i < b.Count; i++)
-                    {
-                        if (mr.Where(l => l.M1 != b[i].MGid || l.M2 != b[i].MGid || l.M3 != b[i].MGid).Count() != 0)
-                        {
-                            db.Achievement.Where(l => l.Gid == b[i].Gid).Update(l => new Achievement { Team = 0 });
-                        }
-                        else {
-                            if (b[i].TMoney >= 1000000)
-                            {
-                                //计算BCD团队的业绩
-                                decimal Money = BCDTeam((Guid)b[i].MemberGid, Year, Month);
-                                //直推有人达到100W
-
-                                //自己达到100W
-                                //decimal Money = BCDTeam((Guid)b[i].MGid, Year, Month);
-                            }
-                        }
-                    }
-                    return Json(new AjaxResult("分红会员统计完成,是否开始分红计算!"));
-                    #endregion
-                }
-                else
-                {
-                    return Json(new AjaxResult(300, "只能统计本月之前的分红!"));
-                }
-            }
-        }
-
-        /// <summary>
-        /// 统计团队下面
-        /// </summary>
-        public decimal BCDTeam(Guid MemberGid, int Year,int Month)
-        {
-            DateTime MonthFirst =  DTime.FirstDayOfMonth(DateTime.Parse(Year + "-" + Month + "-" + "01"));
-            DateTime MonthLast =  DTime.LastDayOfMonth(DateTime.Parse(Year + "-" + Month + "-" + "01 23:59:59"));
-            using (EFDB db = new EFDB())
-            {
-                return db.MRelation.Where(l => l.M1 == MemberGid || l.M2 == MemberGid | l.M3 == MemberGid).Select(l => new
-                {
-                    Money = db.Order.Where(o => o.MemberGid == l.Gid && o.PayStatus == 1 && o.Type == 3 && o.PayTime >= MonthFirst && o.PayTime <= MonthLast).Select(o => o.Price).DefaultIfEmpty(0m).Sum()
-                }).Select(o => o.Money).DefaultIfEmpty(0m).Sum();
             }
         }
 
@@ -5777,12 +5677,6 @@ namespace LJSheng.Web.Controllers
                                         {
                                             x.Gid,
                                             x.TMoney,
-                                            x.DM1Money,
-                                            x.DM2Money,
-                                            x.DM3Money,
-                                            x.DM1Integral,
-                                            x.DM2Integral,
-                                            x.DM3Integral,
                                             MGid = x.MemberGid,
                                             y.FirstOrDefault().CLLevel,
                                             y.FirstOrDefault().Level,
@@ -5796,12 +5690,6 @@ namespace LJSheng.Web.Controllers
                                         {
                                             x.Gid,
                                             x.TMoney,
-                                            x.DM1Money,
-                                            x.DM2Money,
-                                            x.DM3Money,
-                                            x.DM1Integral,
-                                            x.DM2Integral,
-                                            x.DM3Integral,
                                             x.MGid,
                                             x.MemberGid,
                                             x.CLLevel,
@@ -5904,141 +5792,11 @@ namespace LJSheng.Web.Controllers
             }
         }
 
+        #region 最先结算的会员-无用
         /// <summary>
-        /// 团队业绩统计
+        /// 最后一个级别的会员
         /// </summary>
-        /// <param name="TeamMoney">Type</param>
-        /// <param name="Type"> 分红级别[4 = M4 3 = M3 2 = M2 1 = M1] </param>
-        /// <param name="Gid">分红的会员Gid</param>
-        /// <param name="CLLevel">会员的分红等级</param>
-        /// <param name="MRM1">一级推荐人</param>
-        /// <param name="MRM2">二级推荐人</param>
-        /// <param name="MRM3">三级推荐人</param>
-        /// <param name="DM1Money">一级扣除积分</param>
-        /// <param name="DM2Money">二级扣除积分</param>
-        /// <param name="DM3Money">三级扣除积分</param>
-        /// <param name="DM1Integral">一级扣除购物积分</param>
-        /// <param name="DM2Integral">二级扣除购物积分</param>
-        /// <param name="DM3Integral">三级扣除购物积分</param>
-        /// <param name="lv26">创始人分红比例</param>
-        /// <param name="lv25">合伙人分红比例</param>
-        /// <param name="lv">分红比例参照列表</param>
-        /// <param name="Year">当前分红年份</param>
-        /// <param name="Month">当前分红月份</param>
-        /// <param name="Project26">项目分红比例</param>
-        /// <param name="AllMoney">单月订单总业绩</param>
-        /// <param name="MMoney">满足项目分红总金额</param>
-        public static void ACH(decimal TeamMoney, int Type, Guid Gid, int CLLevel, Guid? MRM1, Guid? MRM2, Guid? MRM3,decimal DM1Money, decimal DM2Money, decimal DM3Money, decimal DM1Integral, decimal DM2Integral, decimal DM3Integral, decimal lv26,decimal lv25, List<LV> lv, int Year, int Month, decimal Project26=0, decimal AllMoney=0,decimal MMoney = 0)
-        {
-            using (EFDB db = new EFDB())
-            {
-                string msg = "会员=" + Gid.ToString() + "分红等级=" + CLLevel.ToString() + ",Year=" + Year.ToString() + ",Month=" + Month.ToString();
-                //购物积分
-                decimal Integral = 0;
-                //积分
-                decimal Money = 0;
-                //更新分红
-                var b = db.Achievement.Where(l => l.Gid == Gid).FirstOrDefault();
-                b.CLLevel = CLLevel;
-                b.BonusTime = DateTime.Now;
-                //合伙人享受团队业绩分红
-                if (CLLevel > 24)
-                {
-                    b.State = 2;
-                    //业绩对应的比例
-                    var ML = lv.Where(l => l.Number <= TeamMoney).OrderBy(l => l.Number).FirstOrDefault();
-                    if (ML != null)
-                    {
-                        //对应等级的购物比例
-                        decimal shop = CLLevel == 26 ? lv26 : lv25;
-                        //业绩百分比分红(TeamMoney只能等于当前条件的金额.比如团队业绩11000满足10000只按一万分红)
-                        decimal RMB = ML.Number * ML.Differential;
-                        //扣除团队的拿走的分红
-                        RMB = RMB - DM1Money - DM1Integral - DM2Money - DM2Integral - DM3Money - DM3Integral;
-                        //对方分红的积分和购物积分
-                        Integral = RMB * shop;
-                        Money = RMB - Integral;
-                        //自己拿的业绩
-                        b.TeamMoney = Money;
-                        b.TeamIntegral = Integral;
-                        //统计项目分红
-                        if (CLLevel == 26 && Type==1)
-                        {
-                            //业绩要满足60W才分红
-                            if (TeamMoney >= 600000)
-                            {
-                                b.ProjectRemarks = "项目总金额="+AllMoney.ToString() +",比例="+ Project26.ToString();
-                                //计算项目分工比例
-                                AllMoney = AllMoney * Project26;
-                                //会员团队业绩/全部满足条件会员的业绩X项目分工比例
-                                AllMoney = TeamMoney / MMoney * AllMoney;
-                                b.ProjectMoney = AllMoney - (AllMoney * lv26);
-                                b.ProjectIntegral = AllMoney * lv26;
-                            }
-                            else
-                            {
-                                b.ProjectRemarks = "项目金额不足";
-                            }
-                        }
-                    }
-                    else
-                    {
-                        b.Remarks = "业绩不足";
-                    }
-                }
-                else
-                {
-                    b.State = 3;
-                    b.ProjectRemarks = "等级不足";
-                }
-                if (db.SaveChanges() == 1)
-                {
-                    if (CLLevel > 24)
-                    {
-                        int num = 0;
-                        //累计推荐人的扣除分红
-                        if (MRM1 != null)
-                        {
-                            num++;
-                            //推荐人分红数据
-                            var A3 = db.Achievement.Where(l => l.Gid == MRM1).FirstOrDefault();
-                            //累计下级拿走的分红
-                            A3.DM1Money = A3.DM1Money + Money;
-                            A3.DM1Integral = A3.DM1Integral + Integral;
-                            if (MRM2 != null)
-                            {
-                                num++;
-                                //推荐人分红数据
-                                var A2 = db.Achievement.Where(l => l.Gid == MRM2).FirstOrDefault();
-                                //累计下级拿走的分红
-                                A2.DM2Money = A2.DM2Money + Money;
-                                A2.DM2Integral = A2.DM2Integral + Integral;
-                                if (MRM3 != null)
-                                {
-                                    num++;
-                                    //推荐人分红数据
-                                    var A1 = db.Achievement.Where(l => l.Gid == MRM3).FirstOrDefault();
-                                    //累计下级拿走的分红
-                                    A1.DM3Money = A1.DM3Money + Money;
-                                    A1.DM3Integral = A1.DM3Integral + Integral;
-                                }
-                            }
-                            int count = db.SaveChanges();
-                            if (count != num)
-                            {
-                                LogManager.WriteLog("彩链累计推荐人的扣除分红失败", msg + ",数据库执行=" + count.ToString() + ",程序计算=" + num.ToString());
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    LogManager.WriteLog("彩链更新分红用户失败", msg);
-                }
-            }
-        }
-
-        // 列表管理
+        /// <returns></returns>
         public ActionResult AMList()
         {
             return View();
@@ -6064,12 +5822,6 @@ namespace LJSheng.Web.Controllers
                                     {
                                         x.Gid,
                                         x.TMoney,
-                                        x.DM1Money,
-                                        x.DM2Money,
-                                        x.DM3Money,
-                                        x.DM1Integral,
-                                        x.DM2Integral,
-                                        x.DM3Integral,
                                         MGid = x.MemberGid,
                                         y.FirstOrDefault().CLLevel,
                                         y.FirstOrDefault().Level,
@@ -6082,12 +5834,6 @@ namespace LJSheng.Web.Controllers
                                     {
                                         x.Gid,
                                         x.TMoney,
-                                        x.DM1Money,
-                                        x.DM2Money,
-                                        x.DM3Money,
-                                        x.DM1Integral,
-                                        x.DM2Integral,
-                                        x.DM3Integral,
                                         x.MGid,
                                         x.MemberGid,
                                         x.CLLevel,
@@ -6117,6 +5863,8 @@ namespace LJSheng.Web.Controllers
                 }));
             }
         }
+        #endregion
+
         #endregion
 
         #region 彩链兑换额度记录

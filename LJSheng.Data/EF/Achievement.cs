@@ -45,51 +45,6 @@ namespace LJSheng.Data
         public decimal MMoney { get; set; }
 
         /// <summary>
-        /// 直推有人达到100W(团队业绩要减掉BCD的团队业绩)
-        /// </summary>
-        public decimal BCDMoney { get; set; }
-
-        /// <summary>
-        /// 团队积分分红
-        /// </summary>
-        public decimal TeamMoney { get; set; }
-
-        /// <summary>
-        /// 团队购物积分分红
-        /// </summary>
-        public decimal TeamIntegral { get; set; }
-
-        /// <summary>
-        /// 一级积分扣减
-        /// </summary>
-        public decimal DM1Money { get; set; }
-
-        /// <summary>
-        /// 二级积分扣减
-        /// </summary>
-        public decimal DM2Money { get; set; }
-
-        /// <summary>
-        /// 三级积分扣减
-        /// </summary>
-        public decimal DM3Money { get; set; }
-
-        /// <summary>
-        /// 一级购物积分扣减
-        /// </summary>
-        public decimal DM1Integral { get; set; }
-
-        /// <summary>
-        /// 二级购物积分扣减
-        /// </summary>
-        public decimal DM2Integral { get; set; }
-
-        /// <summary>
-        /// 三级购物积分扣减
-        /// </summary>
-        public decimal DM3Integral { get; set; }
-
-        /// <summary>
         /// 项目分红积分
         /// </summary>
         public decimal ProjectMoney { get; set; }
@@ -109,10 +64,6 @@ namespace LJSheng.Data
         /// </summary>
         public decimal Integral { get; set; }
 
-        /// <summary>
-        /// 资金记录Gid
-        /// </summary>
-        public Guid? MRGid { get; set; }
         /// <summary>
         /// 项目分红资金记录Gid
         /// </summary>
@@ -138,16 +89,6 @@ namespace LJSheng.Data
         public DateTime? BonusTime { get; set; }
 
         /// <summary>
-        /// 下级被冻结的积分收入
-        /// </summary>
-        public decimal FrozenMoney { get; set; }
-
-        /// <summary>
-        /// 下级被冻结的购物积分收入
-        /// </summary>
-        public decimal FrozenIntegral { get; set; }
-
-        /// <summary>
         /// 备注
         /// </summary>
         [StringLength(500)]
@@ -164,10 +105,5 @@ namespace LJSheng.Data
         /// </summary>
         [StringLength(500)]
         public string StockRightRemarks { get; set; }
-
-        /// <summary>
-        /// 结算时底下团队级别[0=没有A 1=B 2=C 3=D]
-        /// </summary>
-        public int Team { get; set; }
     }
 }

@@ -700,16 +700,6 @@ namespace LJSheng.Web
                     b.State = 1;
                     b.CLLevel = 0;
                     b.TMoney = TMoney;
-                    b.FrozenMoney = FrozenMoney;
-                    b.FrozenIntegral = FrozenIntegral;
-                    b.DM1Money = DM1Money;
-                    b.DM2Money = DM2Money;
-                    b.DM3Money = DM3Money;
-                    b.DM1Integral = DM1Integral;
-                    b.DM2Integral = DM2Integral;
-                    b.DM3Integral = DM3Integral;
-                    b.Team = 1;
-                    b.BCDMoney = 0;
                     b.MMoney = MMoney;
                     //项目分红
                     b.ProjectMoney = ProjectMoney;
@@ -730,14 +720,6 @@ namespace LJSheng.Web
                     b.Integral = Integral;
                     //团队业绩
                     b.TMoney = b.TMoney + TMoney;
-                    b.FrozenMoney = b.FrozenMoney + FrozenMoney;
-                    b.FrozenIntegral = b.FrozenIntegral + FrozenIntegral;
-                    b.DM1Money = b.DM1Money + DM1Money;
-                    b.DM2Money = b.DM2Money + DM2Money;
-                    b.DM3Money = b.DM3Money + DM3Money;
-                    b.DM1Integral = b.DM1Integral + DM1Integral;
-                    b.DM2Integral = b.DM2Integral + DM2Integral;
-                    b.DM3Integral = b.DM3Integral + DM3Integral;
                 }
 
                 #region 逻辑待定
