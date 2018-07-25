@@ -548,7 +548,14 @@ namespace LJSheng.Web.ajax
                                 Helper.SetConsignor(b.Gid, b.MemberGid);
                                 //增加推荐人的人数
                                 List<Guid> list = new List<Guid>();
-                                Helper.MRelation(Gid, list);
+                                if (b.MemberGid != null)
+                                {
+                                    Helper.Member(Gid, b.MemberGid, 1, 3, list);
+                                }
+                                else
+                                {
+                                    Helper.MRelation(Gid, list);
+                                }
                                 return new AjaxResult(MID);
                             }
                             else

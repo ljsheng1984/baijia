@@ -66,8 +66,8 @@
                 <th>系统/网银订单号</th>
                 <th>下单时间</th>
                 <th>购买商品</th>
-                <th>商家</th>
-                <th>会员帐号</th>
+                <th>商家信息</th>
+                <th>会员购买信息</th>
                 <th>支付信息</th>
                 <th>支付积分</th>
                 <th>订单状态</th>
@@ -81,8 +81,8 @@
                     <td rowspan="2">{{index+1}}</td>
                     <td>{{item.OrderNo}}<br />{{item.TradeNo}}</td>
                     <td>{{item.AddTime}}<br />{{item.PayTime}}</td>
-                    <td onclick="Show('{{item.OrderNo}}','ShopOrderDetailsList?gid={{item.Gid}}');">{{item.Product}}</td>
-                    <td>{{item.Name}}<br />{{item.ContactNumber}}</td>
+                    <td title="查看购买详情" onclick="Show('{{item.OrderNo}}','ShopOrderDetailsList?gid={{item.Gid}}');">{{item.Product}}</td>
+                    <td>{{item.Name}}<br />{{item.ShopAccount}}</td>
                     <td>{{item.Account}}<br />{{item.RealName}}</td>
                     <td>
                         {{if item.PayStatus=="1"}}
@@ -142,9 +142,8 @@
                             <button class="btn btn-mini">第3级 <span class="label label-badge">{{item.T3}}</span></button>
                         </div>
                     </td>
-                    <td colspan="2"><button class="btn btn-mini disabled">商家利润 <span class="label label-badge">{{item.Profit}}</span></button></td>
-                    <td colspan="2"><button class="btn btn-mini disabled">消费码 <span class="label label-badge">{{item.ConsumptionCode}}</span></button></td>
-                    <td colspan="2">
+                    <td colspan="3"><button class="btn btn-mini disabled">消费码 <span class="label label-badge">{{item.ConsumptionCode}}</span></button></td>
+                    <td colspan="3">
                         <span class="label label-info">
                             {{if item.Status=="1"}}
                             未验证

@@ -76,7 +76,7 @@
                 }
                 else {
                     if (document.getElementsByName("RealName")[0].value.length > 1 && document.getElementsByName("ContactNumber")[0].value.length > 10 && document.getElementsByName("Addr")[0].value.length > 3) {
-                        if (document.getElementById("PayPWD").value.length == 6) {
+                        if (PayType != 5 || document.getElementById("PayPWD").value.length == 6) {
                             document.getElementById("shopcart").value = cookieObj.get("shopdatas");
                             document.getElementById("PayType").value = PayType;
                             if (document.getElementById("shopcart").value.length > 10) {

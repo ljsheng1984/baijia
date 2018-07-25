@@ -1457,19 +1457,16 @@ namespace LJSheng.Web
                     var b = db.ShopOrder.Where(l => l.OrderNo == OrderNo).FirstOrDefault();
                     if (b != null && b.PayStatus == 2)
                     {
-                        msg += "购买会员=" + b.MemberGid.ToString() + ",发货会员=" + b.ShopGid == null ? "没有发货人" : b.ShopGid.ToString() + rn;
+                        msg += "购买会员=" + b.MemberGid.ToString() + ",商家=" + b.ShopGid.ToString() + rn;
                         PayPrice = b.Price;//测试要删
                         b.PayStatus = b.Price == PayPrice ? 1 : 5;
                         b.TradeNo = TradeNo;
                         b.PayTime = DateTime.Now;
                         b.PayType = PayType;
                         b.PayPrice = PayPrice;
+                        b.TotalPrice = PayPrice;
                         b.ExpressStatus = 1;
-                        //团队获取比例
-                        List<DictionariesList> dl = db.DictionariesList.Where(l => l.DGid == db.Dictionaries.Where(d => d.DictionaryType == "CL").FirstOrDefault().Gid).ToList();
-                        //获取货款利润比例
-                        decimal bl = decimal.Parse(dl.Where(l => l.Key == "CLLR").FirstOrDefault().Value) / 100;
-                        b.Profit = PayPrice * bl;
+                        b.Profit = PayPrice;
                         if (db.SaveChanges() == 1)
                         {
                             Pay = true;
@@ -1477,8 +1474,10 @@ namespace LJSheng.Web
                             OrderStock(b.Gid);
                             if (b.PayStatus == 1)
                             {
-                                //增加货款利润
-                                if (db.Member.Where(l=>l.Gid== b.MemberGid).Update(l => new Member { ShopMoney = l.ShopMoney + b.Profit })==1)
+                                //获取商家的会员GID
+                                Guid MGid = db.Shop.Where(s => s.Gid == b.ShopGid).FirstOrDefault().MemberGid;
+                                //增加货款
+                                if (db.Member.Where(l=>l.Gid== MGid).Update(l => new Member { ShopMoney = l.ShopMoney + PayPrice })==1)
                                 {
                                     msg += "货款成功=" + b.Profit.ToString() + rn;
                                 }
@@ -1497,6 +1496,8 @@ namespace LJSheng.Web
                                 }
                                 if (PayType != 5)
                                 {
+                                    //团队获取比例
+                                    List<DictionariesList> dl = db.DictionariesList.Where(l => l.DGid == db.Dictionaries.Where(d => d.DictionaryType == "CL").FirstOrDefault().Gid).ToList();
                                     //累计团队积分
                                     msg += "商城团队业绩=" + ShopTeamIntegral(b.MemberGid, PayPrice, b.Gid, dl) + rn;
                                 }
