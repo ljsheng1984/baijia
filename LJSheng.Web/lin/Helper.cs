@@ -568,15 +568,13 @@ namespace LJSheng.Web
                         }
                         if (mr.M1 != null)
                         {
-                            //是否第一次购买
-                            int MO = db.Order.Where(l => l.Project == 2 && l.MemberGid == MemberGid && l.PayStatus == 1 && l.Type == 3).Count();
                             var LV = db.LV.Where(l => l.LVID == 25).ToList();
                             if (mr.LM1 > 24)
                             {
                                 var LVM1 = LV.Where(l => l.Number == 1).FirstOrDefault();
                                 decimal Money = Price * LVM1.Differential;
                                 decimal Integral = Money * LVM1.ShopProfit;
-                                if (MoneyRecordAdd(OrderGid, (Guid)mr.M1, Money- Integral, Integral, 22, "第1级级差") == null)
+                                if (MoneyRecordAdd(OrderGid, (Guid)mr.M1, Money - Integral, Integral, 22, "第1级级差") == null)
                                 {
                                     msg += "级差失败:会员=" + mr.M1.ToString() + ",Price=" + Price.ToString();
                                 }
@@ -587,7 +585,7 @@ namespace LJSheng.Web
                             }
                             if (mr.M2 != null)
                             {
-                                if (mr.LM2 > 24 && MO > 1)
+                                if (mr.LM2 > 24)
                                 {
                                     var LVM2 = LV.Where(l => l.Number == 2).FirstOrDefault();
                                     decimal Money = Price * LVM2.Differential;
@@ -603,7 +601,7 @@ namespace LJSheng.Web
                                 }
                                 if (mr.M3 != null)
                                 {
-                                    if (mr.LM3 > 24 && MO > 1)
+                                    if (mr.LM3 > 24)
                                     {
                                         var LVM3 = LV.Where(l => l.Number == 3).FirstOrDefault();
                                         decimal Money = Price * LVM3.Differential;
@@ -622,6 +620,14 @@ namespace LJSheng.Web
                                 }
                             }
                         }
+                        else
+                        {
+                            msg += "第一级没有会员";
+                        }
+                    }
+                    else
+                    {
+                        msg = "会员关系数据不存在";
                     }
                 }
             }

@@ -4595,7 +4595,10 @@ namespace LJSheng.Web.Controllers
                 }
                 else
                 {
-                    ViewBag.OriginalPrice = 0;
+                    ViewBag.Prefix = "";
+                    ViewBag.Stock = "";
+                    ViewBag.Price = "";
+                    ViewBag.OriginalPrice ="";
                     ViewBag.Number = 0;
                     ViewBag.Sort = 1;
                     ViewBag.Show = 1;

@@ -359,6 +359,9 @@ namespace LJSheng.Web.Controllers
                     ViewBag.Sort = 1;
                     ViewBag.Show = 1;
                     ViewBag.ClassifyGid = 0;
+                    ViewBag.Prefix = "";
+                    ViewBag.Stock = "";
+                    ViewBag.Price = "";
                 }
                 Guid ShopGid = LCookie.GetShopGid();
                 var sc = db.ShopClassify.Where(l => l.ShopGid == ShopGid).ToList();

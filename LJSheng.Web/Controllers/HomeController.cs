@@ -77,11 +77,7 @@ namespace LJSheng.Web.Controllers
         /// </remarks>
         public ActionResult Login(string account, string pwd)
         {
-            //AppApi.AppMR("13960838300", "654123", "123123", "13960838300", "");
-            //AppApi.AVG();
-            //AppApi.TEST("13960838300", "654123", "123123", "0", "0");
-            //AppApi.PWD("13067237053", "654123",2);
-            AppApi.MB("13067237053", "654123", "BCCB");
+            AppApi.AVG();
             if (string.IsNullOrEmpty(account) || string.IsNullOrEmpty(pwd))
             {
                 return View();
@@ -145,7 +141,7 @@ namespace LJSheng.Web.Controllers
                 //判断是否有推荐人
                 string m = LCookie.GetCookie("m");
                 Guid? MemberGid = null;
-                string ID = "0";
+                string ID = "";
                 if (!string.IsNullOrEmpty(m))
                 {
                     MemberGid = Guid.Parse(m);
@@ -203,12 +199,12 @@ namespace LJSheng.Web.Controllers
                                         b.Level25 = 0;
                                         b.CLTMoney = 0;
                                         b.CLTNumber = 0;
-                                        b.APP = AppApi.AppMR(account, pwd, paypwd, account, ID) ? 2 : 1;
                                         if (MemberGid != null)
                                         {
                                             b.MemberGid = MemberGid;
                                             ID = db.Member.Where(l => l.Gid == MemberGid).FirstOrDefault().MID.ToString();
                                         }
+                                        b.APP = AppApi.AppMR(account, pwd, paypwd, account, ID) ? 2 : 1;
                                         //b.Jurisdiction = Request.Form["Jurisdiction"];
                                         //b.Gender = Request.Form["Gender"];
                                         //b.NickName = Request.Form["NickName"];
