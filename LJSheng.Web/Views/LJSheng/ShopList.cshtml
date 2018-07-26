@@ -29,9 +29,9 @@
                 <span class="input-group-addon">商家名称</span>
                 <input type="text" name="Name" class="form-control">
                 <span class="input-group-addon">时间</span>
-                <input type="text" class="form-control" placeholder="开始时间" name="STime" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd HH:mm:ss',alwaysUseStartDate:true})" />
+                <input type="text" class="form-control" placeholder="开始时间" name="STime" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd HH:mm:ss',alwaysUseStartDate:true})">
                 <span class="input-group-addon fix-padding">-</span>
-                <input type="text" class="form-control" placeholder="结束时间" name="ETime" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd HH:mm:ss',alwaysUseStartDate:true})" />
+                <input type="text" class="form-control" placeholder="结束时间" name="ETime" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd HH:mm:ss',alwaysUseStartDate:true})">
                 <span class="input-group-btn">
                     <input type="text" name="State" value="@Request.QueryString["State"]" class="form-control hidden">
                     <button type="button" class="btn btn-info" onclick="GetList(1);">给偶搜</button>
@@ -39,7 +39,6 @@
             </div>
         </div>
     </div>
-    <br />
     <table class="table table-bordered">
         <thead>
             <tr>

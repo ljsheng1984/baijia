@@ -5490,6 +5490,7 @@ namespace LJSheng.Web.Controllers
                         l.Year,
                         l.Month,
                         l.TMoney,
+                        l.MMoney,
                         l.MemberGid,
                         l.CLLevel,
                         l.BonusTime,
@@ -5515,6 +5516,7 @@ namespace LJSheng.Web.Controllers
                         l.Year,
                         l.Month,
                         l.TMoney,
+                        l.MMoney,
                         l.MemberGid,
                         l.CLLevel,
                         l.BonusTime,
@@ -5577,7 +5579,7 @@ namespace LJSheng.Web.Controllers
 
                 return Json(new AjaxResult(new
                 {
-                    other = " | 当前查询总积分=" + (ProjectMoney + Money).ToString() +  ",购=" + (ProjectIntegral + Integral).ToString() + ",其中项目="+ ProjectMoney.ToString() + ",购=" + ProjectIntegral.ToString() + ",股东="+ Money.ToString()+",购="+ Integral.ToString(),
+                    other = " | 当前查询总分红=" + (ProjectMoney + Money).ToString() +  ",购=" + (ProjectIntegral + Integral).ToString() + ",其中项目="+ ProjectMoney.ToString() + ",购=" + ProjectIntegral.ToString() + ",股东="+ Money.ToString()+",购="+ Integral.ToString(),
                     count = b.Count(),
                     pageindex,
                     list = b.OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
@@ -5702,16 +5704,6 @@ namespace LJSheng.Web.Controllers
                                             MRM2 = y.FirstOrDefault().M2,
                                             MRM3 = y.FirstOrDefault().M3
                                         }).Where(l=>l.CLLevel == 26 || l.Level==11).ToList();
-                    ////查询分红日期之前的会员推荐数据
-                    //var mr = db.MRelation.Where(l => l.AddTime <= MonthLast).ToList();
-                    ////排除有推荐人的会员
-                    //for (int i = 0; i < b.Count; i++)
-                    //{
-                    //    if (mr.Where(l => l.M1 == b[i].MGid || l.M2 == b[i].MGid || l.M3 == b[i].MGid).Count() != 0)
-                    //    {
-                    //        b.Remove(b[i]);
-                    //    }
-                    //}
                     #endregion
 
                     if (b.Count() >0)
@@ -5720,15 +5712,17 @@ namespace LJSheng.Web.Controllers
                         var ml26 = db.Level.Where(l => l.LV == 26).FirstOrDefault();
                         //创始人分红比例
                         decimal Project26 = ml26.Profit;
+                        decimal ShopProfit = ml26.ShopProfit;
                         //创始人满足金额的总业绩
                         decimal MMoney = db.Achievement.Where(l => l.Year == Year && l.Month == Month && l.TMoney>=600000).Select(l => l.TMoney).DefaultIfEmpty(0).Sum();
                         foreach (var dr in b)
                         {
                             //更新分红
-                            var ach = db.Achievement.Where(l => l.Gid == dr.MGid).FirstOrDefault();
+                            var ach = db.Achievement.Where(l => l.MemberGid == dr.MGid).FirstOrDefault();
                             ach.CLLevel = dr.CLLevel;
                             ach.BonusTime = DateTime.Now;
-                            ach.State = 2;
+                            //更新的时候已分红的状态不变
+                            ach.State = ach.State == 3 ? 3 : 2;
 
                             #region 创始人分红
                             if (dr.CLLevel == 26)
@@ -5736,12 +5730,13 @@ namespace LJSheng.Web.Controllers
                                 //业绩要满足60W才分红
                                 if (dr.TMoney >= 600000)
                                 {
-                                    ach.ProjectRemarks = "项目总金额=" + AllMoney.ToString() + ",比例=" + Project26.ToString();
-                                    //计算项目分工比例
-                                    AllMoney = AllMoney * Project26;
+                                    //计算项目分红比例
+                                    decimal ProfitMoney = AllMoney * Project26;
                                     //会员团队业绩/全部满足条件会员的业绩X项目分工比例
-                                    ach.ProjectMoney = dr.TMoney / MMoney * AllMoney;
-                                    ach.ProjectRemarks = "团队业绩=" + dr.TMoney.ToString() + ",满足的总业绩=" + MMoney.ToString() + ",月份总业绩=" + AllMoney.ToString();
+                                    decimal RMB= dr.TMoney / MMoney * ProfitMoney;
+                                    ach.ProjectMoney = RMB - RMB * ShopProfit;
+                                    ach.ProjectIntegral = RMB * ShopProfit; ;
+                                    ach.ProjectRemarks = "项目总金额=" + AllMoney.ToString() + ",积分比例=" + Project26.ToString() + ",购物积分比例=" + ShopProfit.ToString() + ",分配金额=" + ProfitMoney.ToString() + ",团队业绩=" + dr.TMoney.ToString() + ",满足的总业绩=" + MMoney.ToString() + ",月份总业绩=" + AllMoney.ToString();
                                 }
                                 else
                                 {

@@ -560,7 +560,7 @@ namespace LJSheng.Web.ajax
                             }
                             else
                             {
-                                return new AjaxResult(300, "帐号已存在");
+                                return new AjaxResult(302, "帐号已存在");
                             }
                         }
                         catch
@@ -574,7 +574,7 @@ namespace LJSheng.Web.ajax
                 }
                 else
                 {
-                    return new AjaxResult(300, "手机号必须是11位,密码不少于6位!");
+                    return new AjaxResult(301, "手机号必须是11位,密码不少于6位!");
                 }
             }
             else
@@ -625,7 +625,7 @@ namespace LJSheng.Web.ajax
                     }
                     else
                     {
-                        return new AjaxResult(300, "用户不存在!!!");
+                        return new AjaxResult(301, "用户不存在!!!");
                     }
                 }
             }

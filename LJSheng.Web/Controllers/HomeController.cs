@@ -77,7 +77,6 @@ namespace LJSheng.Web.Controllers
         /// </remarks>
         public ActionResult Login(string account, string pwd)
         {
-            AppApi.AVG();
             if (string.IsNullOrEmpty(account) || string.IsNullOrEmpty(pwd))
             {
                 return View();
