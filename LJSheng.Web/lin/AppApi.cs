@@ -61,7 +61,7 @@ namespace LJSheng.Web
         /// <param name="password">密码</param>
         /// <param name="type">类型:2=登陆密码，3=交易密码</param>
         /// <returns>返回调用结果</returns>
-        public static bool PWD(string phone, string password, int type)
+        public static bool PWD(string phone, string password, string type)
         {
             bool tl = false;
             try
@@ -69,7 +69,7 @@ namespace LJSheng.Web
                 SortedDictionary<string, string> dic = new SortedDictionary<string, string>();
                 dic.Add("phone", phone);
                 dic.Add("password", password);
-                dic.Add("type", type.ToString());
+                dic.Add("type", type);
                 dic.Add("sign", Helper.BuildRequest(dic));
                 string json = PostGet.Post("http://bccbtoken.com/api/Memberapi/changePwd", dic);
                 JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;

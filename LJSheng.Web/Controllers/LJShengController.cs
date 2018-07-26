@@ -835,10 +835,10 @@ namespace LJSheng.Web.Controllers
                         b = db.Member.Where(l => l.Gid == Gid).FirstOrDefault();
                     }
                     b.RealName = Request.Form["RealName"];
-                    if (b.PWD != PWD)
-                    {
-                        b.PWD = MD5.GetMD5ljsheng(PWD);
-                    }
+                    //if (b.PWD != PWD)
+                    //{
+                    //    b.PWD = MD5.GetMD5ljsheng(PWD);
+                    //}
                     b.StockRight= decimal.Parse(Request.Form["StockRight"]);
                     b.Jurisdiction = Request.Form["Jurisdiction"];
                     if (b.Jurisdiction == "冻结")
@@ -1146,10 +1146,12 @@ namespace LJSheng.Web.Controllers
                     string PWD = RandStr.CreateValidateNumber(6);
                     var b = db.Member.Where(l => l.Gid == Gid).FirstOrDefault();
                     b.PWD = MD5.GetMD5ljsheng(PWD);
-                    b.LoginIdentifier = LCommon.TimeToUNIX(DateTime.Now);
+                    b.PayPWD = MD5.GetMD5ljsheng(PWD);
+                    b.LoginIdentifier = "";
                     if (db.SaveChanges() == 1)
                     {
-                        AppApi.PWD(b.Account, PWD, 2);
+                        AppApi.PWD(b.Account, PWD, "2");
+                        AppApi.PWD(b.Account, PWD, "3");
                         return Json(new AjaxResult("新密码为:" + PWD));
                     }
                     else

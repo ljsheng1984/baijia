@@ -26,6 +26,12 @@
                 <input type="password" name="pwd" class="text" placeholder="设置新密码6-20位" />
             </div>
             <div class="label">
+                <select class="text" name="type" placeholder="密码类型">
+                    <option value="2">登录密码</option>
+                    <option value="3">支付密码</option>
+                </select>
+            </div>
+            <div class="label">
                 <button class="login-btn" id="btn" type="submit" onclick="return check();">找回密码</button>
                 <a class="fl h2" href="~/Home/Login">立即登录</a>
                 <a class="fr h2" href="~/Home/Register">注册帐号</a>

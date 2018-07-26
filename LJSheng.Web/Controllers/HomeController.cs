@@ -287,13 +287,14 @@ namespace LJSheng.Web.Controllers
         /// <param name="account">会员帐号</param>
         /// <param name="pwd">会员密码</param>
         /// <param name="identifyingCode">注册验证码</param>
+        /// <param name="type">密码类型 2-登录 3=支付</param>
         /// <returns>返回调用结果</returns>
         /// <para name="result">200 是成功其他失败</para>
         /// <para name="data">结果提示</para>
         /// <remarks>
         /// 2017-08-18 林建生
         /// </remarks>
-        public ActionResult RetrievePWD(string account, string pwd, string identifyingCode)
+        public ActionResult RetrievePWD(string account, string pwd, string identifyingCode, string type)
         {
             if (string.IsNullOrEmpty(account) || string.IsNullOrEmpty(pwd) || string.IsNullOrEmpty(identifyingCode))
             {
@@ -313,10 +314,20 @@ namespace LJSheng.Web.Controllers
                             if (ts.TotalMinutes <= 10)
                             {
                                 string pwdMD5 = MD5.GetMD5ljsheng(pwd);
-                                if (db.Member.Where(l => l.Account == account).Update(l => new Member { PWD = pwdMD5, LoginIdentifier = LCommon.TimeToUNIX(DateTime.Now) }) == 1)
+                                var b = db.Member.Where(l => l.Account == account).FirstOrDefault();
+                                if (type == "3")
+                                {
+                                    b.PayPWD = pwdMD5;
+                                }
+                                else
+                                {
+                                    b.PWD = pwdMD5;
+                                }
+                                b.LoginIdentifier = LCommon.TimeToUNIX(DateTime.Now);
+                                if (db.SaveChanges() == 1)
                                 {
                                     LCookie.DelCookie("linjiansheng");
-                                    AppApi.PWD(account, pwd, 2);
+                                    AppApi.PWD(account, pwd, type);
                                     return Helper.Redirect("成功！", "/Home/Login", "修改密码成功,请点确定重新登录!");
                                 }
                                 else
