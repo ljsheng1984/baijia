@@ -50,7 +50,7 @@ namespace LJSheng.Data
         public decimal OldIntegral { get; set; }
 
         /// <summary>
-        /// 类型[1=消费 2=提现 3=合伙人进货 4=购物分成 5=推荐奖 6=级差 7=平级 8=合伙人分红 9=股东分红 20=分享奖 21=发货人积分扣除 22=彩链团队分红 23=彩链项目分红 24=发货人积分扣除 25=发货人积分解除 30=商城货款提现]
+        /// 类型[1=消费 2=提现 3=合伙人进货 4=购物分成 5=推荐奖 6=级差 7=平级 8=合伙人分红 9=股东分红 20=分享奖 21=发货人积分扣除 22=彩链团队分红 23=彩链项目分红 24=发货人积分扣除 25=发货人积分解除]
         /// </summary>
         public int Type { get; set; }
 
@@ -59,10 +59,5 @@ namespace LJSheng.Data
         /// </summary>
         [StringLength(500)]
         public string Remarks { get; set; }
-
-        /// <summary>
-        /// 同步状态[1=未同步 2=已同步]
-        /// </summary>
-        public int APP { get; set; }
     }
 }

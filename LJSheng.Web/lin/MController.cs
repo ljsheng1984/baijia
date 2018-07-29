@@ -10,23 +10,27 @@ namespace LJSheng.Web.Controllers
     {
         protected override void OnActionExecuting(System.Web.Mvc.ActionExecutingContext filterContext)
         {
-            string ck = Common.LCookie.GetCookie("linjiansheng");
-            bool Login = true;
-            if (!string.IsNullOrEmpty(ck))
+            try
             {
-                JObject json = JsonConvert.DeserializeObject(Common.DESRSA.DESDeljsheng(ck)) as JObject;
-                Guid Gid = Guid.Parse(json["Gid"].ToString());
-                using (EFDB db = new EFDB())
+                string ck = Common.LCookie.GetCookie("linjiansheng");
+                bool Login = true;
+                if (!string.IsNullOrEmpty(ck))
                 {
-                    var b = db.Member.Where(l => l.Gid == Gid).FirstOrDefault();
-                    if (b != null && b.LoginIdentifier == json["LoginIdentifier"].ToString())
+                    JObject json = JsonConvert.DeserializeObject(Common.DESRSA.DESDeljsheng(ck)) as JObject;
+                    Guid Gid = Guid.Parse(json["Gid"].ToString());
+                    using (EFDB db = new EFDB())
                     {
-                        Login = false;
+                        var b = db.Member.Where(l => l.Gid == Gid).FirstOrDefault();
+                        if (b != null && b.LoginIdentifier == json["LoginIdentifier"].ToString())
+                        {
+                            Login = false;
+                        }
                     }
                 }
+                if (Login)
+                { filterContext.HttpContext.Response.Redirect("/Home/Login"); }
             }
-            if(Login)
-            { filterContext.HttpContext.Response.Redirect("/Home/Login"); }
+            catch { filterContext.HttpContext.Response.Redirect("/Home/Login"); }
         }
     }
 }

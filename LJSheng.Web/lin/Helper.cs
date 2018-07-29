@@ -1468,7 +1468,7 @@ namespace LJSheng.Web
                                     msg += "货款失败:=" + b.Profit.ToString() + rn;
                                 }
                                 //基数积分增加
-                                if (ShopRecordAdd(b.Gid, b.MemberGid, PayPrice, 0,"积分基数") == null)
+                                if (ShopRecordAdd(b.Gid, b.MemberGid, PayPrice, 0,3,1) == null)
                                 {
                                     msg += "基数积分失败:PayPrice=" + PayPrice.ToString() + rn;
                                 }
@@ -1537,8 +1537,8 @@ namespace LJSheng.Web
                     {
                         if (dl!=null && mr.M1 != null)
                         {
-                            decimal TIntegral = Price *  decimal.Parse(dl.Where(l => l.Key == "T1").FirstOrDefault().Value) / 100;
-                            if (ShopRecordAdd(OrderGid, (Guid)mr.M1,0, TIntegral, "第1级") == null)
+                            decimal TIntegral = Price * decimal.Parse(dl.Where(l => l.Key == "T1").FirstOrDefault().Value);
+                            if (ShopRecordAdd(OrderGid, (Guid)mr.M1,0, TIntegral, 4,1) == null)
                             {
                                 msg += "第1级失败:会员=" + mr.M1.ToString() + ",Price=" + Price.ToString();
                             }
@@ -1546,15 +1546,15 @@ namespace LJSheng.Web
                             {
                                 if (mr.M2 != null)
                                 {
-                                    TIntegral = Price * decimal.Parse(dl.Where(l => l.Key == "T2").FirstOrDefault().Value) / 100;
-                                    if (ShopRecordAdd(OrderGid, (Guid)mr.M2, 0, TIntegral, "第2级") == null)
+                                    TIntegral = Price * decimal.Parse(dl.Where(l => l.Key == "T2").FirstOrDefault().Value);
+                                    if (ShopRecordAdd(OrderGid, (Guid)mr.M2, 0, TIntegral, 5,1) == null)
                                     {
                                         msg += "第2级失败:会员=" + mr.M2.ToString() + ",Price=" + Price.ToString();
                                     }
                                     if (mr.M3 != null)
                                     {
-                                        TIntegral = Price * decimal.Parse(dl.Where(l => l.Key == "T3").FirstOrDefault().Value) / 100;
-                                        if (ShopRecordAdd(OrderGid, (Guid)mr.M3, 0, TIntegral, "第3级") == null)
+                                        TIntegral = Price * decimal.Parse(dl.Where(l => l.Key == "T3").FirstOrDefault().Value);
+                                        if (ShopRecordAdd(OrderGid, (Guid)mr.M3, 0, TIntegral, 6,1) == null)
                                         {
                                             msg += "第3级失败:会员=" + mr.M3.ToString() + ",Price=" + Price.ToString();
                                         }
@@ -1778,7 +1778,6 @@ namespace LJSheng.Web
                             b.Integral = Integral;
                             b.OldMoney = m.Money;
                             b.OldIntegral = m.Integral;
-                            b.APP = 1;
                             b.Remarks = Remarks;
                             db.MoneyRecord.Add(b);
                             if (db.SaveChanges() == 1)
@@ -2146,78 +2145,83 @@ namespace LJSheng.Web
         }
         #endregion
 
-        #region 商家提现记录
+        #region 提现记录
         /// <summary>
-        /// 商家提现记录
+        /// 提现记录
         /// </summary>
-        /// <param name="Gid">商家Gid</param>
+        /// <param name="Gid">会员/商家Gid</param>
         /// <param name="Money">积分</param>
+        /// <param name="Type">类型[1=彩链 2=商城]</param>
         /// <param name="Remarks">备注</param>
         /// <returns>返回调用结果</returns>
-        public static Guid? ShopMoneyRecordAdd(Guid Gid, decimal Money, string Remarks = "")
+        public static bool RMBRecordAdd(Guid Gid, decimal Money,int Type, string Remarks = "")
         {
-            Guid? MRGid = null;
-            string LogMsg = "商家=" + Gid + ",Money=" + Money;
+            string LogMsg = "用户=" + Gid + ",Money=" + Money + ",Type=" + Type;
             try
             {
                 using (EFDB db = new EFDB())
                 {
                     //查询用户之前的数据
-                    var s = db.Shop.Where(l => l.Gid == Gid).FirstOrDefault();
-                    var b = new MoneyRecord();
+                    var m = db.Member.Where(l => l.Gid == Gid).FirstOrDefault();
+                    var b = new RMBRecord();
                     b.Gid = Guid.NewGuid();
                     b.AddTime = DateTime.Now;
-                    b.OrderGid = null;
                     b.MemberGid = Gid;
-                    b.Type = 0;
+                    b.Type = Type;
                     b.Money = Money;
-                    b.Integral = 0;
-                    b.OldMoney = s.Money;
-                    b.OldIntegral = 0;
+                    b.OldMoney = Type == 1 ? m.ProductMoney : m.ShopMoney;
                     b.Remarks = Remarks;
-                    b.APP = 1;
-                    db.MoneyRecord.Add(b);
+                    db.RMBRecord.Add(b);
                     if (db.SaveChanges() == 1)
                     {
                         //更新用户数据
-                        s.Money = s.Money + Money;
-                        if (db.SaveChanges() == 1)
+                        if (Type == 1)
                         {
-                            MRGid = b.Gid;
+                            m.ProductMoney = m.ProductMoney - Money;
                         }
                         else
                         {
-                            db.MoneyRecord.Where(l => l.Gid == b.Gid).Delete();
-                            LogManager.WriteLog("更新商家资金错误", LogMsg);
+                            m.ShopMoney = m.ShopMoney - Money;
+                        }
+                        if (db.SaveChanges() == 1)
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            db.RMBRecord.Where(l => l.Gid == b.Gid).Delete();
+                            LogManager.WriteLog("提现扣除失败", LogMsg);
                         }
                     }
                     else
                     {
-                        LogManager.WriteLog("商家资金记录失败", LogMsg);
+                        LogManager.WriteLog("提现记录失败", LogMsg);
                     }
                 }
             }
             catch (Exception err)
             {
-                LogManager.WriteLog("商家资金记录异常", LogMsg + "/r/n" + err.Message);
+                LogManager.WriteLog("提现记录异常", LogMsg + "/r/n" + err.Message);
             }
-            return MRGid;
+            return false;
         }
         #endregion
 
         #region 商城积分模块
         /// <summary>
-        /// 商城团队积分记录
+        /// 商城积分记录
         /// </summary>
         /// <param name="OrderGid">订单Gid</param>
         /// <param name="Gid">会员Gid</param>
         /// <param name="Integral">积分</param>
+        /// <param name="Type">类型[1=会员支取基数 2=团队累计满足冻结 3=购买获取基数 4=第1级奖励 5=第2级奖励 6=第3级奖励]</param>
+        /// <param name="State">状态[1=成功 2=冻结 3=取消]</param>
         /// <param name="Remarks">备注</param>
         /// <returns>返回调用结果</returns>
-        public static Guid? ShopRecordAdd(Guid? OrderGid, Guid Gid, decimal MIntegral, decimal TIntegral, string Remarks = "")
+        public static Guid? ShopRecordAdd(Guid? OrderGid, Guid Gid, decimal MIntegral, decimal TIntegral,int Type, int State, string Remarks = "")
         {
             Guid? MRGid = null;
-            string LogMsg = "订单=" + OrderGid + ",会员=" + Gid + ",MIntegral=" + MIntegral + ",TIntegral=" + TIntegral;
+            string LogMsg = "订单=" + OrderGid + ",会员=" + Gid + ",MIntegral=" + MIntegral + ",TIntegral=" + TIntegral + ",Type=" + Type + ",State=" + State;
             try
             {
                 using (EFDB db = new EFDB())
@@ -2235,33 +2239,47 @@ namespace LJSheng.Web
                         b.TIntegral = TIntegral;
                         b.OldMIntegral = m.MIntegral;
                         b.OldTIntegral = m.TIntegral;
+                        b.Type = Type;
+                        b.State = State;
                         b.Remarks = Remarks;
                         db.ShopRecord.Add(b);
                         if (db.SaveChanges() == 1)
                         {
-                            //更新用户数据
-                            m.MIntegral = m.MIntegral + MIntegral;
-                            m.TIntegral = m.TIntegral + TIntegral;
+                            if (Type == 1 || Type ==2)
+                            {
+                                //更新用户数据
+                                m.MIntegral = m.MIntegral - MIntegral;
+                                m.TIntegral = m.TIntegral - TIntegral;
+                            }
+                            else
+                            {
+                                //更新用户数据
+                                m.MIntegral = m.MIntegral + MIntegral;
+                                m.TIntegral = m.TIntegral + TIntegral;
+                            }
                             if (db.SaveChanges() == 1)
                             {
                                 MRGid = b.Gid;
                                 //是否满足冻结要求
-                                FrozenIntegralAdd(Gid, m.MIntegral, m.TIntegral, 2, 2);
+                                if (Type == 4 || Type == 5 || Type == 6)
+                                {
+                                    FrozenIntegral(Gid, m.MIntegral, m.TIntegral, 2, 2);
+                                }
                             }
                             else
                             {
                                 db.ShopRecord.Where(l => l.Gid == b.Gid).Delete();
-                                LogManager.WriteLog("更新商城用户资金错误", LogMsg);
+                                LogManager.WriteLog("商城积分操作用户积分记录失败", LogMsg);
                             }
                         }
                         else
                         {
-                            LogManager.WriteLog("商城资金记录失败", LogMsg);
+                            LogManager.WriteLog("商城积分记录失败", LogMsg);
                         }
                     }
                     else
                     {
-                        LogManager.WriteLog("商城资金记录已存在", LogMsg);
+                        LogManager.WriteLog("商城积分记录已存在", LogMsg);
                     }
                 }
             }
@@ -2278,13 +2296,13 @@ namespace LJSheng.Web
         /// <param name="Gid">会员Gid</param>
         /// <param name="MIntegral">个人基数积分</param>
         /// <param name="TIntegral">团队积分</param>
-        /// <param name="Type">1=个人 2=团队</param>
+        /// <param name="Type">类型</param>
         /// <param name="State">冻结状态</param>
         /// <param name="Remarks">备注</param>
         /// <returns>返回调用结果</returns>
-        public static void FrozenIntegralAdd(Guid Gid, decimal MIntegral, decimal TIntegral, int Type, int State, string Remarks = "")
+        public static void FrozenIntegral(Guid Gid, decimal MIntegral, decimal TIntegral, int Type, int State, string Remarks = "")
         {
-            string LogMsg = "会员=" + Gid + ",MIntegral=" + MIntegral.ToString() + ",TIntegral=" + TIntegral.ToString() + ",Type=" + Type.ToString();
+            string LogMsg = "会员=" + Gid + ",MIntegral=" + MIntegral.ToString() + ",TIntegral=" + TIntegral.ToString() + ",Type=" + Type.ToString() + ",State=" + State.ToString();
             try
             {
                 using (EFDB db = new EFDB())
@@ -2297,42 +2315,15 @@ namespace LJSheng.Web
                     {
                         l.MIntegral,
                         l.TIntegral,
-                        Multiple = Type == 2 ? j.FirstOrDefault().Multiple:0
+                        j.FirstOrDefault().Multiple
                     }).FirstOrDefault();
                     //需要团队积分对应的倍数
                     decimal Integral = MIntegral * m.Multiple;
-                    if ((Type==1 && MIntegral>0) || (Integral>0 && TIntegral >= Integral))
+                    if (Integral > 0 && TIntegral >= Integral)
                     {
-                        if (db.Member.Where(l => l.Gid == Gid).Update(l => new Member { MIntegral = l.MIntegral - MIntegral, TIntegral = l.TIntegral - Integral }) == 1)
+                        if (ShopRecordAdd(null, Gid, MIntegral, TIntegral, 2, 2) == null)
                         {
-                            var b = new FrozenIntegral();
-                            b.Gid = Guid.NewGuid();
-                            b.AddTime = DateTime.Now;
-                            b.ThawTime = DateTime.Now.AddDays(30);
-                            b.MemberGid = Gid;
-                            b.Integral = Integral;
-                            b.MIntegral = MIntegral;
-                            b.Multiple = m.Multiple;
-                            b.Type = Type;
-                            b.State = State;
-                            if (State == 1)
-                            {
-                                b.ThawTime = DateTime.Now;
-                            }
-                            b.Remarks = Remarks;
-                            db.FrozenIntegral.Add(b);
-                            if (db.SaveChanges() == 1)
-                            {
-                                if (State == 1)
-                                {
-                                    FrozenIntegral(b.Gid, b.MemberGid, Integral == 0 ? MIntegral : Integral);
-                                }
-                                LogManager.WriteLog("商城积分冻结成功", LogMsg);
-                            }
-                            else
-                            {
-                                LogManager.WriteLog("商城积分扣除成功,冻结记录失败", LogMsg);
-                            }
+                            LogManager.WriteLog("商城积分冻结失败", LogMsg);
                         }
                     }
                 }
@@ -2344,20 +2335,20 @@ namespace LJSheng.Web
         }
 
         /// <summary>
-        /// 冻结积分
+        /// 积分解冻
         /// </summary>
         /// <param name="Gid">冻结Gid</param>
         /// <param name="MemberGid">会员Gid</param>
         /// <param name="Integral">个人基数积分</param>
         /// <returns>返回调用结果</returns>
-        public static void FrozenIntegral(Guid Gid, Guid MemberGid, decimal Integral)
+        public static void ShopRecord(Guid Gid, Guid MemberGid, decimal Integral)
         {
             string LogMsg = "冻结Gid=" + Gid.ToString() + "会员=" + MemberGid.ToString() + ",Integral=" + Integral.ToString();
             try
             {
                 using (EFDB db = new EFDB())
                 {
-                    if (db.FrozenIntegral.Where(l => l.Gid == Gid).Update(l => new FrozenIntegral { State = 1 }) == 1)
+                    if (db.ShopRecord.Where(l => l.Gid == Gid && l.State==2).Update(l => new ShopRecord { State = 1 }) == 1)
                     {
                         if (db.Member.Where(l => l.Gid == MemberGid).Update(l => new Member { ShopIntegral = l.ShopIntegral + Integral }) == 1)
                         {
@@ -2374,6 +2365,87 @@ namespace LJSheng.Web
             {
                 LogManager.WriteLog("商城积分解冻更新积分异常", LogMsg + "/r/n" + err.Message);
             }
+        }
+        #endregion
+
+        #region 积分兑换记录
+        /// <summary>
+        /// 积分兑换记录
+        /// </summary>
+        /// <param name="Gid">会员/商家Gid</param>
+        /// <param name="Money">积分</param>
+        /// <param name="Token">兑换多少Token</param>
+        /// <param name="Type">类型[1=彩链积分 2=商城基数积分 3=商城积分]</param>
+        /// <param name="TB">兑换币种[1=BCCB, 2=FBCC]</param>
+        /// <param name="Remarks">备注</param>
+        /// <returns>返回调用结果</returns>
+        public static bool TokenRecordAdd(Guid Gid, decimal Integral, decimal Token, int Type, int TB, string Remarks = "")
+        {
+            string LogMsg = "用户=" + Gid + ",Integral=" + Integral + ",Token=" + Token + ",Type=" + Type + ",TB=" + TB;
+            try
+            {
+                using (EFDB db = new EFDB())
+                {
+                    //查询用户之前的数据
+                    var m = db.Member.Where(l => l.Gid == Gid).FirstOrDefault();
+                    var b = new TokenRecord();
+                    b.Gid = Guid.NewGuid();
+                    b.AddTime = DateTime.Now;
+                    b.MemberGid = Gid;
+                    b.Type = Type;
+                    b.TB = TB;
+                    b.Integral = Integral;
+                    b.Token = Token;
+                    if(Type==1)
+                    {
+                        b.OldIntegral = m.Money;
+                     }
+                    else if (Type == 2)
+                    {
+                        b.OldIntegral = m.MIntegral;
+                    }
+                    else if (Type == 3)
+                    {
+                        b.OldIntegral = m.ShopIntegral;
+                    }
+                    b.Remarks = Remarks;
+                    db.TokenRecord.Add(b);
+                    if (db.SaveChanges() == 1)
+                    {
+                        //更新用户数据
+                        if (Type == 1)
+                        {
+                            m.Money = m.Money- Integral;
+                        }
+                        else if (Type == 2)
+                        {
+                            m.MIntegral = m.MIntegral - Integral;
+                        }
+                        else if (Type == 3)
+                        {
+                            m.ShopIntegral = m.ShopIntegral - Integral;
+                        }
+                        if (db.SaveChanges() == 1)
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            db.RMBRecord.Where(l => l.Gid == b.Gid).Delete();
+                            LogManager.WriteLog("积分兑换记录扣除失败", LogMsg);
+                        }
+                    }
+                    else
+                    {
+                        LogManager.WriteLog("积分兑换记录失败", LogMsg);
+                    }
+                }
+            }
+            catch (Exception err)
+            {
+                LogManager.WriteLog("积分兑换记录异常", LogMsg + "/r/n" + err.Message);
+            }
+            return false;
         }
         #endregion
 

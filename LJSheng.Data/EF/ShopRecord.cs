@@ -30,6 +30,11 @@ namespace LJSheng.Data
         public Guid MemberGid { get; set; }
 
         /// <summary>
+        /// 类型[1=会员支取基数 2=团队累计满足冻结 3=购买获取基数 4=第1级奖励 5=第2级奖励 6=第3级奖励]
+        /// </summary>
+        public int Type { get; set; }
+
+        /// <summary>
         /// 个人积分
         /// </summary>
         public decimal MIntegral { get; set; }
@@ -48,6 +53,21 @@ namespace LJSheng.Data
         /// 原团队积分
         /// </summary>
         public decimal OldTIntegral { get; set; }
+
+        /// <summary>
+        /// 冻结倍数
+        /// </summary>
+        public int Multiple { get; set; }
+
+        /// <summary>
+        /// 解冻时间
+        /// </summary>
+        public DateTime? ThawTime { get; set; }
+
+        /// <summary>
+        /// 状态[1=成功 2=冻结 3=取消]
+        /// </summary>
+        public int State { get; set; }
 
         /// <summary>
         /// 备注

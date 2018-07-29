@@ -1,0 +1,128 @@
+﻿@{
+    ViewBag.Title = "积分兑换";
+    Layout = "~/Views/Shared/_LLayout.cshtml";
+}
+<div id="tx" class="padding-btn-group">
+    <button type="button" id="btn" class="btn-block btn-green" onclick="tx();">钱包兑换</button>
+</div>
+<div class="order-tabs" id="search">
+    <a onclick="getlist(0);" class="active">全部</a>
+    <a onclick="getlist(2);">彩链</a>
+    <a onclick="getlist(1);">基数分</a>
+    <a onclick="getlist(3);">商城</a>
+    <input type="text" id="type" name="type" value="0" hidden />
+</div>
+<div class="mescroll" id="scroll">
+    <ul class="money-ul" id="dataList">
+        <script id="tpl" type="text/html">
+            {{each list as item index}}
+            <li class="cell">
+                <a class="img" onclick="remarks('{{item.Remarks}}')">查看</a>
+                <h1>{{item.Integral}}</h1>
+                <div class="number">
+                    <a class="tel">{{item.Token}}</a>
+                    <a class="time">{{item.AddTime}}</a>
+                </div>
+                <a>{{item.TB==1?"BCCB":"FBCC"}}</a>
+                <div class="price">{{item.Integral}}</div>
+            </li>
+            {{/each}}
+        </script>
+    </ul>
+</div>
+<div class="a-dialog hide">
+    @using (Html.BeginForm("IntegralAPP", "Member", FormMethod.Get))
+    {
+        <div id="txshow" class="">
+            <div class="signle-item">
+                <div class="cell">
+                    <div class="cell-left">兑换积分</div>
+                    <div class="cell-right">
+                        <input type="text" class="text" placeholder="最少100起提" id="Integral" name="Integral" onkeyup="value=value.replace(/[^\d.]/g,'');" onchange="MB();" />
+                    </div>
+                </div>
+                <div class="cell">
+                    <div class="cell-left">实际兑换(1:@ViewBag.MT)</div>
+                    <div class="cell-right">
+                        <input type="text" class="text" placeholder="实际兑换" id="BCCB" name="BCCB" onkeyup="value=value.replace(/[^\d.]/g,'');" />
+                    </div>
+                </div>
+                <div class="cell">
+                    <div class="cell-left">兑换币种</div>
+                    <div class="cell-right">
+                        <div>
+                            <select class="form-control" name="TB" placeholder="选择兑换币种">
+                                <option value="1" selected>BCCB</option>
+                                <option value="2">FBCC</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="info" style="text-align: right;">
+                    你当前可提现积分为=@ViewBag.Integral,兑换比例=@ViewBag.MT
+                </div>
+            </div>
+            <div class="padding-btn-group">
+                <input type="text" name="Type" value="@Request.QueryString["Type"]" hidden />
+                <button type="button" id="btn" class="btn-block btn-green" onclick="return check();">确认</button>
+            </div>
+        </div>
+    }
+</div>
+<div class="dialog-modal hide" onclick="out();"></div>
+<script>
+    function MB() {
+        document.getElementById("BCCB").value = document.getElementById("Integral").value * @ViewBag.MT;
+    }
+    function getlist(type,ev) {
+        $("#type").val(type);
+        $(".order-tabs a").removeClass("active");
+        ev = ev || window.event;
+        var tmp = ev.target || ev.srcElement;
+        tmp.className = "active";
+        //重置列表数据
+        scroll.resetUpScroll();
+        //隐藏回到顶部按钮
+        scroll.hideTopBtn();
+    }
+    function tx() {
+        $("#tx").addClass("hide");
+        $(".a-dialog").removeClass("hide");
+        $(".dialog-modal").removeClass("hide");
+    }
+    function out() {
+        $("#tx").removeClass("hide");
+        $(".a-dialog").addClass("hide");
+        $(".dialog-modal").addClass("hide");
+    }
+    function remarks(remarks) {
+        if (remarks.length > 0) {
+            tip(remarks);
+        }
+        else
+        {
+            tip("正常审核");
+        }
+    }
+    function check() {
+        var field = $("input[name='Integral']");
+        if (field.val()>@ViewBag.Integral) {
+            tip("可提积分不足");
+            return false;
+        }
+        document.getElementById("btn").innerText = "正在提交...";
+        document.getElementById("btn").disabled = true;
+        document.forms[0].submit();
+    }
+    function tooltip(field) {
+        field.focus();
+        tip(field.attr('placeholder'));
+    }
+    function tip(msg) {
+        layer.open({
+            content: msg
+            , skin: 'msg'
+            , time: 2
+        });
+    }
+</script>

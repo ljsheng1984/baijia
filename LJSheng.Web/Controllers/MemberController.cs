@@ -285,20 +285,20 @@ namespace LJSheng.Web.Controllers
         /// <param name="BankName">开户人</param>
         /// <param name="BankNumber">卡号</param>
         /// <param name="Bank">开户行</param>
-        /// <param name="PWD">密码</param>
+        /// <param name="PayPWD">支付密码</param>
         /// <returns>返回调用结果</returns>
         /// <para name="result">200 是成功其他失败</para>
         /// <para name="data">结果提示</para>
         /// <remarks>
         /// 2016-06-30 林建生
         /// </remarks>
-        public ActionResult AddBank(string BankName, string BankNumber, string Bank, string PWD)
+        public ActionResult AddBank(string BankName, string BankNumber, string Bank, string PayPWD)
         {
             using (EFDB db = new EFDB())
             {
                 Guid Gid = LCookie.GetMemberGid();
                 var b = db.Member.Where(l => l.Gid == Gid).FirstOrDefault();
-                if (string.IsNullOrEmpty(BankName) || string.IsNullOrEmpty(BankNumber) || string.IsNullOrEmpty(Bank) || string.IsNullOrEmpty(PWD))
+                if (string.IsNullOrEmpty(BankName) || string.IsNullOrEmpty(BankNumber) || string.IsNullOrEmpty(Bank) || string.IsNullOrEmpty(PayPWD))
                 {
                     ViewBag.BankName = b.BankName;
                     ViewBag.BankNumber = b.BankNumber;
@@ -307,8 +307,8 @@ namespace LJSheng.Web.Controllers
                 }
                 else
                 {
-                    PWD = MD5.GetMD5ljsheng(PWD);
-                    if (b != null && b.PWD == PWD)
+                    PayPWD = MD5.GetMD5ljsheng(PayPWD);
+                    if (b != null && b.PayPWD == PayPWD)
                     {
                         b.BankName = BankName;
                         b.BankNumber = BankNumber;
@@ -324,7 +324,7 @@ namespace LJSheng.Web.Controllers
                     }
                     else
                     {
-                        return Helper.Redirect("失败", "history.go(-1);", "旧密码不正确");
+                        return Helper.Redirect("失败", "history.go(-1);", "支付密码不正确");
                     }
                 }
             }
@@ -934,39 +934,8 @@ namespace LJSheng.Web.Controllers
                         }
                         else
                         {
-                            #region 旧的积分提现
-                            //Guid? MRGid = Helper.MoneyRecordAdd(null, gid, -M, 0, 2, "用户申请提现");
-                            //if (MRGid != null)
-                            //{
-                            //    var wd = new Withdrawals();
-                            //    wd.Gid = Guid.NewGuid();
-                            //    wd.AddTime = DateTime.Now;
-                            //    wd.State = 1;
-                            //    wd.Money = PM;
-                            //    wd.Bank = b.Bank;
-                            //    wd.BankName = b.BankName;
-                            //    wd.BankNumber = b.BankNumber;
-                            //    wd.MemberGid = gid;
-                            //    wd.MRGid = (Guid)MRGid;
-                            //    db.Withdrawals.Add(wd);
-                            //    if (db.SaveChanges() == 1)
-                            //    {
-                            //        return Helper.Redirect("成功", "/Member/Withdrawals", "恭喜你,提现成功,等待财务审核后打款");
-                            //    }
-                            //    else
-                            //    {
-                            //        LogManager.WriteLog("扣除成功打款记录失败", "gid=" + gid.ToString() + ",money=" + Money.ToString());
-                            //        return Helper.Redirect("失败", "history.go(-1);", "扣除成功打款记录失败");
-                            //    }
-                            //}
-                            //else
-                            //{
-                            //    return Helper.Redirect("失败", "history.go(-1);", "扣除失败");
-                            //}
-                            #endregion
-
-                            b.ProductMoney = b.ProductMoney - PM;
-                            if (db.SaveChanges() == 1)
+                            
+                            if (Helper.RMBRecordAdd(MemberGid, PM,1))
                             {
                                 var wd = new Withdrawals();
                                 wd.Gid = Guid.NewGuid();
@@ -1773,6 +1742,102 @@ namespace LJSheng.Web.Controllers
                 {
                     return Json(new AjaxResult(300, "失败"));
                 }
+            }
+        }
+        #endregion
+
+        #region 积分兑换
+        /// <summary>
+        /// 积分兑换管理
+        /// </summary>
+        /// <param name="Integral">兑换积分</param>
+        /// <param name="TB">兑换币种[1=BCCB, 2=FBCC]</param>
+        /// <param name="Type">类型[1=彩链积分 2=商城基数积分 3=商城积分]</param>
+        /// <returns>返回调用结果</returns>
+        /// <para name="result">200 是成功其他失败</para>
+        /// <para name="data">对象结果</para>
+        /// <remarks>
+        /// 2018-08-18 林建生
+        /// </remarks>
+        public ActionResult IntegralAPP(decimal Integral=0, int TB=0, int Type=0)
+        {
+            using (EFDB db = new EFDB())
+            {
+                Guid gid = LCookie.GetMemberGid();
+                var b = db.Member.Where(l => l.Gid == gid).FirstOrDefault();
+                string T = "Money";//默认彩链积分
+                ViewBag.Integral = b.Money;
+                if (Type == 2)
+                {
+                    T = "MIntegral";
+                    ViewBag.Integral = b.MIntegral;//商城基数积分
+                }
+                else if (Type == 3)
+                {
+                    T = "ShopIntegral";
+                    ViewBag.Integral = b.ShopIntegral;//商城积分
+                }
+                //查询兑换比例
+                ViewBag.MT = decimal.Parse(db.DictionariesList.Where(dl => dl.Key == T && dl.DGid == db.Dictionaries.Where(d => d.DictionaryType == "Token").FirstOrDefault().Gid).FirstOrDefault().Value);
+                if (Integral <= 0 || TB <= 0|| Type <= 0)
+                {
+                    return View();
+                }
+                else
+                {
+                    string LogMsg = "gid=" + gid.ToString() + ",Integral=" + Integral.ToString() + ",Type=" + Type + ",TB=" + TB;
+                    if (Integral > ViewBag.Integral)
+                    {
+                        return Helper.Redirect("失败", "history.go(-1);", "可提积分不足");
+                    }
+                    else
+                    {
+                        //获取兑换比例积分
+                        decimal Token = Integral * ViewBag.MT;
+                        //提交到APP
+                        if (AppApi.AddMB(b.Account, TB==1?"BCCB":"FBCC", Token.ToString()))
+                        {
+                            if (Helper.TokenRecordAdd(gid, Integral, Token, Type, TB))
+                            {
+                                return Helper.Redirect("成功", "/Member/IntegralAPP", "恭喜你,提现成功,等待财务审核后打款");
+                            }
+                            else
+                            {
+                                LogManager.WriteLog("积分兑换成功扣除记录失败", LogMsg);
+                                return Helper.Redirect("失败", "history.go(-1);", "积分兑换成功扣除记录失败");
+                            }
+                        }
+                        else
+                        {
+                            LogManager.WriteLog("积分兑换失败", LogMsg);
+                            return Helper.Redirect("失败", "history.go(-1);", "积分兑换失败");
+                        }
+                    }
+                }
+            }
+        }
+        [HttpPost]
+        public ActionResult IntegralAPPData()
+        {
+            string json = "";
+            using (StreamReader sr = new StreamReader(Request.InputStream))
+            {
+                json = HttpUtility.UrlDecode(sr.ReadLine());
+            }
+            JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
+            Guid MemberGid = LCookie.GetMemberGid();
+            using (EFDB db = new EFDB())
+            {
+                var b = db.TokenRecord.Where(l => l.MemberGid == MemberGid).AsQueryable();
+                int pageindex = Int32.Parse(paramJson["pageindex"].ToString());
+                int pagesize = Int32.Parse(paramJson["pagesize"].ToString());
+                return Json(new AjaxResult(new
+                {
+                    other = "",
+                    count = b.Count(),
+                    pageindex,
+                    list = b.OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
+                }));
             }
         }
         #endregion

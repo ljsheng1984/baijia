@@ -72,7 +72,6 @@
     <Compile Include="EF\AppApi.cs" />
     <Compile Include="EF\CLRecord.cs" />
     <Compile Include="EF\Consignor.cs" />
-    <Compile Include="EF\FrozenIntegral.cs" />
     <Compile Include="EF\Level.cs" />
     <Compile Include="EF\LV.cs" />
     <Compile Include="EF\MoneyRecord.cs" />
@@ -92,12 +91,13 @@
     <Compile Include="EF\Product.cs" />
     <Compile Include="EF\Report.cs" />
     <Compile Include="EF\ReportList.cs" />
+    <Compile Include="EF\RMBRecord.cs" />
     <Compile Include="EF\Shop.cs" />
     <Compile Include="EF\ShopClassify.cs" />
     <Compile Include="EF\ShopOrder.cs" />
     <Compile Include="EF\ShopProduct.cs" />
     <Compile Include="EF\ShopRecord.cs" />
-    <Compile Include="EF\Token.cs" />
+    <Compile Include="EF\TokenRecord.cs" />
     <Compile Include="EF\ShopWithdrawals.cs" />
     <Compile Include="EF\SMS.cs" />
     <Compile Include="EF\Stock.cs" />

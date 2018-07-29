@@ -34,7 +34,6 @@
             <tr>
                 <th>标识</th>
                 <th>会员帐号</th>
-                <th>冻结类型</th>
                 <th>冻结积分</th>
                 <th>基数分</th>
                 <th>倍数</th>
@@ -50,14 +49,7 @@
                 <tr id="{{item.Gid}}" style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
                     <td>{{++index}}</td>
                     <td>{{item.Account}}({{item.RealName}})</td>
-                    <td>
-                        {{if item.Type=="1"}}
-                        会员支取
-                        {{else}}
-                        团队满足
-                        {{/if}}
-                    </td>
-                    <td>{{item.Integral}}</td>
+                    <td>{{item.TIntegral}}</td>
                     <td>{{item.MIntegral}}</td>
                     <td>{{item.Multiple}}</td>
                     <td>

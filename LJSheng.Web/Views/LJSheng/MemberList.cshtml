@@ -148,10 +148,19 @@
                         </div>
                     </td>
                     <td>注册时间:{{item.AddTime}}</td>
-                    <td></td>
+                    <td>邀请码:{{item.MID}}</td>
                 </tr>
                 <tr style="background-color:antiquewhite;">
-                    <td colspan="2">邀请码:{{item.MID}}</td>
+                    <td>
+                        <div class="btn-group" onclick="b('{{item.Account}}','BCCB');">
+                            <button class="btn btn-mini">BCCB</button>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="btn-group" onclick="b('{{item.Account}}','FBCC');">
+                            <button class="btn btn-mini">FBCC</button>
+                        </div>
+                    </td>
                     <td>商城信息</td>
                     <td onclick="Show('{{item.Account}}','CLRecordList?Account={{item.Account}}');">
                         <div class="btn-group">
@@ -194,5 +203,23 @@
     <script src="~/js/template-web.js"></script>
     <script src="~/plugins/My97DatePicker/WdatePicker.js"></script>
     <script src="~/js/list.js"></script>
+    <script>
+        function b(account,b) {
+            $.ajax({
+                url: "/ajax/api.ashx?ff=mb",
+                data: "account=" + account+"&b="+b,
+                type: "post",
+                cache: false,
+                timeout: 8000,
+                dataType: "json",
+                ContentType: "application/json; charset=utf-8",
+                error: function () { new $.zui.Messager('请求超时!').show(); },
+                beforeSend: function () { },
+                success: function (data) {
+                    Messager(data.data, data.result);
+                },
+            });
+        }
+    </script>
 </body>
 </html>

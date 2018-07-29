@@ -24,9 +24,9 @@
         </div>
     </div>
     <div class="cell">
-        <div class="cell-left">请输入密码</div>
+        <div class="cell-left">支付密码</div>
         <div class="cell-right">
-            <input type="text" class="text" placeholder="请输入帐号密码" name="PWD" />
+            <input type="text" class="text" placeholder="请输入支付密码" name="PayPWD" />
         </div>
     </div>
 </div>
@@ -51,7 +51,7 @@
             tooltip(field);
             return false;
         }
-        field = $("input[name='PWD']");
+        field = $("input[name='PayPWD']");
         if (field.val().length < 6) {
             tooltip(field);
             return false;

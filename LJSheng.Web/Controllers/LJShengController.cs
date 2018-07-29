@@ -6012,7 +6012,7 @@ namespace LJSheng.Web.Controllers
             string Account = paramJson["Account"].ToString();
             using (EFDB db = new EFDB())
             {
-                var b = db.FrozenIntegral.GroupJoin(db.Member,
+                var b = db.ShopRecord.Where(sr=>sr.Type==2).GroupJoin(db.Member,
                     l => l.MemberGid,
                     j => j.Gid,
                     (l, j) => new
@@ -6020,7 +6020,7 @@ namespace LJSheng.Web.Controllers
                         l.Gid,
                         l.AddTime,
                         l.Remarks,
-                        l.Integral,
+                        l.TIntegral,
                         l.MIntegral,
                         l.Type,
                         l.State,
@@ -6037,7 +6037,7 @@ namespace LJSheng.Web.Controllers
                 int pagesize = Int32.Parse(paramJson["pagesize"].ToString());
                 return Json(new AjaxResult(new
                 {
-                    other = " | 当前查询总基数积分=" + b.Select(l => l.MIntegral).DefaultIfEmpty(0m).Sum() + ",团队条件积分=" + b.Select(l => l.Integral).DefaultIfEmpty(0m).Sum(),
+                    other = " | 当前查询总基数积分=" + b.Select(l => l.MIntegral).DefaultIfEmpty(0m).Sum() + ",团队条件积分=" + b.Select(l => l.TIntegral).DefaultIfEmpty(0m).Sum(),
                     count = b.Count(),
                     pageindex,
                     list = b.OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()

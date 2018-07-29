@@ -88,24 +88,28 @@ namespace LJSheng.Web
         /// <param name="phone">手机号</param>
         /// <param name="coin_name">币种名称：BCCB, FBCC</param>
         /// <returns>返回调用结果</returns>
-        public static bool MB(string phone, string coin_name)
+        public static decimal MB(string phone, string coin_name)
         {
-            bool tl = false;
+            decimal b = 0;
             try
             {
                 SortedDictionary<string, string> dic = new SortedDictionary<string, string>();
                 dic.Add("phone", phone);
                 dic.Add("coin_name", coin_name);
                 string sign = Helper.BuildRequest(dic);
-                string json = PostGet.Get("http://bccbtoken.com/api/Memberapi/dailyAvg?phone=" + phone + "&coin_name=" + coin_name + "&sign=" + sign);
+                string json = PostGet.Get("http://bccbtoken.com/api/Memberapi/getUserBalance?phone=" + phone + "&coin_name=" + coin_name + "&sign=" + sign);
+                LogManager.WriteLog("APP", json);
                 JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
-                tl = bool.Parse(paramJson["success"].ToString());
+                if (paramJson["success"].ToString() == "True")
+                {
+                    b = decimal.Parse(paramJson["data"].ToString());
+                }
             }
             catch (Exception err)
             {
                 LogManager.WriteLog("APP接口异常", "查询余额(" + phone + ")=" + err.Message);
             }
-            return tl;
+            return b;
         }
 
         /// <summary>

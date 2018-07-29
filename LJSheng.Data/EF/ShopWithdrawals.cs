@@ -20,11 +20,6 @@ namespace LJSheng.Data
         public DateTime AddTime { get; set; }
 
         /// <summary>
-        /// 资金记录GID
-        /// </summary>
-        public Guid MRGid { get; set; }
-
-        /// <summary>
         /// 商家Gid
         /// </summary>
         public Guid ShopGid { get; set; }

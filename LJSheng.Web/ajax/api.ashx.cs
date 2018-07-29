@@ -62,6 +62,9 @@ namespace LJSheng.Web.ajax
                     case "apppwd":
                         returnstr = AppPWD(context);
                         break;
+                    case "mb":
+                        returnstr = MB(context);
+                        break;
                     default:
                         break;
                 }
@@ -634,9 +637,21 @@ namespace LJSheng.Web.ajax
                 return new AjaxResult(300, "签名异常");
             }
         }
+
+        /// <summary>
+        /// 查询用户钱包
+        /// </summary>
+        /// <param name="param">请求的参数</param>
+        /// <returns>请求结果</returns>
+        public object MB(HttpContext context)
+        {
+            string Account = context.Request.Form["account"];
+            string B = context.Request.Form["b"];
+            return new AjaxResult(B + "余额=" + AppApi.MB(Account, B));
+        }
         #endregion
 
-            #endregion
+        #endregion
 
         public bool IsReusable
         {

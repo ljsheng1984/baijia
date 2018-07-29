@@ -11,12 +11,12 @@ namespace LJSheng.Data
         public EFDB(): base("name=MSSQL")
         {
             //模型更改时重新创建数据库
-            Database.SetInitializer<EFDB>(new DropCreateDatabaseIfModelChanges<EFDB>());
-            ////数据库不存在时重新创建数据库,存在的话会报错
-            //Database.SetInitializer<EFDB>(new CreateDatabaseIfNotExists<EFDB>());
-            ////每次启动应用程序时创建数据库
+            //Database.SetInitializer<EFDB>(new DropCreateDatabaseIfModelChanges<EFDB>());
+            //数据库不存在时重新创建数据库,存在的话会报错
+            Database.SetInitializer<EFDB>(new CreateDatabaseIfNotExists<EFDB>());
+            //每次启动应用程序时创建数据库
             //Database.SetInitializer<EFDB>(new DropCreateDatabaseAlways<EFDB>());
-            ////从不创建数据库
+            //从不创建数据库
             //Database.SetInitializer<EFDB>(null);
         }
 
@@ -178,13 +178,9 @@ namespace LJSheng.Data
         public DbSet<Consignor> Consignor { get; set; }
 
         /// <summary>
-        /// 积分冻结
-        /// </summary>
-        public DbSet<FrozenIntegral> FrozenIntegral { get; set; }
-        /// <summary>
         /// 积分转Token记录
         /// </summary>
-        public DbSet<Token> Token { get; set; }
+        public DbSet<TokenRecord> TokenRecord { get; set; }
         /// <summary>
         /// 商城积分记录
         /// </summary>
@@ -193,5 +189,9 @@ namespace LJSheng.Data
         /// 彩链包兑换记录
         /// </summary>
         public DbSet<CLRecord> CLRecord { get; set; }
+        /// <summary>
+        /// 金额记录
+        /// </summary>
+        public DbSet<RMBRecord> RMBRecord { get; set; }
     }
 }

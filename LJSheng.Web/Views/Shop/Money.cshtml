@@ -56,11 +56,20 @@
                 <div class="cell">
                     <div class="cell-left">提现积分</div>
                     <div class="cell-right">
-                        <input type="text" class="text" placeholder="最少100起提" name="Money" onkeyup="value=value.replace(/[^\d.]/g,'');" />
+                        <input type="text" class="text" placeholder="最少100起提" id="Money" name="Money" onkeyup="value=value.replace(/[^\d.]/g,'');" onchange="MB();" />
+                    </div>
+                </div>
+                <div class="cell">
+                    <div class="cell-left">需要BCCB</div>
+                    <div class="cell-right">
+                        <input type="text" class="text" placeholder="BCCB手续费" id="BCCB" name="BCCB" onkeyup="value=value.replace(/[^\d.]/g,'');" />
                     </div>
                 </div>
                 <div class="info" style="text-align: right;">
-                    你当前可提现积分为:@ViewBag.Money
+                    你当前可提现积分为=@ViewBag.Money,BCCB=@ViewBag.BCCB
+                </div>
+                <div class="info" style="text-align: right;">
+                    手续费:提现的 @ViewBag.Token / 24小时BCCB的Token均价
                 </div>
             </div>
             <div class="padding-btn-group">
@@ -72,6 +81,11 @@
 </div>
 <div class="dialog-modal hide" onclick="out();"></div>
 <script>
+    function MB() {
+        console.log(@ViewBag.Token24);
+        document.getElementById("BCCB").value = document.getElementById("Money").value * @(ViewBag.Token / ViewBag.Token24);
+        console.log(document.getElementById("BCCB").value);
+    }
     function getlist(type,ev) {
         $("#type").val(type);
         $(".order-tabs a").removeClass("active");
@@ -125,6 +139,11 @@
         }
         if (field.val()>@ViewBag.Money) {
             tip("可提积分不足");
+            return false;
+        }
+        field = $("input[name='BCCB']");
+        if (field.val()>@ViewBag.BCCB) {
+            tip("你的BCCB手续费不足");
             return false;
         }
         document.getElementById("btn").innerText = "正在提交...";

@@ -32,7 +32,7 @@
                 <p class="tit">占比=@ViewBag.StockRight</p>
             </a>
         </li>
-        <li></li>
+        <li> </li>
     </ul>
 </div>
 <div class="signle-item">
@@ -90,6 +90,29 @@
                 <p class="tit">彩链分红</p>
             </a>
         </li>
+    </ul>
+</div>
+<div>
+    <div class="user-divider">钱包</div>
+    <ul class="admin-menu">
+        <li>
+            <a onclick="b('@ViewBag.Account','BCCB');">
+                <div>
+                    <i class="icon icon-goods-money"></i>
+                </div>
+                <p class="tit">BCCB</p>
+            </a>
+        </li>
+        <li id="BCCB"></li>
+        <li>
+            <a onclick="b('@ViewBag.Account','FBCC');">
+                <div>
+                    <i class="icon icon-goods-money"></i>
+                </div>
+                <p class="tit">FBCC</p>
+            </a>
+        </li>
+        <li id="FBCC"></li>
     </ul>
 </div>
 <div class="@(ViewBag.Level >=6?"":"hide") @(ViewBag.Project ==1?"":"hide")">
@@ -253,6 +276,14 @@
             <p class="tit">推荐人</p>
         </a>
     </li>
+    <li>
+    <a href="/Member/IntegralAPP?type=1">
+        <div>
+            <i class="icon icon-fenhong"></i>
+        </div>
+        <p class="tit">积分兑换</p>
+    </a>
+    </li>
 </ul>
 <div class="signle-item">
     <a class="cell" href="/Member/Integral?tab=2">
@@ -296,5 +327,21 @@
         } else {
             return false;
         }
+    }
+    function b(account, b) {
+        $.ajax({
+            url: "/ajax/api.ashx?ff=mb",
+            data: "account=" + account + "&b=" + b,
+            type: "post",
+            cache: false,
+            timeout: 8000,
+            dataType: "json",
+            ContentType: "application/json; charset=utf-8",
+            error: function () { new $.zui.Messager('请求超时!').show(); },
+            beforeSend: function () { },
+            success: function (data) {
+                document.getElementById(b).innerHTML = data.data;
+            },
+        });
     }
 </script>
