@@ -102,11 +102,11 @@
                     <td>
                         <img data-caption="{{item.Account}}" data-toggle="lightbox" src="/uploadfiles/member/{{item.Picture}}" class="img-thumbnail" onerror="this.src='/images/nopic.png'" style="width:50px;height:50px;">
                     </td>
-                    <td title="冻结时间:{{item.LockTime}}">
+                    <td id="{{item.Account}}" title="冻结时间:{{item.LockTime}}" onclick="APP('{{item.Gid}}','{{item.Account}}');">
                         {{item.Jurisdiction}}
                         <br />
                         {{if item.APP=="1"}}
-                        <span class="label label-success">未同步</span>
+                        <button class="btn btn-danger">重新同步</button>
                         {{else if item.APP=="2"}}
                         已同步
                         {{else if item.APP=="3"}}
@@ -207,7 +207,7 @@
         function b(account,b) {
             $.ajax({
                 url: "/ajax/api.ashx?ff=mb",
-                data: "account=" + account+"&b="+b,
+                data: "account=" + account + "&b=" + b + "&cache=" + Math.random(),
                 type: "post",
                 cache: false,
                 timeout: 8000,
@@ -219,6 +219,30 @@
                     Messager(data.data, data.result);
                 },
             });
+        }
+        function APP(gid, account) {
+            if (window.confirm('同步用户密码和支付密码都为 123456')) {
+            $.ajax({
+                url: "/ajax/api.ashx?ff=mr",
+                data: "account=" + account + "&gid=" + gid + "&cache=" + Math.random(),
+                type: "post",
+                cache: false,
+                timeout: 8000,
+                dataType: "json",
+                ContentType: "application/json; charset=utf-8",
+                error: function () { new $.zui.Messager('请求超时!').show(); },
+                beforeSend: function () { },
+                success: function (data) {
+                    if (data.result == 200) {
+                        $("#" + account).html("已同步");
+                    }
+                    Messager(data.data, data.result);
+                },
+                });
+                return true;
+            } else {
+                return false;
+            }
         }
     </script>
 </body>

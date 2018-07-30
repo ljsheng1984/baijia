@@ -203,7 +203,7 @@ namespace LJSheng.Web.Controllers
                                             b.MemberGid = MemberGid;
                                             ID = db.Member.Where(l => l.Gid == MemberGid).FirstOrDefault().MID.ToString();
                                         }
-                                        b.APP = AppApi.AppMR(account, pwd, paypwd, account, ID) ? 2 : 1;
+                                        b.APP = AppApi.AppMR(account, pwd, paypwd, account, MID.ToString()) ? 2 : 1;
                                         //b.Jurisdiction = Request.Form["Jurisdiction"];
                                         //b.Gender = Request.Form["Gender"];
                                         //b.NickName = Request.Form["NickName"];

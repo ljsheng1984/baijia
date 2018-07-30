@@ -5654,138 +5654,132 @@ namespace LJSheng.Web.Controllers
         {
             using (EFDB db = new EFDB())
             {
-                //只能分红上一个月和之前的数据
-                if (Year <= DateTime.Now.Year && Month < DateTime.Now.Month)
+                //统计月份的第一天和最后一天
+                DateTime MonthFirst = DTime.FirstDayOfMonth(DateTime.Parse(Year + "-" + Month + "-" + "01"));
+                DateTime MonthLast = DTime.LastDayOfMonth(DateTime.Parse(Year + "-" + Month + "-" + "01 23:59:59"));
+                //当前月份总业绩
+                decimal AllMoney = db.Order.Where(l => l.PayStatus == 1 && l.Type == 3 && l.PayTime >= MonthFirst && l.AddTime <= MonthLast).Select(l => l.PayPrice).DefaultIfEmpty(0).Sum();
+
+                #region 分红会员
+                //先判断股东是否在分红数据里
+                var m = db.Member.Where(l => l.Level == 11).ToList();
+                //没有的话增加单月的股东数据
+                foreach (var dr in m)
                 {
-                    //统计月份的第一天和最后一天
-                    DateTime MonthFirst = DTime.FirstDayOfMonth(DateTime.Parse(Year + "-" + Month + "-" + "01"));
-                    DateTime MonthLast = DTime.LastDayOfMonth(DateTime.Parse(Year + "-" + Month + "-" + "01 23:59:59"));
-                    //当前月份总业绩
-                    decimal AllMoney = db.Order.Where(l => l.PayStatus == 1 && l.Type == 3 && l.PayTime >= MonthFirst && l.AddTime <= MonthLast).Select(l => l.PayPrice).DefaultIfEmpty(0).Sum();
-
-                    #region 分红会员
-                    //先判断股东是否在分红数据里
-                    var m = db.Member.Where(l => l.Level == 11).ToList();
-                    //没有的话增加单月的股东数据
-                    foreach (var dr in m)
+                    if (db.Achievement.Where(l => l.MemberGid == dr.Gid).Count() == 0)
                     {
-                        if (db.Achievement.Where(l => l.MemberGid == dr.Gid).Count() == 0)
-                        {
-                            Helper.Achievement("股东", dr.Gid, Year, Month, 0, 0);
-                        }
+                        Helper.Achievement("股东", dr.Gid, Year, Month, 0, 0);
                     }
-                    var b = db.Achievement.GroupJoin(db.Member,
-                                        x => x.MemberGid,
-                                        y => y.Gid,
-                                        (x, y) => new
-                                        {
-                                            x.Gid,
-                                            x.TMoney,
-                                            MGid = x.MemberGid,
-                                            y.FirstOrDefault().CLLevel,
-                                            y.FirstOrDefault().Level,
-                                            y.FirstOrDefault().MemberGid,
-                                            y.FirstOrDefault().Account,
-                                            y.FirstOrDefault().StockRight
-                                        }).GroupJoin(db.MRelation,
-                                        x => x.Gid,
-                                        y => y.MemberGid,
-                                        (x, y) => new
-                                        {
-                                            x.Gid,
-                                            x.TMoney,
-                                            x.MGid,
-                                            x.MemberGid,
-                                            x.CLLevel,
-                                            x.Level,
-                                            x.Account,
-                                            x.StockRight,
-                                            MRM1 = y.FirstOrDefault().M1,
-                                            MRM2 = y.FirstOrDefault().M2,
-                                            MRM3 = y.FirstOrDefault().M3
-                                        }).Where(l=>l.CLLevel == 26 || l.Level==11).ToList();
-                    #endregion
+                }
+                var b = db.Achievement.Where(l => l.Year == Year && l.Month == Month).GroupJoin(db.Member,
+                                    x => x.MemberGid,
+                                    y => y.Gid,
+                                    (x, y) => new
+                                    {
+                                        x.Gid,
+                                        x.TMoney,
+                                        x.State,
+                                        MGid = x.MemberGid,
+                                        y.FirstOrDefault().CLLevel,
+                                        y.FirstOrDefault().Level,
+                                        y.FirstOrDefault().MemberGid,
+                                        y.FirstOrDefault().Account,
+                                        y.FirstOrDefault().StockRight
+                                    }).GroupJoin(db.MRelation,
+                                    x => x.Gid,
+                                    y => y.MemberGid,
+                                    (x, y) => new
+                                    {
+                                        x.Gid,
+                                        x.TMoney,
+                                        x.State,
+                                        x.MGid,
+                                        x.MemberGid,
+                                        x.CLLevel,
+                                        x.Level,
+                                        x.Account,
+                                        x.StockRight,
+                                        MRM1 = y.FirstOrDefault().M1,
+                                        MRM2 = y.FirstOrDefault().M2,
+                                        MRM3 = y.FirstOrDefault().M3
+                                    }).Where(l => l.CLLevel == 26 || l.Level == 11).ToList();
+                #endregion
 
-                    if (b.Count() >0)
+                if (b.Count() > 0 && b.Where(l=>l.State==3).Count()==0)
+                {
+                    //创始人分红数据
+                    var ml26 = db.Level.Where(l => l.LV == 26).FirstOrDefault();
+                    //创始人分红比例
+                    decimal Project26 = ml26.Profit;
+                    decimal ShopProfit = ml26.ShopProfit;
+                    //创始人满足金额的总业绩
+                    decimal MMoney = db.Achievement.Where(l => l.Year == Year && l.Month == Month && l.TMoney >= 600000).Select(l => l.TMoney).DefaultIfEmpty(0).Sum();
+                    foreach (var dr in b)
                     {
-                        //创始人分红数据
-                        var ml26 = db.Level.Where(l => l.LV == 26).FirstOrDefault();
-                        //创始人分红比例
-                        decimal Project26 = ml26.Profit;
-                        decimal ShopProfit = ml26.ShopProfit;
-                        //创始人满足金额的总业绩
-                        decimal MMoney = db.Achievement.Where(l => l.Year == Year && l.Month == Month && l.TMoney>=600000).Select(l => l.TMoney).DefaultIfEmpty(0).Sum();
-                        foreach (var dr in b)
+                        //更新分红
+                        var ach = db.Achievement.Where(l => l.MemberGid == dr.MGid).FirstOrDefault();
+                        ach.CLLevel = dr.CLLevel;
+                        ach.BonusTime = DateTime.Now;
+                        //更新的时候已分红的状态不变
+                        ach.State = ach.State == 3 ? 3 : 2;
+
+                        #region 创始人分红
+                        if (dr.CLLevel == 26)
                         {
-                            //更新分红
-                            var ach = db.Achievement.Where(l => l.MemberGid == dr.MGid).FirstOrDefault();
-                            ach.CLLevel = dr.CLLevel;
-                            ach.BonusTime = DateTime.Now;
-                            //更新的时候已分红的状态不变
-                            ach.State = ach.State == 3 ? 3 : 2;
-
-                            #region 创始人分红
-                            if (dr.CLLevel == 26)
+                            //业绩要满足60W才分红
+                            if (dr.TMoney >= 600000)
                             {
-                                //业绩要满足60W才分红
-                                if (dr.TMoney >= 600000)
-                                {
-                                    //计算项目分红比例
-                                    decimal ProfitMoney = AllMoney * Project26;
-                                    //会员团队业绩/全部满足条件会员的业绩X项目分工比例
-                                    decimal RMB= dr.TMoney / MMoney * ProfitMoney;
-                                    ach.ProjectMoney = RMB - RMB * ShopProfit;
-                                    ach.ProjectIntegral = RMB * ShopProfit; ;
-                                    ach.ProjectRemarks = "项目总金额=" + AllMoney.ToString() + ",积分比例=" + Project26.ToString() + ",购物积分比例=" + ShopProfit.ToString() + ",分配金额=" + ProfitMoney.ToString() + ",团队业绩=" + dr.TMoney.ToString() + ",满足的总业绩=" + MMoney.ToString() + ",月份总业绩=" + AllMoney.ToString();
-                                }
-                                else
-                                {
-                                    ach.ProjectRemarks = "项目金额不足";
-                                }
+                                //计算项目分红比例
+                                decimal ProfitMoney = AllMoney * Project26;
+                                //会员团队业绩/全部满足条件会员的业绩X项目分工比例
+                                decimal RMB = dr.TMoney / MMoney * ProfitMoney;
+                                ach.ProjectMoney = RMB - RMB * ShopProfit;
+                                ach.ProjectIntegral = RMB * ShopProfit; ;
+                                ach.ProjectRemarks = "项目总金额=" + AllMoney.ToString() + ",积分比例=" + Project26.ToString() + ",购物积分比例=" + ShopProfit.ToString() + ",分配金额=" + ProfitMoney.ToString() + ",团队业绩=" + dr.TMoney.ToString() + ",满足的总业绩=" + MMoney.ToString() + ",月份总业绩=" + AllMoney.ToString();
                             }
-                            #endregion
-
-                            #region 股东分红
-                            if (dr.Level == 11)
+                            else
                             {
-                                if (dr.StockRight > 0)
-                                {
-                                    //共有多少股权
-                                    decimal StockRight = m.Select(l => l.StockRight).DefaultIfEmpty(0).Sum();
-                                    var SRLV = db.Level.Where(l => l.LV == 11).FirstOrDefault();
-                                    //股东分红比例
-                                    decimal Bonus = SRLV.Bonus;
-                                    //分红的金额
-                                    decimal Money = AllMoney * Bonus;
-                                    //每个分红点多少钱
-                                    decimal RMB = Money / StockRight;
-                                    ach.Money = RMB * dr.StockRight;
-                                    ach.StockRightRemarks = "总分红积分=" + Money.ToString() + ",总分红点=" + StockRight.ToString() + ",分红股权=" + dr.StockRight.ToString() + ",每个股权积分=" + RMB.ToString();
-                                }
-                                else
-                                {
-                                    ach.StockRightRemarks = "未分配股权";
-                                }
-                            }
-                            #endregion
-
-                            if (db.SaveChanges() != 1)
-                            {
-                                LogManager.WriteLog("分红失败", "会员="+ dr.MGid.ToString() + ",Year=" + Year.ToString() + ",Month=" + Month.ToString());
+                                ach.ProjectRemarks = "项目金额不足";
                             }
                         }
-                        return Json(new AjaxResult(Year.ToString() + Month.ToString() + " 统计成功!"));
+                        #endregion
+
+                        #region 股东分红
+                        if (dr.Level == 11)
+                        {
+                            if (dr.StockRight > 0)
+                            {
+                                //共有多少股权
+                                decimal StockRight = m.Select(l => l.StockRight).DefaultIfEmpty(0).Sum();
+                                var SRLV = db.Level.Where(l => l.LV == 11).FirstOrDefault();
+                                //股东分红比例
+                                decimal Bonus = SRLV.Bonus;
+                                //分红的金额
+                                decimal Money = AllMoney * Bonus;
+                                //每个分红点多少钱
+                                decimal RMB = Money / StockRight;
+                                ach.Money = RMB * dr.StockRight;
+                                ach.StockRightRemarks = "总分红积分=" + Money.ToString() + ",总分红点=" + StockRight.ToString() + ",分红股权=" + dr.StockRight.ToString() + ",每个股权积分=" + RMB.ToString();
+                            }
+                            else
+                            {
+                                ach.StockRightRemarks = "未分配股权";
+                            }
+                        }
+                        #endregion
+
+                        if (db.SaveChanges() != 1)
+                        {
+                            LogManager.WriteLog("分红失败", "会员=" + dr.MGid.ToString() + ",Year=" + Year.ToString() + ",Month=" + Month.ToString());
+                        }
                     }
-                    else
-                    {
-                        LogManager.WriteLog("彩链失败", "当前没有可统计的数据,Year=" + Year.ToString() + ",Month=" + Month.ToString());
-                    }
-                    return Json(new AjaxResult(300, "没有需要分红的数据!"));
+                    return Json(new AjaxResult(Year.ToString() + Month.ToString() + " 统计成功!"));
                 }
                 else
                 {
-                    return Json(new AjaxResult(300, "只能统计本月之前的分红!"));
+                    LogManager.WriteLog("彩链失败", "当前没有可统计的数据或已有分红的数据,Year=" + Year.ToString() + ",Month=" + Month.ToString());
                 }
+                return Json(new AjaxResult(300, "没有需要分红的数据!"));
             }
         }
 
@@ -5949,7 +5943,7 @@ namespace LJSheng.Web.Controllers
             string OrderNo = paramJson["OrderNo"].ToString();
             using (EFDB db = new EFDB())
             {
-                var b = db.ShopRecord.GroupJoin(db.Member,
+                var b = db.ShopRecord.Where(l=>l.Type!=2).GroupJoin(db.Member,
                     l => l.MemberGid,
                     j => j.Gid,
                     (l, j) => new
@@ -6010,6 +6004,7 @@ namespace LJSheng.Web.Controllers
             }
             JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
             string Account = paramJson["Account"].ToString();
+            int State = int.Parse(paramJson["State"].ToString());
             using (EFDB db = new EFDB())
             {
                 var b = db.ShopRecord.Where(sr=>sr.Type==2).GroupJoin(db.Member,
@@ -6033,6 +6028,10 @@ namespace LJSheng.Web.Controllers
                 {
                     b = b.Where(l => l.Account == Account);
                 }
+                if (State != 0)
+                {
+                    b = b.Where(l => l.State == State);
+                }
                 int pageindex = Int32.Parse(paramJson["pageindex"].ToString());
                 int pagesize = Int32.Parse(paramJson["pagesize"].ToString());
                 return Json(new AjaxResult(new
@@ -6042,6 +6041,54 @@ namespace LJSheng.Web.Controllers
                     pageindex,
                     list = b.OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
                 }));
+            }
+        }
+
+        /// <summary>
+        /// 解冻
+        /// </summary>
+        /// <returns>返回调用结果</returns>
+        /// <para name="result">200 是成功其他失败</para>
+        /// <para name="data">对象结果</para>
+        /// <remarks>
+        /// 2018-08-18 林建生
+        /// </remarks>
+        [HttpPost]
+        public JsonResult UnFrozen()
+        {
+            string json = "";
+            using (StreamReader sr = new StreamReader(Request.InputStream))
+            {
+                json = HttpUtility.UrlDecode(sr.ReadLine());
+            }
+            JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
+            Guid gid = Guid.Parse(paramJson["gid"].ToString());
+            using (EFDB db = new EFDB())
+            {
+                var b = db.ShopRecord.Where(l => l.Gid == gid && l.State == 2).FirstOrDefault();
+                if(b!=null)
+                {
+                    b.State = 1;
+                    if (db.SaveChanges() == 1)
+                    {
+                        if (db.Member.Where(l => l.Gid == b.MemberGid).Update(l => new Member { ShopIntegral = l.ShopIntegral + b.TIntegral }) == 1)
+                        {
+                            return Json(new AjaxResult("解冻成功"));
+                        }
+                        else
+                        {
+                            LogManager.WriteLog("解冻成功积分更新失败", "gid=" + gid.ToString());
+                            return Json(new AjaxResult(300,"解冻成功积分更新失败"));
+                        }
+                    }
+                    else
+                    {
+                        return Json(new AjaxResult(300,"解冻失败"));
+                    }
+                }
+                else
+                { return Json(new AjaxResult(300, "解冻数据不存在!")); }
+                
             }
         }
         #endregion

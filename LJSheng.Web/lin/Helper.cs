@@ -657,7 +657,7 @@ namespace LJSheng.Web
         /// <summary>
         /// 团队业绩累计
         /// </summary>
-        public static string Achievement(string Name, Guid MemberGid, int Year, int Month, decimal TMoney = 0, decimal MMoney = 0, int State = 0, int CLLevel = 0, decimal DM1Money = 0, decimal DM2Money = 0, decimal DM3Money = 0, decimal DM1Integral = 0, decimal DM2Integral = 0, decimal DM3Integral = 0, decimal FrozenMoney = 0, decimal FrozenIntegral = 0, decimal Money = 0, decimal Integral = 0, decimal ProjectMoney = 0, decimal ProjectIntegral = 0, Guid? MRGid = null, Guid? StockRightMRGid = null, Guid? ProjectMRGid = null, string Remarks = "", string ProjectRemarks = "", string StockRightRemarks = "")
+        public static string Achievement(string Name, Guid MemberGid, int Year, int Month, decimal TMoney = 0, decimal MMoney = 0, int State = 0, int CLLevel = 0, decimal Money = 0, decimal Integral = 0, decimal ProjectMoney = 0, decimal ProjectIntegral = 0,Guid? StockRightMRGid = null, Guid? ProjectMRGid = null, string Remarks = "", string ProjectRemarks = "", string StockRightRemarks = "")
         {
             string msg = "\r\n-----------------------------\r\n MemberGid=" + MemberGid.ToString();
             //msg += "\r\n State=" + State.ToString();
@@ -666,19 +666,10 @@ namespace LJSheng.Web
             //msg += "\r\n TMoney=" + TMoney.ToString();
             //msg += "\r\n MMoney=" + MMoney.ToString();
             //msg += "\r\n CLLevel=" + CLLevel.ToString();
-            //msg += "\r\n DM1Money=" + DM1Money.ToString();
-            //msg += "\r\n DM2Money=" + DM2Money.ToString();
-            //msg += "\r\n DM3Money=" + DM3Money.ToString();
-            //msg += "\r\n DM1Integral=" + DM1Integral.ToString();
-            //msg += "\r\n DM2Integral=" + DM2Integral.ToString();
-            //msg += "\r\n DM3Integral=" + DM3Integral.ToString();
-            //msg += "\r\n FrozenMoney=" + FrozenMoney.ToString();
-            //msg += "\r\n FrozenIntegral=" + FrozenIntegral.ToString();
             //msg += "\r\n Money=" + Money.ToString();
             //msg += "\r\n Integral=" + Integral.ToString();
             //msg += "\r\n ProjectMoney=" + ProjectMoney.ToString();
             //msg += "\r\n ProjectIntegral=" + ProjectIntegral.ToString();
-            //msg += "\r\n MRGid=" + MRGid == null ? "" : MRGid.ToString();
             //msg += "\r\n StockRightMRGid=" + StockRightMRGid == null ? "" : StockRightMRGid.ToString();
             //msg += "\r\n ProjectMRGid=" + ProjectMRGid == null ? "" : ProjectMRGid.ToString();
             //msg += "\r\n Remarks=" + Remarks.ToString();
@@ -721,34 +712,6 @@ namespace LJSheng.Web
                     //团队业绩
                     b.TMoney = b.TMoney + TMoney;
                 }
-
-                #region 逻辑待定
-                //为0不改变状态
-                //b.State = State == 0 ? b.State : State;
-                //b.CLLevel = CLLevel == 0 ? b.CLLevel : CLLevel;
-                //b.Remarks = Remarks;
-                //b.ProjectRemarks = ProjectRemarks;
-                //b.StockRightRemarks = StockRightRemarks;
-                //b.MRGid = MRGid;
-                //b.ProjectMRGid = ProjectMRGid;
-                //b.StockRightMRGid = StockRightMRGid;
-                ////项目分红
-                //b.ProjectMoney = ProjectMoney;
-                //b.ProjectIntegral = ProjectIntegral;
-                ////股东分红
-                //b.Money = Money;
-                //b.Integral = Integral;
-                ////团队业绩
-                //b.TMoney = b.TMoney + TMoney;
-                //b.DM1Money = b.DM1Money+ DM1Money;
-                //b.DM2Money = b.DM2Money+ DM2Money;
-                //b.DM3Money = b.DM3Money+ DM3Money;
-                //b.DM1Integral = b.DM1Integral+ DM1Integral;
-                //b.DM2Integral = b.DM2Integral+ DM2Integral;
-                //b.DM3Integral = b.DM3Integral+ DM3Integral;
-                //b.FrozenMoney = b.FrozenMoney+ FrozenMoney;
-                //b.FrozenIntegral = b.FrozenIntegral+ FrozenIntegral;
-                #endregion
 
                 if (tb)
                 {
@@ -2216,12 +2179,13 @@ namespace LJSheng.Web
         /// <param name="Integral">积分</param>
         /// <param name="Type">类型[1=会员支取基数 2=团队累计满足冻结 3=购买获取基数 4=第1级奖励 5=第2级奖励 6=第3级奖励]</param>
         /// <param name="State">状态[1=成功 2=冻结 3=取消]</param>
+        /// <param name="Multiple">基数分倍数</param>
         /// <param name="Remarks">备注</param>
         /// <returns>返回调用结果</returns>
-        public static Guid? ShopRecordAdd(Guid? OrderGid, Guid Gid, decimal MIntegral, decimal TIntegral,int Type, int State, string Remarks = "")
+        public static Guid? ShopRecordAdd(Guid? OrderGid, Guid Gid, decimal MIntegral, decimal TIntegral,int Type, int State,int Multiple=0, string Remarks = "")
         {
             Guid? MRGid = null;
-            string LogMsg = "订单=" + OrderGid + ",会员=" + Gid + ",MIntegral=" + MIntegral + ",TIntegral=" + TIntegral + ",Type=" + Type + ",State=" + State;
+            string LogMsg = "订单=" + OrderGid + ",会员=" + Gid + ",MIntegral=" + MIntegral + ",TIntegral=" + TIntegral + ",Type=" + Type + ",State=" + State + ",Multiple=" + Multiple;
             try
             {
                 using (EFDB db = new EFDB())
@@ -2241,7 +2205,12 @@ namespace LJSheng.Web
                         b.OldTIntegral = m.TIntegral;
                         b.Type = Type;
                         b.State = State;
-                        b.Remarks = Remarks;
+                        b.Multiple = Multiple;
+                        if (Type == 2)
+                        {
+                            b.ThawTime = b.AddTime.AddDays(30);
+                        }
+                        b.Remarks = Type < 2 ? "清空分="+(m.TIntegral-TIntegral).ToString() : Remarks;
                         db.ShopRecord.Add(b);
                         if (db.SaveChanges() == 1)
                         {
@@ -2249,7 +2218,8 @@ namespace LJSheng.Web
                             {
                                 //更新用户数据
                                 m.MIntegral = m.MIntegral - MIntegral;
-                                m.TIntegral = m.TIntegral - TIntegral;
+                                //提取或冻结直接清o
+                                m.TIntegral = 0;
                             }
                             else
                             {
@@ -2261,7 +2231,7 @@ namespace LJSheng.Web
                             {
                                 MRGid = b.Gid;
                                 //是否满足冻结要求
-                                if (Type == 4 || Type == 5 || Type == 6)
+                                if (Type == 3 || Type == 4 || Type == 5 || Type == 6)
                                 {
                                     FrozenIntegral(Gid, m.MIntegral, m.TIntegral, 2, 2);
                                 }
@@ -2321,7 +2291,7 @@ namespace LJSheng.Web
                     decimal Integral = MIntegral * m.Multiple;
                     if (Integral > 0 && TIntegral >= Integral)
                     {
-                        if (ShopRecordAdd(null, Gid, MIntegral, TIntegral, 2, 2) == null)
+                        if (ShopRecordAdd(null, Gid, MIntegral, Integral, 2, 2,m.Multiple) == null)
                         {
                             LogManager.WriteLog("商城积分冻结失败", LogMsg);
                         }
@@ -2331,39 +2301,6 @@ namespace LJSheng.Web
             catch (Exception err)
             {
                 LogManager.WriteLog("冻结记录异常", LogMsg + "/r/n" + err.Message);
-            }
-        }
-
-        /// <summary>
-        /// 积分解冻
-        /// </summary>
-        /// <param name="Gid">冻结Gid</param>
-        /// <param name="MemberGid">会员Gid</param>
-        /// <param name="Integral">个人基数积分</param>
-        /// <returns>返回调用结果</returns>
-        public static void ShopRecord(Guid Gid, Guid MemberGid, decimal Integral)
-        {
-            string LogMsg = "冻结Gid=" + Gid.ToString() + "会员=" + MemberGid.ToString() + ",Integral=" + Integral.ToString();
-            try
-            {
-                using (EFDB db = new EFDB())
-                {
-                    if (db.ShopRecord.Where(l => l.Gid == Gid && l.State==2).Update(l => new ShopRecord { State = 1 }) == 1)
-                    {
-                        if (db.Member.Where(l => l.Gid == MemberGid).Update(l => new Member { ShopIntegral = l.ShopIntegral + Integral }) == 1)
-                        {
-                            LogManager.WriteLog("商城积分解冻增加积分成功", LogMsg);
-                        }
-                        else
-                        {
-                            LogManager.WriteLog("商城积分解冻成功,更新积分失败", LogMsg);
-                        }
-                    }
-                }
-            }
-            catch (Exception err)
-            {
-                LogManager.WriteLog("商城积分解冻更新积分异常", LogMsg + "/r/n" + err.Message);
             }
         }
         #endregion

@@ -1794,23 +1794,31 @@ namespace LJSheng.Web.Controllers
                     {
                         //获取兑换比例积分
                         decimal Token = Integral * ViewBag.MT;
-                        //提交到APP
-                        if (AppApi.AddMB(b.Account, TB==1?"BCCB":"FBCC", Token.ToString()))
+                        if (Helper.TokenRecordAdd(gid, Integral, Token, Type, TB))
                         {
-                            if (Helper.TokenRecordAdd(gid, Integral, Token, Type, TB))
+                            //提交到APP
+                            if (AppApi.AddMB(b.Account, TB == 1 ? "BCCB" : "FBCC", Token.ToString()))
                             {
-                                return Helper.Redirect("成功", "/Member/IntegralAPP", "恭喜你,提现成功,等待财务审核后打款");
+                                if (Helper.ShopRecordAdd(null, gid, Integral, 0, 1, 1) != null)
+                                {
+                                    return Helper.Redirect("成功", "/Member/IntegralAPP", "恭喜你,兑换成功!");
+                                }
+                                else
+                                {
+                                    LogManager.WriteLog("积分兑换记录兑换APP钱包成功团队分清空记录失败", LogMsg);
+                                    return Helper.Redirect("失败", "history.go(-1);", "积分兑换记录兑换APP钱包成功团队分清空记录失败");
+                                }
                             }
                             else
                             {
-                                LogManager.WriteLog("积分兑换成功扣除记录失败", LogMsg);
-                                return Helper.Redirect("失败", "history.go(-1);", "积分兑换成功扣除记录失败");
+                                LogManager.WriteLog("积分兑换记录成功兑换APP钱包失败", LogMsg);
+                                return Helper.Redirect("失败", "history.go(-1);", "积分兑换记录成功兑换APP钱包失败");
                             }
                         }
                         else
                         {
-                            LogManager.WriteLog("积分兑换失败", LogMsg);
-                            return Helper.Redirect("失败", "history.go(-1);", "积分兑换失败");
+                            LogManager.WriteLog("积分兑换记录失败", LogMsg);
+                            return Helper.Redirect("失败", "history.go(-1);", "积分兑换记录失败");
                         }
                     }
                 }

@@ -65,6 +65,9 @@ namespace LJSheng.Web.ajax
                     case "mb":
                         returnstr = MB(context);
                         break;
+                    case "mr":
+                        returnstr = MR(context);
+                        break;
                     default:
                         break;
                 }
@@ -462,6 +465,35 @@ namespace LJSheng.Web.ajax
         }
         #region APP接口
 
+        /// <summary>
+        /// 重新向APP注册
+        /// </summary>
+        /// <param name="param">请求的参数</param>
+        /// <returns>请求结果</returns>
+        public object MR(HttpContext context)
+        {
+            using (EFDB db = new EFDB())
+            {
+                Guid Gid = Guid.Parse(context.Request["gid"]);
+                var b = db.Member.Where(l => l.Gid == Gid).FirstOrDefault();
+                if (AppApi.AppMR(b.Account, "123456", "123456", b.Account, b.MID.ToString()))
+                {
+                    b.APP = 2;
+                    b.PWD = MD5.GetMD5ljsheng("123456");
+                    b.PayPWD = MD5.GetMD5ljsheng("123456");
+                    if (db.SaveChanges() == 1)
+                    {
+                        return new AjaxResult("同步成功");
+                    }
+                    else
+                    {
+                        return new AjaxResult(300, "同步成功,本地更新数据失败!");
+                    }
+                }
+                return new AjaxResult(300,"同步失败");
+            }
+        }
+
         public object Sign(HttpContext context)
         {
             SortedDictionary<string, string> dic = new SortedDictionary<string, string>();
@@ -481,6 +513,7 @@ namespace LJSheng.Web.ajax
             string PayPWD = context.Request.Form["paypwd"];
             int MID = Helper.CreateMNumber();//注册用户的邀请码
             int ID = int.Parse(context.Request.Form["id"]);//推荐人邀请码
+            LogManager.WriteLog("APP注册", "Account=" + Account + ",ID=" + ID.ToString());
             string Sign = context.Request.Form["sign"];
             SortedDictionary<string, string> dic = new SortedDictionary<string, string>();
             dic.Add("account", Account);
@@ -597,6 +630,7 @@ namespace LJSheng.Web.ajax
             string PWD = context.Request.Form["pwd"];
             string PayPWD = context.Request.Form["paypwd"];
             string Sign = context.Request.Form["sign"];
+            LogManager.WriteLog("APP修改密码", "Account=" + Account + ",PWD=" + PWD + ",PayPWD=" + PayPWD);
             SortedDictionary<string, string> dic = new SortedDictionary<string, string>();
             dic.Add("account", Account);
             dic.Add("pwd", PWD);
@@ -623,17 +657,20 @@ namespace LJSheng.Web.ajax
                         }
                         else
                         {
+                            LogManager.WriteLog("APP修改密码更新失败", "Account=" + Account + ",PWD=" + PWD + ",PayPWD=" + PayPWD);
                             return new AjaxResult(300, "更新失败!!!");
                         }
                     }
                     else
                     {
+                        LogManager.WriteLog("APP修改密码用户不存在", "Account=" + Account + ",PWD=" + PWD + ",PayPWD=" + PayPWD);
                         return new AjaxResult(301, "用户不存在!!!");
                     }
                 }
             }
             else
             {
+                LogManager.WriteLog("APP修改密码签名异常", "Account=" + Account + ",PWD=" + PWD + ",PayPWD=" + PayPWD);
                 return new AjaxResult(300, "签名异常");
             }
         }

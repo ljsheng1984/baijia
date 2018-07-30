@@ -40,6 +40,7 @@ namespace LJSheng.Web
                 tl = bool.Parse(paramJson["success"].ToString());
                 if (!tl)
                 {
+                    //LogManager.WriteLog("注册", paramJson["message"].ToString());
                     if (paramJson["message"].ToString() == "此手机号已被注册")
                     {
                         tl = true;
@@ -74,6 +75,10 @@ namespace LJSheng.Web
                 string json = PostGet.Post("http://bccbtoken.com/api/Memberapi/changePwd", dic);
                 JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
                 tl = bool.Parse(paramJson["success"].ToString());
+                if (!tl)
+                {
+                    LogManager.WriteLog("修改密码", paramJson["message"].ToString());
+                }
             }
             catch (Exception err)
             {
@@ -98,7 +103,7 @@ namespace LJSheng.Web
                 dic.Add("coin_name", coin_name);
                 string sign = Helper.BuildRequest(dic);
                 string json = PostGet.Get("http://bccbtoken.com/api/Memberapi/getUserBalance?phone=" + phone + "&coin_name=" + coin_name + "&sign=" + sign);
-                LogManager.WriteLog("APP", json);
+                //LogManager.WriteLog("APP", json);
                 JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
                 if (paramJson["success"].ToString() == "True")
                 {
@@ -132,6 +137,10 @@ namespace LJSheng.Web
                 string json = PostGet.Post("http://bccbtoken.com/api/Memberapi/deductUserBalance", dic);
                 JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
                 tl = bool.Parse(paramJson["success"].ToString());
+                if (!tl)
+                {
+                    LogManager.WriteLog("注册", paramJson["message"].ToString());
+                }
             }
             catch (Exception err)
             {
@@ -160,6 +169,10 @@ namespace LJSheng.Web
                 string json = PostGet.Post("http://bccbtoken.com/api/Memberapi/transfer", dic);
                 JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
                 tl = bool.Parse(paramJson["success"].ToString());
+                if (!tl)
+                {
+                    LogManager.WriteLog("注册", paramJson["message"].ToString());
+                }
             }
             catch (Exception err)
             {
