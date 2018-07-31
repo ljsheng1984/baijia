@@ -34,7 +34,7 @@
         </div>
         <div class="control">
             <label>商品编号</label>
-            <input id="Prefix" name="Prefix" value="@ViewBag.Prefix" type="text" class="input" maxlength="6" placeholder="输入6位编号" onkeyup="value=value.replace(/[^\a-\z\A-\Z0-9]/g,'')" onpaste="value=value.replace(/[^\a-\z\A-\Z0-9]/g,'')" oncontextmenu = "value=value.replace(/[^\a-\z\A-\Z0-9]/g,'')" @(string.IsNullOrEmpty(ViewBag.Prefix)?"":"readonly")>
+            <input id="Prefix" name="Prefix" value="@ViewBag.Prefix" type="text" class="input" maxlength="6" placeholder="自动生成" onkeyup="value=value.replace(/[^\a-\z\A-\Z0-9]/g,'')" onpaste="value=value.replace(/[^\a-\z\A-\Z0-9]/g,'')" oncontextmenu = "value=value.replace(/[^\a-\z\A-\Z0-9]/g,'')" readonly>
             <div id="Prefixmsg" class="help-text text-red"></div>
         </div>
         <div class="control">
@@ -81,10 +81,6 @@
 
         if (document.getElementById("Name").value.length < 1) {
             tip("商品名称不少于2个字");
-            return false;
-        }
-        if (document.getElementById("Prefix").value.length != 6) {
-            tip("商品编号为6个字符");
             return false;
         }
         if (document.getElementById("Price").value.length < 1) {

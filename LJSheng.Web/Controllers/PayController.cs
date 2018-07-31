@@ -127,23 +127,30 @@ namespace LJSheng.Web.Controllers
                     }
                 }
             }
-            if (Order != null)
+            if (!string.IsNullOrEmpty(Order))
             {
                 JObject paramJson = JsonConvert.DeserializeObject(Order) as JObject;
-                if (string.IsNullOrEmpty(paramJson["OrderNo"].ToString()))
+                if (PayType == 3)
                 {
-                    return Helper.Redirect(paramJson["Title"].ToString(), "history.go(-1);", paramJson["Error"].ToString());
+                    return new RedirectResult("/Home/Bank?OrderNo="+ paramJson["OrderNo"].ToString());
                 }
                 else
                 {
-                    switch (PayType)
+                    if (string.IsNullOrEmpty(paramJson["OrderNo"].ToString()))
                     {
-                        case 1:
-                            return Alipay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), "0.01",1);//测试要删                                                                         //return Alipay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), paramJson["TotalPrice"].ToString());
-                        //case 5:
-                            //return MPay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), paramJson["TotalPrice"].ToString(), Guid.Parse(paramJson["OrderGid"].ToString()));
-                        default:
-                            return Helper.Redirect("失败", "history.go(-1);", "非法支付");
+                        return Helper.Redirect(paramJson["Title"].ToString(), "history.go(-1);", paramJson["Error"].ToString());
+                    }
+                    else
+                    {
+                        switch (PayType)
+                        {
+                            case 1:
+                                return Alipay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), "0.01", 1);//测试要删   //return Alipay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), paramJson["TotalPrice"].ToString());
+                                                                                                                        //case 5:
+                                                                                                                        //return MPay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), paramJson["TotalPrice"].ToString(), Guid.Parse(paramJson["OrderGid"].ToString()));
+                            default:
+                                return Helper.Redirect("失败", "history.go(-1);", "非法支付");
+                        }
                     }
                 }
             }
@@ -428,23 +435,30 @@ namespace LJSheng.Web.Controllers
             int PayType = int.Parse(Request.Form["PayType"]);
             Guid ShopGid = Guid.Parse(LCookie.GetCookie("ShopGid"));
             string Order = Helper.ShopOrder(PayType, Product, ShopGid, LCookie.GetMemberGid(), Remarks, Address, RealName, ContactNumber);
-            JObject paramJson = JsonConvert.DeserializeObject(Order) as JObject;
             if (!string.IsNullOrEmpty(Order))
             {
-                if (paramJson["OrderNo"].ToString() == "")
+                JObject paramJson = JsonConvert.DeserializeObject(Order) as JObject;
+                if (PayType == 3)
                 {
-                    return Helper.Redirect("失败", "history.go(-1);", paramJson["body"].ToString() + "-的库存少于你购买的数量!");
+                    return new RedirectResult("/Home/Bank?OrderNo=" + paramJson["OrderNo"].ToString());
                 }
                 else
                 {
-                    switch (PayType)
+                    if (paramJson["OrderNo"].ToString() == "")
                     {
-                        case 1:
-                            return Alipay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), "0.01", 2);//测试要删                                                                                  //return MPay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), paramJson["TotalPrice"].ToString(), Guid.Parse(paramJson["OrderGid"].ToString()));
-                        case 5:
-                            return MShopPay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), paramJson["TotalPrice"].ToString(), Guid.Parse(paramJson["OrderGid"].ToString()), Request.Form["PayPWD"]);
-                        default:
-                            return Helper.Redirect("失败", "history.go(-1);", "非法支付");
+                        return Helper.Redirect("失败", "history.go(-1);", paramJson["body"].ToString() + "-的库存少于你购买的数量!");
+                    }
+                    else
+                    {
+                        switch (PayType)
+                        {
+                            case 1:
+                                return Alipay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), "0.01", 2);//测试要删                                                                                  //return MPay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), paramJson["TotalPrice"].ToString(), Guid.Parse(paramJson["OrderGid"].ToString()));
+                            case 5:
+                                return MShopPay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), paramJson["TotalPrice"].ToString(), Guid.Parse(paramJson["OrderGid"].ToString()), Request.Form["PayPWD"]);
+                            default:
+                                return Helper.Redirect("失败", "history.go(-1);", "非法支付");
+                        }
                     }
                 }
             }

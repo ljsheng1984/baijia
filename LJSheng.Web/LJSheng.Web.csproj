@@ -1023,6 +1023,7 @@
     <Content Include="Views\Member\PayPWD.cshtml" />
     <Content Include="Views\LJSheng\FrozenIntegralList.cshtml" />
     <Content Include="Views\Member\IntegralAPP.cshtml" />
+    <Content Include="Views\Home\Bank.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

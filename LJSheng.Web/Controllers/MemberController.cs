@@ -1801,7 +1801,7 @@ namespace LJSheng.Web.Controllers
                             {
                                 if (Helper.ShopRecordAdd(null, gid, Integral, 0, 1, 1) != null)
                                 {
-                                    return Helper.Redirect("成功", "/Member/IntegralAPP", "恭喜你,兑换成功!");
+                                    return Helper.Redirect("成功", "/Member/IntegralAPP?type="+ Type, "恭喜你,兑换成功!");
                                 }
                                 else
                                 {

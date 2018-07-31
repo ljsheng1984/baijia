@@ -20,12 +20,50 @@ namespace LJSheng.Web.Controllers
         // 订单调试
         public ActionResult OrderPay()
         {
-            Boolean b = false;
-            if (!string.IsNullOrEmpty(Request.QueryString["PayType"]))
+            string msg = "请输入订单数据操作";
+            string OrderNo = Request.QueryString["OrderNo"];
+            int type = int.Parse(Request.QueryString["type"]);
+            if (Request.QueryString["PayType"] == "3")
             {
-                b = Request.QueryString["type"]=="1"?Helper.PayOrder(Request.QueryString["OrderNo"], Request.QueryString["TradeNo"], int.Parse(Request.QueryString["PayType"]), decimal.Parse(Request.QueryString["PayPrice"])): Helper.ShopPayOrder(Request.QueryString["OrderNo"], Request.QueryString["TradeNo"], int.Parse(Request.QueryString["PayType"]), decimal.Parse(Request.QueryString["PayPrice"]));
+                decimal PayPrice = decimal.Parse(Request.QueryString["PayPrice"]);
+                int PayType = int.Parse(Request.QueryString["PayType"]);
+                using (EFDB db = new EFDB())
+                {
+                    if (type==1)
+                    {
+                        if (db.Order.Where(l => l.OrderNo == OrderNo && l.Price == PayPrice && l.PayType == PayType && l.PayStatus == 2).Count() == 1)
+                        {
+                            if (Helper.PayOrder(OrderNo, Request.QueryString["TradeNo"], PayType, PayPrice))
+                            {
+                                msg = "订单(" + OrderNo + ")已操作成功";
+                            }
+                        }
+                        else
+                        {
+                            msg = "订单(" + OrderNo + ")无效";
+                        }
+                    }
+                    else if (type==2)
+                    {
+                        if (db.ShopOrder.Where(l => l.OrderNo == OrderNo && l.PayPrice == PayPrice && l.PayType == PayType && l.PayStatus == 2).Count() == 1)
+                        {
+                            if (Helper.ShopPayOrder(OrderNo, Request.QueryString["TradeNo"], PayType, PayPrice))
+                            {
+                                msg = "订单(" + OrderNo + ")已操作成功";
+                            }
+                        }
+                        else
+                        {
+                            msg = "订单(" + OrderNo + ")无效";
+                        }
+                    }
+                    else {
+                        msg = "找不到对账类型";
+                    }
+                }
             }
-            return View(b);
+            ViewBag.TF = msg;
+            return View();
         }
 
         // 后台操作提示

@@ -10,7 +10,7 @@
     <a onclick="getlist(2);">彩链</a>
     <a onclick="getlist(1);">基数分</a>
     <a onclick="getlist(3);">商城</a>
-    <input type="text" id="type" name="type" value="0" hidden />
+    <input type="text" id="type" name="type" value="@Request.QueryString["type"]" hidden />
 </div>
 <div class="mescroll" id="scroll">
     <ul class="money-ul" id="dataList">
@@ -44,7 +44,7 @@
                 <div class="cell">
                     <div class="cell-left">实际兑换(1:@ViewBag.MT)</div>
                     <div class="cell-right">
-                        <input type="text" class="text" placeholder="实际兑换" id="BCCB" name="BCCB" onkeyup="value=value.replace(/[^\d.]/g,'');" />
+                        <input type="text" class="text" placeholder="实际兑换" id="BCCB" name="BCCB" onkeyup="value=value.replace(/[^\d.]/g,'');" readonly>
                     </div>
                 </div>
                 <div class="cell">

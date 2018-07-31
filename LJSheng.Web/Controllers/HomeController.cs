@@ -24,6 +24,13 @@ namespace LJSheng.Web.Controllers
             return new RedirectResult("/Home/" + url);
         }
         /// <summary>
+        /// 线下汇款
+        /// </summary>
+        public ActionResult Bank()
+        {
+            return View();
+        }
+        /// <summary>
         /// 页面操作提示
         /// </summary>
         public ActionResult PageMsg(string msg, string url, string title)

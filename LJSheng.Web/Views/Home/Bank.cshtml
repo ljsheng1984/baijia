@@ -1,0 +1,22 @@
+﻿@{
+    ViewBag.Class = "Index";
+    ViewBag.Title = "线下汇款";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="sub-header">
+    <div class="title">请认真核对汇款账户哦</div>
+</div>
+<div class="register-box">
+    <form class="login-form register-form">
+        <h3 class="center">
+            汇款银行:
+            <br />
+            汇款账号:
+            <br />
+            开 户 人:
+            <br />
+            请在汇款备注信息<b>(@Request.QueryString["OrderNo"])</b>,要不然无法核对到账清空!
+        </h3>
+        <div class="mt20 center"><a class="back-btn" href="/Home/Index">点这里跳转</a></div>
+    </form>
+</div>

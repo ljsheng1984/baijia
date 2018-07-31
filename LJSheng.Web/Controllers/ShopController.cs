@@ -380,87 +380,86 @@ namespace LJSheng.Web.Controllers
         {
             using (EFDB db = new EFDB())
             {
-                //编号不能重复
-                string Prefix = Request.Form["Prefix"];
-                if (db.ShopProduct.Where(l => l.Prefix == Prefix).Count() == 0)
+                //判断额度
+                Guid gid = LCookie.GetMemberGid();
+                var m = db.Member.Where(l => l.Gid == gid).FirstOrDefault();
+                int Stock = int.Parse(Request.Form["Stock"]);
+                decimal Price = decimal.Parse(Request.Form["Price"]);
+                decimal RMB = Stock * Price;
+                if (m.CLMoney >= RMB)
                 {
-                    //判断额度
-                    Guid gid = LCookie.GetMemberGid();
-                    var m = db.Member.Where(l => l.Gid == gid).FirstOrDefault();
-                    int Stock = int.Parse(Request.Form["Stock"]);
-                    decimal Price = decimal.Parse(Request.Form["Price"]);
-                    decimal RMB = Stock * Price;
-                    if (m.CLMoney >= RMB)
+                    m.CLMoney = m.CLMoney - RMB;
+                    if (Gid != null || db.SaveChanges() == 1)
                     {
-                        m.CLMoney = m.CLMoney - RMB;
-                        if (Gid!=null || db.SaveChanges() == 1)
+                        ShopProduct b;
+                        if (Gid == null)
                         {
-                            ShopProduct b;
-                            if (Gid == null)
+                            Guid spgid = Guid.NewGuid();
+                            Helper.CLRecordAdd(gid, -RMB, m.CLMoney, 0, 0, "额度扣除=" + spgid.ToString());
+                            b = new ShopProduct();
+                            b.Gid = spgid;
+                            b.AddTime = DateTime.Now;
+                            b.ShopGid = LCookie.GetShopGid();
+                            string bh = db.ShopProduct.Max(l => l.Prefix);
+                            if (string.IsNullOrEmpty(bh))
                             {
-                                Guid spgid= Guid.NewGuid();
-                                Helper.CLRecordAdd(gid, -RMB, m.CLMoney, 0, 0, "额度扣除="+ spgid.ToString());
-                                b = new ShopProduct();
-                                b.Gid = spgid;
-                                b.AddTime = DateTime.Now;
-                                b.ShopGid = LCookie.GetShopGid();
-                                b.Prefix = Request.Form["Prefix"];
-                                b.Stock = Stock;
-                                b.Price = Price;
-                                b.OriginalPrice = Price;
-                                b.Show = 1;
-                                b.Number = 0;
+                                b.Prefix = "000001";
                             }
                             else
                             {
-                                b = db.ShopProduct.Where(l => l.Gid == Gid).FirstOrDefault();
+                                b.Prefix = (int.Parse(db.ShopProduct.Max(l => l.Prefix)) + 1).ToString().PadLeft(6, '0');
                             }
-                            b.ClassifyGid = Guid.Parse(Request.Form["ClassifyGid"]);
-                            b.Name = Request.Form["Name"];
-                            b.Profile = Request.Form["Profile"];
-                            b.Content = Request.Form["Content"];
-                            //b.Remarks = Request.Form["Remarks"];
-                            b.Sort = 1;//为0代表额度已退还
-                            b.ExpressFee = 0;
-                            //b.Company = Request.Form["Company"];
-                            //b.Brand = Request.Form["Brand"];
-                            //b.Prefix = Request.Form["Prefix"];
-                            string picture = Helper.jsimg(Help.Product, Request.Form["base64Data"]);
-                            if (!string.IsNullOrEmpty(picture))
-                            {
-                                b.Picture = picture;
-                            }
-                            //if (!string.IsNullOrEmpty(Request.Form["GraphicDetails"]))
-                            //{
-                            //    b.GraphicDetails = Request.Form["GraphicDetails"];
-                            //}
-                            if (Gid == null)
-                            {
-                                db.ShopProduct.Add(b);
-                            }
-                            if (db.SaveChanges() == 1)
-                            {
-                                return Helper.Redirect("操作成功！", "/Shop/Product", "操作成功!");
-                            }
-                            else
-                            {
-                                LogManager.WriteLog("额度扣除成功发布商品失败", "MemberGid=" + gid.ToString() + ",RMB=" + RMB.ToString());
-                                return Helper.Redirect("操作失败,请检查录入的数据！", "history.go(-1);", "操作失败,请检查录入的数据!");
-                            }
+                            b.Stock = Stock;
+                            b.Price = Price;
+                            b.OriginalPrice = Price;
+                            b.Show = 1;
+                            b.Number = 0;
                         }
                         else
                         {
-                            return Helper.Redirect("操作失败！", "history.go(-1);", "扣除额度失败!");
+                            b = db.ShopProduct.Where(l => l.Gid == Gid).FirstOrDefault();
+                        }
+                        b.ClassifyGid = Guid.Parse(Request.Form["ClassifyGid"]);
+                        b.Name = Request.Form["Name"];
+                        b.Profile = Request.Form["Profile"];
+                        b.Content = Request.Form["Content"];
+                        //b.Remarks = Request.Form["Remarks"];
+                        b.Sort = 1;//为0代表额度已退还
+                        b.ExpressFee = 0;
+                        //b.Company = Request.Form["Company"];
+                        //b.Brand = Request.Form["Brand"];
+                        //b.Prefix = Request.Form["Prefix"];
+                        string picture = Helper.jsimg(Help.Product, Request.Form["base64Data"]);
+                        if (!string.IsNullOrEmpty(picture))
+                        {
+                            b.Picture = picture;
+                        }
+                        //if (!string.IsNullOrEmpty(Request.Form["GraphicDetails"]))
+                        //{
+                        //    b.GraphicDetails = Request.Form["GraphicDetails"];
+                        //}
+                        if (Gid == null)
+                        {
+                            db.ShopProduct.Add(b);
+                        }
+                        if (db.SaveChanges() == 1)
+                        {
+                            return Helper.Redirect("操作成功！", "/Shop/Product", "操作成功!");
+                        }
+                        else
+                        {
+                            LogManager.WriteLog("额度扣除成功发布商品失败", "MemberGid=" + gid.ToString() + ",RMB=" + RMB.ToString());
+                            return Helper.Redirect("操作失败,请检查录入的数据！", "history.go(-1);", "操作失败,请检查录入的数据!");
                         }
                     }
                     else
                     {
-                        return Helper.Redirect("操作失败！", "/Shop/CLMoney", "你的额度(" + m.CLMoney.ToString() +")不足发布总价("+ RMB.ToString() + ")" +",请先兑换!");
+                        return Helper.Redirect("操作失败！", "history.go(-1);", "扣除额度失败!");
                     }
                 }
                 else
                 {
-                    return Helper.Redirect("编号已存在！", "history.go(-1);", "操作失败,编号已存在!");
+                    return Helper.Redirect("操作失败！", "/Shop/CLMoney", "你的额度(" + m.CLMoney.ToString() + ")不足发布总价(" + RMB.ToString() + ")" + ",请先兑换!");
                 }
             }
         }

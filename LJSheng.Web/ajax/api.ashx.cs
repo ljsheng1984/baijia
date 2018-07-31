@@ -630,7 +630,6 @@ namespace LJSheng.Web.ajax
             string PWD = context.Request.Form["pwd"];
             string PayPWD = context.Request.Form["paypwd"];
             string Sign = context.Request.Form["sign"];
-            LogManager.WriteLog("APP修改密码", "Account=" + Account + ",PWD=" + PWD + ",PayPWD=" + PayPWD);
             SortedDictionary<string, string> dic = new SortedDictionary<string, string>();
             dic.Add("account", Account);
             dic.Add("pwd", PWD);
@@ -657,20 +656,17 @@ namespace LJSheng.Web.ajax
                         }
                         else
                         {
-                            LogManager.WriteLog("APP修改密码更新失败", "Account=" + Account + ",PWD=" + PWD + ",PayPWD=" + PayPWD);
                             return new AjaxResult(300, "更新失败!!!");
                         }
                     }
                     else
                     {
-                        LogManager.WriteLog("APP修改密码用户不存在", "Account=" + Account + ",PWD=" + PWD + ",PayPWD=" + PayPWD);
                         return new AjaxResult(301, "用户不存在!!!");
                     }
                 }
             }
             else
             {
-                LogManager.WriteLog("APP修改密码签名异常", "Account=" + Account + ",PWD=" + PWD + ",PayPWD=" + PayPWD);
                 return new AjaxResult(300, "签名异常");
             }
         }
