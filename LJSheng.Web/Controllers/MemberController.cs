@@ -1752,40 +1752,28 @@ namespace LJSheng.Web.Controllers
         /// </summary>
         /// <param name="Integral">兑换积分</param>
         /// <param name="TB">兑换币种[1=BCCB, 2=FBCC]</param>
-        /// <param name="Type">类型[1=彩链积分 2=商城基数积分 3=商城积分]</param>
         /// <returns>返回调用结果</returns>
         /// <para name="result">200 是成功其他失败</para>
         /// <para name="data">对象结果</para>
         /// <remarks>
         /// 2018-08-18 林建生
         /// </remarks>
-        public ActionResult IntegralAPP(decimal Integral=0, int TB=0, int Type=0)
+        public ActionResult IntegralAPP(decimal Integral=0, int TB=0)
         {
             using (EFDB db = new EFDB())
             {
                 Guid gid = LCookie.GetMemberGid();
                 var b = db.Member.Where(l => l.Gid == gid).FirstOrDefault();
-                string T = "Money";//默认彩链积分
                 ViewBag.Integral = b.Money;
-                if (Type == 2)
-                {
-                    T = "MIntegral";
-                    ViewBag.Integral = b.MIntegral;//商城基数积分
-                }
-                else if (Type == 3)
-                {
-                    T = "ShopIntegral";
-                    ViewBag.Integral = b.ShopIntegral;//商城积分
-                }
                 //查询兑换比例
-                ViewBag.MT = decimal.Parse(db.DictionariesList.Where(dl => dl.Key == T && dl.DGid == db.Dictionaries.Where(d => d.DictionaryType == "Token").FirstOrDefault().Gid).FirstOrDefault().Value);
-                if (Integral <= 0 || TB <= 0|| Type <= 0)
+                ViewBag.MT = decimal.Parse(db.DictionariesList.Where(dl => dl.Key == "Money" && dl.DGid == db.Dictionaries.Where(d => d.DictionaryType == "Token").FirstOrDefault().Gid).FirstOrDefault().Value);
+                if (Integral <= 0 || TB <= 0)
                 {
                     return View();
                 }
                 else
                 {
-                    string LogMsg = "gid=" + gid.ToString() + ",Integral=" + Integral.ToString() + ",Type=" + Type + ",TB=" + TB;
+                    string LogMsg = "gid=" + gid.ToString() + ",Integral=" + Integral.ToString() + ",TB=" + TB;
                     if (Integral > ViewBag.Integral)
                     {
                         return Helper.Redirect("失败", "history.go(-1);", "可提积分不足");
@@ -1794,14 +1782,14 @@ namespace LJSheng.Web.Controllers
                     {
                         //获取兑换比例积分
                         decimal Token = Integral * ViewBag.MT;
-                        if (Helper.TokenRecordAdd(gid, Integral, Token, Type, TB))
+                        if (Helper.TokenRecordAdd(gid, Integral, Token, 1, TB))
                         {
                             //提交到APP
                             if (AppApi.AddMB(b.Account, TB == 1 ? "BCCB" : "FBCC", Token.ToString()))
                             {
-                                if (Helper.ShopRecordAdd(null, gid, Integral, 0, 1, 1) != null)
+                                if (Helper.MoneyRecordAdd(null, gid, -Integral, 0, 2) != null)
                                 {
-                                    return Helper.Redirect("成功", "/Member/IntegralAPP?type="+ Type, "恭喜你,兑换成功!");
+                                    return Helper.Redirect("成功", "/Member/IntegralAPP", "恭喜你,兑换成功!");
                                 }
                                 else
                                 {
@@ -1836,7 +1824,7 @@ namespace LJSheng.Web.Controllers
             Guid MemberGid = LCookie.GetMemberGid();
             using (EFDB db = new EFDB())
             {
-                var b = db.TokenRecord.Where(l => l.MemberGid == MemberGid).AsQueryable();
+                var b = db.TokenRecord.Where(l => l.MemberGid == MemberGid && l.Type==1).AsQueryable();
                 int pageindex = Int32.Parse(paramJson["pageindex"].ToString());
                 int pagesize = Int32.Parse(paramJson["pagesize"].ToString());
                 return Json(new AjaxResult(new

@@ -2210,21 +2210,19 @@ namespace LJSheng.Web
                         {
                             b.ThawTime = b.AddTime.AddDays(30);
                         }
-                        b.Remarks = Type < 2 ? "清空分="+(m.TIntegral-TIntegral).ToString() : Remarks;
+                        b.Remarks = Remarks;
                         db.ShopRecord.Add(b);
                         if (db.SaveChanges() == 1)
                         {
+                            //更新用户数据
+                            m.MIntegral = m.MIntegral + MIntegral;
                             if (Type == 1 || Type ==2)
                             {
-                                //更新用户数据
-                                m.MIntegral = m.MIntegral - MIntegral;
-                                //提取或冻结直接清o
+                                //提取或冻结直接清0
                                 m.TIntegral = 0;
                             }
                             else
                             {
-                                //更新用户数据
-                                m.MIntegral = m.MIntegral + MIntegral;
                                 m.TIntegral = m.TIntegral + TIntegral;
                             }
                             if (db.SaveChanges() == 1)
@@ -2291,7 +2289,7 @@ namespace LJSheng.Web
                     decimal Integral = MIntegral * m.Multiple;
                     if (Integral > 0 && TIntegral >= Integral)
                     {
-                        if (ShopRecordAdd(null, Gid, MIntegral, Integral, 2, 2,m.Multiple) == null)
+                        if (ShopRecordAdd(null, Gid, MIntegral, Integral, 2, 2,m.Multiple,"清空分=" + (m.TIntegral-Integral).ToString()) == null)
                         {
                             LogManager.WriteLog("商城积分冻结失败", LogMsg);
                         }
