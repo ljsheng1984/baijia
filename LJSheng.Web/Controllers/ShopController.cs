@@ -577,50 +577,49 @@ namespace LJSheng.Web.Controllers
         /// <remarks>
         /// 2018-08-18 林建生
         /// </remarks>
-        public ActionResult Money(string Money)
+        public ActionResult Money(decimal Money=0)
         {
             using (EFDB db = new EFDB())
             {
                 Guid gid = LCookie.GetMemberGid();
                 var b = db.Member.Where(l => l.Gid == gid).FirstOrDefault();
                 ViewBag.Money = b.ShopMoney;
-                if (string.IsNullOrEmpty(Money))
+                ViewBag.Token = decimal.Parse(db.DictionariesList.Where(dl => dl.Key == "Token" && dl.DGid == db.Dictionaries.Where(d => d.DictionaryType == "CL").FirstOrDefault().Gid).FirstOrDefault().Value);
+                ViewBag.BCCB = AppApi.MB(b.Account, "BCCB");
+                ViewBag.Token24 = AppApi.AVG();
+                if (Money==0)
                 {
                     ViewBag.Bank = b.Bank;
                     ViewBag.BankName = b.BankName;
                     ViewBag.BankNumber = b.BankNumber;
-                    ViewBag.Token = decimal.Parse(db.DictionariesList.Where(dl => dl.Key == "Token" && dl.DGid == db.Dictionaries.Where(d => d.DictionaryType == "CL").FirstOrDefault().Gid).FirstOrDefault().Value);
-                    ViewBag.BCCB = AppApi.MB(b.Account, "BCCB");
-                    ViewBag.Token24 = AppApi.AVG();
                     return View();
                 }
                 else
                 {
-                    decimal M = decimal.Parse(Money);
-                    if (M < 100)
+                    if (Money < 100)
                     {
                         return Helper.Redirect("失败", "history.go(-1);", "最少100积分起提");
                     }
                     else
                     {
-                        if (M > b.ShopMoney)
+                        if (Money > b.ShopMoney)
                         {
                             return Helper.Redirect("失败", "history.go(-1);", "可提积分不足");
                         }
                         else
                         {
-                            decimal bccb = M * ViewBag.Token / ViewBag.Token24;
+                            decimal bccb = Money * ViewBag.Token / ViewBag.Token24;
                             if (ViewBag.BCCB >= bccb)
                             {
                                 if (AppApi.UPMB(b.Account, "BCCB", bccb.ToString()))
                                 {
-                                    if (Helper.RMBRecordAdd(gid, M, 2))
+                                    if (Helper.RMBRecordAdd(gid, Money, 2))
                                     {
                                         var wd = new ShopWithdrawals();
                                         wd.Gid = Guid.NewGuid();
                                         wd.AddTime = DateTime.Now;
                                         wd.State = 1;
-                                        wd.Money = M;
+                                        wd.Money = Money;
                                         wd.Bank = b.Bank;
                                         wd.BankName = b.BankName;
                                         wd.BankNumber = b.BankNumber;
@@ -666,7 +665,7 @@ namespace LJSheng.Web.Controllers
                 json = HttpUtility.UrlDecode(sr.ReadLine());
             }
             JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
-            Guid ShopGid = LCookie.GetShopGid();
+            Guid ShopGid = LCookie.GetMemberGid();
             using (EFDB db = new EFDB())
             {
                 var b = db.ShopWithdrawals.Where(l => l.ShopGid == ShopGid).AsQueryable();

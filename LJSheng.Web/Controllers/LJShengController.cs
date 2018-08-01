@@ -3049,7 +3049,7 @@ namespace LJSheng.Web.Controllers
                         st = DateTime.Parse(STime);
                         et = DateTime.Parse(ETime);
                     }
-                    b = b.Where(l => l.AddTime >= st && l.AddTime <= et);
+                    b = b.Where(l => l.PayTime >= st && l.PayTime <= et);
                 }
                 //按月份查询业绩
                 string Year = paramJson["Year"].ToString();
@@ -5517,6 +5517,8 @@ namespace LJSheng.Web.Controllers
                 string RealName = paramJson["RealName"].ToString();
                 int CLLevel = int.Parse(paramJson["CLLevel"].ToString());
                 int State = int.Parse(paramJson["State"].ToString());
+                int Year = int.Parse(paramJson["Year"].ToString());
+                int Month = int.Parse(paramJson["Month"].ToString());
                 var b = db.Achievement.GroupJoin(db.Member,
                     l => l.MemberGid,
                     j => j.Gid,
@@ -5587,6 +5589,14 @@ namespace LJSheng.Web.Controllers
                 if (State != 0)
                 {
                     b = b.Where(l => l.State == State);
+                }
+                if (Year != 0)
+                {
+                    b = b.Where(l => l.Year == Year);
+                }
+                if (Month != 0)
+                {
+                    b = b.Where(l => l.Month == Month);
                 }
                 //时间查询
                 if (!string.IsNullOrEmpty(STime) || !string.IsNullOrEmpty(ETime))
