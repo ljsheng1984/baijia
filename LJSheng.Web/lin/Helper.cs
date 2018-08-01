@@ -354,9 +354,8 @@ namespace LJSheng.Web
         public static bool PayOrder(string OrderNo, string TradeNo, int PayType, decimal PayPrice)
         {
             bool Pay = false;
-            string LogMsg = "订单号:" + OrderNo + ",网银订单号:" + TradeNo + ",支付类型:" + PayType.ToString() + ",网上支付金额:" + PayPrice.ToString();
             string rn = "\r\n-----------------------------------------------------\r\n";
-            string msg = "订单号=" + OrderNo + rn;
+            string msg = "订单号:" + OrderNo + ",网银订单号:" + TradeNo + ",支付类型:" + PayType.ToString() + ",网上支付金额:" + PayPrice.ToString() + rn;
             try
             {
                 using (EFDB db = new EFDB())
@@ -366,7 +365,7 @@ namespace LJSheng.Web
                     var b = db.Order.Where(l => l.OrderNo == OrderNo).FirstOrDefault();
                     if (b != null && b.PayStatus == 2)
                     {
-                        msg += "购买会员=" + b.MemberGid.ToString() + ",发货会员=" + b.ShopGid == null ? "没有发货人" : b.ShopGid.ToString() + rn;
+                        msg += "购买会员=" + b.MemberGid.ToString() + ",发货会员=" + (b.ShopGid == null ? "没有发货人" : b.ShopGid.ToString()) + rn;
                         PayPrice = b.Price;//测试要删
                         b.PayStatus = b.Price == PayPrice ? 1 : 5;
                         b.TradeNo = TradeNo;
@@ -505,28 +504,28 @@ namespace LJSheng.Web
                                 }
                                 #endregion
 
-                                LogManager.WriteLog(payname + "对账记录", LogMsg + rn + msg);
+                                LogManager.WriteLog(payname + "对账记录", msg);
                             }
                             else
                             {
-                                LogManager.WriteLog(payname + "金额不对", LogMsg);
+                                LogManager.WriteLog(payname + "金额不对", msg);
                             }
                         }
                         else
                         {
-                            LogManager.WriteLog(payname + "支付成功更新订单失败", LogMsg);
+                            LogManager.WriteLog(payname + "支付成功更新订单失败", msg);
                         }
                     }
                     else
                     {
                         Pay = true;
-                        LogManager.WriteLog(payname + "订单已对账", LogMsg);
+                        LogManager.WriteLog(payname + "订单已对账", msg);
                     }
                 }
             }
             catch (Exception err)
             {
-                LogManager.WriteLog("对账异常", LogMsg + rn + msg + rn + err.Message);
+                LogManager.WriteLog("对账异常", msg + rn + err.Message);
             }
             return Pay;
         }
@@ -649,8 +648,11 @@ namespace LJSheng.Web
                 if (Gid != null)
                 {
                     var b = db.Member.Where(l => l.Gid == Gid).FirstOrDefault();
-                    Achievement("累计团队业绩", (Guid)b.MemberGid, Year, Month, Price, 0);
-                    CSR((Guid)b.MemberGid, Year, Month, Price);
+                    if (b.MemberGid != null)
+                    {
+                        Achievement("累计团队业绩", (Guid)b.MemberGid, Year, Month, Price, 0);
+                        CSR((Guid)b.MemberGid, Year, Month, Price);
+                    }
                 }
             }
         }
@@ -712,7 +714,6 @@ namespace LJSheng.Web
                     //团队业绩
                     b.TMoney = b.TMoney + TMoney;
                 }
-
                 if (tb)
                 {
                     db.Achievement.Add(b);
@@ -742,7 +743,7 @@ namespace LJSheng.Web
         /// </remarks>
         public static string CLTeam(Guid MemberGid, List<Level> lv, DateTime dt, string msg)
         {
-            msg += "团队开始升级MemberGid=" + MemberGid.ToString();
+            msg += "升级会员的Gid=" + MemberGid.ToString();
             try
             {
                 using (EFDB db = new EFDB())

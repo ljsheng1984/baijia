@@ -513,7 +513,7 @@ namespace LJSheng.Web.ajax
             string PayPWD = context.Request.Form["paypwd"];
             int MID = Helper.CreateMNumber();//注册用户的邀请码
             int ID = int.Parse(context.Request.Form["id"]);//推荐人邀请码
-            LogManager.WriteLog("APP注册", "Account=" + Account + ",ID=" + ID.ToString());
+            //LogManager.WriteLog("APP注册", "Account=" + Account + ",ID=" + ID.ToString());
             string Sign = context.Request.Form["sign"];
             SortedDictionary<string, string> dic = new SortedDictionary<string, string>();
             dic.Add("account", Account);
