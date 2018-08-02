@@ -1025,6 +1025,7 @@
     <Content Include="Views\Member\IntegralAPP.cshtml" />
     <Content Include="Views\Home\Bank.cshtml" />
     <Content Include="Views\Shop\IntegralAPP.cshtml" />
+    <Content Include="Views\LJSheng\TokenRecordList.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

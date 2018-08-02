@@ -5288,6 +5288,8 @@ namespace LJSheng.Web.Controllers
             }
             //解析参数
             JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
+            string STime = paramJson["STime"].ToString();
+            string ETime = paramJson["ETime"].ToString();
             using (EFDB db = new EFDB())
             {
                 Guid Gid = Guid.Parse(paramJson["Gid"].ToString());
@@ -5987,6 +5989,8 @@ namespace LJSheng.Web.Controllers
                 json = HttpUtility.UrlDecode(sr.ReadLine());
             }
             JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
+            string STime = paramJson["STime"].ToString();
+            string ETime = paramJson["ETime"].ToString();
             string Account = paramJson["Account"].ToString();
             string OrderNo = paramJson["OrderNo"].ToString();
             using (EFDB db = new EFDB())
@@ -6014,6 +6018,26 @@ namespace LJSheng.Web.Controllers
                 if (!string.IsNullOrEmpty(OrderNo))
                 {
                     b = b.Where(l => l.OrderNo == OrderNo);
+                }
+                //时间查询
+                if (!string.IsNullOrEmpty(STime) || !string.IsNullOrEmpty(ETime))
+                {
+                    DateTime? st = null;
+                    DateTime? et = null;
+                    if (!string.IsNullOrEmpty(STime) && string.IsNullOrEmpty(ETime))
+                    {
+                        st = et = DateTime.Parse(STime);
+                    }
+                    else if (string.IsNullOrEmpty(STime) && !string.IsNullOrEmpty(ETime))
+                    {
+                        st = et = DateTime.Parse(ETime);
+                    }
+                    else
+                    {
+                        st = DateTime.Parse(STime);
+                        et = DateTime.Parse(ETime);
+                    }
+                    b = b.Where(l => l.AddTime >= st && l.AddTime <= et);
                 }
                 int pageindex = Int32.Parse(paramJson["pageindex"].ToString());
                 int pagesize = Int32.Parse(paramJson["pagesize"].ToString());
@@ -6051,6 +6075,8 @@ namespace LJSheng.Web.Controllers
                 json = HttpUtility.UrlDecode(sr.ReadLine());
             }
             JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
+            string STime = paramJson["STime"].ToString();
+            string ETime = paramJson["ETime"].ToString();
             string Account = paramJson["Account"].ToString();
             int State = int.Parse(paramJson["State"].ToString());
             using (EFDB db = new EFDB())
@@ -6079,6 +6105,26 @@ namespace LJSheng.Web.Controllers
                 if (State != 0)
                 {
                     b = b.Where(l => l.State == State);
+                }
+                //时间查询
+                if (!string.IsNullOrEmpty(STime) || !string.IsNullOrEmpty(ETime))
+                {
+                    DateTime? st = null;
+                    DateTime? et = null;
+                    if (!string.IsNullOrEmpty(STime) && string.IsNullOrEmpty(ETime))
+                    {
+                        st = et = DateTime.Parse(STime);
+                    }
+                    else if (string.IsNullOrEmpty(STime) && !string.IsNullOrEmpty(ETime))
+                    {
+                        st = et = DateTime.Parse(ETime);
+                    }
+                    else
+                    {
+                        st = DateTime.Parse(STime);
+                        et = DateTime.Parse(ETime);
+                    }
+                    b = b.Where(l => l.AddTime >= st && l.AddTime <= et);
                 }
                 int pageindex = Int32.Parse(paramJson["pageindex"].ToString());
                 int pagesize = Int32.Parse(paramJson["pagesize"].ToString());
@@ -6137,6 +6183,94 @@ namespace LJSheng.Web.Controllers
                 else
                 { return Json(new AjaxResult(300, "解冻数据不存在!")); }
                 
+            }
+        }
+        #endregion
+
+        #region 积分兑换
+        /// <summary>
+        /// 积分兑换管理
+        /// </summary>
+        /// <param name="Integral">兑换积分</param>
+        /// <param name="TB">兑换币种[1=BCCB, 2=FBCC]</param>
+        /// <param name="Type">类型[1=彩链积分 2=商城基数积分 3=商城积分]</param>
+        /// <returns>返回调用结果</returns>
+        /// <para name="result">200 是成功其他失败</para>
+        /// <para name="data">对象结果</para>
+        /// <remarks>
+        /// 2018-08-18 林建生
+        /// </remarks>
+        public ActionResult TokenRecordList()
+        {
+            return View();
+        }
+        [HttpPost]
+        public ActionResult TokenRecord()
+        {
+            string json = "";
+            using (StreamReader sr = new StreamReader(Request.InputStream))
+            {
+                json = HttpUtility.UrlDecode(sr.ReadLine());
+            }
+            JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
+            string STime = paramJson["STime"].ToString();
+            string ETime = paramJson["ETime"].ToString();
+            using (EFDB db = new EFDB())
+            {
+                var b = db.TokenRecord.GroupJoin(db.Member,
+                    l => l.MemberGid,
+                    j => j.Gid,
+                    (l, j) => new
+                    {
+                        l.AddTime,
+                        l.Gid,
+                        l.Integral,
+                        l.OldIntegral,
+                        l.Token,
+                        l.Type,
+                        l.Remarks,
+                        j.FirstOrDefault().Account,
+                        j.FirstOrDefault().RealName
+                    }).AsQueryable();
+                string Account = paramJson["Account"].ToString();
+                int Type = Int32.Parse(paramJson["Type"].ToString());
+                if (!string.IsNullOrEmpty(Account))
+                {
+                    b = b.Where(l => l.Account == Account);
+                }
+                if (Type != 0)
+                {
+                    b = b.Where(l => l.Type == Type);
+                }
+                //时间查询
+                if (!string.IsNullOrEmpty(STime) || !string.IsNullOrEmpty(ETime))
+                {
+                    DateTime? st = null;
+                    DateTime? et = null;
+                    if (!string.IsNullOrEmpty(STime) && string.IsNullOrEmpty(ETime))
+                    {
+                        st = et = DateTime.Parse(STime);
+                    }
+                    else if (string.IsNullOrEmpty(STime) && !string.IsNullOrEmpty(ETime))
+                    {
+                        st = et = DateTime.Parse(ETime);
+                    }
+                    else
+                    {
+                        st = DateTime.Parse(STime);
+                        et = DateTime.Parse(ETime);
+                    }
+                    b = b.Where(l => l.AddTime >= st && l.AddTime <= et);
+                }
+                int pageindex = Int32.Parse(paramJson["pageindex"].ToString());
+                int pagesize = Int32.Parse(paramJson["pagesize"].ToString());
+                return Json(new AjaxResult(new
+                {
+                    other = "",
+                    count = b.Count(),
+                    pageindex,
+                    list = b.OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
+                }));
             }
         }
         #endregion

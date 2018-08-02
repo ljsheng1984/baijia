@@ -29,6 +29,7 @@ namespace LJSheng.Web
             try
             {
                 SortedDictionary<string, string> dic = new SortedDictionary<string, string>();
+                dic.Add("httpid", LCommon.TimeToUNIX(DateTime.Now));
                 dic.Add("username", username);
                 dic.Add("password", password);
                 dic.Add("pay_password", pay_password);
@@ -36,6 +37,7 @@ namespace LJSheng.Web
                 dic.Add("invite_code", invite_code);
                 dic.Add("sign", Helper.BuildRequest(dic));
                 string json = PostGet.Post("http://bccbtoken.com/api/Memberapi/register", dic);
+                LogManager.WriteLog("APP接口", json);
                 JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
                 tl = bool.Parse(paramJson["success"].ToString());
                 if (!tl)
@@ -68,11 +70,13 @@ namespace LJSheng.Web
             try
             {
                 SortedDictionary<string, string> dic = new SortedDictionary<string, string>();
+                dic.Add("httpid", LCommon.TimeToUNIX(DateTime.Now));
                 dic.Add("phone", phone);
                 dic.Add("password", password);
                 dic.Add("type", type);
                 dic.Add("sign", Helper.BuildRequest(dic));
                 string json = PostGet.Post("http://bccbtoken.com/api/Memberapi/changePwd", dic);
+                LogManager.WriteLog("APP接口", json);
                 JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
                 tl = bool.Parse(paramJson["success"].ToString());
                 if (!tl)
@@ -99,11 +103,12 @@ namespace LJSheng.Web
             try
             {
                 SortedDictionary<string, string> dic = new SortedDictionary<string, string>();
+                //dic.Add("httpid", LCommon.TimeToUNIX(DateTime.Now));
                 dic.Add("phone", phone);
                 dic.Add("coin_name", coin_name);
                 string sign = Helper.BuildRequest(dic);
                 string json = PostGet.Get("http://bccbtoken.com/api/Memberapi/getUserBalance?phone=" + phone + "&coin_name=" + coin_name + "&sign=" + sign);
-                //LogManager.WriteLog("APP", json);
+                LogManager.WriteLog("APP接口", json);
                 JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
                 if (paramJson["success"].ToString() == "True")
                 {
@@ -130,16 +135,18 @@ namespace LJSheng.Web
             try
             {
                 SortedDictionary<string, string> dic = new SortedDictionary<string, string>();
+                dic.Add("httpid", LCommon.TimeToUNIX(DateTime.Now));
                 dic.Add("phone", phone);
                 dic.Add("coin_name", coin_name);
                 dic.Add("amount", amount);
                 dic.Add("sign", Helper.BuildRequest(dic));
                 string json = PostGet.Post("http://bccbtoken.com/api/Memberapi/deductUserBalance", dic);
+                LogManager.WriteLog("APP接口", json);
                 JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
                 tl = bool.Parse(paramJson["success"].ToString());
                 if (!tl)
                 {
-                    LogManager.WriteLog("注册", paramJson["message"].ToString());
+                    LogManager.WriteLog("扣除用户余额", paramJson["message"].ToString());
                 }
             }
             catch (Exception err)
@@ -162,16 +169,18 @@ namespace LJSheng.Web
             try
             {
                 SortedDictionary<string, string> dic = new SortedDictionary<string, string>();
+                dic.Add("httpid", LCommon.TimeToUNIX(DateTime.Now));
                 dic.Add("phone", phone);
                 dic.Add("coin_name", coin_name);
                 dic.Add("amount", amount);
                 dic.Add("sign", Helper.BuildRequest(dic));
                 string json = PostGet.Post("http://bccbtoken.com/api/Memberapi/transfer", dic);
+                LogManager.WriteLog("APP接口", json);
                 JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
                 tl = bool.Parse(paramJson["success"].ToString());
                 if (!tl)
                 {
-                    LogManager.WriteLog("注册", paramJson["message"].ToString());
+                    LogManager.WriteLog("积分兑换", paramJson["message"].ToString());
                 }
             }
             catch (Exception err)

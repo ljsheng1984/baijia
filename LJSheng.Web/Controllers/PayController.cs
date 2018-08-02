@@ -492,11 +492,11 @@ namespace LJSheng.Web.Controllers
                 if (b.PayPWD == MD5.GetMD5ljsheng(PayPWD))
                 {
                     decimal Price = decimal.Parse(total_amout);
-                    if (b.Integral - Price >= 0)
+                    if (b.Integral >= Price)
                     {
                         if (Helper.MoneyRecordAdd(OrderGid, MemberGid, 0, -Price, 1) != null)
                         {
-                            if (Helper.ShopPayOrder(out_trade_no, "", 5, decimal.Parse(total_amout)))
+                            if (Helper.ShopPayOrder(out_trade_no, "", 5, Price))
                             {
                                 return new RedirectResult("/Pay/PayOK?type=2&OrderNo=" + out_trade_no);
                             }

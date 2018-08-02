@@ -1,5 +1,5 @@
 ﻿@{
-    ViewBag.Title = "积分兑换";
+    ViewBag.Title = "彩链积分兑换";
     Layout = "~/Views/Shared/_LLayout.cshtml";
 }
 <div id="tx" class="padding-btn-group">
@@ -7,10 +7,9 @@
 </div>
 <div class="order-tabs" id="search">
     <a onclick="getlist(0);" class="active">全部</a>
-    <a onclick="getlist(2);">成功</a>
-    <a onclick="getlist(1);">失败</a>
-    <a onclick="getlist(3);">取消</a>
-    <input type="text" id="type" name="type" value="@Request.QueryString["type"]" hidden />
+    <a onclick="getlist(1);">成功</a>
+    <a onclick="getlist(2);">失败</a>
+    <input type="text" id="Type" name="Type" value="@Request.QueryString["type"]" hidden />
 </div>
 <div class="mescroll" id="scroll">
     <ul class="money-ul" id="dataList">

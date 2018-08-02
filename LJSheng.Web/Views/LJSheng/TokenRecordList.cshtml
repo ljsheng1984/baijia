@@ -1,0 +1,111 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" Content="width=device-width, initial-scale=1" />
+    <title>钱包兑换记录</title>
+    <link rel="stylesheet" href="~/plugins/zui/css/zui.min.css">
+</head>
+<body>
+    <div class="row" id="search">
+        <div class="col-sm-11">
+            <div class="input-group">
+                <select class="form-control" name="Type">
+                    <option value="0" selected>=全部=</option>
+                    <option value="1">彩链分</option>
+                    <option value="2">基数分</option>
+                    <option value="3">商城分</option>
+                </select>
+                <span class="input-group-addon fix-padding">-</span>
+                <span class="input-group-addon"><i class="icon-search"></i></span>
+                <span class="input-group-addon">手机号</span>
+                <input type="text" name="Account" class="form-control" onkeyup="value=value.replace(/[^\d]/g,'');" value="@Request.QueryString["Account"]">
+                <span class="input-group-addon">时间</span>
+                <input type="text" class="form-control" placeholder="开始时间" name="STime" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd HH:mm:ss',alwaysUseStartDate:true})" />
+                <span class="input-group-addon fix-padding">-</span>
+                <input type="text" class="form-control" placeholder="结束时间" name="ETime" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd HH:mm:ss',alwaysUseStartDate:true})" />
+                <span class="input-group-btn">
+                    <button type="button" class="btn btn-info" onclick="GetList(1);">给偶搜</button>
+                </span>
+            </div>
+        </div>
+    </div>
+    <br />
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>标识</th>
+                <th>会员帐号</th>
+                <th>兑换积分</th>
+                <th>兑换前积分</th>
+                <th>Token</th>
+                <th>兑换类型</th>
+                <th>备注</th>
+                <th>添加时间</th>
+            </tr>
+        </thead>
+        <tbody id="tbody">
+            <script id="tpl" type="text/html">
+                {{each list as item index}}
+                <tr id="{{item.Gid}}" style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
+                    <td>{{++index}}</td>
+                    <td>{{item.Account}}({{item.RealName}})</td>
+                    <td>{{item.Integral}}</td>
+                    <td>{{item.OldIntegral}}</td>
+                    <td>{{item.Token}}</td>
+                    <td>
+                        {{if item.State=="1"}}
+                        彩链分
+                        {{else if item.State=="2"}}
+                        基数分
+                        {{else}}
+                        商城分
+                        {{/if}}
+                    </td>
+                    <td>{{item.Remarks}}</td>
+                    <td>{{item.AddTime}}</td>
+                </tr>
+                {{/each}}
+            </script>
+        </tbody>
+    </table>
+    <ul class="pager" id="pager"></ul>
+    <ul class="pager" id="pages" style="overflow:hidden;"></ul>
+    <script src="~/plugins/zui/lib/jquery/jquery.js"></script>
+    <script src="~/plugins/zui/js/zui.min.js"></script>
+    <script src="~/js/template-web.js"></script>
+    <script src="~/plugins/My97DatePicker/WdatePicker.js"></script>
+    <script src="~/js/list.js"></script>
+    <script>
+        function JD(gid) {
+            if (window.confirm('解冻会直接把积分加到用户团队积分上哦!')) {
+                $.ajax({
+                    url: "/LJSheng/UnFrozen",
+                    data: "gid=" + gid + "&cache=" + Math.random(),
+                    type: "post",
+                    cache: false,
+                    timeout: 8000,
+                    dataType: "json",
+                    ContentType: "application/json; charset=utf-8",
+                    error: function () { new $.zui.Messager('请求超时!').show(); },
+                    beforeSend: function () { },
+                    success: function (data) {
+                        if (data.result == 200) {
+                            $("#" + gid).html("成功");
+                        }
+                        Messager(data.data, data.result);
+                    },
+                });
+                return true;
+            } else {
+                return false;
+            }
+        }
+    </script>
+</body>
+</html>

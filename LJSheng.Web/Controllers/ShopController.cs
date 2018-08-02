@@ -822,7 +822,6 @@ namespace LJSheng.Web.Controllers
                 Guid gid = LCookie.GetMemberGid();
                 var b = db.Member.Where(l => l.Gid == gid).FirstOrDefault();
                 string T="";//查询兑换比例类型
-                ViewBag.Integral = b.Money;
                 if (Type == 2)
                 {
                     T = "MIntegral";
@@ -850,30 +849,24 @@ namespace LJSheng.Web.Controllers
                     {
                         //获取兑换比例积分
                         decimal Token = Integral * ViewBag.MT;
-                        if (Helper.TokenRecordAdd(gid, Integral, Token, Type, TB))
+                        Guid TRGid = Guid.NewGuid();
+                        if (Helper.TokenRecordAdd(TRGid, gid, Integral, Token, Type, TB))
                         {
                             //提交到APP
                             if (AppApi.AddMB(b.Account, TB == 1 ? "BCCB" : "FBCC", Token.ToString()))
                             {
-                                if (Helper.ShopRecordAdd(null, gid, -Integral, 0, 1, 1,0,"清空分=" + (b.TIntegral - Integral).ToString()) != null)
-                                {
-                                    return Helper.Redirect("成功", "/Member/IntegralAPP?type=" + Type, "恭喜你,兑换成功!");
-                                }
-                                else
-                                {
-                                    LogManager.WriteLog("积分兑换记录兑换APP钱包成功团队分清空记录失败", LogMsg);
-                                    return Helper.Redirect("失败", "history.go(-1);", "积分兑换记录兑换APP钱包成功团队分清空记录失败");
-                                }
+                                return Helper.Redirect("成功", "/Shop/IntegralAPP?type=" + Type, "恭喜你,兑换成功!");
                             }
                             else
                             {
-                                LogManager.WriteLog("积分兑换记录成功兑换APP钱包失败", LogMsg);
-                                return Helper.Redirect("失败", "history.go(-1);", "积分兑换记录成功兑换APP钱包失败");
+                                LogManager.WriteLog(T + "积分兑换记录成功兑换APP钱包失败", LogMsg);
+                                db.TokenRecord.Where(l => l.Gid == TRGid).Update(l => new TokenRecord { Remarks = "钱包兑换接口失败" });
+                                return Helper.Redirect("失败", "/Shop/IntegralAPP?type=" + Type, "积分兑换记录成功兑换APP钱包失败");
                             }
                         }
                         else
                         {
-                            LogManager.WriteLog("积分兑换记录失败", LogMsg);
+                            LogManager.WriteLog(T + "积分兑换记录失败", LogMsg);
                             return Helper.Redirect("失败", "history.go(-1);", "积分兑换记录失败");
                         }
                     }
@@ -889,10 +882,11 @@ namespace LJSheng.Web.Controllers
                 json = HttpUtility.UrlDecode(sr.ReadLine());
             }
             JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
+            int Type = Int32.Parse(paramJson["Type"].ToString());
             Guid MemberGid = LCookie.GetMemberGid();
             using (EFDB db = new EFDB())
             {
-                var b = db.TokenRecord.Where(l => l.MemberGid == MemberGid && l.Type!=1).AsQueryable();
+                var b = db.TokenRecord.Where(l => l.MemberGid == MemberGid && l.Type == Type).AsQueryable();
                 int pageindex = Int32.Parse(paramJson["pageindex"].ToString());
                 int pagesize = Int32.Parse(paramJson["pagesize"].ToString());
                 return Json(new AjaxResult(new

@@ -2308,26 +2308,27 @@ namespace LJSheng.Web
         /// <summary>
         /// 积分兑换记录
         /// </summary>
-        /// <param name="Gid">会员/商家Gid</param>
+        /// <param name="Gid">数据的Gid</param>
+        /// <param name="MemberGid">会员/商家Gid</param>
         /// <param name="Money">积分</param>
         /// <param name="Token">兑换多少Token</param>
         /// <param name="Type">类型[1=彩链积分 2=商城基数积分 3=商城积分]</param>
         /// <param name="TB">兑换币种[1=BCCB, 2=FBCC]</param>
         /// <param name="Remarks">备注</param>
         /// <returns>返回调用结果</returns>
-        public static bool TokenRecordAdd(Guid Gid, decimal Integral, decimal Token, int Type, int TB, string Remarks = "")
+        public static bool TokenRecordAdd(Guid Gid, Guid MemberGid, decimal Integral, decimal Token, int Type, int TB, string Remarks = "")
         {
-            string LogMsg = "用户=" + Gid + ",Integral=" + Integral + ",Token=" + Token + ",Type=" + Type + ",TB=" + TB;
+            string LogMsg = "Gid=" + Gid + ",用户=" + MemberGid + ",Integral=" + Integral + ",Token=" + Token + ",Type=" + Type + ",TB=" + TB;
             try
             {
                 using (EFDB db = new EFDB())
                 {
                     //查询用户之前的数据
-                    var m = db.Member.Where(l => l.Gid == Gid).FirstOrDefault();
+                    var m = db.Member.Where(l => l.Gid == MemberGid).FirstOrDefault();
                     var b = new TokenRecord();
-                    b.Gid = Guid.NewGuid();
+                    b.Gid = Gid;
                     b.AddTime = DateTime.Now;
-                    b.MemberGid = Gid;
+                    b.MemberGid = MemberGid;
                     b.Type = Type;
                     b.TB = TB;
                     b.Integral = Integral;
@@ -2351,7 +2352,7 @@ namespace LJSheng.Web
                         //更新用户数据
                         if (Type == 1)
                         {
-                            m.Money = m.Money- Integral;
+                            m.Money = m.Money - Integral;
                         }
                         else if (Type == 2)
                         {
@@ -2367,7 +2368,7 @@ namespace LJSheng.Web
                         }
                         else
                         {
-                            db.RMBRecord.Where(l => l.Gid == b.Gid).Delete();
+                            db.TokenRecord.Where(l => l.Gid == Gid).Delete();
                             LogManager.WriteLog("积分兑换记录扣除失败", LogMsg);
                         }
                     }
