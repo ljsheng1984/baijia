@@ -41,10 +41,10 @@
             <tr>
                 <th>标识</th>
                 <th>会员帐号</th>
-                <th>兑换积分</th>
+                <th>扣除积分</th>
                 <th>兑换前积分</th>
-                <th>Token</th>
-                <th>兑换类型</th>
+                <th>兑换Token</th>
+                <th>类型</th>
                 <th>备注</th>
                 <th>添加时间</th>
             </tr>
@@ -59,9 +59,9 @@
                     <td>{{item.OldIntegral}}</td>
                     <td>{{item.Token}}</td>
                     <td>
-                        {{if item.State=="1"}}
+                        {{if item.Type=="1"}}
                         彩链分
-                        {{else if item.State=="2"}}
+                        {{else if item.Type=="2"}}
                         基数分
                         {{else}}
                         商城分
