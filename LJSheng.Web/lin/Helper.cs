@@ -1548,16 +1548,16 @@ namespace LJSheng.Web
                             if (b.PayStatus == 1)
                             {
                                 //获取商家的会员GID
-                                Guid MGid = db.Shop.Where(s => s.Gid == b.ShopGid).FirstOrDefault().MemberGid;
-                                //增加货款
-                                if (db.Member.Where(l => l.Gid == MGid).Update(l => new Member { ShopMoney = l.ShopMoney + PayPrice }) == 1)
-                                {
-                                    msg += "货款成功=" + b.Profit.ToString() + rn;
-                                }
-                                else
-                                {
-                                    msg += "货款失败:=" + b.Profit.ToString() + rn;
-                                }
+                                //Guid MGid = db.Shop.Where(s => s.Gid == b.ShopGid).FirstOrDefault().MemberGid;
+                                //增加货款-8月变更确认收货后增加货款
+                                //if (db.Member.Where(l => l.Gid == MGid).Update(l => new Member { ShopMoney = l.ShopMoney + PayPrice }) == 1)
+                                //{
+                                //    msg += "货款成功=" + b.Profit.ToString() + rn;
+                                //}
+                                //else
+                                //{
+                                //    msg += "货款失败:=" + b.Profit.ToString() + rn;
+                                //}
                                 //基数积分增加
                                 if (ShopRecordAdd(b.Gid, b.MemberGid, PayPrice, 0, 3, 1) == null)
                                 {
