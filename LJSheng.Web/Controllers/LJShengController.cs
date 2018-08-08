@@ -23,13 +23,13 @@ namespace LJSheng.Web.Controllers
             string msg = "请输入订单数据操作";
             string OrderNo = Request.QueryString["OrderNo"];
             int type = int.Parse(Request.QueryString["type"]);
-            if (Request.QueryString["PayType"] == "3")
+            if (!string.IsNullOrEmpty(OrderNo))
             {
                 decimal PayPrice = decimal.Parse(Request.QueryString["PayPrice"]);
                 int PayType = int.Parse(Request.QueryString["PayType"]);
                 using (EFDB db = new EFDB())
                 {
-                    if (type==1)
+                    if (type == 1)
                     {
                         if (db.Order.Where(l => l.OrderNo == OrderNo && l.Price == PayPrice && l.PayType == PayType && l.PayStatus == 2).Count() == 1)
                         {
@@ -43,7 +43,7 @@ namespace LJSheng.Web.Controllers
                             msg = "订单(" + OrderNo + ")无效";
                         }
                     }
-                    else if (type==2)
+                    else if (type == 2)
                     {
                         if (db.ShopOrder.Where(l => l.OrderNo == OrderNo && l.PayPrice == PayPrice && l.PayType == PayType && l.PayStatus == 2).Count() == 1)
                         {
@@ -57,7 +57,8 @@ namespace LJSheng.Web.Controllers
                             msg = "订单(" + OrderNo + ")无效";
                         }
                     }
-                    else {
+                    else
+                    {
                         msg = "找不到对账类型";
                     }
                 }
