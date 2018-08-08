@@ -1884,6 +1884,7 @@ namespace LJSheng.Web.Controllers
                     ViewBag.BuyPrice = b.BuyPrice;
                     ViewBag.Number = b.Number;
                     ViewBag.Stock = b.Stock;
+                    ViewBag.GiveStock = b.GiveStock;
                     ViewBag.Money = b.Money;
                     ViewBag.Integral = b.Integral;
                     ViewBag.StockRight = b.StockRight;
@@ -1951,6 +1952,7 @@ namespace LJSheng.Web.Controllers
                     b.BuyPrice = decimal.Parse(Request.Form["BuyPrice"]);
                     b.Number = int.Parse(Request.Form["Number"]);
                     b.Stock = int.Parse(Request.Form["Stock"]);
+                    b.GiveStock = int.Parse(Request.Form["GiveStock"]);
                     b.Money = decimal.Parse(Request.Form["Money"]);
                     b.Integral = decimal.Parse(Request.Form["Integral"]);
                     b.StockRight = decimal.Parse(Request.Form["StockRight"]);
@@ -2881,6 +2883,104 @@ namespace LJSheng.Web.Controllers
 
         public ActionResult OrderList()
         {
+            //解锁24小时之前锁定的产品
+            //using (EFDB db = new EFDB())
+            //{
+            //    var b = db.Order.Where(l => l.Type == 5 && l.PayStatus == 2).GroupJoin(db.OrderDetails,
+            //        x => x.Gid,
+            //        y => y.OrderGid,
+            //        (x, y) => new
+            //        {
+            //            x.Gid,
+            //            x.AddTime,
+            //            x.MemberGid,
+            //            x.Money,
+            //            x.Integral,
+            //            x.ShopGid,
+            //            x.Type,
+            //            y.FirstOrDefault().Number,
+            //            MMoney = y.FirstOrDefault().Money,
+            //            MIntegral = y.FirstOrDefault().Integral
+            //        }).ToList();
+            //    //当前时间
+            //    DateTime dt = DateTime.Now;
+            //    //默认商品
+            //    Guid ProductGid = Helper.GetProductGid();
+            //    foreach (var dr in b)
+            //    {
+            //        //大于24小时解锁
+            //        TimeSpan ts = dt - dr.AddTime;
+            //        if (ts.Hours >= 24)
+            //        {
+            //            //转让订单只要接锁
+            //            if (dr.Type == 5)
+            //            {
+            //                Guid ShopGid = (Guid)dr.ShopGid;
+            //                string OrderNO = RandStr.CreateOrderNO();
+            //                if (db.Order.Where(l => l.Gid == dr.Gid).Update(l => new Order { MemberGid = ShopGid, OrderNo = OrderNO }) == 1)
+            //                {
+            //                    LogManager.WriteLog("发货积分解除失败", "订单=" + dr.Gid.ToString() + "会员=" + dr.ShopGid.ToString() + "推荐人积分=" + dr.Money.ToString() + "购物积分=" + dr.Integral.ToString() + "积分=" + dr.MMoney.ToString() + "购物积分=" + dr.MIntegral.ToString());
+            //                }
+            //            }
+            //            //合伙人订单,关闭交易.赎回库存和积分
+            //            else
+            //            {
+            //                var od = db.OrderDetails.Where(l => l.OrderGid == dr.Gid).FirstOrDefault();
+            //                //转让产品赎回库存
+            //                if (db.Stock.Where(l => l.MemberGid == dr.MemberGid && l.ProductGid == ProductGid).Update(l => new Stock { Number = l.Number + od.Number }) == 1)
+            //                {
+            //                    //解除发货人扣除积分
+            //                    if (Helper.MoneyRecordAdd(dr.Gid, (Guid)dr.ShopGid, dr.Money + dr.MMoney, dr.Integral + dr.MIntegral, 25, "发货积分解除") == null)
+            //                    {
+            //                        LogManager.WriteLog("订单库存赎回成功积分赎回失败", "订单=" + dr.Gid.ToString() + "会员=" + dr.ShopGid.ToString() + "推荐人积分=" + dr.Money.ToString() + "购物积分=" + dr.Integral.ToString() + "积分=" + dr.MMoney.ToString() + "购物积分=" + dr.MIntegral.ToString());
+            //                        return Json(new AjaxResult(300, "赎回失败,请联系客服!"));
+            //                    }
+            //                    return Json(new AjaxResult("赎回成功"));
+            //                }
+            //                else
+            //                {
+            //                    LogManager.WriteLog("订单库存赎回失败", "订单=" + dr.Gid.ToString() + "库存=" + od.Number.ToString());
+            //                    return Json(new AjaxResult(300, "赎回失败,请联系客服!"));
+            //                }
+            //            }
+            //        }
+            //    }
+            //}
+
+            using (EFDB db = new EFDB())
+            {
+                //返还24小时被扣除的订单库存
+                DateTime dt = DateTime.Now.AddHours(-24);
+                var b = db.Order.Where(l => l.ShopGid != null && l.PayStatus == 2 && l.AddTime < dt).Select(l => new
+                {
+                    l.Gid,
+                    l.ShopGid,
+                    Number = db.OrderDetails.Where(od => od.OrderGid == l.Gid).Select(od => od.Number).DefaultIfEmpty(0).Sum()
+                });
+                //默认商品
+                Guid ProductGid = Helper.GetProductGid();
+                foreach (var dr in b)
+                {
+                    if (db.Order.Where(l => l.Gid == dr.Gid).Update(l => new Order { PayStatus = 4 }) == 1)
+                    {
+                        if (dr.Number > 0)
+                        {
+                            if (db.Stock.Where(l => l.MemberGid == dr.ShopGid && l.ProductGid == ProductGid).Update(l => new Stock { Number = l.Number + dr.Number }) == 1)
+                            {
+                                LogManager.WriteLog("订单库存赎回成功", "订单=" + dr.Gid.ToString() + "库存=" + dr.Number.ToString());
+                            }
+                            else
+                            {
+                                LogManager.WriteLog("订单关闭成功库存赎回失败", "订单=" + dr.Gid.ToString() + "库存=" + dr.Number.ToString());
+                            }
+                        }
+                    }
+                    else
+                    {
+                        LogManager.WriteLog("订单库存赎回状态失败", "订单=" + dr.Gid.ToString() + "库存=" + dr.Number.ToString());
+                    }
+                }
+            }
             return View();
         }
 
@@ -2964,8 +3064,8 @@ namespace LJSheng.Web.Controllers
                         y.FirstOrDefault().Label,
                         Shop = l.Type == 3 ? "公司发货" : db.Member.Where(m => m.Gid == l.ShopGid).FirstOrDefault().Account,
                         Stock = db.OrderDetails.Where(o => o.OrderGid == l.Gid).FirstOrDefault().Number,
-                        AllMoney = db.MoneyRecord.Where(mr => mr.OrderGid == l.Gid && mr.MemberGid == l.MemberGid).Select(mr => mr.Money).DefaultIfEmpty(0m).Sum(),
-                        AllIntegral = db.MoneyRecord.Where(mr => mr.OrderGid == l.Gid && mr.MemberGid == l.MemberGid).Select(mr => mr.Integral).DefaultIfEmpty(0m).Sum()
+                        AllMoney = db.MoneyRecord.Where(mr => mr.OrderGid == l.Gid).Select(mr => mr.Money).DefaultIfEmpty(0m).Sum(),
+                        AllIntegral = db.MoneyRecord.Where(mr => mr.OrderGid == l.Gid).Select(mr => mr.Integral).DefaultIfEmpty(0m).Sum()
                     }).ToList().AsQueryable();
                 string STime = paramJson["STime"].ToString();
                 string ETime = paramJson["ETime"].ToString();
@@ -3054,7 +3154,7 @@ namespace LJSheng.Web.Controllers
                 //按月份查询业绩
                 string Year = paramJson["Year"].ToString();
                 string Month = paramJson["Month"].ToString();
-                if (!string.IsNullOrEmpty(Year))
+                if (Year!="0" && Month!="0")
                 {
                     DateTime MonthFirst = DTime.FirstDayOfMonth(DateTime.Parse(Year + "-" + Month + "-" + "01"));
                     DateTime MonthLast = DTime.LastDayOfMonth(DateTime.Parse(Year + "-" + Month + "-" + "01 23:59:59"));
@@ -6273,6 +6373,175 @@ namespace LJSheng.Web.Controllers
                 }));
             }
         }
+        #endregion
+
+        #region 发货提现,发货人
+        /// <summary>
+        /// 列表
+        /// </summary>
+        public ActionResult MProductList()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult MProduct()
+        {
+            //查询的参数json
+            string json = "";
+            using (StreamReader sr = new StreamReader(Request.InputStream))
+            {
+                json = HttpUtility.UrlDecode(sr.ReadLine());
+            }
+            //解析参数
+            JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
+            using (EFDB db = new EFDB())
+            {
+                var b = db.MProduct.Select(l => new
+                {
+                    l.Gid,
+                    l.AddTime,
+                    l.MemberGid,
+                    l.ShopGid,
+                    l.Stock,
+                    MA = db.Member.Where(m => m.Gid == l.MemberGid).FirstOrDefault().Account,
+                    SA = db.Member.Where(m => m.Gid == l.ShopGid).FirstOrDefault().Account
+                }).AsQueryable();
+                string STime = paramJson["STime"].ToString();
+                string ETime = paramJson["ETime"].ToString();
+                string Account = paramJson["Account"].ToString();
+                if (!string.IsNullOrEmpty(Account))
+                {
+                    b = b.Where(l => l.MA.Contains(Account) || l.SA.Contains(Account));
+                }
+                //时间查询
+                if (!string.IsNullOrEmpty(STime) || !string.IsNullOrEmpty(ETime))
+                {
+                    DateTime? st = null;
+                    DateTime? et = null;
+                    if (!string.IsNullOrEmpty(STime) && string.IsNullOrEmpty(ETime))
+                    {
+                        st = et = DateTime.Parse(STime);
+                    }
+                    else if (string.IsNullOrEmpty(STime) && !string.IsNullOrEmpty(ETime))
+                    {
+                        st = et = DateTime.Parse(ETime);
+                    }
+                    else
+                    {
+                        st = DateTime.Parse(STime);
+                        et = DateTime.Parse(ETime);
+                    }
+                    b = b.Where(l => l.AddTime >= st && l.AddTime <= et);
+                }
+                int pageindex = Int32.Parse(paramJson["pageindex"].ToString());
+                int pagesize = Int32.Parse(paramJson["pagesize"].ToString());
+                return Json(new AjaxResult(new
+                {
+                    other = "",
+                    count = b.Count(),
+                    pageindex,
+                    list = b.ToList().OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize)
+                }));
+            }
+        }
+
+        /// <summary>
+        /// 列表
+        /// </summary>
+        public ActionResult ConsignorList()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult Consignor()
+        {
+            //查询的参数json
+            string json = "";
+            using (StreamReader sr = new StreamReader(Request.InputStream))
+            {
+                json = HttpUtility.UrlDecode(sr.ReadLine());
+            }
+            //解析参数
+            JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
+            using (EFDB db = new EFDB())
+            {
+                var b = db.Consignor.Select(l => new
+                {
+                    l.Gid,
+                    l.AddTime,
+                    l.MemberGid,
+                    l.MGid,
+                    TA = l.MGid == l.ShopGid?"默认发货人": "公司发货",
+                    MA = db.Member.Where(m => m.Gid == l.MemberGid).FirstOrDefault().Account,
+                    SA = db.Member.Where(m => m.Gid == l.MGid).FirstOrDefault().Account
+                }).AsQueryable();
+                string STime = paramJson["STime"].ToString();
+                string ETime = paramJson["ETime"].ToString();
+                string Account = paramJson["Account"].ToString();
+                if (!string.IsNullOrEmpty(Account))
+                {
+                    b = b.Where(l => l.MA.Contains(Account) || l.SA.Contains(Account));
+                }
+                //时间查询
+                if (!string.IsNullOrEmpty(STime) || !string.IsNullOrEmpty(ETime))
+                {
+                    DateTime? st = null;
+                    DateTime? et = null;
+                    if (!string.IsNullOrEmpty(STime) && string.IsNullOrEmpty(ETime))
+                    {
+                        st = et = DateTime.Parse(STime);
+                    }
+                    else if (string.IsNullOrEmpty(STime) && !string.IsNullOrEmpty(ETime))
+                    {
+                        st = et = DateTime.Parse(ETime);
+                    }
+                    else
+                    {
+                        st = DateTime.Parse(STime);
+                        et = DateTime.Parse(ETime);
+                    }
+                    b = b.Where(l => l.AddTime >= st && l.AddTime <= et);
+                }
+                int pageindex = Int32.Parse(paramJson["pageindex"].ToString());
+                int pagesize = Int32.Parse(paramJson["pagesize"].ToString());
+                return Json(new AjaxResult(new
+                {
+                    other = "",
+                    count = b.Count(),
+                    pageindex,
+                    list = b.ToList().OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize)
+                }));
+            }
+        }
+
+        /// <summary>
+        /// 变更发货人
+        /// </summary>
+        [HttpPost]
+        public JsonResult MPC(Guid Gid,int Type)
+        {
+            using (EFDB db = new EFDB())
+            {
+                var b = db.Consignor.Where(l => l.Gid == Gid).FirstOrDefault();
+                Guid ShopGid = b.ShopGid;
+                if (Type == 2)
+                {
+                    ShopGid = Helper.GetConsignor();
+                }
+                b.MGid = ShopGid;
+                if (db.SaveChanges() == 1)
+                {
+                    return Json(new AjaxResult("变更发货人成功"));
+                }
+                else
+                {
+                    return Json(new AjaxResult(300," 你没有推荐人或推荐人没有变化!"));
+                }
+            }
+        }
+
         #endregion
     }
 }

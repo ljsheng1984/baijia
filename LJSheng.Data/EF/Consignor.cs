@@ -33,5 +33,10 @@ namespace LJSheng.Data
         /// 更新时间
         /// </summary>
         public DateTime MTime { get; set; }
+
+        /// <summary>
+        /// 默认发货人Gid
+        /// </summary>
+        public Guid ShopGid { get; set; }
     }
 }

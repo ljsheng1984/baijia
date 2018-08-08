@@ -60,23 +60,31 @@ namespace LJSheng.Web.Controllers
                 int Project = LCookie.Project();
                 ViewBag.Project = Project;
                 Guid MemberGid = LCookie.GetMemberGid();
-                var b = db.Address.Where(l => l.MemberGid == MemberGid && l.Default == 2).FirstOrDefault();
-                if (b != null)
+                if (MemberGid.ToString() != "00000000-0000-0000-0000-000000000000")
                 {
-                    ViewBag.Addr = b.Addr;
-                    ViewBag.RealName = b.RealName;
-                    ViewBag.ContactNumber = b.ContactNumber;
+                    var b = db.Address.Where(l => l.MemberGid == MemberGid && l.Default == 2).FirstOrDefault();
+                    if (b != null)
+                    {
+                        ViewBag.Addr = b.Addr;
+                        ViewBag.RealName = b.RealName;
+                        ViewBag.ContactNumber = b.ContactNumber;
+                    }
+                    else
+                    {
+                        ViewBag.RealName = "请设置你的收货地址";
+                    }
+                    //获取用户积分
+                    ViewBag.Integral = db.Member.Where(l => l.Gid == MemberGid).FirstOrDefault().Integral;
+                    //获取最低合伙人金额
+                    ViewBag.BuyAmount = db.Level.Where(l => l.LV == 6).FirstOrDefault().BuyAmount;
+                    return View();
                 }
                 else
                 {
-                    ViewBag.RealName = "请设置你的收货地址";
+                    return Helper.Redirect("失败", "/Home/Login", "请先登录!");
                 }
-                //获取用户积分
-                ViewBag.Integral = db.Member.Where(l => l.Gid == MemberGid).FirstOrDefault().Integral;
-                //获取最低合伙人金额
-                ViewBag.BuyAmount = db.Level.Where(l => l.LV == 6).FirstOrDefault().BuyAmount;
             }
-            return View();
+            
         }
 
         /// <summary>

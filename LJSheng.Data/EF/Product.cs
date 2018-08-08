@@ -100,6 +100,11 @@ namespace LJSheng.Data
         public int Stock { get; set; }
 
         /// <summary>
+        /// 赠送库存
+        /// </summary>
+        public int GiveStock { get; set; }
+
+        /// <summary>
         /// 获得积分
         /// </summary>
         public decimal Money { get; set; }

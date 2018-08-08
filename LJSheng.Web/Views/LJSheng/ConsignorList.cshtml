@@ -1,0 +1,91 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" Content="width=device-width, initial-scale=1" />
+    <title>发货人</title>
+    <link rel="stylesheet" href="~/plugins/zui/css/zui.min.css">
+</head>
+<body>
+    <div class="row" id="search">
+        <div class="col-xs-12">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="icon-search"></i></span>
+                <span class="input-group-addon">手机号</span>
+                <input type="text" name="Account" class="form-control" onkeyup="value=value.replace(/[^\d]/g,'');" value="@Request.QueryString["Account"]">
+                <span class="input-group-addon">时间</span>
+                <input type="text" class="form-control" placeholder="开始时间" name="STime" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd HH:mm:ss',alwaysUseStartDate:true})" />
+                <span class="input-group-addon fix-padding">-</span>
+                <input type="text" class="form-control" placeholder="结束时间" name="ETime" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd HH:mm:ss',alwaysUseStartDate:true})" />
+                <span class="input-group-btn">
+                    <button type="button" class="btn btn-info" onclick="GetList(1);">给偶搜</button>
+                </span>
+            </div>
+        </div>
+    </div>
+    <br />
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>会员</th>
+                <th>上级发货人</th>
+                <th>目前发货人</th>
+                <th>恢复发货人</th>
+                <th>设公司发货</th>
+                <th>时间</th>
+            </tr>
+        </thead>
+        <tbody id="tbody">
+            <script id="tpl" type="text/html">
+                {{each list as item index}}
+                <tr id="{{item.Gid}}" style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
+                    <td>{{index+1}}</td>
+                    <td>{{item.MA}} </td>
+                    <td>{{item.SA}}</td>
+                    <td>{{item.TA}}</td>
+                    <td><button class="btn btn-danger btn-mini" onclick="C('{{item.Gid}}',1);">恢复上级</button></td>
+                    <td><button class="btn btn-danger btn-mini" onclick="C('{{item.Gid}}',2);">公司发货</button></td>
+                    <td>{{item.AddTime}}</td>
+                </tr>
+                {{/each}}
+            </script>
+        </tbody>
+    </table>
+    <ul class="pager" id="pager"></ul>
+    <ul class="pager" id="pages" style="overflow:hidden;"></ul>
+    <script src="~/plugins/zui/lib/jquery/jquery.js"></script>
+    <script src="~/plugins/zui/js/zui.min.js"></script>
+    <script src="~/js/template-web.js"></script>
+    <script src="~/plugins/My97DatePicker/WdatePicker.js"></script>
+    <script src="~/js/list.js"></script>
+    <script>
+        function C(Gid,Type) {
+            if (window.confirm('确定变更发货人吗?')) {
+            $.ajax({
+                url: "/LJSheng/MPC",
+                data: "gid=" + Gid + "&Type=" + Type + "&cache=" + Math.random(),
+                type: "post",
+                cache: false,
+                timeout: 8000,
+                dataType: "json",
+                ContentType: "application/json; charset=utf-8",
+                error: function () { new $.zui.Messager('请求超时!').show(); },
+                beforeSend: function () { },
+                success: function (data) {
+                    Messager(data.data, data.result);
+                },
+                });
+                return true;
+            } else {
+                return false;
+            }
+        }
+    </script>
+</body>
+</html>

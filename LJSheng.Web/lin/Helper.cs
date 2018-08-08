@@ -29,7 +29,7 @@ namespace LJSheng.Web
         /// <param name="Product">商品Gid列表</param>
         /// <param name="MemberGid">会员Gid</param>
         /// <param name="Project">项目类型</param>
-        /// <param name="Type">3 = 系统订单 4 = 合伙人转让</param>
+        /// <param name="Type">3=系统订单 4=合伙人转让</param>
         /// <param name="PayType">支付类型</param>
         /// <param name="Remarks">备注</param>
         /// <param name="Address">快递地址</param>
@@ -141,7 +141,7 @@ namespace LJSheng.Web
         /// 彩链下单
         /// </summary>
         /// <param name="Type">订单类型[3=公司发货 4=会员发货 5=会员转让]</param>
-        /// <param name="MNumber">商品Gid列表</param>
+        /// <param name="MNumber">转让数量</param>
         /// <param name="ProductList">商品Gid列表</param>
         /// <param name="MemberGid">会员Gid</param>
         /// <param name="Project">项目类型</param>
@@ -166,7 +166,18 @@ namespace LJSheng.Web
                 //商品Gid,有订单号为会员转让商品
                 Guid ProductGid = Type == 5 ? Helper.GetProductGid() : Guid.Parse(ProductList);
                 //商品信息
-                Product Product = db.Product.Where(l => l.Gid == ProductGid).FirstOrDefault();
+                var Product = db.Product.Where(l => l.Gid == ProductGid).Select(l => new
+                {
+                    l.Gid,
+                    l.Name,
+                    l.Price,
+                    l.Remarks,
+                    l.MPrice,
+                    l.BuyPrice,
+                    l.StockRight,
+                    l.Stock,
+                    AllStock = l.Stock+l.GiveStock
+                }).FirstOrDefault();
                 //查询下单会员的数据
                 Member Member = db.Member.Where(l => l.Gid == MemberGid).FirstOrDefault();
                 //是否第一次购买
@@ -174,7 +185,7 @@ namespace LJSheng.Web
                 //发货人的的会员Gid
                 Guid ShopGid = MemberGid;//转售商品类型时候,商家Gid为会员的Gid
                 //购买增加的库存
-                int Number = Product.Stock;
+                int Number = Product.AllStock;
                 //需要支付金额
                 decimal TotalPrice = Member.BuyPrice == 0 ? Product.Price : Member.BuyPrice * Product.Stock;
                 //要是会员价大于实际商品价格按商品价格
@@ -186,7 +197,7 @@ namespace LJSheng.Web
                 decimal Money = 0;
                 decimal Integral = 0;
                 //扣除状态判断
-                string DS = "";
+                bool DS = false;
                 //公司发货 或 会员发货订单
                 if (Type != 5)
                 {
@@ -208,20 +219,22 @@ namespace LJSheng.Web
                         decimal Recommendation = b.Recommendation;
                         //购物比例
                         decimal ShopProfit = b.ShopProfit;
+                        #region 积分分享奖规则8月去掉
                         //分享奖
-                        if (Recommendation > 0)
-                        {
-                            //拿多少比例
-                            Money = TotalPrice * Recommendation;
-                            //多少比例的购物积分比例
-                            Integral = Money * ShopProfit;
-                            //积分=总比例积分-购物比例
-                            Money = Money - Integral;
-                        }
-                        else
-                        {
-                            msg += "没有分享奖比例";
-                        }
+                        //if (Recommendation > 0)
+                        //{
+                        //    //拿多少比例
+                        //    Money = TotalPrice * Recommendation;
+                        //    //多少比例的购物积分比例
+                        //    Integral = Money * ShopProfit;
+                        //    //积分=总比例积分-购物比例
+                        //    Money = Money - Integral;
+                        //}
+                        //else
+                        //{
+                        //    msg += "没有分享奖比例";
+                        //}
+                        #endregion
                     }
                     else
                     {
@@ -238,22 +251,9 @@ namespace LJSheng.Web
                     //会员发货
                     else
                     {
-                        //发货人的的会员Gid
-                        var MC = db.Consignor.Where(l => l.MemberGid == MemberGid).GroupJoin(db.Member,
-                                    x => x.MemberGid,
-                                    y => y.Gid,
-                                    (x, y) => new
-                                    {
-                                        x.MemberGid,
-                                        x.MGid,
-                                        y.FirstOrDefault().Jurisdiction
-                                    }).FirstOrDefault();
-                        //如果会员被封,为默认发货人
-                        ShopGid = MC.Jurisdiction == "冻结" ? GetConsignor() : MC.MGid;
+                        //设置发货人
+                        ShopGid = GetConsignor(MemberGid);
                     }
-                    //扣除库存积分
-                    DS = CLStock(OrderGid, MemberGid, ShopGid, Number, Money, Integral, Member.Account);
-                    msg += DS;
                 }
                 //会员转让产品
                 else
@@ -262,13 +262,12 @@ namespace LJSheng.Web
                     //转让的库存和价格(进货价X转让数量X0.75)
                     TotalPrice = Member.BuyPrice * MNumber * 0.75M;
                     Number = MNumber;
-                    //扣除库存,转让产品没有积分
-                    DS = CLStock(OrderGid, MemberGid, ShopGid, Number, Money, Integral, Member.Account);
-                    msg += DS;
                 }
+                //扣除库存,转让产品没有积分
+                DS = CLStock(OrderGid, MemberGid, ShopGid, Number, Money, Integral, Member.Account);
                 msg += ",ShopGid=" + ShopGid.ToString();
                 //没有返回失败消息,下单
-                if (DS == "ok")
+                if (DS)
                 {
                     //订单详情
                     var od = new OrderDetails();
@@ -278,8 +277,10 @@ namespace LJSheng.Web
                     od.ProductGid = ProductGid;
                     od.Number = Number;
                     //是第一单积分全部为0,因为要给推荐人
-                    od.Money = MO == 0 ? 0 : Money;
-                    od.Integral = MO == 0 ? 0 : Integral;
+                    //od.Money = MO == 0 ? 0 : Money;
+                    //od.Integral = MO == 0 ? 0 : Integral;
+                    od.Money =0;
+                    od.Integral = 0;
                     od.Price = TotalPrice;
                     db.OrderDetails.Add(od);
                     if (db.SaveChanges() == 1)
@@ -308,8 +309,10 @@ namespace LJSheng.Web
                         b.Status = 1;
                         b.Profit = TotalPrice - Product.BuyPrice;
                         //不是第一单没有推荐人的积分
-                        b.Money = MO != 0 ? 0 : Money;
-                        b.Integral = MO != 0 ? 0 : Integral;
+                        //b.Money = MO != 0 ? 0 : Money;
+                        //b.Integral = MO != 0 ? 0 : Integral;
+                        b.Money = 0;
+                        b.Integral = 0;
                         b.StockRight = Product.StockRight;
                         b.Project = Project;
                         b.Type = Type;
@@ -338,7 +341,7 @@ namespace LJSheng.Web
                 //扣除库存积分出错
                 else
                 {
-                    return DS;
+                    return JsonConvert.SerializeObject(new { OrderNo = "", Title = "发货人库存异常", Error = "彩链库存扣除失败!" });
                 }
             }
         }
@@ -411,7 +414,7 @@ namespace LJSheng.Web
                                     //会员的等级数据
                                     var ml = lv.Where(l => l.LV == m.CLLevel).FirstOrDefault();
                                     //团队业绩和级差积分
-                                    msg += "团队业绩=" + CLTeamMoney(b.MemberGid, PayPrice, b.Gid, b.Type) + rn;
+                                    msg += "团队业绩=" + CLTeamMoney(b.MemberGid, PayPrice, b.Gid, b.Type, m.CLLevel, lv) + rn;
                                     //非创始人需要判断是否升级
                                     if (m.CLLevel < 26)
                                     {
@@ -540,13 +543,15 @@ namespace LJSheng.Web
         /// <remarks>
         /// 2018-08-18 林建生
         /// </remarks>
-        public static string CLTeamMoney(Guid MemberGid, decimal Price, Guid OrderGid,int Type)
+        public static string CLTeamMoney(Guid MemberGid, decimal Price, Guid OrderGid,int Type,int CLLevel, List<Level> Level)
         {
             string msg = "";
             try
             {
                 using (EFDB db = new EFDB())
                 {
+                    //判断是否第一次购买
+                    int MO = db.Order.Where(l => l.Project == 2 && l.MemberGid == MemberGid && l.PayStatus == 1 && l.Type == 3).Count();
                     var mr = db.MRelation.Where(l => l.MemberGid == MemberGid).Select(l => new
                     {
                         l.M1,
@@ -567,13 +572,48 @@ namespace LJSheng.Web
                         }
                         if (mr.M1 != null)
                         {
+                            //积分和购物积分
+                            decimal Money = 0;
+                            decimal Integral = 0;
+                            //团队分红的参数
                             var LV = db.LV.Where(l => l.LVID == 25).ToList();
+                            //分享奖购买者的比例
+                            decimal MR = Level.Where(l => l.LV == CLLevel).FirstOrDefault().Recommendation;
+                            //推荐人的的比例
+                            decimal LMR = 0;
+                            //补货分享奖
+                            if (MO != 0 && mr.LM1>CLLevel)
+                            {
+                                var LVMO = Level.Where(l => l.LV == mr.LM1).FirstOrDefault();
+                                LMR = LVMO.Recommendation - MR;
+                                if (LMR>0)
+                                {
+                                    Money = Price * LMR;
+                                    Integral = Money * LVMO.ShopProfit;
+                                    if (MoneyRecordAdd(OrderGid, (Guid)mr.M1, Money - Integral, Integral, 20, "补货第1级分享奖="+ LMR) == null)
+                                    {
+                                        msg += "补货第1级分享奖:会员=" + mr.M1.ToString() + ",Price=" + Price.ToString();
+                                    }
+                                }
+                            }
+                            //第一次购买推荐人的分享奖
+                            if (MO == 0)
+                            { 
+                                var LVMO = Level.Where(l => l.LV == mr.LM1).FirstOrDefault();
+                                Money = Price * LVMO.Recommendation;
+                                Integral = Money * LVMO.ShopProfit;
+                                if (MoneyRecordAdd(OrderGid, (Guid)mr.M1, Money - Integral, Integral, 20, "第1次分享奖=" + LVMO.Recommendation) == null)
+                                {
+                                    msg += "第1次分享奖:会员=" + mr.M1.ToString() + ",Price=" + Price.ToString();
+                                }
+                            }
+                            //第一级团队抽成
                             if (mr.LM1 > 24)
                             {
                                 var LVM1 = LV.Where(l => l.Number == 1).FirstOrDefault();
-                                decimal Money = Price * LVM1.Differential;
-                                decimal Integral = Money * LVM1.ShopProfit;
-                                if (MoneyRecordAdd(OrderGid, (Guid)mr.M1, Money - Integral, Integral, 22, "第1级级差") == null)
+                                Money = Price * LVM1.Differential;
+                                Integral = Money * LVM1.ShopProfit;
+                                if (MoneyRecordAdd(OrderGid, (Guid)mr.M1, Money - Integral, Integral, 22, "第1级级差" + LVM1.Differential) == null)
                                 {
                                     msg += "级差失败:会员=" + mr.M1.ToString() + ",Price=" + Price.ToString();
                                 }
@@ -584,12 +624,27 @@ namespace LJSheng.Web
                             }
                             if (mr.M2 != null)
                             {
+                                //补货分享奖
+                                if (MO != 0 && mr.LM2 > CLLevel)
+                                {
+                                    var LVMO = Level.Where(l => l.LV == mr.LM2).FirstOrDefault();
+                                    LMR = LVMO.Recommendation - MR;
+                                    if (LMR > 0)
+                                    {
+                                        Money = Price * LMR;
+                                        Integral = Money * LVMO.ShopProfit;
+                                        if (MoneyRecordAdd(OrderGid, (Guid)mr.M2, Money - Integral, Integral, 20, "补货第2级分享奖=" + LMR) == null)
+                                        {
+                                            msg += "补货第2级分享奖:会员=" + mr.M2.ToString() + ",Price=" + Price.ToString();
+                                        }
+                                    }
+                                }
                                 if (mr.LM2 > 24)
                                 {
                                     var LVM2 = LV.Where(l => l.Number == 2).FirstOrDefault();
-                                    decimal Money = Price * LVM2.Differential;
-                                    decimal Integral = Money * LVM2.ShopProfit;
-                                    if (MoneyRecordAdd(OrderGid, (Guid)mr.M2, Money - Integral, Integral, 22, "第2级级差") == null)
+                                    Money = Price * LVM2.Differential;
+                                    Integral = Money * LVM2.ShopProfit;
+                                    if (MoneyRecordAdd(OrderGid, (Guid)mr.M2, Money - Integral, Integral, 22, "第2级级差" + LVM2.Differential) == null)
                                     {
                                         msg += "级差失败:会员=" + mr.M2.ToString() + ",Price=" + Price.ToString();
                                     }
@@ -600,12 +655,27 @@ namespace LJSheng.Web
                                 }
                                 if (mr.M3 != null)
                                 {
+                                    //补货分享奖
+                                    if (MO != 0 && mr.LM3 > CLLevel)
+                                    {
+                                        var LVMO = Level.Where(l => l.LV == mr.LM3).FirstOrDefault();
+                                        LMR = LVMO.Recommendation - MR;
+                                        if (LMR > 0)
+                                        {
+                                            Money = Price * LMR;
+                                            Integral = Money * LVMO.ShopProfit;
+                                            if (MoneyRecordAdd(OrderGid, (Guid)mr.M3, Money - Integral, Integral, 20, "补货第3级分享奖=" + LMR) == null)
+                                            {
+                                                msg += "补货第3级分享奖:会员=" + mr.M3.ToString() + ",Price=" + Price.ToString();
+                                            }
+                                        }
+                                    }
                                     if (mr.LM3 > 24)
                                     {
                                         var LVM3 = LV.Where(l => l.Number == 3).FirstOrDefault();
-                                        decimal Money = Price * LVM3.Differential;
-                                        decimal Integral = Money * LVM3.ShopProfit;
-                                        if (MoneyRecordAdd(OrderGid, (Guid)mr.M3, Money - Integral, Integral, 22, "第3级级差") == null)
+                                        Money = Price * LVM3.Differential;
+                                        Integral = Money * LVM3.ShopProfit;
+                                        if (MoneyRecordAdd(OrderGid, (Guid)mr.M3, Money - Integral, Integral, 22, "第3级级差="+ LVM3.Differential) == null)
                                         {
                                             msg += "级差失败:会员=" + mr.M3.ToString() + ",Price=" + Price.ToString();
                                         }
@@ -1192,33 +1262,35 @@ namespace LJSheng.Web
                     if (db.SaveChanges() == 1)
                     {
                         msg += "增加数量=" + od.Number.ToString() + "\r\n";
+                        #region 订单积分8月去除
                         //增加会员的积分
-                        if (od.Money > 0 || od.Integral > 0)
-                        {
-                            if (MoneyRecordAdd(OrderGid, MemberGid, od.Money, od.Integral, 20, "购买增加积分") == null)
-                            {
-                                msg += ",购买增加积分失败:Money=" + od.Money.ToString() + ",Integral=" + od.Integral.ToString();
-                            }
-                            else
-                            {
-                                msg += ",购买增加积分Money=" + od.Money.ToString() + ",Integral=" + od.Integral.ToString();
-                            }
-                        }
-                        if (MGid != null)
-                        {
-                            //增加推荐人的会员的积分
-                            if (Money > 0 || Integral > 0)
-                            {
-                                if (MoneyRecordAdd(OrderGid, (Guid)MGid, Money, Integral, 20, "下线购买增加积分") == null)
-                                {
-                                    msg += ",下线购买增加积分失败:Money=" + Money.ToString() + ",Integral=" + Integral.ToString();
-                                }
-                                else
-                                {
-                                    msg += ",下线购买增加积分Money=" + Money.ToString() + ",Integral=" + Integral.ToString();
-                                }
-                            }
-                        }
+                        //if (od.Money > 0 || od.Integral > 0)
+                        //{
+                        //    if (MoneyRecordAdd(OrderGid, MemberGid, od.Money, od.Integral, 20, "购买增加积分") == null)
+                        //    {
+                        //        msg += ",购买增加积分失败:Money=" + od.Money.ToString() + ",Integral=" + od.Integral.ToString();
+                        //    }
+                        //    else
+                        //    {
+                        //        msg += ",购买增加积分Money=" + od.Money.ToString() + ",Integral=" + od.Integral.ToString();
+                        //    }
+                        //}
+                        //if (MGid != null)
+                        //{
+                        //    //增加推荐人的会员的积分
+                        //    if (Money > 0 || Integral > 0)
+                        //    {
+                        //        if (MoneyRecordAdd(OrderGid, (Guid)MGid, Money, Integral, 20, "下线购买增加积分") == null)
+                        //        {
+                        //            msg += ",下线购买增加积分失败:Money=" + Money.ToString() + ",Integral=" + Integral.ToString();
+                        //        }
+                        //        else
+                        //        {
+                        //            msg += ",下线购买增加积分Money=" + Money.ToString() + ",Integral=" + Integral.ToString();
+                        //        }
+                        //    }
+                        //}
+                        #endregion
                     }
                     else
                     {
@@ -2437,12 +2509,14 @@ namespace LJSheng.Web
                 c.Gid = Guid.NewGuid();
                 c.AddTime = DateTime.Now;
                 c.MemberGid = MGid;
-                c.MGid = GetConsignor();//默认发货人
+                c.MGid = GetConsignor();//目前发货人
+                c.ShopGid = GetConsignor();//默认发货人
                 if (MemberGid != null)
                 {
                     if (db.Member.Where(l => l.Gid == MemberGid).FirstOrDefault().CLLevel > 24)
                     {
                         c.MGid = (Guid)MemberGid;
+                        c.ShopGid = (Guid)MemberGid;
                     }
                     else
                     {
@@ -2450,6 +2524,7 @@ namespace LJSheng.Web
                         if (cc.MGid != null)
                         {
                             c.MGid = cc.MGid;
+                            c.ShopGid = cc.MGid;
                         }
                     }
                 }
@@ -2511,6 +2586,41 @@ namespace LJSheng.Web
             }
         }
 
+        /// <summary>
+        /// 冻结寻找发货人模式
+        /// </summary>
+        public static Guid GetConsignor(Guid Gid)
+        {
+            using (EFDB db = new EFDB())
+            {
+                //发货人的的会员Gid
+                var m = db.Consignor.Where(l => l.MemberGid == Gid).GroupJoin(db.Member,
+                            x => x.MGid,
+                            y => y.Gid,
+                            (x, y) => new
+                            {
+                                x.MemberGid,
+                                x.MGid,
+                                y.FirstOrDefault().Jurisdiction
+                            }).FirstOrDefault();
+                if (m == null)
+                {
+                    return GetConsignor();
+                }
+                else
+                {
+                    //如果会员被封,为默认发货人
+                    if (m.Jurisdiction == "冻结")
+                    {
+                        return GetConsignor(m.MGid);
+                    }
+                    else
+                    {
+                        return m.MGid;
+                    }
+                }
+            }
+        }
         /// <summary>
         /// 默认发货人
         /// </summary>
@@ -2575,8 +2685,9 @@ namespace LJSheng.Web
         /// <param name="Integral">扣除的购物积分</param>
         /// <param name="MemberAccount">购买会员手机</param>
         /// <returns>返回调用结果</returns>
-        public static string CLStock(Guid OrderGid, Guid MemberGid, Guid ShopGid, int Number, decimal Money, decimal Integral, string MemberAccount)
+        public static bool CLStock(Guid OrderGid, Guid MemberGid, Guid ShopGid, int Number, decimal Money, decimal Integral, string MemberAccount)
         {
+            bool tf = false;
             string msg = "OrderGid=" + OrderGid.ToString() + ",ShopGid=" + ShopGid.ToString() + ",Number=" + Number.ToString() + ",Money=" + Money.ToString() + ",Integral=" + Integral.ToString();
             try
             {
@@ -2589,40 +2700,45 @@ namespace LJSheng.Web
                     Member M = db.Member.Where(l => l.Gid == ShopGid).FirstOrDefault();
                     if (Stock != null && M != null)
                     {
-                        if (Stock.Number >= Number && M.Money >= Money && M.Integral >= Integral)
+                        //if (Stock.Number >= Number && M.Money >= Money && M.Integral >= Integral)
+                        if (Stock.Number >= Number)
                         {
                             //减去库存
                             Stock.Number = Stock.Number - Number;
                             if (db.SaveChanges() == 1)
                             {
                                 LogManager.WriteLog("彩链扣除库存", msg);
+
+                                #region 发货扣除积分.逻辑8月去除
                                 //减去积分
-                                if (Money > 0 || Integral > 0)
-                                {
-                                    //从发货人扣除积分
-                                    if (MoneyRecordAdd(OrderGid, ShopGid, -Money, -Integral, 24, "发货扣除积分") == null)
-                                    {
-                                        LogManager.WriteLog("彩链库存扣除成功扣除积分失败", msg);
-                                        return JsonConvert.SerializeObject(new { OrderNo = "", Title = "发货人库存异常", Error = "彩链库存扣除成功,扣除积分失败!" });
-                                    }
-                                    else
-                                    {
-                                        LogManager.WriteLog("彩链扣除积分", msg);
-                                    }
-                                }
+                                //if (Money > 0 || Integral > 0)
+                                //{
+                                //    //从发货人扣除积分
+                                //    if (MoneyRecordAdd(OrderGid, ShopGid, -Money, -Integral, 24, "发货扣除积分") == null)
+                                //    {
+                                //        LogManager.WriteLog("彩链库存扣除成功扣除积分失败", msg);
+                                //        return JsonConvert.SerializeObject(new { OrderNo = "", Title = "发货人库存异常", Error = "彩链库存扣除成功,扣除积分失败!" });
+                                //    }
+                                //    else
+                                //    {
+                                //        LogManager.WriteLog("彩链扣除积分", msg);
+                                //    }
+                                //}
+                                #endregion
+
                                 //如果正常返回ok
-                                msg = "ok";
+                                tf = true;
                             }
                             else
                             {
-                                LogManager.WriteLog("彩链库存扣除失败", msg);
-                                return JsonConvert.SerializeObject(new { OrderNo = "", Title = "发货人库存异常", Error = "彩链库存扣除失败!" });
+                                LogManager.WriteLog("彩链库存更新失败", msg);
+                                //return JsonConvert.SerializeObject(new { OrderNo = "", Title = "发货人库存异常", Error = "彩链库存扣除失败!" });
                             }
                         }
                         else
                         {
                             CLSMS(M.Account, MemberAccount, ShopGid, MemberGid, Number, Money, Integral);
-                            return JsonConvert.SerializeObject(new { OrderNo = "", Title = "库存不足", Error = "你的发货人库存不足,请联系发货人(" + M.Account + ")补货!" });
+                            //return JsonConvert.SerializeObject(new { OrderNo = "", Title = "库存不足", Error = "你的发货人库存不足,请联系发货人(" + M.Account + ")补货!" });
                         }
                     }
                     else
@@ -2631,7 +2747,7 @@ namespace LJSheng.Web
                         {
                             CLSMS(M.Account, MemberAccount, ShopGid, MemberGid, Number, Money, Integral);
                         }
-                        return JsonConvert.SerializeObject(new { OrderNo = "", Title = "发货人库存不足", Error = "请联系你的发货人(" + M.Account + ")补货!" });
+                        //return JsonConvert.SerializeObject(new { OrderNo = "", Title = "发货人库存不足", Error = "请联系你的发货人(" + M.Account + ")补货!" });
                     }
                 }
             }
@@ -2639,7 +2755,7 @@ namespace LJSheng.Web
             {
                 msg += err.Message + "\r\n";
             }
-            return msg;
+            return tf;
         }
 
         #endregion
@@ -2766,6 +2882,31 @@ namespace LJSheng.Web
                 }
             }
             return MID;
+        }
+        #endregion
+
+        #region 判断是否自己的下线
+        public static bool IsMember(Guid Gid,Guid MemberGid)
+        {
+            using (EFDB db = new EFDB())
+            {
+                var b = db.Member.Where(l => l.Gid == Gid).FirstOrDefault();
+                if (b.MemberGid != null)
+                {
+                    if (b.MemberGid != MemberGid)
+                    {
+                        return IsMember((Guid)b.MemberGid, MemberGid);
+                    }
+                    else
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
         }
         #endregion
     }

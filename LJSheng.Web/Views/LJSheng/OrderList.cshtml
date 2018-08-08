@@ -19,19 +19,19 @@
                 <select class="form-control" name="PayType">
                     <option value="0" selected>= 支付类型 =</option>
                     @foreach (string name in Enum.GetNames(typeof(LJSheng.Common.Help.PayType)))
-        {
-            LJSheng.Common.Help.PayType type = (LJSheng.Common.Help.PayType)Enum.Parse(typeof(LJSheng.Common.Help.PayType), name, true);
-            <option value="@((int)type)">@name</option>
-}
+                    {
+                        LJSheng.Common.Help.PayType type = (LJSheng.Common.Help.PayType)Enum.Parse(typeof(LJSheng.Common.Help.PayType), name, true);
+                        <option value="@((int)type)">@name</option>
+                    }
                 </select>
                 <span class="input-group-addon fix-padding">-</span>
                 <select class="form-control" name="PayStatus">
                     <option value="0" selected>= 支付状态 =</option>
                     @foreach (string name in Enum.GetNames(typeof(LJSheng.Common.Help.PayStatus)))
-        {
-            LJSheng.Common.Help.PayStatus type = (LJSheng.Common.Help.PayStatus)Enum.Parse(typeof(LJSheng.Common.Help.PayStatus), name, true);
-            <option value="@((int)type)" @(name == "支付成功" ? "selected" : "")>@name</option>
-}
+                    {
+                        LJSheng.Common.Help.PayStatus type = (LJSheng.Common.Help.PayStatus)Enum.Parse(typeof(LJSheng.Common.Help.PayStatus), name, true);
+                        <option value="@((int)type)" @(name == "支付成功" ? "selected" : "")>@name</option>
+                    }
                 </select>
                 <span class="input-group-addon fix-padding">-</span>
                 <select class="form-control" name="ExpressStatus">
@@ -53,6 +53,29 @@
                     <option value="3" @(Request.QueryString["Type"] == "3" ? "selected" : "")>公司发货</option>
                     <option value="4">合伙人发货</option>
                     <option value="5">转让订单</option>
+                </select>
+                <span class="input-group-addon">年份</span>
+                <select class="form-control" name="Year">
+                    <option value="0" selected>=全 部=</option>
+                    <option value="2018">2018</option>
+                    <option value="2019">2019</option>
+                    <option value="2020">2020</option>
+                </select>
+                <span class="input-group-addon">月份</span>
+                <select class="form-control" name="Month">
+                    <option value="0" selected>=全 部=</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12">12</option>
                 </select>
             </div>
         </div>

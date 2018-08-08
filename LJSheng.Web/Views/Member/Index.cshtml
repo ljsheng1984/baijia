@@ -48,7 +48,7 @@
     </div>
 </div>
 <div class="@(ViewBag.Project ==2?"":"hide")">
-    <div class="user-divider">彩链 <b style="color:cornflowerblue;font-weight:800;padding-left:8%;">当前进货价=@ViewBag.BuyPrice,库存=@ViewBag.Stock</b></div>
+    <div class="user-divider">彩链 <b style="color:cornflowerblue;font-weight:800;padding-left:8%;">当前进货价=@ViewBag.BuyPrice,库存=@ViewBag.Stock (未付款=@ViewBag.LockStock (24小时释放))</b></div>
     <ul class="admin-menu">
         <li>
             <a href="/Member/MProduct">
@@ -67,7 +67,7 @@
             </a>
         </li>
         <li>
-            <a href="/Member/Product?BuyPrice=@ViewBag.BuyPrice&Type=5">
+            <a href="/Member/Product?BuyPrice=@ViewBag.BuyPrice&Type=5" class="hide">
                 <div>
                     <i class="icon icon-goods-money"></i>
                 </div>
@@ -75,7 +75,7 @@
             </a>
         </li>
         <li>
-            <a href="/Member/ProductAU?BuyPrice=@ViewBag.BuyPrice" class="@(ViewBag.SellStock ==2?"":"hide")">
+            <a href="/Member/ProductAU?BuyPrice=@ViewBag.BuyPrice" class="@(ViewBag.SellStock ==2?"":"hide") hide">
                 <div>
                     <i class="icon icon-storehouse"></i>
                 </div>

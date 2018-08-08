@@ -195,51 +195,44 @@ namespace LJSheng.Web.Controllers
             {
                 Guid gid = LCookie.GetMemberGid();
                 var b = db.Member.Where(l => l.Gid == gid).FirstOrDefault();
-                if (b.CLLevel > 21)
+                //会员原来的彩链金额
+                decimal CLMoney = ViewBag.CLMoney = b.CLMoney;
+                Guid ProductGid = Helper.GetProductGid();
+                var p = db.Stock.Where(l => l.MemberGid == gid && l.ProductGid == ProductGid).FirstOrDefault();
+                if (p != null)
                 {
-                    //会员原来的彩链金额
-                    decimal CLMoney = ViewBag.CLMoney = b.CLMoney;
-                    Guid ProductGid = Helper.GetProductGid();
-                    var p = db.Stock.Where(l => l.MemberGid == gid && l.ProductGid == ProductGid).FirstOrDefault();
-                    if (p != null)
+                    //会员原来的彩链库存
+                    int MStock = ViewBag.Stock = p.Number;
+                    //一个彩链兑换多少额度
+                    decimal CLM = ViewBag.CLB = decimal.Parse(db.DictionariesList.Where(dl => dl.Key == "CLB" && dl.DGid == db.Dictionaries.Where(d => d.DictionaryType == "CL").FirstOrDefault().Gid).FirstOrDefault().Value);
+                    if (!string.IsNullOrEmpty(Request["Stock"]))
                     {
-                        //会员原来的彩链库存
-                        int MStock = ViewBag.Stock = p.Number;
-                        //一个彩链兑换多少额度
-                        decimal CLM = ViewBag.CLB = decimal.Parse(db.DictionariesList.Where(dl => dl.Key == "CLB" && dl.DGid == db.Dictionaries.Where(d => d.DictionaryType == "CL").FirstOrDefault().Gid).FirstOrDefault().Value);
-                        if (!string.IsNullOrEmpty(Request["Stock"]))
+                        //要兑换的数量
+                        int Stock = int.Parse(Request["Stock"]);
+                        p.Number = p.Number - Stock;
+                        if (p.Number >= 0 && db.SaveChanges() == 1)
                         {
-                            //要兑换的数量
-                            int Stock = int.Parse(Request["Stock"]);
-                            p.Number = p.Number - Stock;
-                            if (p.Number >= 0 && db.SaveChanges() == 1)
+                            b.CLMoney = b.CLMoney + Stock * CLM;
+                            if (db.SaveChanges() == 1)
                             {
-                                b.CLMoney = b.CLMoney + Stock * CLM;
-                                if (db.SaveChanges() == 1)
-                                {
-                                    Helper.CLRecordAdd(gid, Stock * CLM, CLMoney, Stock, MStock, "额度兑换");
-                                    return Helper.Redirect("成功", "/Shop/Index", "恭喜你,兑换成功!");
-                                }
-                                else
-                                {
-                                    LogManager.WriteLog("彩链库存扣除成功兑换失败", "MemberGid=" + gid.ToString() + ",Stock=" + Stock.ToString());
-                                    return Helper.Redirect("失败", "history.go(-1);", "彩链库存扣除成功兑换失败,请联系客服人员!");
-                                }
+                                Helper.CLRecordAdd(gid, Stock * CLM, CLMoney, Stock, MStock, "额度兑换");
+                                return Helper.Redirect("成功", "/Shop/Index", "恭喜你,兑换成功!");
                             }
                             else
                             {
-                                return Helper.Redirect("失败", "history.go(-1);", "彩链库存不足!");
+                                LogManager.WriteLog("彩链库存扣除成功兑换失败", "MemberGid=" + gid.ToString() + ",Stock=" + Stock.ToString());
+                                return Helper.Redirect("失败", "history.go(-1);", "彩链库存扣除成功兑换失败,请联系客服人员!");
                             }
                         }
-                    }
-                    else
-                    {
-                        return Helper.Redirect("库存不足", "history.go(-1);", "库存不足");
+                        else
+                        {
+                            return Helper.Redirect("失败", "history.go(-1);", "彩链库存不足!");
+                        }
                     }
                 }
                 else
                 {
-                    return Helper.Redirect("权限不足", "history.go(-1);", "最少要VIP级别");
+                    return Helper.Redirect("库存不足", "history.go(-1);", "库存不足");
                 }
             }
             return View();

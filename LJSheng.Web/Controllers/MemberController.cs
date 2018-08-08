@@ -193,6 +193,11 @@ namespace LJSheng.Web.Controllers
                 Guid ProductGid = Helper.GetProductGid();
                 var ms = db.Stock.Where(l => l.MemberGid == MemberGid && l.ProductGid == ProductGid).FirstOrDefault();
                 ViewBag.Stock = ms == null ? 0 : ms.Number;
+                //未付款库存
+                ViewBag.LockStock = db.Order.Where(l => l.ShopGid == MemberGid && l.PayStatus==2).Select(l => new
+                {
+                    Number = db.OrderDetails.Where(od=>od.OrderGid==l.Gid).Select(od => od.Number).DefaultIfEmpty(0).Sum()
+                }).Select(l => l.Number).DefaultIfEmpty(0).Sum();
             }
             return View();
         }
@@ -1529,69 +1534,6 @@ namespace LJSheng.Web.Controllers
         [ValidateInput(false)]
         public ActionResult Product()
         {
-            //解锁24小时之前锁定的产品
-            using (EFDB db = new EFDB())
-            {
-                var b = db.Order.Where(l => l.Type == 5 && l.PayStatus == 2).GroupJoin(db.OrderDetails,
-                    x => x.Gid,
-                    y => y.OrderGid,
-                    (x, y) => new
-                    {
-                        x.Gid,
-                        x.AddTime,
-                        x.MemberGid,
-                        x.Money,
-                        x.Integral,
-                        x.ShopGid,
-                        x.Type,
-                        y.FirstOrDefault().Number,
-                        MMoney = y.FirstOrDefault().Money,
-                        MIntegral = y.FirstOrDefault().Integral
-                    }).ToList();
-                //当前时间
-                DateTime dt = DateTime.Now;
-                //默认商品
-                Guid ProductGid = Helper.GetProductGid();
-                foreach (var dr in b)
-                {
-                    //大于24小时解锁
-                    TimeSpan ts = dt - dr.AddTime;
-                    if (ts.Hours >= 24)
-                    {
-                        //转让订单只要接锁
-                        if (dr.Type == 5)
-                        {
-                            Guid ShopGid = (Guid)dr.ShopGid;
-                            string OrderNO = RandStr.CreateOrderNO();
-                            if (db.Order.Where(l => l.Gid == dr.Gid).Update(l => new Order { MemberGid = ShopGid, OrderNo = OrderNO }) == 1)
-                            {
-                                LogManager.WriteLog("发货积分解除失败", "订单=" + dr.Gid.ToString() + "会员=" + dr.ShopGid.ToString() + "推荐人积分=" + dr.Money.ToString() + "购物积分=" + dr.Integral.ToString() + "积分=" + dr.MMoney.ToString() + "购物积分=" + dr.MIntegral.ToString());
-                            }
-                        }
-                        //合伙人订单,关闭交易.赎回库存和积分
-                        else
-                        {
-                            var od = db.OrderDetails.Where(l => l.OrderGid == dr.Gid).FirstOrDefault();
-                            //转让产品赎回库存
-                            if (db.Stock.Where(l => l.MemberGid == dr.MemberGid && l.ProductGid == ProductGid).Update(l => new Stock { Number = l.Number + od.Number }) == 1)
-                            {
-                                //解除发货人扣除积分
-                                if (Helper.MoneyRecordAdd(dr.Gid, (Guid)dr.ShopGid, dr.Money + dr.MMoney, dr.Integral + dr.MIntegral, 25, "发货积分解除") == null)
-                                {
-                                    LogManager.WriteLog("订单库存赎回成功积分赎回失败", "订单=" + dr.Gid.ToString() + "会员=" + dr.ShopGid.ToString() + "推荐人积分=" + dr.Money.ToString() + "购物积分=" + dr.Integral.ToString() + "积分=" + dr.MMoney.ToString() + "购物积分=" + dr.MIntegral.ToString());
-                                    return Json(new AjaxResult(300, "赎回失败,请联系客服!"));
-                                }
-                                return Json(new AjaxResult("赎回成功"));
-                            }
-                            else
-                            {
-                                LogManager.WriteLog("订单库存赎回失败", "订单=" + dr.Gid.ToString() + "库存=" + od.Number.ToString());
-                                return Json(new AjaxResult(300, "赎回失败,请联系客服!"));
-                            }
-                        }
-                    }
-                }
-            }
             return View();
         }
         [HttpPost]
