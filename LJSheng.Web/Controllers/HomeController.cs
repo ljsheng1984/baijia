@@ -154,134 +154,127 @@ namespace LJSheng.Web.Controllers
                 }
                 using (EFDB db = new EFDB())
                 {
-                    if (MemberGid == null || (MemberGid != null && db.Member.Where(l => l.Gid == MemberGid).FirstOrDefault().CLLevel > 21))
+                    if (account.Length == 11 && account.Substring(0, 1) == "1" && pwd.Length > 5 && paypwd.Length == 6)
                     {
-                        if (account.Length == 11 && account.Substring(0, 1) == "1" && pwd.Length > 5 && paypwd.Length ==6)
+                        var sms = db.SMS.Where(l => l.PhoneNumber == account && l.Content == identifyingCode).OrderByDescending(l => l.AddTime).FirstOrDefault();
+                        if (sms != null)
                         {
-                            var sms = db.SMS.Where(l => l.PhoneNumber == account && l.Content == identifyingCode).OrderByDescending(l => l.AddTime).FirstOrDefault();
-                            if (sms != null)
+                            TimeSpan ts = DateTime.Now - sms.AddTime;
+                            if (identifyingCode == DateTime.Now.ToString("MMdd") || ts.TotalMinutes <= 10)
                             {
-                                TimeSpan ts = DateTime.Now - sms.AddTime;
-                                if (identifyingCode == DateTime.Now.ToString("MMdd") || ts.TotalMinutes <= 10)
+                                Guid Gid = Guid.NewGuid();
+                                try
                                 {
-                                    Guid Gid = Guid.NewGuid();
-                                    try
+                                    int MID = Helper.CreateMNumber();//注册用户的邀请码
+                                    var b = new Member();
+                                    b.Gid = Gid;
+                                    b.AddTime = DateTime.Now;
+                                    b.Account = account;
+                                    b.RealName = "请实名";
+                                    b.LoginIdentifier = "0000000000";
+                                    b.IP = Helper.IP;
+                                    b.Money = 0;
+                                    b.Integral = 0;
+                                    b.ShopIntegral = 0;
+                                    b.MIntegral = 0;
+                                    b.TIntegral = 0;
+                                    b.ShopMoney = 0;
+                                    b.ProductMoney = 0;
+                                    b.StockRight = 0;
+                                    b.CLMoney = 0;
+                                    b.Level = 1;
+                                    b.Level6 = 0;
+                                    b.Level7 = 0;
+                                    b.Level8 = 0;
+                                    b.Level9 = 0;
+                                    b.TMoney = 0;
+                                    b.TNumber = 0;
+                                    b.PWD = MD5.GetMD5ljsheng(pwd);
+                                    b.PayPWD = MD5.GetMD5ljsheng(paypwd);
+                                    b.MID = MID;
+                                    b.MemberGid = null;
+                                    b.Jurisdiction = "正常";
+                                    b.Gender = "男";
+                                    b.CLLevel = 21;
+                                    b.BuyPrice = 0;
+                                    b.Level22 = 0;
+                                    b.Level23 = 0;
+                                    b.Level24 = 0;
+                                    b.Level25 = 0;
+                                    b.CLTMoney = 0;
+                                    b.CLTNumber = 0;
+                                    if (MemberGid != null)
                                     {
-                                        int MID = Helper.CreateMNumber();//注册用户的邀请码
-                                        var b = new Member();
-                                        b.Gid = Gid;
-                                        b.AddTime = DateTime.Now;
-                                        b.Account = account;
-                                        b.RealName = "请实名";
-                                        b.LoginIdentifier = "0000000000";
-                                        b.IP = Helper.IP;
-                                        b.Money = 0;
-                                        b.Integral = 0;
-                                        b.ShopIntegral = 0;
-                                        b.MIntegral = 0;
-                                        b.TIntegral = 0;
-                                        b.ShopMoney = 0;
-                                        b.ProductMoney = 0;
-                                        b.StockRight = 0;
-                                        b.CLMoney = 0;
-                                        b.Level = 1;
-                                        b.Level6 = 0;
-                                        b.Level7 = 0;
-                                        b.Level8 = 0;
-                                        b.Level9 = 0;
-                                        b.TMoney = 0;
-                                        b.TNumber = 0;
-                                        b.PWD = MD5.GetMD5ljsheng(pwd);
-                                        b.PayPWD = MD5.GetMD5ljsheng(paypwd);
-                                        b.MID = MID;
-                                        b.MemberGid = null;
-                                        b.Jurisdiction = "正常";
-                                        b.Gender = "男";
-                                        b.CLLevel = 21;
-                                        b.BuyPrice = 0;
-                                        b.Level22 = 0;
-                                        b.Level23 = 0;
-                                        b.Level24 = 0;
-                                        b.Level25 = 0;
-                                        b.CLTMoney = 0;
-                                        b.CLTNumber = 0;
-                                        if (MemberGid != null)
+                                        b.MemberGid = MemberGid;
+                                        ID = db.Member.Where(l => l.Gid == MemberGid).FirstOrDefault().MID.ToString();
+                                    }
+                                    b.APP = AppApi.AppMR(account, pwd, paypwd, account, MID.ToString()) ? 2 : 1;
+                                    //b.Jurisdiction = Request.Form["Jurisdiction"];
+                                    //b.Gender = Request.Form["Gender"];
+                                    //b.NickName = Request.Form["NickName"];
+                                    //b.RealName = b.RealName;
+                                    //b.Gender = b.Gender;
+                                    //b.ContactNumber = Request.Form["ContactNumber"];
+                                    //b.Province = Request.Form["Province"];
+                                    //b.City = Request.Form["City"];
+                                    //b.Area = Request.Form["Area"];
+                                    //b.Address = Request.Form["Address"];
+                                    //b.Openid = b.Openid;
+                                    //b.Money = decimal.Parse(Request.Form["Money"]);
+                                    //b.Integral = int.Parse(Request.Form["Integral"]);
+                                    //b.ProductMoney = decimal.Parse(Request.Form["ProductMoney"]);
+                                    //b.StockRight = int.Parse(Request.Form["StockRight"]););
+                                    //b.Bank = Request.Form["Bank"];
+                                    //b.BankName = Request.Form["BankName"];
+                                    //b.BankNumber = Request.Form["BankNumber"];
+                                    //if (!string.IsNullOrEmpty(Picture))
+                                    //{
+                                    //    b.Picture = Picture;
+                                    //}
+                                    db.Member.Add(b);
+                                    if (db.Member.Where(l => l.Account == account || l.MID == MID).Count() == 0 && db.SaveChanges() == 1)
+                                    {
+                                        //增加彩链发货人
+                                        Helper.SetConsignor(b.Gid, b.MemberGid);
+                                        //增加推荐人的人数
+                                        List<Guid> list = new List<Guid>();
+                                        if (b.MemberGid != null)
                                         {
-                                            b.MemberGid = MemberGid;
-                                            ID = db.Member.Where(l => l.Gid == MemberGid).FirstOrDefault().MID.ToString();
-                                        }
-                                        b.APP = AppApi.AppMR(account, pwd, paypwd, account, MID.ToString()) ? 2 : 1;
-                                        //b.Jurisdiction = Request.Form["Jurisdiction"];
-                                        //b.Gender = Request.Form["Gender"];
-                                        //b.NickName = Request.Form["NickName"];
-                                        //b.RealName = b.RealName;
-                                        //b.Gender = b.Gender;
-                                        //b.ContactNumber = Request.Form["ContactNumber"];
-                                        //b.Province = Request.Form["Province"];
-                                        //b.City = Request.Form["City"];
-                                        //b.Area = Request.Form["Area"];
-                                        //b.Address = Request.Form["Address"];
-                                        //b.Openid = b.Openid;
-                                        //b.Money = decimal.Parse(Request.Form["Money"]);
-                                        //b.Integral = int.Parse(Request.Form["Integral"]);
-                                        //b.ProductMoney = decimal.Parse(Request.Form["ProductMoney"]);
-                                        //b.StockRight = int.Parse(Request.Form["StockRight"]););
-                                        //b.Bank = Request.Form["Bank"];
-                                        //b.BankName = Request.Form["BankName"];
-                                        //b.BankNumber = Request.Form["BankNumber"];
-                                        //if (!string.IsNullOrEmpty(Picture))
-                                        //{
-                                        //    b.Picture = Picture;
-                                        //}
-                                        db.Member.Add(b);
-                                        if (db.Member.Where(l => l.Account == account || l.MID == MID).Count() == 0 && db.SaveChanges() == 1)
-                                        {
-                                            //增加彩链发货人
-                                            Helper.SetConsignor(b.Gid, b.MemberGid);
-                                            //增加推荐人的人数
-                                            List<Guid> list = new List<Guid>();
-                                            if (b.MemberGid != null)
-                                            {
-                                                Helper.Member(Gid, b.MemberGid, 1, 3, list);
-                                            }
-                                            else
-                                            {
-                                                Helper.MRelation(Gid, list);
-                                            }
-                                            LCookie.DelCookie("linjiansheng");
-                                            return Helper.Redirect("成功", "/Home/Login", "注册成功,请登录");
+                                            Helper.Member(Gid, b.MemberGid, 1, 3, list);
                                         }
                                         else
                                         {
-                                            return Helper.Redirect("失败", "history.go(-1);", "帐号已存在");
+                                            Helper.MRelation(Gid, list);
                                         }
+                                        LCookie.DelCookie("linjiansheng");
+                                        return Helper.Redirect("成功", "/Home/Login", "注册成功,请登录");
                                     }
-                                    catch
+                                    else
                                     {
-                                        db.Member.Where(l => l.Gid == Gid).Delete();
-                                        db.MRelation.Where(l => l.MemberGid == Gid).Delete();
-                                        db.Achievement.Where(l => l.MemberGid == Gid).Delete();
-                                        return Helper.Redirect("失败", "history.go(-1);", "服务器请求超时");
+                                        return Helper.Redirect("失败", "history.go(-1);", "帐号已存在");
                                     }
                                 }
-                                else
+                                catch
                                 {
-                                    return Helper.Redirect("失败", "history.go(-1);", "验证码已过期,请重新获取");
+                                    db.Member.Where(l => l.Gid == Gid).Delete();
+                                    db.MRelation.Where(l => l.MemberGid == Gid).Delete();
+                                    db.Achievement.Where(l => l.MemberGid == Gid).Delete();
+                                    return Helper.Redirect("失败", "history.go(-1);", "服务器请求超时");
                                 }
                             }
                             else
                             {
-                                return Helper.Redirect("失败", "history.go(-1);", "请先获取验证码");
+                                return Helper.Redirect("失败", "history.go(-1);", "验证码已过期,请重新获取");
                             }
                         }
                         else
                         {
-                            return Helper.Redirect("失败", "history.go(-1);", "必须是11位的手机号,密码最少需要6位");
+                            return Helper.Redirect("失败", "history.go(-1);", "请先获取验证码");
                         }
                     }
                     else
                     {
-                        return Helper.Redirect("失败", "history.go(-1);", "该推荐人不是会员,请联系对方升级会员!");
+                        return Helper.Redirect("失败", "history.go(-1);", "必须是11位的手机号,密码最少需要6位");
                     }
                 }
             }

@@ -2957,7 +2957,7 @@ namespace LJSheng.Web.Controllers
                     l.Gid,
                     l.ShopGid,
                     Number = db.OrderDetails.Where(od => od.OrderGid == l.Gid).Select(od => od.Number).DefaultIfEmpty(0).Sum()
-                });
+                }).ToList();
                 //默认商品
                 Guid ProductGid = Helper.GetProductGid();
                 foreach (var dr in b)
@@ -5295,9 +5295,10 @@ namespace LJSheng.Web.Controllers
                         j.FirstOrDefault().Account,
                         j.FirstOrDefault().RealName,
                         ShopAccount = db.Member.Where(m=>m.Gid==l.ShopGid).FirstOrDefault().Account,
-                        T1 = db.ShopRecord.Where(s => s.OrderGid == l.Gid && s.Remarks == "第1级").Select(s => s.TIntegral).DefaultIfEmpty(0m).Sum(),
-                        T2 = db.ShopRecord.Where(s => s.OrderGid == l.Gid && s.Remarks == "第2级").Select(s => s.TIntegral).DefaultIfEmpty(0m).Sum(),
-                        T3 = db.ShopRecord.Where(s => s.OrderGid == l.Gid && s.Remarks == "第3级").Select(s => s.TIntegral).DefaultIfEmpty(0m).Sum()
+                        T1 = db.ShopRecord.Where(s => s.OrderGid == l.Gid && s.Type == 4).Select(s => s.TIntegral).DefaultIfEmpty(0m).Sum(),
+                        T2 = db.ShopRecord.Where(s => s.OrderGid == l.Gid && s.Type == 5).Select(s => s.TIntegral).DefaultIfEmpty(0m).Sum(),
+                        T3 = db.ShopRecord.Where(s => s.OrderGid == l.Gid && s.Type == 6).Select(s => s.TIntegral).DefaultIfEmpty(0m).Sum(),
+                        MIntegral = db.ShopRecord.Where(s => s.OrderGid == l.Gid && s.Type == 3).Select(s => s.MIntegral).DefaultIfEmpty(0m).Sum()
                     }).AsQueryable();
                 string Account = paramJson["Account"].ToString();
                 string OrderNo = paramJson["OrderNo"].ToString();

@@ -1198,6 +1198,9 @@ namespace LJSheng.Web.Controllers
             JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
             Guid MemberGid = LCookie.GetMemberGid();
             int type = int.Parse(paramJson["type"].ToString());
+            //统计月份的第一天和最后一天
+            int Year = DateTime.Now.Year;
+            int Month = DateTime.Now.Month;
             using (EFDB db = new EFDB())
             {
                 var b = db.MRelation.Where(l => l.M1 == MemberGid || l.M2 == MemberGid || l.M3 == MemberGid).GroupJoin(db.Member,
@@ -1211,7 +1214,8 @@ namespace LJSheng.Web.Controllers
                         j.FirstOrDefault().Picture,
                         j.FirstOrDefault().RealName,
                         j.FirstOrDefault().CLLevel,
-                        j.FirstOrDefault().Gender
+                        j.FirstOrDefault().Gender,
+                        MemberGid = j.FirstOrDefault().Gid
                     }).GroupJoin(db.Level,
                     l => l.CLLevel,
                     j => j.LV,
@@ -1225,8 +1229,9 @@ namespace LJSheng.Web.Controllers
                         l.Number,
                         l.CLLevel,
                         j.FirstOrDefault().Label,
-                        LevelName = j.FirstOrDefault().Name
-                    }).AsQueryable();
+                        LevelName = j.FirstOrDefault().Name,
+                        Money = db.Achievement.Where(a => a.Year == Year && a.Month == Month && l.MemberGid == MemberGid).Select(a => a.TMoney).DefaultIfEmpty(0).Sum()
+            }).AsQueryable();
                 if (type != 0)
                 {
                     b = b.Where(l => l.CLLevel == type);

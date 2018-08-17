@@ -62,26 +62,26 @@
                 tooltip(field);
                 return false;
             }
-            field = $("#Province");
-            if (field.val()=="请选择省份") {
-                tooltip(field);
-                return false;
-            }
-            field = $("#City");
-            if (field.val() == "请选择城市") {
-                tooltip(field);
-                return false;
-            }
-            field = $("#Area");
-            if (field.val() == "请选择区域") {
-                tooltip(field);
-                return false;
-            }
-            field = $("input[name='Addr']");
-            if (field.val().length < 5) {
-                tooltip(field);
-                return false;
-            }
+            //field = $("#Province");
+            //if (field.val()=="请选择省份") {
+            //    tooltip(field);
+            //    return false;
+            //}
+            //field = $("#City");
+            //if (field.val() == "请选择城市") {
+            //    tooltip(field);
+            //    return false;
+            //}
+            //field = $("#Area");
+            //if (field.val() == "请选择区域") {
+            //    tooltip(field);
+            //    return false;
+            //}
+            //field = $("input[name='Addr']");
+            //if (field.val().length < 5) {
+            //    tooltip(field);
+            //    return false;
+            //}
             document.getElementById("btn").innerText = "正在提交...";
             document.getElementById("btn").disabled = true;
             document.forms[0].submit();
