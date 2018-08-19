@@ -181,7 +181,7 @@ namespace LJSheng.Web
                 //查询下单会员的数据
                 Member Member = db.Member.Where(l => l.Gid == MemberGid).FirstOrDefault();
                 //是否第一次购买
-                int MO = db.Order.Where(l => l.Project == 2 && l.MemberGid == MemberGid && l.PayStatus == 1 && l.Type == 3).Count();
+                //int MO = db.Order.Where(l => l.Project == 2 && l.MemberGid == MemberGid && l.PayStatus == 1 && l.Type == 3).Count();
                 //发货人的的会员Gid
                 Guid ShopGid = MemberGid;//转售商品类型时候,商家Gid为会员的Gid
                 //购买增加的库存
@@ -240,8 +240,16 @@ namespace LJSheng.Web
                     //}
                     #endregion
 
+                    //判断用户购买产品是否会升级
+                    int OldCLLevel = Member.CLLevel;//原等级
+                    int CLLevel = Member.CLLevel;
+                    if (OldCLLevel < 26)
+                    {
+                        CLLevel = MLevel(MemberGid, TotalPrice, db.Level.Where(l => l.LV > 20).ToList(), OldCLLevel, CLLevel);
+                    }
+
                     //会员第一次购买,合伙人购买,合伙人产品 全部公司发货
-                    if (MO == 0 || Member.CLLevel > 24 || Product.Remarks == "合伙人商品")
+                    if (CLLevel > OldCLLevel || Member.CLLevel > 24 || Product.Remarks == "合伙人商品")
                     {
                         Type = 3;
                         ShopGid = GetConsignor();//公司发货默认发货人
@@ -440,13 +448,24 @@ namespace LJSheng.Web
                                     var ml = lv.Where(l => l.LV == m.CLLevel).FirstOrDefault();
                                     //团队业绩和级差积分
                                     msg += "团队业绩=" + CLTeamMoney(MemberGid, PayPrice, OrderGid, b.Type) + rn;
+                                    //非创始人需要判断是否升级
+                                    int OldCLLevel = m.CLLevel;//原等级
+                                    int CLLevel = m.CLLevel;
+                                    if (OldCLLevel < 26)
+                                    {
+                                        CLLevel = MLevel(MemberGid, b.PayPrice, lv, OldCLLevel, CLLevel);
+                                    }
+                                    else
+                                    {
+                                        msg += "无须升级=" + OldCLLevel.ToString() + rn;
+                                    }
                                     //分享奖金
                                     try
                                     {
                                         //判断是否第一次购买
-                                        int MO = db.Order.Where(l => l.Project == 2 && l.MemberGid == MemberGid && l.PayStatus == 1 && l.Type != 5).Count();
+                                        //int MO = db.Order.Where(l => l.Project == 2 && l.MemberGid == MemberGid && l.PayStatus == 1 && l.Type != 5).Count();
                                         //第一次购买上级的分享奖
-                                        if (MO == 1)
+                                        if (CLLevel > OldCLLevel)
                                         {
                                             if (m.MemberGid != null)
                                             {
@@ -460,9 +479,9 @@ namespace LJSheng.Web
                                                             }).FirstOrDefault();
                                                 decimal Money = PayPrice * ML.Recommendation;
                                                 decimal Integral = Money * ML.ShopProfit;
-                                                if (MoneyRecordAdd(OrderGid, (Guid)m.MemberGid, Money - Integral, Integral, 20, "第1次分享奖 百分" + ML.Recommendation *100) == null)
+                                                if (MoneyRecordAdd(OrderGid, (Guid)m.MemberGid, Money - Integral, Integral, 20, "升级奖 百分" + ML.Recommendation *100) == null)
                                                 {
-                                                    msg += "第1次分享奖失败:会员=" + m.MemberGid.ToString() + ",Price=" + PayPrice.ToString();
+                                                    msg += "升级奖失败:会员=" + m.MemberGid.ToString() + ",Price=" + PayPrice.ToString();
                                                 }
                                             }
                                         }
@@ -485,69 +504,39 @@ namespace LJSheng.Web
                                     }
                                     catch (Exception err)
                                     { msg += "分享异常=" + err.Message + "\r\n"; }
-                                    //非创始人需要判断是否升级
-                                    int OldCLLevel = m.CLLevel;//原等级
-                                    if (OldCLLevel < 26)
+                                    //升级条件满足升级
+                                    if (CLLevel > OldCLLevel)
                                     {
-                                        //升级的当前等级
-                                        int CLLevel = m.CLLevel;
-                                        //消费总金额
-                                        decimal AllOrder = db.Order.Where(l => l.MemberGid == MemberGid && l.Project == 2 && l.PayStatus == 1).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
-                                        //对比的金额
-                                        decimal RMB = AllOrder;
-                                        //查找可让会员升级的级别列表
-                                        var uplv = lv.Where(l => l.LV > OldCLLevel).OrderBy(l => l.LV);
-                                        //升级条件判断
-                                        foreach (var dr in uplv)
+                                        //更新进货价
+                                        if (m.BuyPrice == 0 || b.CouponPrice < m.BuyPrice)
                                         {
-                                            //如果升级条件是一次性
-                                            if (dr.UP == 1)
-                                            {
-                                                RMB = b.PayPrice;
-                                            }
-                                            //购买金额达到条件升级,创始人不能按此条件升级
-                                            if (dr.LV != 26 && RMB >= dr.BuyAmount)
-                                            {
-                                                CLLevel = dr.LV;
-                                            }
+                                            m.BuyPrice = b.CouponPrice;//进货价
                                         }
-                                        if (CLLevel > OldCLLevel)
+                                        m.CLLevel = CLLevel;
+                                        m.UPTime = DateTime.Now;
+                                        if (db.SaveChanges() == 1)
                                         {
-                                            //更新进货价
-                                            if (m.BuyPrice == 0 || b.CouponPrice < m.BuyPrice)
+                                            msg += "会员升级成功原等级=" + OldCLLevel.ToString() + ",升等级=" + CLLevel.ToString();
+                                            //更新发货人-防止上级以上有升级到发货人,所以要先处理自己作为发货人的情况
+                                            if (CLLevel > 24)
                                             {
-                                                m.BuyPrice = b.CouponPrice;//进货价
+                                                msg += "，更新发货人=" + Consignor(MemberGid) + rn;
                                             }
-                                            m.CLLevel = CLLevel;
-                                            m.UPTime = DateTime.Now;
-                                            if (db.SaveChanges() == 1)
+                                            //判断上级团队升级条件
+                                            if (m.MemberGid != null)
                                             {
-                                                msg += "会员升级成功原等级=" + OldCLLevel.ToString() + ",升等级=" + CLLevel.ToString();
-                                                //更新发货人-防止上级以上有升级到发货人,所以要先处理自己作为发货人的情况
-                                                if (CLLevel > 24)
-                                                {
-                                                    msg += "，更新发货人=" + Consignor(MemberGid) + rn;
-                                                }
-                                                //判断上级团队升级条件
-                                                if (m.MemberGid != null)
-                                                {
-                                                    DateTime dt = DateTime.Now.AddMonths(-1);
-                                                    msg += "团队升级=" + CLTeam((Guid)m.MemberGid, lv, dt, "") + rn;
-                                                }
-                                            }
-                                            else
-                                            {
-                                                msg += "会员升级失败:原等级=" + OldCLLevel.ToString() + ",升等级=" + CLLevel.ToString();
+                                                DateTime dt = DateTime.Now.AddMonths(-1);
+                                                msg += "团队升级=" + CLTeam((Guid)m.MemberGid, lv, dt, "") + rn;
                                             }
                                         }
                                         else
                                         {
-                                            msg += "升级条件不满足=" + OldCLLevel.ToString() + rn;
+                                            msg += "会员升级失败:原等级=" + OldCLLevel.ToString() + ",升等级=" + CLLevel.ToString();
                                         }
                                     }
                                     else
                                     {
-                                        msg += "无须升级=" + OldCLLevel.ToString() + rn;
+                                        msg += "升级条件不满足=" + OldCLLevel.ToString() + rn;
                                     }
                                 }
                                 else
@@ -848,6 +837,54 @@ namespace LJSheng.Web
                     return Name + "失败" + msg;
                 }
             }
+        }
+
+
+        /// <summary>
+        /// 用户购买产品是否升级
+        /// </summary>
+        /// <param name="MemberGid">推荐人Gid</param>
+        /// <param name="Level">等级列表</param>
+        /// <param name="Recommendation">当前的分享比例</param>
+        /// <param name="OldCLLevel">购买会员等级</param>
+        /// <param name="ShopGid">发货人</param>
+        /// <returns>返回调用结果</returns>
+        /// <para name="result">200 是成功其他失败</para>
+        /// <para name="data">对象结果</para>
+        /// <remarks>
+        /// 2018-08-18 林建生
+        /// </remarks>
+        public static int MLevel(Guid MemberGid, decimal Price, List<Level> Level, int OldCLLevel, int CLLevel)
+        {
+            try
+            {
+                using (EFDB db = new EFDB())
+                {
+                    //消费总金额
+                    decimal AllOrder = db.Order.Where(l => l.MemberGid == MemberGid && l.Project == 2 && l.PayStatus == 1).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                    //查找可让会员升级的级别列表
+                    var uplv = Level.Where(l => l.LV > OldCLLevel).OrderBy(l => l.LV);
+                    //升级条件判断
+                    foreach (var dr in uplv)
+                    {
+                        //如果升级条件是一次性
+                        if (dr.UP == 1)
+                        {
+                            AllOrder = Price;
+                        }
+                        //购买金额达到条件升级,创始人不能按此条件升级
+                        if (dr.LV != 26 && AllOrder >= dr.BuyAmount)
+                        {
+                            CLLevel = dr.LV;
+                        }
+                    }
+                }
+            }
+            catch (Exception err)
+            {
+                LogManager.WriteLog("判断用户购买升级异常", err.Message);
+            }
+            return CLLevel;
         }
 
         /// <summary>
@@ -2340,10 +2377,20 @@ namespace LJSheng.Web
                         {
                             //更新用户数据
                             m.MIntegral = m.MIntegral + MIntegral;
-                            if (Type == 1 || Type == 2)
+                            string FRemarks = "";
+                            if (Type == 1)
                             {
-                                //提取或冻结直接清0
+                                FRemarks = "提取基数分满足冻结";
+                            }
+                            else if (Type == 2)
+                            {
+                                //满足解冻的时候基数分提取到商城可转积分
                                 m.TIntegral = 0;
+                                m.ShopIntegral = m.ShopIntegral - MIntegral;
+                            }
+                            else if (Type == 3)
+                            {
+                                FRemarks = "增加基数分满足冻结";
                             }
                             else
                             {
@@ -2353,9 +2400,9 @@ namespace LJSheng.Web
                             {
                                 MRGid = b.Gid;
                                 //是否满足冻结要求
-                                if (Type == 3 || Type == 4 || Type == 5 || Type == 6)
+                                if (Type !=2)
                                 {
-                                    FrozenIntegral(Gid, m.MIntegral, m.TIntegral, 2, 2);
+                                    FrozenIntegral(Gid, m.MIntegral, m.TIntegral, 2, 2, FRemarks);
                                 }
                             }
                             else

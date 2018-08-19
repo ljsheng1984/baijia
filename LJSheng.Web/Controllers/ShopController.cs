@@ -579,7 +579,7 @@ namespace LJSheng.Web.Controllers
                 ViewBag.Money = b.ShopMoney;
                 ViewBag.Token = decimal.Parse(db.DictionariesList.Where(dl => dl.Key == "Token" && dl.DGid == db.Dictionaries.Where(d => d.DictionaryType == "CL").FirstOrDefault().Gid).FirstOrDefault().Value);
                 ViewBag.BCCB = AppApi.MB(b.Account, "BCCB");
-                ViewBag.Token24 = AppApi.AVG();
+                ViewBag.Token24 = AppApi.AVG(1);
                 if (Money==0)
                 {
                     ViewBag.Bank = b.Bank;
@@ -848,6 +848,11 @@ namespace LJSheng.Web.Controllers
                             //提交到APP
                             if (AppApi.AddMB(b.Account, TB == 1 ? "BCCB" : "FBCC", Token.ToString()))
                             {
+                                //提取基数分后判断剩下的是否满足冻结条件
+                                if (Type == 2)
+                                {
+                                    Helper.FrozenIntegral(gid, b.MIntegral- Integral, b.TIntegral, 2, 2, "提取基数分满足冻结");
+                                }
                                 return Helper.Redirect("成功", "/Shop/IntegralAPP?type=" + Type, "恭喜你,兑换成功!");
                             }
                             else

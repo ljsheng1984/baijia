@@ -212,7 +212,7 @@ namespace LJSheng.Web
         //  ]
         //}
         /// </returns>
-        public static decimal AVG()
+        public static decimal AVG(int TB)
         {
             decimal price = 0;
             try
@@ -224,7 +224,7 @@ namespace LJSheng.Web
                 {
                     if (paramJson["data"].ToString()!= "[]")
                     {
-                        price = decimal.Parse(paramJson["data"][0]["avg_price"].ToString());
+                        price = TB== 1? decimal.Parse(paramJson["data"][0]["avg_price"].ToString()): decimal.Parse(paramJson["data"][1]["avg_price"].ToString());
                     }
                 }
             }

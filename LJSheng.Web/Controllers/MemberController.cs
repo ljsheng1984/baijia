@@ -1712,8 +1712,9 @@ namespace LJSheng.Web.Controllers
                 Guid gid = LCookie.GetMemberGid();
                 var b = db.Member.Where(l => l.Gid == gid).FirstOrDefault();
                 ViewBag.Integral = b.Money;
-                //查询兑换比例
-                ViewBag.MT = decimal.Parse(db.DictionariesList.Where(dl => dl.Key == "Money" && dl.DGid == db.Dictionaries.Where(d => d.DictionaryType == "Token").FirstOrDefault().Gid).FirstOrDefault().Value);
+                ////查询兑换比例
+                //ViewBag.BCCB = 1 / AppApi.AVG(1);
+                //ViewBag.FBCC = 1 / AppApi.AVG(2);
                 if (Integral <= 0 || TB <= 0)
                 {
                     return View();
@@ -1728,7 +1729,7 @@ namespace LJSheng.Web.Controllers
                     else
                     {
                         //获取兑换比例积分
-                        decimal Token = Integral * ViewBag.MT;
+                        decimal Token = Integral * (1 / AppApi.AVG(TB));
                         Guid TRGid = Guid.NewGuid();
                         if (Helper.TokenRecordAdd(TRGid,gid, Integral, Token, 1, TB))
                         {

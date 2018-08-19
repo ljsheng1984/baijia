@@ -37,16 +37,10 @@
                 <div class="cell">
                     <div class="cell-left">兑换积分</div>
                     <div class="cell-right">
-                        <input type="text" class="text" placeholder="最少100起提" id="Integral" name="Integral" onkeyup="value=value.replace(/[^\d.]/g,'');" onchange="MB();" />
+                        <input type="text" class="text" placeholder="最少100起提" id="Integral" name="Integral" onkeyup="value=value.replace(/[^\d.]/g,'');" />
                     </div>
                 </div>
                 <div class="cell">
-                    <div class="cell-left">实际兑换(1:@ViewBag.MT)</div>
-                    <div class="cell-right">
-                        <input type="text" class="text" placeholder="实际兑换" id="BCCB" name="BCCB" onkeyup="value=value.replace(/[^\d.]/g,'');" readonly>
-                    </div>
-                </div>
-                <div class="cell hide">
                     <div class="cell-left">兑换币种</div>
                     <div class="cell-right">
                         <div>
@@ -58,7 +52,7 @@
                     </div>
                 </div>
                 <div class="info" style="text-align: right;">
-                    你当前可提现积分为=@ViewBag.Integral,兑换比例=@ViewBag.MT
+                    你当前可提现积分为=@ViewBag.Integral
                 </div>
             </div>
             <div class="padding-btn-group">
@@ -70,9 +64,6 @@
 </div>
 <div class="dialog-modal hide" onclick="out();"></div>
 <script>
-    function MB() {
-        document.getElementById("BCCB").value = document.getElementById("Integral").value * @ViewBag.MT;
-    }
     function getlist(type,ev) {
         $("#type").val(type);
         $(".order-tabs a").removeClass("active");
