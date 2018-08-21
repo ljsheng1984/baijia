@@ -35,26 +35,26 @@ namespace LJSheng.Web.Controllers
                         {
                             if (Helper.PayOrder(OrderNo, Request.QueryString["TradeNo"], PayType, PayPrice))
                             {
-                                msg = "订单(" + OrderNo + ")已操作成功";
+                                msg = "彩链订单(" + OrderNo + ")已操作成功";
                             }
                         }
                         else
                         {
-                            msg = "订单(" + OrderNo + ")无效";
+                            msg = "彩链订单(" + OrderNo + ")无效";
                         }
                     }
                     else if (type == 2)
                     {
-                        if (db.ShopOrder.Where(l => l.OrderNo == OrderNo && l.PayPrice == PayPrice && l.PayType == PayType && l.PayStatus == 2).Count() == 1)
+                        if (db.ShopOrder.Where(l => l.OrderNo == OrderNo && l.Price == PayPrice && l.PayType == PayType && l.PayStatus == 2).Count() == 1)
                         {
                             if (Helper.ShopPayOrder(OrderNo, Request.QueryString["TradeNo"], PayType, PayPrice))
                             {
-                                msg = "订单(" + OrderNo + ")已操作成功";
+                                msg = "商城订单(" + OrderNo + ")已操作成功";
                             }
                         }
                         else
                         {
-                            msg = "订单(" + OrderNo + ")无效";
+                            msg = "商城订单(" + OrderNo + ")无效";
                         }
                     }
                     else

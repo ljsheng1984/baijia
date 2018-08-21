@@ -341,7 +341,8 @@ namespace LJSheng.Web.ajax
                 decimal bank = w.Select(l => l.Money).DefaultIfEmpty(0m).Sum();
                 int bankState = w.Where(l => l.State == 1).Count();
                 int shop = db.Shop.Where(l => l.State == 1).Count();
-                return new AjaxResult(new { member , order , orderStatus , orderES, money, integral, bank, bankState, shop });
+                int shoporder = db.ShopOrder.Where(l => l.PayStatus == 1).Count();
+                return new AjaxResult(new { member , order , orderStatus , orderES, money, integral, bank, bankState, shop, shoporder });
             }
         }
         #endregion

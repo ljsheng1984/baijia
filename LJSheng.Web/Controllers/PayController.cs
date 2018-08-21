@@ -259,7 +259,7 @@ namespace LJSheng.Web.Controllers
             }
             catch (Exception exp)
             {
-                return Helper.Redirect("失败", "history.go(-1);", "订单异常=" + exp.Message);
+                return Helper.Redirect("支付失败", "history.go(-1);", "订单异常=" + exp.Message);
             }
         }
 
@@ -302,8 +302,34 @@ namespace LJSheng.Web.Controllers
                         {
                             return Content("success");
                         }
+                        else
+                        {
+                            LogManager.WriteLog("支付宝对账失败", out_trade_no);
+                        }
+                    }
+                    else
+                    {
+                        LogManager.WriteLog("支付宝支付状态失败", out_trade_no);
                     }
                 }
+                else
+                {
+                    Dictionary<string, string> dic = new Dictionary<string, string>();
+                    var form = Request.Form;
+                    string str = "异步通知：\r\n";
+                    foreach (var key in form)
+                    {
+                        dic[key.ToString()] = Request.Form[key.ToString()];
+                        var value = Request.Form[key.ToString()];
+                        //记录日志使用
+                        str += $"{key.ToString()}:{value}\r\n";
+                    }
+                    LogManager.WriteLog("支付宝签名不通过", str);
+                }
+            }
+            else
+            {
+                LogManager.WriteLog("支付宝参数失败", sArray.Count.ToString());
             }
             return Content("fail");
         }

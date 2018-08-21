@@ -89,6 +89,7 @@
                 <a target="list" href="@(LJSheng.Common.LCookie.Getljsheng("Jurisdiction")=="管理员"?"/LJSheng/WithdrawalsList":"#")">提现金额<br /><em id="bank">0</em></a>
                 <a target="list" href="@(LJSheng.Common.LCookie.Getljsheng("Jurisdiction")=="管理员"?"/LJSheng/WithdrawalsList?State=1":"#")">待提现<br /><em id="bankState">0</em></a>
                 <a target="list" href="@(LJSheng.Common.LCookie.Getljsheng("Jurisdiction")=="管理员"?"/LJSheng/ShopList?State=1":"#")">商家<br /><em id="shop">0</em></a>
+                <a target="list" href="@(LJSheng.Common.LCookie.Getljsheng("Jurisdiction")=="管理员"?"/LJSheng/ShopOrderList":"#")">商城订单<br /><em id="shoporder">0</em></a>
             </p>
             <tt><a href="/LJSheng/index" target="list">后台首页</a>|<a href="/Home/Url" target="_blank">前台首页</a>|<a href="/Home/LoginOut?login=/LJSheng/Login" target="_top">您好,@(LJSheng.Common.LCookie.Getljsheng("Jurisdiction")) 安全退出</a></tt>
         </div>
@@ -121,6 +122,7 @@
                         $("#bank").html(data.data.bank);
                         $("#bankState").html(data.data.orderState);
                         $("#shop").html(data.data.shop);
+                        $("#shoporder").html(data.data.shoporder);
                     }
                 }
             });
