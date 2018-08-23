@@ -771,7 +771,7 @@ namespace LJSheng.Web
         /// </summary>
         public static string Achievement(string Name, Guid MemberGid, int Year, int Month, decimal TMoney = 0, decimal MMoney = 0, int State = 0, int CLLevel = 0, decimal Money = 0, decimal Integral = 0, decimal ProjectMoney = 0, decimal ProjectIntegral = 0, Guid? StockRightMRGid = null, Guid? ProjectMRGid = null, string Remarks = "", string ProjectRemarks = "", string StockRightRemarks = "")
         {
-            string msg = "\r\n-----------------------------\r\n MemberGid=" + MemberGid.ToString();
+            string msg = "=MemberGid=" + MemberGid.ToString() + "\r\n";
             //msg += "\r\n State=" + State.ToString();
             //msg += "\r\n Year=" + Year.ToString();
             //msg += "\r\n Month=" + Month.ToString();
