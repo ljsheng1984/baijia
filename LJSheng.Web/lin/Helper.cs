@@ -327,7 +327,6 @@ namespace LJSheng.Web
                         b.StockRight = Product.StockRight;
                         b.Project = Project;
                         b.Type = Type;
-                        b.ShopGid = ShopGid;
                         db.Order.Add(b);
                         if (db.SaveChanges() == 1)
                         {

@@ -1,61 +1,86 @@
 ﻿@{
-    ViewBag.Class = "Shop";
-    ViewBag.Title = "商城";
-    Layout = "~/Views/Shared/_SLayout.cshtml";
+    Layout = null;
 }
-<div class="mescroll" id="scroll">
-    <div class="list" id="dataList">
-        <script id="tpl" type="text/html">
-            {{each list as item index}}
-            <a href="/Home/ShopDetail?Gid={{item.Gid}}" class="item multi-lines white">
-                <div class="avatar avatar-xl"><img src="/uploadfiles/shop/{{item.Picture}}" onerror="this.src = '/images/nopic.png'" /></div>
-                <div class="content">
-                    <div class="title">
-                        {{item.Name}}
-                    </div>
-                    <div class="subtitle">{{item.City}}{{item.Area}}{{item.Address}}</div>
-                    <div class="row tiles">
-                        <div class="cell"><div class="label info outline">{{item.Profile}}</div></div>
-                    </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=yes">
+    <title>彩链-商城首页</title>
+    <meta name="keywords" content="彩链">
+    <meta name="description" content="彩链">
+    <meta name="author" content="彩链">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="css/owl.carousel.css" />
+    <link rel="stylesheet" type="text/css" href="/css/style.css" />
+    <link href="/plugins/mescroll/mescroll.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="default-header-nav">
+        <span>
+            <img src="/images/icon/icon-26.png" />
+        </span>
+        商城
+    </div>
+    <div id="search" class="search">
+        <div class="control hide">
+            <label>商家类别</label>
+            @foreach (var item in Model)
+            {
+                <input type="checkbox" name="fl" value="@item.Value" checked="checked" onclick="setfl();">@item.Key
+            }
+            <input id="Project" name="Project" type="text" class="hidden">
+        </div>
+        <div class="search-content">
+            <input name="Name" type="text" class="input" placeholder="请输入你要搜索的商家名称">
+            <img src="/images/icon/icon-37.png" />
+        </div>
+        <span class="search-btn" onclick="list();">搜索</span>
+    </div>
+    <div class="shop">
+        <div class="shop-content">
+            <div class="shop-type">
+                <p>商品分类</p>
+                <ul>
+                    @foreach (var item in Model)
+                    {
+                        <li class="active" onclick="getlist('@item.Value');">
+                            <img src="/images/@(item.Key + ".png")">
+                            <span>@item.Key</span>
+                        </li>
+                    }
+                </ul>
+            </div>
+            <div class="mescroll" id="scroll">
+                <div class="shop-store" id="dataList">
+                    <p class="shop-store-title">店铺</p>
+                    <script id="tpl" type="text/html">
+                        {{each list as item index}}
+                        <a href="/Home/ShopDetail?Gid={{item.Gid}}" class="shop-store-item">
+                            <div class="shop-store-item-msg">
+                                <div class="shop-store-item-img">
+                                    <img src="/uploadfiles/shop/{{item.Picture}}" alt="店铺">
+                                </div>
+                                <div class="shop-store-item-text">
+                                    <p class="shop-store-item-name">{{item.Name}}</p>
+                                    <p class="shop-store-item-brief">{{item.Remarks}}</p>
+                                    <p class="shop-store-item-product">{{item.Profile}}</p>
+                                </div>
+                            </div>
+                            <span class="shop-store-item-arrow"><img src="/images/icon/icon-27.png" /></span>
+                        </a>
+                        {{/each}}
+                    </script>
                 </div>
-            </a>
-            <div class="divider"></div>
-            {{/each}}
-        </script>
-    </div>
-</div>
-    <div id="search" class="affix dock-bottom modal hidden">
-        <div class="heading">
-            <div class="title"><strong>搜索</strong></div>
-            <nav class="nav"><a data-dismiss="display"><i class="icon-remove muted"></i></a></nav>
-        </div>
-        <div class="divider"></div>
-        <div class="section box">
-            <div class="control has-success">
-                <label for="address">商家名称</label>
-                <input name="Name" type="text" class="input" placeholder="请输入你要搜索的商家名称">
-            </div>
-            <div class="control">
-                <label>商家类别</label>
-                @foreach (var item in Model)
-                {
-                    <input type="checkbox" name="fl" value="@item.Value" checked="checked" onclick="setfl();">@item.Key
-                }
-                <input id="Project" name="Project" type="text" class="hidden">
-            </div>
-            <div class="control">
-                <button type="button" class="btn block primary" onclick="scrollSearch();">给我搜</button>
             </div>
         </div>
     </div>
-    <nav class="nav affix dock-top justified">
-        <a onclick="history.go(-1);"><i class="icon-5x icon-arrow-left"></i></a>
-        <a>商城</a>
-        <a href="/Home/Url"><i class="icon-home"></i></a>
-    </nav>
-    <nav class="nav affix dock-bottom justified">
-        <a data-display data-backdrop="true" data-target="#search"><i class="icon icon-search"></i> 搜索</a>
-    </nav>
+    <script src="/js/jquery.js"></script>
+    <script src="/js/template-web.js"></script>
+    <script src="/plugins/mescroll/mescroll.js"></script>
+    <script src="/js/mlist.js"></script>
     <script>
         function setfl() {
             document.getElementById("Project").value = "";
@@ -67,4 +92,20 @@
                 }
             }
         }
+        function getlist(gid) {
+            document.getElementById("Project").value = gid + ",";
+            //重置列表数据
+            scroll.resetUpScroll();
+            //隐藏回到顶部按钮
+            scroll.hideTopBtn();
+        }
+        function list() {
+            document.getElementById("Project").value = "";
+            //重置列表数据
+            scroll.resetUpScroll();
+            //隐藏回到顶部按钮
+            scroll.hideTopBtn();
+        }
     </script>
+</body>
+</html>

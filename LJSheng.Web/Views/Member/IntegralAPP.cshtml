@@ -2,8 +2,11 @@
     ViewBag.Title = "彩链积分兑换";
     Layout = "~/Views/Shared/_LLayout.cshtml";
 }
-<div id="tx" class="padding-btn-group">
+<div id="tx" class="padding-btn-group hidden">
     <button type="button" id="btn" class="btn-block btn-green" onclick="tx();">钱包兑换</button>
+</div>
+<div class="padding-btn-group">
+    <a class="btn-block btn-green" href="/Member/ToAPP">钱包兑换</a>
 </div>
 <div class="order-tabs" id="search">
     <a onclick="getlist(0);" class="active">全部</a>

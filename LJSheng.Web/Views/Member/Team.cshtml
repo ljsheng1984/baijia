@@ -1,65 +1,105 @@
 ﻿@{
-    ViewBag.Title = "我的团队";
-    Layout = "~/Views/Shared/_LLayout.cshtml";
+    Layout = null;
 }
-<div class="bonus-tabs">
-    <div class="cell active" onclick="getlist(0);">
-        <p>查看</p>
-        <h3>全部</h3>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=yes">
+    <title>彩链-我的团队</title>
+    <meta name="keywords" content="彩链">
+    <meta name="description" content="彩链">
+    <meta name="author" content="彩链">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="/css/style.css" />
+    <link href="/plugins/mescroll/mescroll.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="default-header-nav">
+        <span>
+            <img src="/images/icon/icon-26.png" />
+        </span> 我的团队
     </div>
-    <div class="cell" onclick="getlist(22);">
-        <p>VIP</p>
-        <h3>@ViewBag.Level22</h3>
-    </div>
-    <div class="cell" onclick="getlist(23);">
-        <p>总代</p>
-        <h3>@ViewBag.Level23</h3>
-    </div>
-    <div class="cell" onclick="getlist(24);">
-        <p>联创</p>
-        <h3>@ViewBag.Level24</h3>
-    </div>
-    <div class="cell" onclick="getlist(25);">
-        <p>合伙人</p>
-        <h3>@ViewBag.Level25</h3>
-    </div>
-    <div class="cell" onclick="getlist(26);">
-        <p>创始人</p>
-        <h3>@ViewBag.Level26</h3>
-    </div>
-</div>
-<div id="search" hidden>
-    <input type="text" name="type" id="type" value="0" />
-</div>
-<div class="mescroll" id="scroll">
-    <ul class="team-detail-ul" id="dataList">
-        <script id="tpl" type="text/html">
-            {{each list as item index}}
-            <li class="cell">
-                <a class="img">
-                    <img src="/uploadfiles/member/{{item.Picture}}" onerror="this.src='/images/{{item.Gender}}.png'" />
-                    <span class="rank">{{item.Number}}</span>
-                </a>
-                <h1><span class="label {{item.Label}}">{{item.LevelName}}</span> {{item.RealName}}</h1>
-                <div class="number">
-                    <a class="tel">{{item.Account}}</a>
-                    <a class="time">{{item.AddTime}}</a>
-                </div>
+    <div class="team-type">
+        <ul>
+            <li onclick="getlist(0);">
+                <span>查看</span>
+                <span>全部</span>
             </li>
-            {{/each}}
-        </script>
-    </ul>
-</div>
-<script>
-    function getlist(type, ev) {
-        $("#type").val(type);
-        $(".bonus-tabs div").removeClass("active");
-        ev = ev || window.event;
-        var tmp = ev.target || ev.srcElement;
-        tmp.className = "active";
-        //重置列表数据
-        scroll.resetUpScroll();
-        //隐藏回到顶部按钮
-        scroll.hideTopBtn();
-    }
-</script>
+            <li onclick="getlist(22);">
+                <span>VIP</span>
+                <span>@ViewBag.Level22</span>
+            </li>
+            <li onclick="getlist(23);">
+                <span>代理商</span>
+                <span>@ViewBag.Level23</span>
+            </li>
+            <li onclick="getlist(24);">
+                <span>合伙人</span>
+                <span>@ViewBag.Level24</span>
+            </li>
+            <li onclick="getlist(25);">
+                <span>联创</span>
+                <span>@ViewBag.Level25</span>
+            </li>
+            <li onclick="getlist(26);">
+                <span>创始人</span>
+                <span>@ViewBag.Level26</span>
+            </li>
+        </ul>
+    </div>
+    <div id="search" hidden>
+        <input type="text" name="type" id="type" value="0" />
+    </div>
+    <div class="mescroll" id="scroll">
+        <div class="team-content" id="dataList">
+            <script id="tpl" type="text/html">
+                {{each list as item index}}
+                <div class="team-item">
+                    <div class="team-item-msg">
+                        <div class="team-item-avatar">
+                            <img src="/uploadfiles/member/{{item.Picture}}" onerror="this.src='/images/{{item.Gender}}.png'" />
+                            <span>{{item.Number}}</span>
+                        </div>
+                        <div class="team-item-text">
+                            <p>
+                                <span class="label {{item.Label}}">{{item.LevelName}}</span>
+                                <span>{{item.RealName}}</span>
+                            </p>
+                            <p>
+                                <a class="team-item-phone">
+                                    <img src="/images/icon/icon-12.png" alt="电话">
+                                    <span>{{item.Account}}</span>
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="team-item-num">
+
+                    </div>
+                </div>
+                {{/each}}
+            </script>
+        </div>
+    </div>
+    <script src="/js/jquery.js"></script>
+    <script src="/js/template-web.js"></script>
+    <script src="/plugins/mescroll/mescroll.js"></script>
+    <script src="/js/mlist.js"></script>
+    <script>
+        function getlist(type, ev) {
+            $("#type").val(type);
+            $(".bonus-tabs div").removeClass("active");
+            ev = ev || window.event;
+            var tmp = ev.target || ev.srcElement;
+            tmp.className = "active";
+            //重置列表数据
+            scroll.resetUpScroll();
+            //隐藏回到顶部按钮
+            scroll.hideTopBtn();
+        }
+    </script>
+</body>
+</html>

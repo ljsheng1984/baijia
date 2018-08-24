@@ -114,7 +114,7 @@ function GetList(pageindex) {
 function PWD(gid) {
     if (window.confirm('你确定要重设密码吗？')) {
         $.ajax({
-            url: "/LJSheng/" + controller + "pwd",
+            url: "/LJSheng/" + controller + "pwd" + "&cache=" + Math.random(),
             data: "Gid=" + gid,
             type: "post",
             cache: false,
@@ -136,7 +136,7 @@ function PWD(gid) {
 function Delete(gid) {
     if (window.confirm('你确定要删除吗？')) {
         $.ajax({
-            url: "/LJSheng/" + controller + "delete",
+            url: "/LJSheng/" + controller + "delete" + "&cache=" + Math.random(),
             data: "Gid=" + gid,
             type: "post",
             cache: false,

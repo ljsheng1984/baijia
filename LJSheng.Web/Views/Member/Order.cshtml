@@ -1,51 +1,100 @@
 ﻿@{
-    ViewBag.Title = "我的订单";
-    Layout = "~/Views/Shared/_LLayout.cshtml";
+    Layout = null;
 }
-<div id="search" hidden>
-    <input class="text" name="ExpressStatus" id="ExpressStatus" value="@Request.QueryString["tab"]" />
-</div>
-<div class="order-tabs">
-    <a onclick="getlist(0);">全部</a>
-    <a onclick="getlist(1);">待发货</a>
-    <a onclick="getlist(2);">待收货</a>
-    <a onclick="getlist(3);">已收货</a>
-</div>
-<div class="order-item mescroll" id="scroll">
-    <ul id="dataList">
-        <script id="tpl" type="text/html">
-            {{each list as item index}}
-            <div class="order-item">
-                <p class="o-number">订单编号： <span>{{item.OrderNo}}</span></p>
-                {{each item.list as od index}}
-                <a class="shop-info" href="/Home/Detail?gid={{od.ProductGid}}">
-                    <img src="/uploadfiles/product/{{od.Picture}}" />
-                    <h1>{{od.Name}}</h1>
-                    <div class="price">￥{{od.Price}}</div>
-                    <span class="plus">x<b>{{od.Number}}</b></span>
-                </a>
-                {{/each}}
-                <div class="shop-number"><span>共<em>{{item.Number}}</em>件商品</span> <span>合计：<b>￥{{item.TotalPrice}}</b></span></div>
-                <div class="setting">
-                    <a class="btn btn-line" href="/Member/OrderDetail?OrderGid={{item.Gid}}&Number={{item.Number}}&type=0">查看订单</a>
-                </div>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=yes">
+    <title>彩链订单</title>
+    <meta name="keywords" content="彩链">
+    <meta name="description" content="彩链">
+    <meta name="author" content="彩链">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="/css/style.css" />
+    <link href="/plugins/mescroll/mescroll.css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="default-header-nav">
+        <span onclick="self.location = '/Member/Index';">
+            <img src="/images/icon/icon-26.png" />
+        </span>
+        订单中心
+    </div>
+    <div id="search" hidden>
+        <input class="text" name="ExpressStatus" id="ExpressStatus" value="@Request.QueryString["tab"]" />
+    </div>
+    <div class="order">
+        <div class="order-type">
+            <ul>
+                <li class="active">我的订单</li>
+                <li><a href="/Member/ShopOrder?tab=0">商城订单</a></li>
+            </ul>
+        </div>
+        <div class="order-status">
+            <ul>
+                <li class="active" onclick="getlist(0);">
+                    <img src="/images/icon/icon-18.png" />
+                    <span>全部</span>
+                </li>
+                <li onclick="getlist(1);">
+                    <img src="/images/icon/icon-19.png" />
+                    <span>待发货</span>
+                </li>
+                <li onclick="getlist(2);">
+                    <img src="/images/icon/icon-20.png" />
+                    <span>待收货</span>
+                </li>
+                <li onclick="getlist(3);">
+                    <img src="/images/icon/icon-21.png" />
+                    <span>已收货</span>
+                </li>
+            </ul>
+        </div>
+        <div class="mescroll" id="scroll">
+            <div class="order-content list" id="dataList">
+                <script id="tpl" type="text/html">
+                    {{each list as item index}}
+                    {{each item.list as od index}}
+                    <a href="/Member/OrderDetail?OrderGid={{item.Gid}}&Number={{item.Number}}&type=0" class="order-item">
+                        <div class="order-item-msg">
+                            <div class="order-item-msg-img">
+                                <img src="/uploadfiles/product/{{od.Picture}}" />
+                            </div>
+                            <div class="order-item-msg-text">
+                                <p class="order-item-name">{{od.Name}}</p>
+                                <p>订单号：{{item.OrderNo}}</p>
+                                <p>{{od.AddTime}}</p>
+                            </div>
+                        </div>
+                        <div class="order-item-num">￥<span>{{od.Price}}</span></div>
+                    </a>
+                    {{/each}}
+                    {{/each}}
+                </script>
             </div>
-            {{/each}}
-        </script>
-    </ul>
-</div>
-<script>
-    $(".order-tabs a").removeClass("active");
-    $(".order-tabs a")[@Request.QueryString["tab"]].className = "active";
-    function getlist(ExpressStatus, ev) {
-        $("#ExpressStatus").val(ExpressStatus);
-        $(".order-tabs a").removeClass("active");
-        ev = ev || window.event;
-        var tmp = ev.target || ev.srcElement;
-        tmp.className = "active";
-        //重置列表数据
-        scroll.resetUpScroll();
-        //隐藏回到顶部按钮
-        scroll.hideTopBtn();
-    }
-</script>
+        </div>
+    </div>
+    <script src="/js/jquery.js"></script>
+    <script src="/js/page.js"></script>
+    <script src="/js/template-web.js"></script>
+    <script src="/plugins/mescroll/mescroll.js"></script>
+    <script src="/js/mlist.js"></script>
+    <script>
+        function getlist(ExpressStatus, ev) {
+            $("#ExpressStatus").val(ExpressStatus);
+            $(".order-status li").removeClass("active");
+            ev = ev || window.event;
+            var tmp = ev.target || ev.srcElement;
+            tmp.className = "active";
+            //重置列表数据
+            scroll.resetUpScroll();
+            //隐藏回到顶部按钮
+            scroll.hideTopBtn();
+        }
+    </script>
+</body>
+</html>

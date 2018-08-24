@@ -1,190 +1,70 @@
-﻿
-@{
-    Layout = null;
+﻿@{
+    ViewBag.Class = "Shop";
+    ViewBag.Title = "商城";
+    Layout = "~/Views/Shared/_SLayout.cshtml";
 }
-<!DOCTYPE html>
-<html>
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="format-detection" content="telephone=yes">
-    <title>彩链-我的</title>
-    <meta name="keywords" content="彩链">
-    <meta name="description" content="彩链">
-    <meta name="author" content="彩链">
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" type="text/css" href="/css/style.css" />
-</head>
-<body>
-    <div class="center">
-        <!--我的头部-->
-        <div class="center-header">
-            <div class="center-header-content">
-                <div class="center-header-msg">
-                    <div class="center-header-avatar">
-                        <img src="/uploadfiles/member/@ViewBag.Picture" alt="头像" />
+<div class="mescroll" id="scroll">
+    <div class="list" id="dataList">
+        <script id="tpl" type="text/html">
+            {{each list as item index}}
+            <a href="/Home/ShopDetail?Gid={{item.Gid}}" class="item multi-lines white">
+                <div class="avatar avatar-xl"><img src="/uploadfiles/shop/{{item.Picture}}" onerror="this.src = '/images/nopic.png'" /></div>
+                <div class="content">
+                    <div class="title">
+                        {{item.Name}}
                     </div>
-                    <div class="center-header-text">
-                        <p>@ViewBag.Account (@ViewBag.RealName)</p>
-                        <p class="label @(ViewBag.Project ==2?ViewBag.CLLabel:ViewBag.Label)">@(ViewBag.Project == 2 ? ViewBag.CLLevelName : ViewBag.LevelName)</p>
+                    <div class="subtitle">{{item.City}}{{item.Area}}{{item.Address}}</div>
+                    <div class="row tiles">
+                        <div class="cell"><div class="label info outline">{{item.Profile}}</div></div>
                     </div>
                 </div>
-                <a href="/Member/Info" class="center-header-arrow">
-                    <img src="/images/icon/icon-25.png" />
-                </a>
-            </div>
-            <div class="logout" onclick="self.location='/Home/LoginOut?login=/Home/Login';">退出登录</div>
+            </a>
+            <div class="divider"></div>
+            {{/each}}
+        </script>
+    </div>
+</div>
+<div id="search" class="affix dock-bottom modal hidden">
+    <div class="heading">
+        <div class="title"><strong>搜索</strong></div>
+        <nav class="nav"><a data-dismiss="display"><i class="icon-remove muted"></i></a></nav>
+    </div>
+    <div class="divider"></div>
+    <div class="section box">
+        <div class="control has-success">
+            <label for="address">商家名称</label>
+            <input name="Name" type="text" class="input" placeholder="请输入你要搜索的商家名称">
         </div>
-        <!--my token-->
-        <div class="default-block my-token">
-            <div class="my-token-item">
-                <img src="/images/icon/icon-1.png" />
-                <span class="my-token-item-titlt">My Token</span>
-                <span class="my-token-item-num">
-                    <span class="">BCCB:</span>
-                    <span>1200</span>
-                </span>
-            </div>
-            <div class="my-token-item">
-                <img src="/images/icon/icon-2.png" />
-                <span class="my-token-item-titlt">我的彩链:</span>
-                <span class="my-token-item-price">
-                    库存=@ViewBag.Stock (未付款=@ViewBag.LockStock / 24小时释放)
-                    <img src="/images/icon/icon-25.png" />
-                </span>
-            </div>
+        <div class="control">
+            <label>商家类别</label>
+            @foreach (var item in Model)
+            {
+                <input type="checkbox" name="fl" value="@item.Value" checked="checked" onclick="setfl();">@item.Key
+            }
+            <input id="Project" name="Project" type="text" class="hidden">
         </div>
-        <!--积分-->
-        <div class="default-block integral">
-            <div class="default-block-title">
-                积分
-                <a href="#this" class="more-btn">
-                    查看更多<img src="/images/icon/icon-24.png" />
-                </a>
-            </div>
-            <div class="integral-content">
-                <div class="integral-item">
-                    <img src="/images/icon/icon-3.png" />
-                    <p>可提积分 <span>9100</span></p>
-                </div>
-                <div class="integral-item">
-                    <img src="/images/icon/icon-4.png" />
-                    <p>购物积分 <span>9100</span></p>
-                </div>
-            </div>
-        </div>
-        <!--商城积分-->
-        <div class="default-block mall-points">
-            <div class="default-block-title">
-                商城积分
-                <a href="#this" class="more-btn">
-                    查看更多<img src="/images/icon/icon-24.png" />
-                </a>
-            </div>
-            <div class="integral-content">
-                <div class="integral-item">
-                    <img src="/images/icon/icon-3.png" />
-                    <p>可提积分 <span>9100</span></p>
-                    <p>消费金额 <span>9100</span></p>
-                </div>
-                <div class="integral-item">
-                    <img src="/images/icon/icon-5.png" />
-                    <p>团队积分 <span>9100</span></p>
-                    <p>消费金额 <span>9100</span></p>
-                </div>
-                <div class="integral-item">
-                    <img src="/images/icon/icon-3.png" />
-                    <p>冻结积分 <span>9100</span></p>
-                </div>
-            </div>
-        </div>
-        <!--商家中心-->
-        <div class="default-block integral">
-            <div class="default-block-title">
-                商家中心
-                <a href="/Shop/Index" class="more-btn">
-                    查看更多<img src="/images/icon/icon-24.png" />
-                </a>
-            </div>
-            <div class="integral-content">
-                <div class="integral-item" onclick="self.location='/Member/Integral?tab=1';">
-                    <img src="/images/icon/icon-6.png" />
-                    <p class="integral-item-tag"><span>可提积分</span></p>
-                    <p><span>20</span></p>
-                </div>
-                <div class="integral-item" onclick="self.location='/Member/Integral?tab=2';">
-                    <img src="/images/icon/icon-7.png" />
-                    <p>购物积分</p>
-                    <p><span>7810</span></p>
-                </div>
-            </div>
-        </div>
-        <!--我的团队-->
-        <div class="default-block my-team">
-            <div class="my-team-item" onclick="self.location='/Member/Team';">
-                <p>
-                    <span class="my-team-item-title">我的团队</span>
-                    <span>(团队 本月业绩：540000)</span>
-                </p>
-                <a href="#this" class="more-btn">
-                    <img src="/images/icon/icon-24.png" />
-                </a>
-            </div>
-            <div class="my-team-item" onclick="self.location='/Member/Order?tab=0';">
-                <p>
-                    <span class="my-team-item-title">订单中心</span>
-                </p>
-                <a href="#this" class="more-btn">
-                    <img src="/images/icon/icon-24.png" />
-                </a>
-            </div>
-        </div>
-        <!--联系我们-->
-        <div class="default-block concat-us">
-            <div class="concat-item" onclick="self.location='/Home/Share?m=@LJSheng.Common.LCookie.GetCK("linjiansheng", "Account")&gid=@LJSheng.Common.LCookie.GetMemberGid()&MID=@ViewBag.MID';">
-                <img src="/images/icon/icon-8.png" />
-                <p>分享二维码</p>
-            </div>
-            <div class="concat-item">
-                <img src="/images/icon/icon-9.png" />
-                <p>联系我们</p>
-            </div>
+        <div class="control">
+            <button type="button" class="btn block primary" onclick="scrollSearch();">给我搜</button>
         </div>
     </div>
-    <div class="bottom-menu">
-        <div class="bottom-menu-content">
-            <ul>
-                <li>
-                    <a href="/Home/Index" class="active">
-                        <img src="/images/icon/icon-42.png" class="bottom-menu-default-icon" />
-                        <img src="/images/icon/icon-41.png" class="bottom-menu-active-icon" />
-                        <span>首页</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="/Home/APP">
-                        <img src="/images/icon/icon-38.png" class="bottom-menu-default-icon" />
-                        <img src="/images/icon/icon-39.png" class="bottom-menu-active-icon" />
-                        <span>APP</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="/Home/Shop">
-                        <img src="/images/icon/icon-43.png" class="bottom-menu-default-icon" />
-                        <img src="/images/icon/icon-44.png" class="bottom-menu-active-icon" />
-                        <span>商城</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="/Member/Index">
-                        <img src="/images/icon/icon-45.png" class="bottom-menu-default-icon" />
-                        <img src="/images/icon/icon-46.png" class="bottom-menu-active-icon" />
-                        <span>我的</span>
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </div>
-</body>
-</html>
+</div>
+<nav class="nav affix dock-top justified">
+    <a onclick="history.go(-1);"><i class="icon-5x icon-arrow-left"></i></a>
+    <a>商城</a>
+    <a href="/Home/Url"><i class="icon-home"></i></a>
+</nav>
+<nav class="nav affix dock-bottom justified">
+    <a data-display data-backdrop="true" data-target="#search"><i class="icon icon-search"></i> 搜索</a>
+</nav>
+<script>
+    function setfl() {
+        document.getElementById("Project").value = "";
+        var groupCheckbox = $("input[name='fl']");
+        for (i = 0; i < groupCheckbox.length; i++) {
+            if (!groupCheckbox[i].checked) {
+                var val = groupCheckbox[i].value;
+                document.getElementById("Project").value += val + ",";
+            }
+        }
+    }
+</script>

@@ -28,8 +28,8 @@ namespace LJSheng.Web.Controllers
         {
             using (EFDB db = new EFDB())
             {
-                Guid gid = LCookie.GetMemberGid();
-                var b = db.Shop.Where(l => l.MemberGid == gid).FirstOrDefault();
+                Guid MemberGid = LCookie.GetMemberGid();
+                var b = db.Shop.Where(l => l.MemberGid == MemberGid).FirstOrDefault();
                 ViewBag.Name = b.Name;
                 ViewBag.State = b.State;
                 ViewBag.Picture = Help.Shop + b.Picture;
@@ -41,6 +41,11 @@ namespace LJSheng.Web.Controllers
                     b.LegalPerson,
                     b.Name
                 })), 1);
+                ViewBag.ShopMoney = db.Member.Where(l => l.Gid == MemberGid).FirstOrDefault().ShopMoney;
+                //库存
+                Guid ProductGid = Helper.GetProductGid();
+                var ms = db.Stock.Where(l => l.MemberGid == MemberGid && l.ProductGid == ProductGid).FirstOrDefault();
+                ViewBag.Stock = ms == null ? 0 : ms.Number;
             }
             return View();
         }
@@ -558,6 +563,100 @@ namespace LJSheng.Web.Controllers
 
         #region 我要提现
         /// <summary>
+        /// 提现
+        /// </summary>
+        /// <param name="BankName">开户人</param>
+        /// <param name="BankNumber">卡号</param>
+        /// <param name="Bank">开户行</param>
+        /// <param name="Money">提现积分</param>
+        /// <returns>返回调用结果</returns>
+        /// <para name="result">200 是成功其他失败</para>
+        /// <para name="data">对象结果</para>
+        /// <remarks>
+        /// 2018-08-18 林建生
+        /// </remarks>
+        public ActionResult RMB(decimal Money = 0)
+        {
+            using (EFDB db = new EFDB())
+            {
+                Guid gid = LCookie.GetMemberGid();
+                var b = db.Member.Where(l => l.Gid == gid).FirstOrDefault();
+                ViewBag.Money = b.ShopMoney;
+                ViewBag.Token = decimal.Parse(db.DictionariesList.Where(dl => dl.Key == "Token" && dl.DGid == db.Dictionaries.Where(d => d.DictionaryType == "CL").FirstOrDefault().Gid).FirstOrDefault().Value);
+                ViewBag.BCCB = AppApi.MB(b.Account, "BCCB");
+                ViewBag.Token24 = AppApi.AVG(1);
+                if (Money == 0)
+                {
+                    ViewBag.Bank = b.Bank;
+                    ViewBag.BankName = b.BankName;
+                    ViewBag.BankNumber = b.BankNumber;
+                    ViewBag.Number = b.BankNumber.Length > 5 ? b.BankNumber.Substring(b.BankNumber.Length - 4, 4) : "请完善资料";
+                    return View();
+                }
+                else
+                {
+                    if (Money < 100)
+                    {
+                        return Helper.Redirect("失败", "history.go(-1);", "最少100积分起提");
+                    }
+                    else
+                    {
+                        if (Money > b.ShopMoney)
+                        {
+                            return Helper.Redirect("失败", "history.go(-1);", "可提积分不足");
+                        }
+                        else
+                        {
+                            decimal bccb = Money * ViewBag.Token / ViewBag.Token24;
+                            if (ViewBag.BCCB >= bccb)
+                            {
+                                if (AppApi.UPMB(b.Account, "BCCB", bccb.ToString()))
+                                {
+                                    if (Helper.RMBRecordAdd(gid, Money, 2))
+                                    {
+                                        var wd = new ShopWithdrawals();
+                                        wd.Gid = Guid.NewGuid();
+                                        wd.AddTime = DateTime.Now;
+                                        wd.State = 1;
+                                        wd.Money = Money;
+                                        wd.Bank = b.Bank;
+                                        wd.BankName = b.BankName;
+                                        wd.BankNumber = b.BankNumber;
+                                        wd.ShopGid = gid;
+                                        wd.Token = bccb;
+                                        db.ShopWithdrawals.Add(wd);
+                                        if (db.SaveChanges() == 1)
+                                        {
+                                            return Helper.Redirect("成功", "/Shop/Money", "恭喜你,提现成功,等待财务审核后打款");
+                                        }
+                                        else
+                                        {
+                                            LogManager.WriteLog("商家扣除成功打款记录失败", "gid=" + gid.ToString() + ",money=" + Money.ToString() + ",bccb=" + bccb.ToString());
+                                            return Helper.Redirect("失败", "history.go(-1);", "扣除成功打款记录失败");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        LogManager.WriteLog("BCCB扣除成功增加资金失败", "gid=" + gid.ToString() + ",money=" + Money.ToString() + ",bccb=" + bccb.ToString());
+                                        return Helper.Redirect("失败", "history.go(-1);", "扣除失败");
+                                    }
+                                }
+                                else
+                                {
+                                    return Helper.Redirect("失败", "history.go(-1);", "BCCB手续费扣除失败");
+                                }
+                            }
+                            else
+                            {
+                                return Helper.Redirect("失败", "history.go(-1);", "BCCB手续费不足");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// 提现管理
         /// </summary>
         /// <param name="BankName">开户人</param>
@@ -649,6 +748,7 @@ namespace LJSheng.Web.Controllers
                 }
             }
         }
+
         [HttpPost]
         public ActionResult MoneyData()
         {

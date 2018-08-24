@@ -1,0 +1,111 @@
+﻿
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=yes">
+    <title>彩链-商城积分</title>
+    <meta name="keywords" content="彩链">
+    <meta name="description" content="彩链">
+    <meta name="author" content="彩链">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="/css/style.css" />
+</head>
+
+<body>
+    <div class="default-header-nav">
+        <span>
+            <a href="/Member/Index">
+                <img src="/images/icon/icon-26.png" />
+            </a>
+        </span> 商城积分
+    </div>
+    <div class="center">
+        <!--我的头部-->
+        <div class="center-header integral-center">
+            <div class="center-header-content">
+                <div class="center-header-msg">
+                    <div class="center-header-avatar">
+                        <img src="/uploadfiles/member/@ViewBag.Picture" alt="头像" />
+                    </div>
+                    <div class="center-header-text">
+                        <p>@ViewBag.Account (@ViewBag.RealName)</p>
+                        <p class="label @ViewBag.CLLabel">@ViewBag.CLLevelName</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--积分-->
+        <div class="integral-box">
+            <div class="shop-integral-box">
+                <div class="shop-integral-item">
+                    <div class="shop-integral-item-type">
+                        <img src="/images/icon/icon-3.png" />
+                        <span>可提积分</span>
+                    </div>
+                    <span class="shop-integral-item-num">@ViewBag.ShopIntegral</span>
+                </div>
+                <div class="shop-integral-item">
+                    <div class="shop-integral-item-type">
+                        <img src="/images/icon/icon-8.png" />
+                        <span>消费金额</span>
+                    </div>
+                    <span class="shop-integral-item-num">@ViewBag.ShopOrder</span>
+                </div>
+                <div class="shop-integral-item">
+                    <div class="shop-integral-item-type">
+                        <img src="/images/icon/icon-5.png" />
+                        <span>团队现有积分</span>
+                    </div>
+                    <span class="shop-integral-item-num">@ViewBag.TIntegral</span>
+                </div>
+                <div class="shop-integral-item">
+                    <div class="shop-integral-item-type">
+                        <img src="/images/icon/icon-3.png" />
+                        <span>可获倍数积分</span>
+                    </div>
+                    <span class="shop-integral-item-num">@ViewBag.MM</span>
+                </div>
+            </div>
+            <div class="default-block integral">
+                <div class="default-block-title">
+                    冻结积分
+                </div>
+                <div class="integral-content integral-center-content shop-integral-content">
+                    <div class="integral-item">
+                        <img src="/images/icon/icon-3.png" />
+                        <p>冻结中积分 <span>@ViewBag.ShopRecord</span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="freeze-integral-detail">
+                <div class="default-block integral">
+                    <div class="default-block-title">
+                        冻结积分明细
+                    </div>
+                    <div class="freeze-integral-content">
+                        <div class="freeze-integral-item">
+                            <span>冻结日期</span>
+                            <img class="" src="/images/icon/icon-24.png" />
+                        </div>
+                        <div class="freeze-integral-item">
+                            <span>解结日期</span>
+                            <img class="" src="/images/icon/icon-24.png" />
+                        </div>
+                        <div class="freeze-integral-item">
+                            <span>解冻积分数量</span>
+                            <img class="" src="/images/icon/icon-24.png" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

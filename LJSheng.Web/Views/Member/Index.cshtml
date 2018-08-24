@@ -1,347 +1,247 @@
 ﻿@{
-    ViewBag.Class = "Member";
-    ViewBag.Title = "个人中心";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = null;
 }
-<div class="user-sub">
-    <img src="/uploadfiles/member/@ViewBag.Picture" onerror="this.src='/images/@(ViewBag.Gender+".png")'" />
-    <span class="text">@ViewBag.Account (@ViewBag.RealName)</span><span class="label @(ViewBag.Project ==2?ViewBag.CLLabel:ViewBag.Label)">@(ViewBag.Project == 2 ? ViewBag.CLLevelName : ViewBag.LevelName)</span>
-    <div class="level" onclick="self.location = '/Member/Info';">
-        &nbsp;&nbsp;
-        <i class="icon-arrow-right"></i>
-    </div>
-    <a class="edit" href="~/Home/LoginOut?login=/Home/Login">退出登录</a>
-</div>
-<div class="@(ViewBag.Level >9?"":"hide")">
-    <div class="user-divider">@ViewBag.LevelName</div>
-    <ul class="admin-menu">
-        <li></li>
-        <li>
-            <a href="/Member/Profit?LevelName=@ViewBag.LevelName">
-                <div>
-                    <i class="icon icon-profit"></i>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=yes">
+    <title>彩链-我的</title>
+    <meta name="keywords" content="彩链">
+    <meta name="description" content="彩链">
+    <meta name="author" content="彩链">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="/css/style.css" />
+</head>
+<body>
+    <div class="center">
+        <!--我的头部-->
+        <div class="center-header">
+            <div class="center-header-content">
+                <div class="center-header-msg">
+                    <div class="center-header-avatar">
+                        <img src="/uploadfiles/member/@ViewBag.Picture" alt="头像" onerror="this.src='/images/@(ViewBag.Gender +".png")'" />
+                    </div>
+                    <div class="center-header-text">
+                        <p>@ViewBag.Account (@ViewBag.RealName)</p>
+                        <p class="label @ViewBag.CLLabel">@ViewBag.CLLevelName</p>
+                    </div>
                 </div>
-                <p class="tit">分红明细</p>
-            </a>
-        </li>
-        <li>
-            <a href="/Member/Profit">
-                <div>
-                    <i class="icon icon-fenhong"></i>
-                </div>
-                <p class="tit">占比=@ViewBag.StockRight</p>
-            </a>
-        </li>
-        <li> </li>
-    </ul>
-</div>
-<div class="signle-item">
-    <div class="@(ViewBag.Shop !=0?"":"hide")">
-        <a class="cell" href="/Shop/Index?Account=@ViewBag.Account&RealName=@ViewBag.RealName&LevelName=@ViewBag.LevelName&Label=@ViewBag.Label">
-            <div class="cell-left" style="color:red;font-weight:800;padding-left:30%;">进入商家中心</div>
-        </a>
-    </div>
-    <div class="@(ViewBag.Shop ==0?"":"hide")">
-        <a class="cell" onclick="javascript:Shop();">
-            <div class="cell-left" style="color:red;font-weight:800;padding-left:30%;">申请入驻成为商家</div>
-        </a>
-    </div>
-</div>
-<div class="@(ViewBag.Project ==2?"":"hide")">
-    <div class="user-divider">彩链 <b style="color:cornflowerblue;font-weight:800;padding-left:8%;">当前进货价=@ViewBag.BuyPrice,库存=@ViewBag.Stock (未付款=@ViewBag.LockStock (24小时释放))</b></div>
-    <ul class="admin-menu">
-        <li>
-            <a href="/Member/MProduct">
-                <div>
-                    <i class="icon icon-goods-money"></i>
-                </div>
-                <p class="tit">库存提醒</p>
-            </a>
-        </li>
-        <li>
-            <a href="/Member/Product?BuyPrice=@ViewBag.BuyPrice&Type=4">
-                <div>
-                    <i class="icon icon-goods-money"></i>
-                </div>
-                <p class="tit">发货记录</p>
-            </a>
-        </li>
-        <li>
-            <a href="/Member/Product?BuyPrice=@ViewBag.BuyPrice&Type=5" class="hide">
-                <div>
-                    <i class="icon icon-goods-money"></i>
-                </div>
-                <p class="tit">转售记录</p>
-            </a>
-        </li>
-        <li>
-            <a href="/Member/ProductAU?BuyPrice=@ViewBag.BuyPrice" class="@(ViewBag.SellStock ==2?"":"hide") hide">
-                <div>
-                    <i class="icon icon-storehouse"></i>
-                </div>
-                <p class="tit">转让商品</p>
-            </a>
-        </li>
-        <li class="@(ViewBag.CLLevel ==26?"":"hide")">
-            <a href="/Member/Bonus?Project=2">
-                <div>
-                    <i class="icon icon-order"></i>
-                </div>
-                <p class="tit">彩链分红</p>
-            </a>
-        </li>
-    </ul>
-</div>
-<div>
-    <div class="user-divider">钱包</div>
-    <ul class="admin-menu">
-        <li>
-            <a onclick="b('@ViewBag.Account','BCCB');">
-                <div>
-                    <i class="icon icon-goods-money"></i>
-                </div>
-                <p class="tit">BCCB</p>
-            </a>
-        </li>
-        <li id="BCCB"></li>
-        <li>
-            <a onclick="b('@ViewBag.Account','FBCC');">
-                <div>
-                    <i class="icon icon-goods-money"></i>
-                </div>
-                <p class="tit">FBCC</p>
-            </a>
-        </li>
-        <li id="FBCC"></li>
-    </ul>
-</div>
-<div class="@(ViewBag.Level >=6?"":"hide") @(ViewBag.Project ==1?"":"hide")">
-    <div class="user-divider">合伙人</div>
-    <ul class="admin-menu">
-        <li>
-            <a href="/Member/GetOrder">
-                <div>
-                    <i class="icon icon-knock"></i>
-                </div>
-                <p class="tit">抢单区</p>
-            </a>
-        </li>
-        <li>
-            <a href="/Member/RobOrder">
-                <div>
-                    <i class="icon icon-order"></i>
-                </div>
-                <p class="tit">已抢单</p>
-            </a>
-        </li>
-        <li>
-            <a href="/Member/Stock">
-                <div>
-                    <i class="icon icon-storehouse"></i>
-                </div>
-                <p class="tit">库存</p>
-            </a>
-        </li>
-        <li>
-            <a href="/Member/PMoney">
-                <div>
-                    <i class="icon icon-goods-money"></i>
-                </div>
-                <p class="tit">货款</p>
-            </a>
-        </li>
-    </ul>
-    <ul class="admin-menu">
-        <li>
-            <a href="/Member/StockRight">
-                <div>
-                    <i class="icon icon-fenhong"></i>
-                </div>
-                <p class="tit">我的项目</p>
-            </a>
-        </li>
-        <li>
-            <a href="/Member/Bonus?Project=1">
-                <div>
-                    <i class="icon icon-profit"></i>
-                </div>
-                <p class="tit">我的分红</p>
-            </a>
-        </li>
-        <li></li>
-        <li></li>
-    </ul>
-</div>
-<div class="user-divider">我的订单</div>
-<ul class="admin-menu">
-    <li>
-        <a href="/Member/Order?tab=0">
-            <div>
-                <i class="icon icon-comment"></i>
+                <a href="/Member/Info" class="center-header-arrow">
+                    <img src="/images/icon/icon-25.png" />
+                </a>
             </div>
-            <p class="tit">全部</p>
-        </a>
-    </li>
-    <li>
-        <a href="/Member/Order?tab=1">
-            <div>
-                <i class="icon icon-shipment"></i>
-            </div>
-            <p class="tit">待发货</p>
-        </a>
-    </li>
-    <li>
-        <a href="/Member/Order?tab=2">
-            <div>
-                <i class="icon icon-goods"></i>
-            </div>
-            <p class="tit">待收货</p>
-        </a>
-    </li>
-    <li>
-        <a href="/Member/Order?tab=3">
-            <div>
-                <i class="icon icon-obligations"></i>
-            </div>
-            <p class="tit">已收货</p>
-        </a>
-    </li>
-</ul>
-<div class="user-divider">商城订单</div>
-<ul class="admin-menu">
-    <li>
-        <a href="/Member/ShopOrder?tab=0">
-            <div>
-                <i class="icon icon-comment"></i>
-            </div>
-            <p class="tit">全部</p>
-        </a>
-    </li>
-    <li>
-        <a href="/Member/ShopOrder?tab=1">
-            <div>
-                <i class="icon icon-shipment"></i>
-            </div>
-            <p class="tit">待发货</p>
-        </a>
-    </li>
-    <li>
-        <a href="/Member/ShopOrder?tab=2">
-            <div>
-                <i class="icon icon-goods"></i>
-            </div>
-            <p class="tit">待收货</p>
-        </a>
-    </li>
-    <li>
-        <a href="/Member/ShopOrder?tab=3">
-            <div>
-                <i class="icon icon-obligations"></i>
-            </div>
-            <p class="tit">已收货</p>
-        </a>
-    </li>
-</ul>
-<div class="user-divider">账户</div>
-<ul class="admin-menu">
-    <li>
-        <a href="/Home/Share?m=@LJSheng.Common.LCookie.GetCK("linjiansheng", "Account")&gid=@LJSheng.Common.LCookie.GetMemberGid()&MID=@ViewBag.MID">
-            <div>
-                <i class="icon icon-scan-code"></i>
-            </div>
-            <p class="tit">分享二维码</p>
-        </a>
-    </li>
-    <li>
-        <a href="/Member/Integral?tab=1">
-            <div>
-                <i class="icon icon-bonus"></i>
-            </div>
-            <p class="tit">我的积分</p>
-        </a>
-    </li>
-    <li>
-        <a href="/Member/Withdrawals">
-            <div>
-                <i class="icon icon-money"></i>
-            </div>
-            <p class="tit">提现</p>
-        </a>
-    </li>
-    <li class="hide">
-        <a href="/Member/Referee">
-            <div>
-                <i class="icon icon-recommend"></i>
-            </div>
-            <p class="tit">推荐人</p>
-        </a>
-    </li>
-    <li>
-        <a href="/Member/IntegralAPP?type=1">
-            <div>
-                <i class="icon icon-fenhong"></i>
-            </div>
-            <p class="tit">积分兑换</p>
-        </a>
-    </li>
-</ul>
-<div class="signle-item">
-    <a class="cell" href="/Member/Integral?tab=2">
-        <div class="cell-left">购物积分</div>
-        <div class="cell-right">
-            <div class="text">&nbsp;</div>
-            <i class="icon-arrow"></i>
+            <div class="logout" onclick="self.location='/Home/LoginOut?login=/Home/Login';">退出登录</div>
         </div>
-    </a>
-    <a class="cell" href="/Member/Team">
-        <div class="cell-left">我的团队</div>
-        <div class="cell-right">
-            <div class="text">&nbsp;</div>
-            <i class="icon-arrow"></i>
+        <!--my token-->
+        <div class="default-block my-token">
+            <div class="my-token-item">
+                <img src="/images/icon/icon-1.png" />
+                <span class="my-token-item-titlt">My Token</span>
+                <span class="my-token-item-num">
+                    <span class="">BCCB:</span>
+                    <span>@ViewBag.BCCB</span>
+                </span>
+                <span class="my-token-item-num">
+                    <span class="">FBCC:</span>
+                    <span>@ViewBag.FBCC</span>
+                </span>
+            </div>
+            <div class="my-token-item">
+                <img src="/images/icon/icon-2.png" />
+                <span class="my-token-item-titlt">我的彩链:</span>
+                <span class="my-token-item-price" onclick="self.location='/Member/CL';">
+                    库存=@ViewBag.Stock (未付款=@ViewBag.LockStock / 24小时释放)
+                    <img src="/images/icon/icon-25.png" />
+                </span>
+            </div>
         </div>
-    </a>
-</div>
-<script>
-    function Shop() {
-        if (window.confirm('你确定要入住吗？必须上传商家证件才可以审核哦!')) {
+        <!--积分-->
+        <div class="default-block integral">
+            <div class="default-block-title">
+                积分
+                <a href="/Member/MY" class="more-btn">
+                    查看更多<img src="/images/icon/icon-24.png" />
+                </a>
+            </div>
+            <div class="integral-content">
+                <div class="integral-item">
+                    <img src="/images/icon/icon-3.png" />
+                    <p>可提积分 <span>@ViewBag.Money</span></p>
+                </div>
+                <div class="integral-item">
+                    <img src="/images/icon/icon-4.png" />
+                    <p>购物积分 <span>@ViewBag.Integral</span></p>
+                </div>
+            </div>
+        </div>
+        <!--商城积分-->
+        <div class="default-block mall-points">
+            <div class="default-block-title">
+                商城积分
+                <a href="/Member/MyShop" class="more-btn">
+                    查看更多<img src="/images/icon/icon-24.png" />
+                </a>
+            </div>
+            <div class="integral-content">
+                <div class="integral-item">
+                    <img src="/images/icon/icon-3.png" />
+                    <p>可提积分 <span>@ViewBag.ShopIntegral</span></p>
+                    <p>消费金额 <span>@ViewBag.ShopOrder</span></p>
+                </div>
+                <div class="integral-item">
+                    <img src="/images/icon/icon-5.png" />
+                    <p>团队积分 <span>@ViewBag.TIntegral</span></p>
+                    <p>倍数积分 <span>@ViewBag.MM</span></p>
+                </div>
+                <div class="integral-item">
+                    <img src="/images/icon/icon-3.png" />
+                    <p>冻结积分 <span>@ViewBag.ShopRecord</span></p>
+                </div>
+            </div>
+        </div>
+        <!--商家中心-->
+        <div class="default-block integral @(ViewBag.Shop ==0?"":"hide")">
+            <div class="default-block-title" onclick="javascript:Shop();">
+                申请入驻成为商家
+            </div>
+        </div>
+        <div class="default-block integral hidden @(ViewBag.Shop !=0?"":"hide")">
+            <div class="default-block-title">
+                商家中心
+                <a href="/Shop/Index?Account=@ViewBag.Account&RealName=@ViewBag.RealName&LevelName=@ViewBag.LevelName&Label=@ViewBag.Label" class="more-btn">
+                    进入<img src="/images/icon/icon-24.png" />
+                </a>
+            </div>
+            <div class="integral-content">
+                <div class="integral-item" onclick="self.location='/Member/ShopOrder?tab=0';">
+                    <img src="/images/icon/icon-6.png" />
+                    <p class="integral-item-tag"><span>待处理订单</span></p>
+                    <p><span>@ViewBag.SOC</span></p>
+                </div>
+                <div class="integral-item">
+                    <img src="/images/icon/icon-7.png" />
+                    <p>可提货款</p>
+                    <p><span>@ViewBag.ShopMoney</span></p>
+                </div>
+            </div>
+        </div>
+        <!--我的团队-->
+        <div class="default-block my-team">
+            <div class="my-team-item" onclick="self.location='/Member/Team';">
+                <p>
+                    <span class="my-team-item-title">我的团队</span>
+                    <span>(团队 本月业绩：@ViewBag.TMoney)</span>
+                </p>
+                <a href="#this" class="more-btn">
+                    <img src="/images/icon/icon-24.png" />
+                </a>
+            </div>
+            <div class="my-team-item" onclick="self.location='/Member/Order?tab=0';">
+                <p>
+                    <span class="my-team-item-title">订单中心</span>
+                </p>
+                <a href="#this" class="more-btn">
+                    <img src="/images/icon/icon-24.png" />
+                </a>
+            </div>
+        </div>
+        <!--联系我们-->
+        <div class="default-block concat-us">
+            <div class="concat-item" onclick="self.location='/Home/Share?m=@LJSheng.Common.LCookie.GetCK("linjiansheng", "Account")&gid=@LJSheng.Common.LCookie.GetMemberGid()&MID=@ViewBag.MID';">
+                <img src="/images/icon/icon-8.png" />
+                <p>分享二维码</p>
+            </div>
+            <div class="concat-item">
+                <img src="/images/icon/icon-9.png" />
+                <p>联系我们</p>
+            </div>
+            <div class="concat-item" onclick="self.location='/Member/SendCL';">
+                <img src="/images/icon/icon-9.png" />
+                <p>转赠彩链</p>
+            </div>
+        </div>
+    </div>
+    <div class="bottom-menu">
+        <div class="bottom-menu-content">
+            <ul>
+                <li>
+                    <a href="/Home/Index">
+                        <img src="/images/icon/icon-42.png" class="bottom-menu-default-icon" />
+                        <img src="/images/icon/icon-41.png" class="bottom-menu-active-icon" />
+                        <span>首页</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/Home/APP">
+                        <img src="/images/icon/icon-38.png" class="bottom-menu-default-icon" />
+                        <img src="/images/icon/icon-39.png" class="bottom-menu-active-icon" />
+                        <span>APP</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/Home/Shop">
+                        <img src="/images/icon/icon-43.png" class="bottom-menu-default-icon" />
+                        <img src="/images/icon/icon-44.png" class="bottom-menu-active-icon" />
+                        <span>商城</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/Member/Index" class="active">
+                        <img src="/images/icon/icon-45.png" class="bottom-menu-default-icon" />
+                        <img src="/images/icon/icon-46.png" class="bottom-menu-active-icon" />
+                        <span>我的</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <script src="/js/jquery.js"></script>
+    <script>
+        function Shop() {
+            if (window.confirm('你确定要入住吗？必须上传商家证件才可以审核哦!')) {
+                $.ajax({
+                    url: "/Member/OpenShop",
+                    data: "",
+                    type: "post",
+                    cache: false,
+                    timeout: 8000,
+                    dataType: "json",
+                    ContentType: "application/json; charset=utf-8",
+                    error: function () { alert('请求超时!'); },
+                    beforeSend: function () { },
+                    success: function (data) {
+                        if (data.result === 200) {
+                            self.location = "/Shop/Index";
+                        }
+                        else {
+                            alert(data.data);
+                        }
+                    },
+                });
+                return true;
+            } else {
+                return false;
+            }
+        }
+        function b(account, b) {
             $.ajax({
-                url: "/Member/OpenShop",
-                data: "",
+                url: "/ajax/api.ashx?ff=mb",
+                data: "account=" + account + "&b=" + b,
                 type: "post",
                 cache: false,
                 timeout: 8000,
                 dataType: "json",
                 ContentType: "application/json; charset=utf-8",
-                error: function () { alert('请求超时!'); },
+                error: function () { new $.zui.Messager('请求超时!').show(); },
                 beforeSend: function () { },
                 success: function (data) {
-                    if (data.result === 200) {
-                        self.location = "/Shop/Index";
-                    }
-                    else {
-                        alert(data.data);
-                    }
+                    document.getElementById(b).innerHTML = data.data;
                 },
             });
-            return true;
-        } else {
-            return false;
         }
-    }
-    function b(account, b) {
-        $.ajax({
-            url: "/ajax/api.ashx?ff=mb",
-            data: "account=" + account + "&b=" + b,
-            type: "post",
-            cache: false,
-            timeout: 8000,
-            dataType: "json",
-            ContentType: "application/json; charset=utf-8",
-            error: function () { new $.zui.Messager('请求超时!').show(); },
-            beforeSend: function () { },
-            success: function (data) {
-                document.getElementById(b).innerHTML = data.data;
-            },
-        });
-    }
-</script>
+    </script>
+</body>
+</html>

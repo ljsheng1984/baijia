@@ -1,22 +1,60 @@
 ﻿@{
-    ViewBag.Class = "Index";
-    ViewBag.Title = "线下汇款";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = null;
 }
-<div class="sub-header">
-    <div class="title">请认真核对汇款账户哦</div>
-</div>
-<div class="register-box">
-    <form class="login-form register-form">
-        <h3 class="center">
-            汇款银行:
-            <br />
-            汇款账号:
-            <br />
-            开 户 人:
-            <br />
-            请在汇款备注信息<b>(@Request.QueryString["OrderNo"])</b>,要不然无法核对到账清空!
-        </h3>
-        <div class="mt20 center"><a class="back-btn" href="/Home/Index">点这里跳转</a></div>
-    </form>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=yes">
+    <title>彩链-线下收款</title>
+    <meta name="keywords" content="彩链">
+    <meta name="description" content="彩链">
+    <meta name="author" content="彩链">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="/css/style.css" />
+</head>
+<body>
+    <div class="default-header-nav">
+        <span>
+            <img src="/images/icon/icon-26.png" />
+        </span> 线下收款
+    </div>
+    <div class="withdrawal offline-payment">
+        <div class="withdrawal-content">
+            <div class="withdrawal-operation">
+                <div class="withdrawal-operation-input">
+                    <span class="withdrawal-operation-tag">汇款金额</span>
+                    <input type="text" placeholder="0" value="@Request.QueryString["Money"]" readonly />
+                </div>
+                <div class="withdrawal-operation-input">
+                    <span class="withdrawal-operation-tag">订单号</span>
+                    <input type="text" placeholder="核对订单号" value="@Request.QueryString["OrderNo"]" readonly />
+                </div>
+            </div>
+            <div class="withdrawal-operation">
+                <p class="offline-payment-title">收款信息</p>
+                <div class="withdrawal-operation-input">
+                    <span class="withdrawal-operation-tag">姓名</span>
+                    <input type="text" placeholder="收款人姓名" />
+                </div>
+                <div class="withdrawal-operation-input">
+                    <span class="withdrawal-operation-tag">卡号</span>
+                    <input type="text" placeholder="收款人卡号" />
+                </div>
+                <div class="withdrawal-operation-input">
+                    <span class="withdrawal-operation-tag">银行</span>
+                    <input type="text" placeholder="开户行" />
+                </div>
+                <div class="withdrawal-text">
+                    <span>开户行地址：兴业银行福建省福州分行五四路支行</span>
+                </div>
+            </div>
+        </div>
+        <div class="confirm-payment-btn">
+            <a href="/Home/Index">知道了</a>
+        </div>
+    </div>
+</body>
+</html>

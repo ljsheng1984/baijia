@@ -824,6 +824,7 @@ namespace LJSheng.Web.Controllers
                     {
                         l.Gid,
                         l.Name,
+                        l.Remarks,
                         l.Picture,
                         l.Profile,
                         l.ContactNumber,

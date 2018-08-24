@@ -1,142 +1,195 @@
 ﻿@{
-    ViewBag.Class = "Member";
-    ViewBag.Title = "个人中心";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = null;
 }
-<div class="user-sub">
-    <img src="@ViewBag.Picture" onerror="this.src='/images/nopic.png'" />
-    <span class="text">@ViewBag.Name@(ViewBag.State == 1 ? "(审核中)" : "")</span>
-    <div class="level" onclick="self.location = '/Member/Info';">
-        &nbsp;&nbsp;
-        <i class="icon-arrow-right"></i>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=yes">
+    <title>彩链-商家中心</title>
+    <meta name="keywords" content="彩链">
+    <meta name="description" content="彩链">
+    <meta name="author" content="彩链">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="/css/style.css" />
+</head>
+
+<body>
+    <div class="default-header-nav">
+        <span onclick="self.location = '/Member/Index';">
+            <img src="/images/icon/icon-26.png" />
+        </span> 商家中心
     </div>
-    <a class="edit" href="/Member/Index">返回个人中心</a>
-</div>
-<div class="user-divider">商家服务</div>
-<ul class="admin-menu">
-    <li>
-        <a href="/Shop/Info">
-            <div>
-                <i class="icon icon-knock"></i>
+    <div class="center">
+        <!--我的头部-->
+        <div class="center-header integral-center">
+            <div class="center-header-content">
+                <div class="center-header-msg">
+                    <div class="center-header-avatar">
+                        <img src="@ViewBag.Picture" onerror="this.src='/images/nopic.png'" />
+                    </div>
+                    <div class="center-header-text">
+                        <p>@ViewBag.Name</p>
+                        <p>@(ViewBag.State == 1 ? "(审核中)" : "")</p>
+                    </div>
+                </div>
+                <a href="/Shop/Info" class="center-header-arrow">
+                    <img src="/images/icon/icon-25.png" />
+                </a>
             </div>
-            <p class="tit">商家信息</p>
-        </a>
-    </li>
-    <li>
-        <a href="/Shop/Money">
-            <div>
-                <i class="icon icon-fenhong"></i>
+        </div>
+        <div class="integral-box">
+            <div class="default-block shop-management">
+                <div class="default-block-title">
+                    商品管理
+                </div>
+                <div class="shop-management-content">
+                    <div class="shop-management-item">
+                        <a href="/Shop/ShopClassify">
+                            <img src="/images/icon/icon-47.png" />
+                            <span>产品分类</span>
+                        </a>
+                    </div>
+                    <div class="shop-management-item">
+                        <a href="/Shop/ProductAU">
+                            <img src="/images/icon/icon-49.png" />
+                            <span>产品发布</span>
+                        </a>
+                    </div>
+                    <div class="shop-management-item">
+                        <a href="/Shop/Product">
+                            <img src="/images/icon/icon-48.png" />
+                            <span>产品明细</span>
+                        </a>
+                    </div>
+                </div>
             </div>
-            <p class="tit">提现</p>
-        </a>
-    </li>
-    <li>
-        <a href="/Shop/Order?tab=0">
-            <div>
-                <i class="icon icon-profit"></i>
+            <div class="default-block">
+                <div class="default-block-title">
+                    订单
+                </div>
+                <div class="order-status order-status-merchants">
+                    <ul>
+                        <li>
+                            <a href="/Shop/Order?tab=0">
+                                <img src="/images/icon/icon-18.png" />
+                                <span>全部</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/Shop/Order?tab=1">
+                                <img src="/images/icon/icon-19.png" />
+                                <span>待发货</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/Shop/Order?tab=2">
+                                <img src="/images/icon/icon-20.png" />
+                                <span>待收货</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/Shop/Order?tab=3">
+                                <img src="/images/icon/icon-21.png" />
+                                <span>已收货</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
-            <p class="tit">订单(<b>@ViewBag.Order</b>)</p>
-        </a>
-    </li>
-    <li>
-        <a href="/Shop/CLMoney">
-            <div>
-                <i class="icon icon-fenhong"></i>
+            <div class="freeze-integral-detail">
+                <div class="default-block integral">
+                    <div class="default-block-title">
+                        商家服务
+                    </div>
+                    <div class="freeze-integral-content">
+                        <div class="freeze-integral-item">
+                            <a href="/Shop/Info">
+                                <span>
+                                    <img src="/images/icon/icon-41.png" />
+                                    商家信息
+                                </span>
+                                <img class="" src="/images/icon/icon-24.png" />
+                            </a>
+                        </div>
+                        <div class="freeze-integral-item">
+                            <a href="/Shop/USCI">
+                                <span>
+                                    <img src="/images/icon/icon-41.png" />
+                                    营业执照
+                                </span>
+                                <img class="" src="/images/icon/icon-24.png" />
+                            </a>
+                        </div>
+                        <div class="freeze-integral-item">
+                            <a href="/Shop/LegalPerson">
+                                <span>
+                                    <img src="/images/icon/icon-41.png" />
+                                    法人证件
+                                </span>
+                                <img class="" src="/images/icon/icon-24.png" />
+                            </a>
+                        </div>
+                        <div class="freeze-integral-item">
+                            <span>
+                                <a href="/Shop/Money">
+                                    <img src="/images/icon/icon-20.png" />
+                                    可提货款
+                                    <span>(可提：@ViewBag.ShopMoney )</span>
+                                </a>
+                            </span>
+                            <img class="" src="/images/icon/icon-24.png" />
+                        </div>
+                        <div class="freeze-integral-item">
+                            <span>
+                                <a href="/Shop/CLMoney">
+                                    <img src="/images/icon/icon-44.png" />
+                                    彩链包激活
+                                    <span>(彩链包数：@ViewBag.Stock)</span>
+                                </a>
+                            </span>
+                            <img class="" src="/images/icon/icon-24.png" />
+                        </div>
+                    </div>
+                </div>
             </div>
-            <p class="tit">彩链包额度</p>
-        </a>
-    </li>
-</ul>
-<div class="user-divider">商品管理</div>
-<ul class="admin-menu">
-    <li>
-        <a href="/Shop/ShopClassify">
-            <div>
-                <i class="icon icon-order"></i>
-            </div>
-            <p class="tit">分类管理</p>
-        </a>
-    </li>
-    <li>
-        <a href="/Shop/Product">
-            <div>
-                <i class="icon icon-storehouse"></i>
-            </div>
-            <p class="tit">商品管理</p>
-        </a>
-    </li>
-    <li>
-        <a href="/Shop/ProductAU">
-            <div>
-                <i class="icon icon-goods-money"></i>
-            </div>
-            <p class="tit">发布商品</p>
-        </a>
-    </li>
-    <li></li>
-</ul>
-<div class="user-divider">证件审核</div>
-<ul class="admin-menu">
-    <li></li>
-    <li>
-        <a href="/Shop/USCI">
-            <div>
-                <i class="icon icon-recommend"></i>
-            </div>
-            <p class="tit">营业执照</p>
-        </a>
-    </li>
-    <li>
-        <a href="/Shop/LegalPerson">
-            <div>
-                <i class="icon icon-recommend"></i>
-            </div>
-            <p class="tit">法人证件</p>
-        </a>
-    </li>
-    <li></li>
-</ul>
-<div class="user-divider">钱包兑换</div>
-<ul class="admin-menu">
-    <li>
-        <a href="/Shop/IntegralAPP?type=2">
-            <div>
-                <i class="icon icon-knock"></i>
-            </div>
-            <p class="tit">基数分兑换</p>
-        </a>
-    </li>
-    <li>
-        <a href="/Shop/IntegralAPP?type=3">
-            <div>
-                <i class="icon icon-fenhong"></i>
-            </div>
-            <p class="tit">商城分兑换</p>
-        </a>
-    </li>
-    <li>
-        <a href="/Shop/CLMoney">
-            <div>
-                <i class="icon icon-fenhong"></i>
-            </div>
-            <p class="tit">兑换记录</p>
-        </a>
-    </li>
-    <li>
-        <a href="/Shop/CLMoney">
-            <div>
-                <i class="icon icon-fenhong"></i>
-            </div>
-            <p class="tit">冻结记录</p>
-        </a>
-    </li>
-</ul>
-<script>
-    if (@ViewBag.State==1) {
-        layer.open({
-            content: '请完成商家信息和上传证件完成审核(个人只需在法人证件上传身份证即可)'
-            , skin: 'msg'
-            , time: 5
-        });
-    }
-</script>
+        </div>
+    </div>
+    <div class="bottom-menu">
+        <div class="bottom-menu-content">
+            <ul>
+                <li>
+                    <a href="/Home/Index">
+                        <img src="/images/icon/icon-42.png" class="bottom-menu-default-icon" />
+                        <img src="/images/icon/icon-41.png" class="bottom-menu-active-icon" />
+                        <span>首页</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/Home/APP">
+                        <img src="/images/icon/icon-38.png" class="bottom-menu-default-icon" />
+                        <img src="/images/icon/icon-39.png" class="bottom-menu-active-icon" />
+                        <span>APP</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/Home/Shop">
+                        <img src="/images/icon/icon-43.png" class="bottom-menu-default-icon" />
+                        <img src="/images/icon/icon-44.png" class="bottom-menu-active-icon" />
+                        <span>商城</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/Member/Index" class="active">
+                        <img src="/images/icon/icon-45.png" class="bottom-menu-default-icon" />
+                        <img src="/images/icon/icon-46.png" class="bottom-menu-active-icon" />
+                        <span>我的</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

@@ -150,7 +150,7 @@ namespace LJSheng.Web.Controllers
                             case 1:
                                 return Alipay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), "0.01", 1);//测试要删   //return Alipay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), paramJson["TotalPrice"].ToString());
                             case 3:
-                                return new RedirectResult("/Home/Bank?OrderNo=" + paramJson["OrderNo"].ToString());
+                                return new RedirectResult("/Home/Bank?OrderNo=" + paramJson["OrderNo"].ToString() + "&Money=" + paramJson["TotalPrice"].ToString());
                             default:
                                 return Helper.Redirect("失败", "history.go(-1);", "非法支付");
                         }

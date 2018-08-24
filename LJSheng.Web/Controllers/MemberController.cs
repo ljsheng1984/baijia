@@ -98,7 +98,7 @@ namespace LJSheng.Web.Controllers
                         }
                         if (db.SaveChanges() == 1)
                         {
-                            return Helper.Redirect("成功", type == 0 ? "/Home/Index": "/Member/Address?type=" + type.ToString() + "&url=" + url, "操作成功,请跳转");
+                            return Helper.Redirect("成功", type == 0 ? "/Home/Index" : "/Member/Address?type=" + type.ToString() + "&url=" + url, "操作成功,请跳转");
                         }
                         else
                         {
@@ -176,13 +176,12 @@ namespace LJSheng.Web.Controllers
                 ViewBag.Account = b.Account;
                 ViewBag.MID = b.MID;
                 ViewBag.StockRight = b.StockRight;
-                ViewBag.StockRight = b.StockRight;
                 ViewBag.Shop = db.Shop.Where(s => s.MemberGid == MemberGid).Count();
                 ViewBag.Level = b.Level;
-                var lv = db.Level.Where(l => l.LV == b.Level).FirstOrDefault();
-                ViewBag.Label = lv.Label;
-                ViewBag.LevelName = lv.Name;
-                ViewBag.CLLevel = b.CLLevel;
+                //var lv = db.Level.Where(l => l.LV == b.Level).FirstOrDefault();
+                //ViewBag.Label = lv.Label;
+                //ViewBag.LevelName = lv.Name;
+                //ViewBag.CLLevel = b.CLLevel;
                 var cllv = db.Level.Where(l => l.LV == b.CLLevel).FirstOrDefault();
                 ViewBag.CLLabel = cllv.Label;
                 ViewBag.CLLevelName = cllv.Name;
@@ -194,10 +193,34 @@ namespace LJSheng.Web.Controllers
                 var ms = db.Stock.Where(l => l.MemberGid == MemberGid && l.ProductGid == ProductGid).FirstOrDefault();
                 ViewBag.Stock = ms == null ? 0 : ms.Number;
                 //未付款库存
-                ViewBag.LockStock = db.Order.Where(l => l.ShopGid == MemberGid && l.PayStatus==2).Select(l => new
+                ViewBag.LockStock = db.Order.Where(l => l.ShopGid == MemberGid && l.PayStatus == 2).Select(l => new
                 {
-                    Number = db.OrderDetails.Where(od=>od.OrderGid==l.Gid).Select(od => od.Number).DefaultIfEmpty(0).Sum()
+                    Number = db.OrderDetails.Where(od => od.OrderGid == l.Gid).Select(od => od.Number).DefaultIfEmpty(0).Sum()
                 }).Select(l => l.Number).DefaultIfEmpty(0).Sum();
+                //积分
+                ViewBag.Money = b.Money;
+                ViewBag.Integral = b.Integral;
+                ViewBag.ShopIntegral = b.ShopIntegral;
+                ViewBag.TIntegral = b.TIntegral;
+                //商城查询
+                var so = db.ShopOrder.Where(l => l.PayStatus == 1).ToList();
+                //待处理订单
+                ViewBag.SOC = so.Where(l => l.ShopGid == MemberGid && l.Status==1).Count();
+                //商城消费金额
+                ViewBag.ShopOrder = so.Where(l => l.MemberGid == MemberGid).Select(l => l.TotalPrice).DefaultIfEmpty(0).Sum();
+                //商城货款
+                ViewBag.ShopMoney = b.ShopMoney;
+                //冻结积分
+                ViewBag.ShopRecord = db.ShopRecord.Where(l => l.MemberGid == MemberGid && l.Type == 2 && l.State == 2).Select(l => l.TIntegral).DefaultIfEmpty(0).Sum();
+                //倍数积分
+                ViewBag.MM = cllv.Multiple * b.MIntegral;
+                //团队业绩
+                int Year = DateTime.Now.Year;
+                int Month = DateTime.Now.Month;
+                ViewBag.TMoney = db.Achievement.Where(l => l.Year == Year && l.Month == Month && l.MemberGid == MemberGid).Select(l => l.TMoney).DefaultIfEmpty(0).Sum();
+                //APP数据
+                ViewBag.BCCB = AppApi.AVG(1);
+                ViewBag.FBCC = AppApi.AVG(2);
             }
             return View();
         }
@@ -939,8 +962,8 @@ namespace LJSheng.Web.Controllers
                         }
                         else
                         {
-                            
-                            if (Helper.RMBRecordAdd(MemberGid, PM,1))
+
+                            if (Helper.RMBRecordAdd(MemberGid, PM, 1))
                             {
                                 var wd = new Withdrawals();
                                 wd.Gid = Guid.NewGuid();
@@ -1222,7 +1245,7 @@ namespace LJSheng.Web.Controllers
                     (l, j) => new
                     {
                         l.AddTime,
-                        l.Account,
+                        Account = l.Account.Substring(0, 3) + "****" +l.Account.Substring(6,4),
                         l.Picture,
                         l.RealName,
                         l.Gender,
@@ -1231,7 +1254,7 @@ namespace LJSheng.Web.Controllers
                         j.FirstOrDefault().Label,
                         LevelName = j.FirstOrDefault().Name,
                         Money = db.Achievement.Where(a => a.Year == Year && a.Month == Month && l.MemberGid == MemberGid).Select(a => a.TMoney).DefaultIfEmpty(0).Sum()
-            }).AsQueryable();
+                    }).AsQueryable();
                 if (type != 0)
                 {
                     b = b.Where(l => l.CLLevel == type);
@@ -1416,13 +1439,14 @@ namespace LJSheng.Web.Controllers
                         x.Gid,
                         x.AddTime,
                         x.ExpressStatus,
+                        x.Status,
                         x.Product,
                         x.TotalPrice,
                         x.OrderNo,
                         x.ConsumptionCode,
                         y.FirstOrDefault().RealName,
                         y.FirstOrDefault().Account,
-                        Number = db.OrderDetails.Where(od => od.OrderGid == x.Gid).Sum(od => od.Number)
+                        Picture = db.ShopProduct.Where(sp => sp.Gid == db.OrderDetails.Where(od => od.OrderGid == x.Gid).FirstOrDefault().ProductGid).FirstOrDefault().Picture
                     }).AsQueryable();
                 if (ExpressStatus != 0)
                 {
@@ -1470,6 +1494,43 @@ namespace LJSheng.Web.Controllers
                 return View(db.OrderDetails.Where(l => l.OrderGid == OrderGid).ToList());
             }
         }
+
+        /// <summary>
+        /// 确认收货
+        /// </summary>
+        /// <param name="ExpressStatus">快递状态</param>
+        /// <returns>返回调用结果</returns>
+        /// <para name="result">200 是成功其他失败</para>
+        /// <para name="data">结果提示</para>
+        /// <remarks>
+        /// 2016-06-30 林建生
+        /// </remarks>
+        [HttpPost]
+        public JsonResult ShopOrderOK(Guid Gid)
+        {
+            Guid MemberGid = LCookie.GetMemberGid();
+            using (EFDB db = new EFDB())
+            {
+                var b = db.ShopOrder.Where(l => l.Gid == Gid && l.PayStatus == 1 && l.Status == 1).FirstOrDefault();
+                if (b != null)
+                {
+                    b.Status = 2;
+                    b.ExpressStatus = 3;
+                    if (db.SaveChanges() == 1)
+                    {
+                        if (db.Member.Where(l => l.Gid == b.ShopGid).Update(l => new Member { ShopMoney = l.ShopMoney + b.PayPrice }) == 1)
+                        {
+                            return Json(new AjaxResult("确认成功"));
+                        }
+                        else
+                        {
+                            LogManager.WriteLog("确认订单成功货款失败", "MemberGid=" + b.ShopGid + ",Gid=" + Gid);
+                        }
+                    }
+                }
+            }
+            return Json(new AjaxResult(300, "更新失败"));
+        } 
         #endregion
 
         #region 商品转让
@@ -1705,6 +1766,75 @@ namespace LJSheng.Web.Controllers
         /// <remarks>
         /// 2018-08-18 林建生
         /// </remarks>
+        public ActionResult ToAPP(decimal Integral = 0, int TB = 0)
+        {
+            using (EFDB db = new EFDB())
+            {
+                Guid gid = LCookie.GetMemberGid();
+                var b = db.Member.Where(l => l.Gid == gid).FirstOrDefault();
+                ViewBag.Integral = b.Money;
+                ////查询兑换比例
+                //ViewBag.BCCB = 1 / AppApi.AVG(1);
+                //ViewBag.FBCC = 1 / AppApi.AVG(2);
+                if (Integral <= 0 || TB <= 0)
+                {
+                    return View();
+                }
+                else
+                {
+                    string LogMsg = "gid=" + gid.ToString() + ",Integral=" + Integral.ToString() + ",TB=" + TB;
+                    if (Integral > ViewBag.Integral)
+                    {
+                        return Helper.Redirect("失败", "history.go(-1);", "可提积分不足");
+                    }
+                    else
+                    {
+                        //获取兑换比例积分
+                        decimal avg = AppApi.AVG(TB);
+                        if (avg > 0)
+                        {
+                            decimal Token = Integral * (1 / avg);
+                            Guid TRGid = Guid.NewGuid();
+                            if (Helper.TokenRecordAdd(TRGid, gid, Integral, Token, 1, TB))
+                            {
+                                //提交到APP
+                                if (AppApi.AddMB(b.Account, TB == 1 ? "BCCB" : "FBCC", Token.ToString()))
+                                {
+                                    return Helper.Redirect("成功", "/Member/IntegralAPP", "恭喜你,兑换成功!");
+                                }
+                                else
+                                {
+                                    LogManager.WriteLog("彩链积分兑换记录成功兑换APP钱包失败", LogMsg);
+                                    db.TokenRecord.Where(l => l.Gid == TRGid).Update(l => new TokenRecord { Remarks = "钱包兑换接口失败" });
+                                    return Helper.Redirect("失败", "/Member/IntegralAPP", "彩链积分兑换记录成功兑换APP钱包失败");
+                                }
+                            }
+                            else
+                            {
+                                LogManager.WriteLog("彩链积分兑换记录失败", LogMsg);
+                                return Helper.Redirect("失败", "history.go(-1);", "积分兑换记录失败");
+                            }
+                        }
+                        else
+                        {
+                            return Helper.Redirect("失败", "history.go(-1);", "APP返回均价失败");
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 积分兑换管理
+        /// </summary>
+        /// <param name="Integral">兑换积分</param>
+        /// <param name="TB">兑换币种[1=BCCB, 2=FBCC]</param>
+        /// <returns>返回调用结果</returns>
+        /// <para name="result">200 是成功其他失败</para>
+        /// <para name="data">对象结果</para>
+        /// <remarks>
+        /// 2018-08-18 林建生
+        /// </remarks>
         public ActionResult IntegralAPP(decimal Integral=0, int TB=0)
         {
             using (EFDB db = new EFDB())
@@ -1729,26 +1859,34 @@ namespace LJSheng.Web.Controllers
                     else
                     {
                         //获取兑换比例积分
-                        decimal Token = Integral * (1 / AppApi.AVG(TB));
-                        Guid TRGid = Guid.NewGuid();
-                        if (Helper.TokenRecordAdd(TRGid,gid, Integral, Token, 1, TB))
+                        decimal avg = AppApi.AVG(TB);
+                        if (avg > 0)
                         {
-                            //提交到APP
-                            if (AppApi.AddMB(b.Account, TB == 1 ? "BCCB" : "FBCC", Token.ToString()))
+                            decimal Token = Integral * (1 / avg);
+                            Guid TRGid = Guid.NewGuid();
+                            if (Helper.TokenRecordAdd(TRGid, gid, Integral, Token, 1, TB))
                             {
-                                return Helper.Redirect("成功", "/Member/IntegralAPP", "恭喜你,兑换成功!");
+                                //提交到APP
+                                if (AppApi.AddMB(b.Account, TB == 1 ? "BCCB" : "FBCC", Token.ToString()))
+                                {
+                                    return Helper.Redirect("成功", "/Member/IntegralAPP", "恭喜你,兑换成功!");
+                                }
+                                else
+                                {
+                                    LogManager.WriteLog("彩链积分兑换记录成功兑换APP钱包失败", LogMsg);
+                                    db.TokenRecord.Where(l => l.Gid == TRGid).Update(l => new TokenRecord { Remarks = "钱包兑换接口失败" });
+                                    return Helper.Redirect("失败", "/Member/IntegralAPP", "彩链积分兑换记录成功兑换APP钱包失败");
+                                }
                             }
                             else
                             {
-                                LogManager.WriteLog("彩链积分兑换记录成功兑换APP钱包失败", LogMsg);
-                                db.TokenRecord.Where(l => l.Gid == TRGid).Update(l => new TokenRecord { Remarks = "钱包兑换接口失败" });
-                                return Helper.Redirect("失败", "/Member/IntegralAPP", "彩链积分兑换记录成功兑换APP钱包失败");
+                                LogManager.WriteLog("彩链积分兑换记录失败", LogMsg);
+                                return Helper.Redirect("失败", "history.go(-1);", "积分兑换记录失败");
                             }
                         }
                         else
                         {
-                            LogManager.WriteLog("彩链积分兑换记录失败", LogMsg);
-                            return Helper.Redirect("失败", "history.go(-1);", "积分兑换记录失败");
+                            return Helper.Redirect("失败", "history.go(-1);", "APP返回均价失败");
                         }
                     }
                 }
@@ -1776,6 +1914,209 @@ namespace LJSheng.Web.Controllers
                     pageindex,
                     list = b.OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
                 }));
+            }
+        }
+        #endregion
+
+        #region 新页面
+        /// <summary>
+        /// 积分中心
+        /// </summary>
+        /// <returns>返回调用结果</returns>
+        /// <para name="result">200 是成功其他失败</para>
+        /// <para name="data">对象结果</para>
+        /// <remarks>
+        /// 2018-08-18 林建生
+        /// </remarks>
+        public ActionResult MY()
+        {
+            using (EFDB db = new EFDB())
+            {
+                Guid MemberGid = LCookie.GetMemberGid();
+                var b = db.Member.Where(l => l.Gid == MemberGid).FirstOrDefault();
+                ViewBag.Picture = b.Picture;
+                ViewBag.RealName = b.RealName;
+                ViewBag.Account = b.Account;
+                var cllv = db.Level.Where(l => l.LV == b.CLLevel).FirstOrDefault();
+                ViewBag.CLLabel = cllv.Label;
+                ViewBag.CLLevelName = cllv.Name;
+                //积分
+                ViewBag.Money = b.Money;
+                ViewBag.Integral = b.Integral;
+                ViewBag.ShopMoney = b.ShopMoney;
+            }
+            return View();
+        }
+
+        /// <summary>
+        /// 商城积分中心
+        /// </summary>
+        /// <returns>返回调用结果</returns>
+        /// <para name="result">200 是成功其他失败</para>
+        /// <para name="data">对象结果</para>
+        /// <remarks>
+        /// 2018-08-18 林建生
+        /// </remarks>
+        public ActionResult MyShop()
+        {
+            using (EFDB db = new EFDB())
+            {
+                ViewBag.Project = LCookie.Project();
+                Guid MemberGid = LCookie.GetMemberGid();
+                var b = db.Member.Where(l => l.Gid == MemberGid).FirstOrDefault();
+                ViewBag.Picture = b.Picture;
+                ViewBag.RealName = b.RealName;
+                ViewBag.Account = b.Account;
+                var cllv = db.Level.Where(l => l.LV == b.CLLevel).FirstOrDefault();
+                ViewBag.CLLabel = cllv.Label;
+                ViewBag.CLLevelName = cllv.Name;
+                ViewBag.ShopIntegral = b.ShopIntegral;
+                ViewBag.TIntegral = b.TIntegral;
+                //商城查询
+                var so = db.ShopOrder.Where(l => l.PayStatus == 1).ToList();
+                //商城消费金额
+                ViewBag.ShopOrder = so.Where(l => l.MemberGid == MemberGid).Select(l => l.TotalPrice).DefaultIfEmpty(0).Sum();
+                //冻结积分
+                ViewBag.ShopRecord = db.ShopRecord.Where(l => l.MemberGid == MemberGid && l.Type == 2 && l.State == 2).Select(l => l.TIntegral).DefaultIfEmpty(0).Sum();
+                //倍数积分
+                ViewBag.MM = cllv.Multiple * b.MIntegral;
+            }
+            return View();
+        }
+
+        /// <summary>
+        /// 我的彩链
+        /// </summary>
+        /// <returns>返回调用结果</returns>
+        /// <para name="result">200 是成功其他失败</para>
+        /// <para name="data">结果提示</para>
+        /// <remarks>
+        /// 2016-06-30 林建生
+        /// </remarks>
+        public ActionResult CL()
+        {
+            using (EFDB db = new EFDB())
+            {
+                Guid MemberGid = LCookie.GetMemberGid();
+                var b = db.Member.Where(l => l.Gid == MemberGid).FirstOrDefault();
+                ViewBag.CLLevel = b.CLLevel;
+                //库存
+                Guid ProductGid = Helper.GetProductGid();
+                var ms = db.Stock.Where(l => l.MemberGid == MemberGid && l.ProductGid == ProductGid).FirstOrDefault();
+                ViewBag.Stock = ms == null ? 0 : ms.Number;
+            }
+            return View();
+        }
+
+        /// <summary>
+        /// 彩链转让
+        /// </summary>
+        /// <returns>返回调用结果</returns>
+        /// <para name="result">200 是成功其他失败</para>
+        /// <para name="data">结果提示</para>
+        /// <remarks>
+        /// 2016-06-30 林建生
+        /// </remarks>
+        public ActionResult SendCL()
+        {
+            using (EFDB db = new EFDB())
+            {
+                Guid MemberGid = LCookie.GetMemberGid();
+                Guid ProductGid = Helper.GetProductGid();
+                var ms = db.Stock.Where(l => l.MemberGid == MemberGid && l.ProductGid == ProductGid).FirstOrDefault();
+                ViewBag.Stock = ms == null ? 0 : ms.Number;
+            }
+            return View();
+        }
+        /// <summary>
+        /// 转让彩链
+        /// </summary>
+        [HttpPost]
+        public JsonResult Send(int MID,int Number)
+        {
+            using (EFDB db = new EFDB())
+            {
+                var Member = db.Member.Where(l => l.MID == MID).FirstOrDefault();
+                Guid Gid = Member.Gid;
+                Guid MemberGid = LCookie.GetMemberGid();
+                string msg = "转让人=" + MemberGid + ",接受人=" + Gid + ",MID="+ MID + ",Number="+ Number;
+                if (Helper.IsMember(Gid, MemberGid))
+                {
+                    //订单的Gid
+                    Guid OrderGid = Guid.NewGuid();
+                    //商品Gid,有订单号为会员转让商品
+                    Guid ProductGid =  Helper.GetProductGid();
+                    //扣除库存
+                    if (Helper.CLStock(OrderGid, Gid, MemberGid, Number, 0, 0, Member.Account))
+                    {
+                        LogManager.WriteLog("个人转让扣除库存成功", msg);
+                        //订单详情
+                        var od = new OrderDetails();
+                        od.Gid = Guid.NewGuid();
+                        od.AddTime = DateTime.Now;
+                        od.OrderGid = OrderGid;
+                        od.ProductGid = ProductGid;
+                        od.Number = Number;
+                        od.Money = 0;
+                        od.Integral = 0;
+                        od.Price = 0;
+                        db.OrderDetails.Add(od);
+                        if (db.SaveChanges() == 1)
+                        {
+                            //生成订单
+                            var b = new Order();
+                            b.Gid = OrderGid;
+                            b.AddTime = DateTime.Now;
+                            b.OrderNo = "0";
+                            b.MemberGid = Gid;
+                            b.ShopGid = MemberGid;
+                            b.CLLevel = Member.CLLevel;
+                            b.PayStatus = 1;
+                            b.PayType = 4;
+                            b.TotalPrice = 0;
+                            b.Price = 0;
+                            b.PayPrice = 0;
+                            b.CouponPrice = 0;
+                            b.ExpressStatus = 3;
+                            b.Remarks = "个人转让";
+                            b.Product = "个人转让";
+                            b.Status = 2;
+                            b.Profit = 0;
+                            b.Money = 0;
+                            b.Integral = 0;
+                            b.StockRight = 0;
+                            b.Project = 2;
+                            b.Type = 5;
+                            db.Order.Add(b);
+                            if (db.SaveChanges() == 1)
+                            {
+                                if (db.Stock.Where(l => l.MemberGid == Gid && l.ProductGid == ProductGid).Update(l => new Stock { Number = l.Number + Number })==1)
+                                {
+                                    return Json(new AjaxResult("转让成功"));
+                                }
+                                else
+                                {
+                                    LogManager.WriteLog("个人转让扣除库存成功增加失败", msg);
+                                    return Json(new AjaxResult(300,"扣除成功转让失败"));
+                                }
+                            }
+                            else
+                            {
+                                db.OrderDetails.Where(l => l.OrderGid == OrderGid).Delete();
+                                db.Order.Where(l => l.Gid == OrderGid).Delete();
+                            }
+                        }
+                        else
+                        {
+                            db.OrderDetails.Where(l => l.OrderGid == OrderGid).Delete();
+                        }
+                    }
+                    return Json(new AjaxResult(300,"转让失败"));
+                }
+                else
+                {
+                    return Json(new AjaxResult(300, "只能转让给自己的下线"));
+                }
             }
         }
         #endregion

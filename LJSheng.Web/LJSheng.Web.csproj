@@ -155,6 +155,7 @@
     <Content Include="bin\TopSdk.dll" />
     <Content Include="bin\WebGrease.dll" />
     <Content Include="css\main.css" />
+    <Content Include="css\style.css" />
     <Content Include="Global.asax" />
     <Content Include="images\admin-header-bg.png" />
     <Content Include="images\bg-nav.png" />
@@ -240,6 +241,7 @@
     <Content Include="js\list.js" />
     <Content Include="js\ljsheng.js" />
     <Content Include="js\mlist.js" />
+    <Content Include="js\page.js" />
     <Content Include="js\pca.js" />
     <Content Include="js\shop.js" />
     <Content Include="js\shopcart.js" />
@@ -1029,6 +1031,12 @@
     <Content Include="Views\LJSheng\MProductList.cshtml" />
     <Content Include="Views\LJSheng\ConsignorList.cshtml" />
     <Content Include="Views\Test.cshtml" />
+    <Content Include="Views\Member\ToAPP.cshtml" />
+    <Content Include="Views\Member\MY.cshtml" />
+    <Content Include="Views\Member\MyShop.cshtml" />
+    <Content Include="Views\Shop\RMB.cshtml" />
+    <Content Include="Views\Member\CL.cshtml" />
+    <Content Include="Views\Member\SendCL.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
