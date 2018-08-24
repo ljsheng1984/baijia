@@ -32,7 +32,7 @@
             <div class="center-header-content">
                 <div class="center-header-msg">
                     <div class="center-header-avatar">
-                        <img src="/uploadfiles/member/@ViewBag.Picture" alt="头像" />
+                        <img src="/uploadfiles/member/@ViewBag.Picture" onerror="this.src='/images/@(ViewBag.Gender +".png")'" />
                     </div>
                     <div class="center-header-text">
                         <p>@ViewBag.Account (@ViewBag.RealName)</p>

@@ -44,34 +44,39 @@
     <script src="/js/jquery.js"></script>
     <script>
         function Send() {
-            if ($("#Number").val() <=@ViewBag.Stock) {
-                if (window.confirm('你确定要转让嘛!')) {
-                    $.ajax({
-                        url: "/Member/Send",
-                        data: "MID=" + $("#MID").val() + "&Number=" + $("#Number").val(),
-                        type: "post",
-                        cache: false,
-                        timeout: 8000,
-                        dataType: "json",
-                        ContentType: "application/json; charset=utf-8",
-                        error: function () { alert('请求超时!'); },
-                        beforeSend: function () { },
-                        success: function (data) {
-                            if (data.result === 200) {
-                                self.location = "/Member/Index";
-                            }
-                            else {
-                                alert(data.data);
-                            }
-                        },
-                    });
-                    return true;
-                } else {
-                    return false;
+            if ($("#Number").val().length>0 && $("#MID").val().length ==7) {
+                if ($("#Number").val() <=@ViewBag.Stock) {
+                    if (window.confirm('你确定要转让嘛!')) {
+                        $.ajax({
+                            url: "/ajax/api.ashx",
+                            data: "ff=SendCL&MID=" + $("#MID").val() + "&Number=" + $("#Number").val() + "&cache=" + Math.random(),
+                            type: "post",
+                            cache: false,
+                            timeout: 8000,
+                            dataType: "json",
+                            ContentType: "application/json; charset=utf-8",
+                            error: function () { alert('请求超时!'); },
+                            beforeSend: function () { },
+                            success: function (data) {
+                                if (data.result === 200) {
+                                    self.location = "/Member/Index";
+                                }
+                                else {
+                                    alert(data.data);
+                                }
+                            },
+                        });
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+                else {
+                    alert("不能转让大于自己的数量");
                 }
             }
             else {
-                alert("不能转让大于自己的数量");
+                alert("请输入正确的ID和转让数量");
             }
         }
     </script>

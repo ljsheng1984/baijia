@@ -172,6 +172,7 @@ namespace LJSheng.Web.Controllers
                 Guid MemberGid = LCookie.GetMemberGid();
                 var b = db.Member.Where(l => l.Gid == MemberGid).FirstOrDefault();
                 ViewBag.Picture = b.Picture;
+                ViewBag.Gender = b.Gender;
                 ViewBag.RealName = b.RealName;
                 ViewBag.Account = b.Account;
                 ViewBag.MID = b.MID;
@@ -1935,6 +1936,7 @@ namespace LJSheng.Web.Controllers
                 Guid MemberGid = LCookie.GetMemberGid();
                 var b = db.Member.Where(l => l.Gid == MemberGid).FirstOrDefault();
                 ViewBag.Picture = b.Picture;
+                ViewBag.Gender = b.Gender;
                 ViewBag.RealName = b.RealName;
                 ViewBag.Account = b.Account;
                 var cllv = db.Level.Where(l => l.LV == b.CLLevel).FirstOrDefault();
@@ -1965,6 +1967,7 @@ namespace LJSheng.Web.Controllers
                 Guid MemberGid = LCookie.GetMemberGid();
                 var b = db.Member.Where(l => l.Gid == MemberGid).FirstOrDefault();
                 ViewBag.Picture = b.Picture;
+                ViewBag.Gender = b.Gender;
                 ViewBag.RealName = b.RealName;
                 ViewBag.Account = b.Account;
                 var cllv = db.Level.Where(l => l.LV == b.CLLevel).FirstOrDefault();
@@ -2027,97 +2030,6 @@ namespace LJSheng.Web.Controllers
                 ViewBag.Stock = ms == null ? 0 : ms.Number;
             }
             return View();
-        }
-        /// <summary>
-        /// 转让彩链
-        /// </summary>
-        [HttpPost]
-        public JsonResult Send(int MID,int Number)
-        {
-            using (EFDB db = new EFDB())
-            {
-                var Member = db.Member.Where(l => l.MID == MID).FirstOrDefault();
-                Guid Gid = Member.Gid;
-                Guid MemberGid = LCookie.GetMemberGid();
-                string msg = "转让人=" + MemberGid + ",接受人=" + Gid + ",MID="+ MID + ",Number="+ Number;
-                if (Helper.IsMember(Gid, MemberGid))
-                {
-                    //订单的Gid
-                    Guid OrderGid = Guid.NewGuid();
-                    //商品Gid,有订单号为会员转让商品
-                    Guid ProductGid =  Helper.GetProductGid();
-                    //扣除库存
-                    if (Helper.CLStock(OrderGid, Gid, MemberGid, Number, 0, 0, Member.Account))
-                    {
-                        LogManager.WriteLog("个人转让扣除库存成功", msg);
-                        //订单详情
-                        var od = new OrderDetails();
-                        od.Gid = Guid.NewGuid();
-                        od.AddTime = DateTime.Now;
-                        od.OrderGid = OrderGid;
-                        od.ProductGid = ProductGid;
-                        od.Number = Number;
-                        od.Money = 0;
-                        od.Integral = 0;
-                        od.Price = 0;
-                        db.OrderDetails.Add(od);
-                        if (db.SaveChanges() == 1)
-                        {
-                            //生成订单
-                            var b = new Order();
-                            b.Gid = OrderGid;
-                            b.AddTime = DateTime.Now;
-                            b.OrderNo = "0";
-                            b.MemberGid = Gid;
-                            b.ShopGid = MemberGid;
-                            b.CLLevel = Member.CLLevel;
-                            b.PayStatus = 1;
-                            b.PayType = 4;
-                            b.TotalPrice = 0;
-                            b.Price = 0;
-                            b.PayPrice = 0;
-                            b.CouponPrice = 0;
-                            b.ExpressStatus = 3;
-                            b.Remarks = "个人转让";
-                            b.Product = "个人转让";
-                            b.Status = 2;
-                            b.Profit = 0;
-                            b.Money = 0;
-                            b.Integral = 0;
-                            b.StockRight = 0;
-                            b.Project = 2;
-                            b.Type = 5;
-                            db.Order.Add(b);
-                            if (db.SaveChanges() == 1)
-                            {
-                                if (db.Stock.Where(l => l.MemberGid == Gid && l.ProductGid == ProductGid).Update(l => new Stock { Number = l.Number + Number })==1)
-                                {
-                                    return Json(new AjaxResult("转让成功"));
-                                }
-                                else
-                                {
-                                    LogManager.WriteLog("个人转让扣除库存成功增加失败", msg);
-                                    return Json(new AjaxResult(300,"扣除成功转让失败"));
-                                }
-                            }
-                            else
-                            {
-                                db.OrderDetails.Where(l => l.OrderGid == OrderGid).Delete();
-                                db.Order.Where(l => l.Gid == OrderGid).Delete();
-                            }
-                        }
-                        else
-                        {
-                            db.OrderDetails.Where(l => l.OrderGid == OrderGid).Delete();
-                        }
-                    }
-                    return Json(new AjaxResult(300,"转让失败"));
-                }
-                else
-                {
-                    return Json(new AjaxResult(300, "只能转让给自己的下线"));
-                }
-            }
         }
         #endregion
     }
