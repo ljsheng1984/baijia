@@ -2,13 +2,13 @@
     ViewBag.Title = Request.QueryString["type"] == "3" ? "商城分兑换" : "基数分兑换";
     Layout = "~/Views/Shared/_LLayout.cshtml";
 }
-<div id="tx" class="padding-btn-group">
+<div id="tx" class="padding-btn-group hide">
     <button type="button" id="btn" class="btn-block btn-green" onclick="tx();">钱包兑换</button>
 </div>
-<div class="order-tabs" id="search">
-    <a onclick="getlist(0);" class="active">全部</a>
-    <a onclick="getlist(1);">成功</a>
-    <a onclick="getlist(2);">失败</a>
+<div class="padding-btn-group">
+    <a class="btn-block btn-green" href="/Shop/ToAPP?type=@Request.QueryString["type"]">钱包兑换</a>
+</div>
+<div class="hide" id="search">
     <input type="text" id="Type" name="Type" value="@Request.QueryString["type"]" hidden />
 </div>
 <div class="mescroll" id="scroll">

@@ -44,13 +44,20 @@
         <!--积分-->
         <div class="integral-box">
             <div class="shop-integral-box">
-                <div class="shop-integral-item">
+                <a class="shop-integral-item" href="/Shop/IntegralAPP?type=2">
+                    <div class="shop-integral-item-type">
+                        <img src="/images/icon/icon-3.png" />
+                        <span>基数分</span>
+                    </div>
+                    <span class="shop-integral-item-num">@ViewBag.MIntegral</span>
+                </a>
+                <a class="shop-integral-item" href="/Shop/IntegralAPP?type=3">
                     <div class="shop-integral-item-type">
                         <img src="/images/icon/icon-3.png" />
                         <span>可提积分</span>
                     </div>
                     <span class="shop-integral-item-num">@ViewBag.ShopIntegral</span>
-                </div>
+                </a>
                 <div class="shop-integral-item">
                     <div class="shop-integral-item-type">
                         <img src="/images/icon/icon-8.png" />

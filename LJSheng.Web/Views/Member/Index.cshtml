@@ -52,9 +52,11 @@
             <div class="my-token-item">
                 <img src="/images/icon/icon-2.png" />
                 <span class="my-token-item-titlt">我的彩链:</span>
-                <span class="my-token-item-price" onclick="self.location='/Member/CL';">
+                <span class="my-token-item-price">
                     库存=@ViewBag.Stock (未付款=@ViewBag.LockStock / 24小时释放)
-                    <img src="/images/icon/icon-25.png" />
+                    <a href="/Member/CL">
+                        <img src="/images/icon/icon-25.png" />
+                    </a>
                 </span>
             </div>
         </div>
@@ -67,14 +69,14 @@
                 </a>
             </div>
             <div class="integral-content">
-                <div class="integral-item">
+                <a href="/Member/IntegralAPP?type=1" class="integral-item">
                     <img src="/images/icon/icon-3.png" />
                     <p>可提积分 <span>@ViewBag.Money</span></p>
-                </div>
-                <div class="integral-item">
+                </a>
+                <a class="integral-item">
                     <img src="/images/icon/icon-4.png" />
                     <p>购物积分 <span>@ViewBag.Integral</span></p>
-                </div>
+                </a>
             </div>
         </div>
         <!--商城积分-->
@@ -116,51 +118,69 @@
                 </a>
             </div>
             <div class="integral-content">
-                <div class="integral-item" onclick="self.location='/Member/ShopOrder?tab=0';">
-                    <img src="/images/icon/icon-6.png" />
-                    <p class="integral-item-tag"><span>待处理订单</span></p>
-                    <p><span>@ViewBag.SOC</span></p>
+                <div class="integral-item">
+                    <a href="/Member/ShopOrder?tab=0">
+                        <img src="/images/icon/icon-6.png" />
+                        <p class="integral-item-tag"><span>待处理订单</span></p>
+                        <p><span>@ViewBag.SOC</span></p>
+                    </a>
                 </div>
                 <div class="integral-item">
-                    <img src="/images/icon/icon-7.png" />
-                    <p>可提货款</p>
-                    <p><span>@ViewBag.ShopMoney</span></p>
+                    <a href="/Shop/Money">
+                        <img src="/images/icon/icon-7.png" />
+                        <p>可提货款</p>
+                        <p><span>@ViewBag.ShopMoney</span></p>
+                    </a>
                 </div>
             </div>
         </div>
         <!--我的团队-->
         <div class="default-block my-team">
-            <div class="my-team-item" onclick="self.location='/Member/Team';">
+            <div class="my-team-item">
                 <p>
                     <span class="my-team-item-title">我的团队</span>
                     <span>(团队 本月业绩：@ViewBag.TMoney)</span>
                 </p>
-                <a href="#this" class="more-btn">
+                <a href="/Member/Team" class="more-btn">
                     <img src="/images/icon/icon-24.png" />
                 </a>
             </div>
-            <div class="my-team-item" onclick="self.location='/Member/Order?tab=0';">
+            <div class="my-team-item">
                 <p>
                     <span class="my-team-item-title">订单中心</span>
                 </p>
-                <a href="#this" class="more-btn">
+                <a href="/Member/Order?tab=0" class="more-btn">
                     <img src="/images/icon/icon-24.png" />
+                </a>
+            </div>
+        </div>
+        <div class="default-block concat-us">
+            <div class="concat-item">
+                <a href="/Member/SendCL">
+                    <img src="/images/icon/icon-9.png" />
+                    <p>转赠彩链</p>
+                </a>
+            </div>
+            <div class="concat-item">
+                <a href="/Member/">
+                    <img src="/images/icon/icon-8.png" />
+                    <p>转赠记录</p>
                 </a>
             </div>
         </div>
         <!--联系我们-->
         <div class="default-block concat-us">
-            <div class="concat-item" onclick="self.location='/Home/Share?m=@LJSheng.Common.LCookie.GetCK("linjiansheng", "Account")&gid=@LJSheng.Common.LCookie.GetMemberGid()&MID=@ViewBag.MID';">
-                <img src="/images/icon/icon-8.png" />
-                <p>分享二维码</p>
+            <div class="concat-item">
+                <a href="/Home/Share?m=@LJSheng.Common.LCookie.GetCK("linjiansheng", "Account")&gid=@LJSheng.Common.LCookie.GetMemberGid()&MID=@ViewBag.MID">
+                    <img src="/images/icon/icon-8.png" />
+                    <p>分享二维码</p>
+                </a>
             </div>
             <div class="concat-item">
-                <img src="/images/icon/icon-9.png" />
-                <p>联系我们</p>
-            </div>
-            <div class="concat-item" onclick="self.location='/Member/SendCL';">
-                <img src="/images/icon/icon-9.png" />
-                <p>转赠彩链</p>
+                <a href="">
+                    <img src="/images/icon/icon-9.png" />
+                    <p>联系我们</p>
+                </a>
             </div>
         </div>
     </div>

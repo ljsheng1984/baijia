@@ -905,69 +905,87 @@ namespace LJSheng.Web
             {
                 using (EFDB db = new EFDB())
                 {
-                    //获取会员的数据
+                    //获取升级会员的数据
                     var m = db.Member.Where(l => l.Gid == MemberGid).FirstOrDefault();
-                    //最近一个月的团队升级数量
-                    var MTeam = db.Member.Where(l => l.MemberGid == MemberGid && l.UPTime >= dt).ToList();
-                    int CLLevel22 = MTeam.Where(l => l.CLLevel == 22).Count();
-                    int CLLevel23 = MTeam.Where(l => l.CLLevel == 23).Count();
-                    int CLLevel24 = MTeam.Where(l => l.CLLevel == 24).Count();
-                    int CLLevel25 = MTeam.Where(l => l.CLLevel == 25).Count();
-                    //需要升级的下级人数
-                    int Level23 = lv.Where(l => l.LV == 22).FirstOrDefault().LNumber;
-                    int Level24 = lv.Where(l => l.LV == 23).FirstOrDefault().LNumber;
-                    int Level25 = lv.Where(l => l.LV == 24).FirstOrDefault().LNumber;
-                    int Level26 = lv.Where(l => l.LV == 25).FirstOrDefault().LNumber;
-                    //升级的等级
-                    int CLLevel = m.CLLevel;
-                    //如果要升级创始人，必须是合伙人
-                    if (CLLevel == 25 && CLLevel25 >= Level26)
+                    if (m.CLLevel < 26)
                     {
-                        CLLevel = 26;
-                    }
-                    else
-                    {
-                        if (CLLevel24 >= Level25)
+                        #region 判断升级没有
+                        var MTeam = db.Member.Where(l => l.MemberGid == MemberGid).ToList();
+                        int CLLevel21 = MTeam.Where(l => l.CLLevel >= 21).Count();//满足VIP的人数
+                        int CLLevel22 = MTeam.Where(l => l.CLLevel >= 22).Count();//满足代理商的人数
+                        int CLLevel23 = MTeam.Where(l => l.CLLevel >= 23).Count();//满足合伙人的人数
+                        int CLLevel24 = MTeam.Where(l => l.CLLevel >= 24).Count();//满足联合创始人的人数
+                        int CLLevel25 = MTeam.Where(l => l.CLLevel >= 25).Count();//满足创始人的人数
+                        int Level22 = lv.Where(l => l.LV == 21).FirstOrDefault().LNumber;//升级需要VIP的人数
+                        int Level23 = lv.Where(l => l.LV == 22).FirstOrDefault().LNumber;//升级需要代理商的人数
+                        int Level24 = lv.Where(l => l.LV == 23).FirstOrDefault().LNumber;//升级需要合伙人的人数
+                        int Level25 = lv.Where(l => l.LV == 24).FirstOrDefault().LNumber;//升级需要联合创始人的人数
+                        int Level26 = lv.Where(l => l.LV == 25).FirstOrDefault().LNumber;//升级需要创始人的人数
+                        //当前等级
+                        int CLLevel = m.CLLevel;
+                        //升级的等级
+                        int UPLevel = m.CLLevel;
+                        if (CLLevel25 >= Level26)
                         {
-                            CLLevel = 25;
+                            UPLevel = 26;
                         }
                         else
                         {
-                            if (CLLevel23 >= Level24)
+                            if (CLLevel24 >= Level25)
                             {
-                                CLLevel = 24;
+                                UPLevel = 25;
                             }
                             else
                             {
-                                if (CLLevel22 >= Level23)
+                                if (CLLevel23 >= Level24)
                                 {
-                                    CLLevel = 23;
+                                    UPLevel = 24;
+                                }
+                                else
+                                {
+                                    if (CLLevel22 >= Level23)
+                                    {
+                                        UPLevel = 23;
+                                    }
+                                    else
+                                    {
+                                        if (CLLevel21 >= Level22)
+                                        {
+                                            UPLevel = 22;
+                                        }
+                                    }
                                 }
                             }
                         }
+                        #endregion
+
+                        //满足升级条件
+                        if (UPLevel > CLLevel)
+                        {
+                            m.CLLevel = UPLevel;
+                            if (db.SaveChanges() == 1)
+                            {
+                                msg += "成功升级级别CLLevel=" + UPLevel.ToString();
+                                //更新发货人
+                                if (UPLevel > 24)
+                                {
+                                    Helper.Consignor(MemberGid);
+                                }
+                                //继续升级上面的推荐人
+                                if (m.MemberGid != null)
+                                {
+                                    msg += CLTeam((Guid)m.MemberGid, lv, dt, msg);
+                                }
+                            }
+                            else
+                            {
+                                msg += "更新失败:升级级别CLLevel=" + UPLevel.ToString();
+                            }
+                        }
                     }
-                    //满足升级条件
-                    if (CLLevel > m.CLLevel)
+                    else
                     {
-                        m.CLLevel = CLLevel;
-                        if (db.SaveChanges() == 1)
-                        {
-                            msg += "成功升级级别CLLevel=" + CLLevel.ToString();
-                            //更新发货人
-                            if (CLLevel > 24)
-                            {
-                                Helper.Consignor(MemberGid);
-                            }
-                            //继续升级上面的推荐人
-                            if (m.MemberGid != null)
-                            {
-                                msg += CLTeam((Guid)m.MemberGid, lv, dt, msg);
-                            }
-                        }
-                        else
-                        {
-                            msg += "更新失败:升级级别CLLevel=" + CLLevel.ToString();
-                        }
+                        msg += "最高等级了";
                     }
                 }
             }
@@ -2979,7 +2997,7 @@ namespace LJSheng.Web
         #region 生成唯一邀请码
         public static int CreateMNumber()
         {
-            int MID = int.Parse(RandStr.CreateValidateNumber(7));
+            int MID = int.Parse(RandStr.CreateNumber(7, 1, 9999999));
             using (EFDB db = new EFDB())
             {
                 if (MID.ToString().Length != 7 || db.Member.Where(l => l.MID == MID).Count() != 0)

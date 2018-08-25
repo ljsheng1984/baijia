@@ -1084,6 +1084,8 @@
     <Content Include="Views\Shop\RMB.cshtml" />
     <Content Include="Views\Member\CL.cshtml" />
     <Content Include="Views\Member\SendCL.cshtml" />
+    <Content Include="Views\Member\RMB.cshtml" />
+    <Content Include="Views\Shop\ToAPP.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

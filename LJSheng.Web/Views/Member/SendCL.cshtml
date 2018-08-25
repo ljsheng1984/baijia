@@ -58,11 +58,9 @@
                             error: function () { alert('请求超时!'); },
                             beforeSend: function () { },
                             success: function (data) {
+                                alert(data.data);
                                 if (data.result === 200) {
                                     self.location = "/Member/Index";
-                                }
-                                else {
-                                    alert(data.data);
                                 }
                             },
                         });

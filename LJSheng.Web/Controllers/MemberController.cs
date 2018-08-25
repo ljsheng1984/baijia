@@ -321,7 +321,7 @@ namespace LJSheng.Web.Controllers
         /// <remarks>
         /// 2016-06-30 林建生
         /// </remarks>
-        public ActionResult AddBank(string BankName, string BankNumber, string Bank, string PayPWD)
+        public ActionResult AddBank(string BankName, string BankNumber, string Bank, string PayPWD,int type=0)
         {
             using (EFDB db = new EFDB())
             {
@@ -344,7 +344,18 @@ namespace LJSheng.Web.Controllers
                         b.Bank = Bank;
                         if (db.SaveChanges() == 1)
                         {
-                            return Helper.Redirect("成功", "history.go(-1);", "修改成功");
+                            if (type==1)
+                            {
+                                return new RedirectResult("/Shop/RMB");
+                            }
+                            else if(type==2)
+                            {
+                                return new RedirectResult("/Member/RMB");
+                            }
+                            else
+                            {
+                                return Helper.Redirect("成功", "history.go(-1);", "修改成功");
+                            }
                         }
                         else
                         {
@@ -921,6 +932,90 @@ namespace LJSheng.Web.Controllers
         #endregion
 
         #region 我要提现
+        /// <summary>
+        /// 提现管理
+        /// </summary>
+        /// <param name="BankName">开户人</param>
+        /// <param name="BankNumber">卡号</param>
+        /// <param name="Bank">开户行</param>
+        /// <param name="Money">提现积分</param>
+        /// <returns>返回调用结果</returns>
+        /// <para name="result">200 是成功其他失败</para>
+        /// <para name="data">对象结果</para>
+        /// <remarks>
+        /// 2018-08-18 林建生
+        /// </remarks>
+        public ActionResult RMB(string Money)
+        {
+            using (EFDB db = new EFDB())
+            {
+                Guid MemberGid = LCookie.GetMemberGid();
+                var b = db.Member.Where(l => l.Gid == MemberGid).FirstOrDefault();
+                ViewBag.Money = b.ProductMoney;
+                if (string.IsNullOrEmpty(Money))
+                {
+                    if (string.IsNullOrEmpty(b.Bank) || string.IsNullOrEmpty(b.BankName) || string.IsNullOrEmpty(b.BankNumber))
+                    {
+                        ViewBag.Number = "请完善资料";
+                    }
+                    else
+                    {
+                        ViewBag.Bank = b.Bank;
+                        ViewBag.BankName = b.BankName;
+                        ViewBag.BankNumber = b.BankNumber;
+                        ViewBag.Number = b.BankNumber.Substring(b.BankNumber.Length - 4, 4);
+                    }
+                    return View();
+                }
+                else
+                {
+                    decimal PM = decimal.Parse(Money);
+                    if (PM < 100)
+                    {
+                        return Helper.Redirect("失败", "history.go(-1);", "最少100起提");
+                    }
+                    else
+                    {
+                        if (PM > b.ProductMoney)
+                        {
+                            return Helper.Redirect("失败", "history.go(-1);", "可提金额不足");
+                        }
+                        else
+                        {
+
+                            if (Helper.RMBRecordAdd(MemberGid, PM, 1))
+                            {
+                                var wd = new Withdrawals();
+                                wd.Gid = Guid.NewGuid();
+                                wd.AddTime = DateTime.Now;
+                                wd.State = 1;
+                                wd.Money = PM;
+                                wd.Bank = b.Bank;
+                                wd.BankName = b.BankName;
+                                wd.BankNumber = b.BankNumber;
+                                wd.MemberGid = MemberGid;
+                                wd.MRGid = null;
+                                db.Withdrawals.Add(wd);
+                                if (db.SaveChanges() == 1)
+                                {
+                                    return Helper.Redirect("成功", "/Member/Withdrawals", "恭喜你,提现成功,等待财务审核后打款");
+                                }
+                                else
+                                {
+                                    LogManager.WriteLog("扣除金额成功提现记录失败", "MemberGid=" + MemberGid.ToString() + ",Money=" + Money);
+                                    return Helper.Redirect("失败", "history.go(-1);", "扣除金额成功提现记录失败,请联系客服人员!");
+                                }
+                            }
+                            else
+                            {
+                                return Helper.Redirect("失败", "history.go(-1);", "扣除失败");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// 提现管理
         /// </summary>
@@ -1975,6 +2070,7 @@ namespace LJSheng.Web.Controllers
                 ViewBag.CLLevelName = cllv.Name;
                 ViewBag.ShopIntegral = b.ShopIntegral;
                 ViewBag.TIntegral = b.TIntegral;
+                ViewBag.MIntegral = b.MIntegral;
                 //商城查询
                 var so = db.ShopOrder.Where(l => l.PayStatus == 1).ToList();
                 //商城消费金额

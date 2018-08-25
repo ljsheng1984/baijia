@@ -47,37 +47,37 @@
                 <div class="default-block-title">
                     奖励积分
                 </div>
-                <div class="integral-content integral-center-content">
-                    <div class="integral-item" onclick="self.location='/Member/Integral?tab=1';">
-                        <img src="/images/icon/icon-3.png" />
-                        <p>可提积分 <span>@ViewBag.Money</span></p>
+                <a class="integral-content integral-center-content" href="/Member/Integral?tab=1">
+                    <div class="integral-item">
+                            <img src="/images/icon/icon-3.png" />
+                            <p>可提积分 <span>@ViewBag.Money</span></p>
                     </div>
                     <img class="integral-item-arrow" src="/images/icon/icon-24.png" />
-                </div>
+                </a>
             </div>
             <div class="default-block integral default-block-integral">
                 <div class="default-block-title">
                     购物积分
                 </div>
-                <div class="integral-content integral-center-content">
-                    <div class="integral-item" onclick="self.location='/Member/Integral?tab=2';">
+                <a class="integral-content integral-center-content" href="/Member/Integral?tab=2">
+                    <div class="integral-item">
                         <img src="/images/icon/icon-3.png" />
                         <p>可提积分 <span>@ViewBag.Integral</span></p>
                     </div>
                     <img class="integral-item-arrow" src="/images/icon/icon-24.png" />
-                </div>
+                </a>
             </div>
             <div class="default-block integral default-block-integral">
                 <div class="default-block-title">
                     彩链包货款
                 </div>
-                <div class="integral-content integral-center-content">
+                <a class="integral-content integral-center-content" href="/Member/Withdrawals">
                     <div class="integral-item">
                         <img src="/images/icon/icon-3.png" />
                         <p>可提积分 <span>@ViewBag.ShopMoney</span></p>
                     </div>
                     <img class="integral-item-arrow" src="/images/icon/icon-24.png" />
-                </div>
+                </a>
             </div>
         </div>
     </div>

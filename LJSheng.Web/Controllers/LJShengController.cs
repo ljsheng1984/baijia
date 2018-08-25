@@ -3064,7 +3064,7 @@ namespace LJSheng.Web.Controllers
                         LevelName = y.FirstOrDefault().Name,
                         y.FirstOrDefault().Label,
                         Shop = l.Type == 3 ? "公司发货" : db.Member.Where(m => m.Gid == l.ShopGid).FirstOrDefault().Account,
-                        Stock = db.OrderDetails.Where(o => o.OrderGid == l.Gid).FirstOrDefault().Number,
+                        Stock = db.OrderDetails.Where(o => o.OrderGid == l.Gid).Select(o => o.Number).DefaultIfEmpty(0).Sum(),
                         AllMoney = db.MoneyRecord.Where(mr => mr.OrderGid == l.Gid).Select(mr => mr.Money).DefaultIfEmpty(0m).Sum(),
                         AllIntegral = db.MoneyRecord.Where(mr => mr.OrderGid == l.Gid).Select(mr => mr.Integral).DefaultIfEmpty(0m).Sum()
                     }).ToList().AsQueryable();
@@ -5648,7 +5648,8 @@ namespace LJSheng.Web.Controllers
                         l.Money,
                         l.Integral,
                         j.FirstOrDefault().Account,
-                        j.FirstOrDefault().RealName
+                        j.FirstOrDefault().RealName,
+                        MCLLevel = j.FirstOrDefault().CLLevel
                     }).GroupJoin(db.Level,
                     l => l.CLLevel,
                     j => j.LV,
@@ -5675,6 +5676,7 @@ namespace LJSheng.Web.Controllers
                         l.Integral,
                         l.Account,
                         l.RealName,
+                        l.MCLLevel,
                         LevelName = j.FirstOrDefault().Name,
                         j.FirstOrDefault().Label
                     }).AsQueryable();
@@ -5688,7 +5690,7 @@ namespace LJSheng.Web.Controllers
                 }
                 if (CLLevel != 0)
                 {
-                    b = b.Where(l => l.CLLevel == CLLevel);
+                    b = b.Where(l => l.MCLLevel == CLLevel);
                 }
                 if (State != 0)
                 {

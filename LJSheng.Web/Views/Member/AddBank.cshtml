@@ -30,9 +30,10 @@
         </div>
     </div>
 </div>
-    <div class="padding-btn-group">
-        <button type="button" id="btn" class="btn-block btn-green" onclick="return check();">确认</button>
-    </div>
+<div class="padding-btn-group">
+    <input type="text" name="type" value="@Request.QueryString["type"]" hidden />
+    <button type="button" id="btn" class="btn-block btn-green" onclick="return check();">确认</button>
+</div>
 }
 <script>
     function check() {

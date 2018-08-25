@@ -18,8 +18,10 @@
 
 <body>
     <div class="default-header-nav">
-        <span onclick="self.location = '/Member/Index';">
-            <img src="/images/icon/icon-26.png" />
+        <span>
+            <a href="/Member/Index">
+                <img src="/images/icon/icon-26.png" />
+            </a>
         </span> 商家中心
     </div>
     <div class="center">
@@ -105,53 +107,43 @@
                         商家服务
                     </div>
                     <div class="freeze-integral-content">
-                        <div class="freeze-integral-item">
-                            <a href="/Shop/Info">
+                        <a href="/Shop/Info" class="freeze-integral-item">
                                 <span>
                                     <img src="/images/icon/icon-41.png" />
                                     商家信息
                                 </span>
                                 <img class="" src="/images/icon/icon-24.png" />
-                            </a>
-                        </div>
-                        <div class="freeze-integral-item">
-                            <a href="/Shop/USCI">
+                        </a>
+                        <a  href="/Shop/USCI" class="freeze-integral-item">
                                 <span>
                                     <img src="/images/icon/icon-41.png" />
                                     营业执照
                                 </span>
                                 <img class="" src="/images/icon/icon-24.png" />
-                            </a>
-                        </div>
-                        <div class="freeze-integral-item">
-                            <a href="/Shop/LegalPerson">
+                        </a>
+                        <a  href="/Shop/LegalPerson" class="freeze-integral-item">
                                 <span>
                                     <img src="/images/icon/icon-41.png" />
                                     法人证件
                                 </span>
                                 <img class="" src="/images/icon/icon-24.png" />
-                            </a>
-                        </div>
-                        <div class="freeze-integral-item">
+                        </a>
+                        <a href="/Shop/Money" class="freeze-integral-item">
                             <span>
-                                <a href="/Shop/Money">
                                     <img src="/images/icon/icon-20.png" />
                                     可提货款
                                     <span>(可提：@ViewBag.ShopMoney )</span>
-                                </a>
                             </span>
                             <img class="" src="/images/icon/icon-24.png" />
-                        </div>
-                        <div class="freeze-integral-item">
+                        </a>
+                        <a  href="/Shop/CLMoney" class="freeze-integral-item">
                             <span>
-                                <a href="/Shop/CLMoney">
                                     <img src="/images/icon/icon-44.png" />
                                     彩链包激活
                                     <span>(彩链包数：@ViewBag.Stock)</span>
-                                </a>
                             </span>
                             <img class="" src="/images/icon/icon-24.png" />
-                        </div>
+                        </a>
                     </div>
                 </div>
             </div>

@@ -8,7 +8,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="format-detection" content="telephone=yes">
-    <title>彩链-提现</title>
+    <title>商城-提现</title>
     <meta name="keywords" content="彩链">
     <meta name="description" content="彩链">
     <meta name="author" content="彩链">
@@ -17,11 +17,13 @@
 </head>
 <body>
     <div class="default-header-nav">
-        <span onclick="window.history.go(-1);">
-            <img src="/images/icon/icon-26.png" />
+        <span>
+            <a onclick="window.history.go(-1);">
+                <img src="/images/icon/icon-26.png" />
+            </a>
         </span> 提现
     </div>
-    @using (Html.BeginForm("Money", "Shop", FormMethod.Get))
+    @using (Html.BeginForm("RMB", "Shop", FormMethod.Get))
     {
         <div class="withdrawal">
             <div class="withdrawal-content">
@@ -31,9 +33,9 @@
                         <p><img class="withdrawal-title-bank-img" src="/images/icon/icon-28.png" /></p>
                         <p class="withdrawal-title-bank-text">
                             <span>@ViewBag.Bank（@ViewBag.Number）</span>
-                            <span>2小时秒到账</span>
+                            <span>@ViewBag.BankName</span>
                         </p>
-                    </div><a href="/Member/AddBank">
+                    </div><a href="/Member/AddBank?type=1">
                         <img class="withdrawal-title-arrow" src="/images/icon/icon-27.png" />
                     </a>
                 </div>
@@ -58,7 +60,7 @@
                     <input type="text" class="text" placeholder="请到个人中心完善你的提款信息" value="@ViewBag.BankName" name="BankName" hidden />
                     <input type="text" class="text" placeholder="请到个人中心完善你的提款信息" value="@ViewBag.BankNumber" name="BankNumber" hidden />
                     <input type="text" class="text" placeholder="请到个人中心完善你的提款信息" value="@ViewBag.Bank" name="Bank" hidden />
-                    <button type="button" id="btn" class="btn-block btn-green" onclick="return check();">提现</button>
+                    <button type="button" id="btn" class="confirm-payment-btn" onclick="return check();">提现</button>
                 </div>
             </div>
         </div>

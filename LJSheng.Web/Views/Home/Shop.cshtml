@@ -19,8 +19,10 @@
 </head>
 <body>
     <div class="default-header-nav">
-        <span onclick="window.history.go(-1);">
-            <img src="/images/icon/icon-26.png" />
+        <span>
+            <a onclick="window.history.go(-1);">
+                <img src="/images/icon/icon-26.png" />
+            </a>
         </span>
         商城
     </div>
@@ -47,7 +49,7 @@
                     @foreach (var item in Model)
                     {
                         <li class="active" onclick="getlist('@item.Value');">
-                            <img src="/images/@(item.Key + ".png")">
+                            <img src="/uploadfiles/fl/@(item.Key + ".png")">
                             <span>@item.Key</span>
                         </li>
                     }
