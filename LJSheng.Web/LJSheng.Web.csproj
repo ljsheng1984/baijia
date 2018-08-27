@@ -1086,6 +1086,8 @@
     <Content Include="Views\Member\SendCL.cshtml" />
     <Content Include="Views\Member\RMB.cshtml" />
     <Content Include="Views\Shop\ToAPP.cshtml" />
+    <Content Include="Views\LJSheng\CLTOrderList.cshtml" />
+    <Content Include="Views\LJSheng\MList.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

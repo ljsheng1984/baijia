@@ -705,7 +705,7 @@ namespace LJSheng.Web.ajax
             using (EFDB db = new EFDB())
             {
                 var Member = db.Member.Where(l => l.MID == MID).FirstOrDefault();
-                if (Member != null)
+                if (MID.ToString().Length==8 && Member != null)
                 {
                     Guid Gid = Member.Gid;
                     Guid MemberGid = LCookie.GetMemberGid();

@@ -220,8 +220,8 @@ namespace LJSheng.Web.Controllers
                 int Month = DateTime.Now.Month;
                 ViewBag.TMoney = db.Achievement.Where(l => l.Year == Year && l.Month == Month && l.MemberGid == MemberGid).Select(l => l.TMoney).DefaultIfEmpty(0).Sum();
                 //APP数据
-                ViewBag.BCCB = AppApi.AVG(1);
-                ViewBag.FBCC = AppApi.AVG(2);
+                ViewBag.BCCB = AppApi.MB(b.Account, "BCCB");
+                ViewBag.FBCC = AppApi.MB(b.Account, "FBCC");
             }
             return View();
         }
@@ -1607,20 +1607,21 @@ namespace LJSheng.Web.Controllers
             Guid MemberGid = LCookie.GetMemberGid();
             using (EFDB db = new EFDB())
             {
-                var b = db.ShopOrder.Where(l => l.Gid == Gid && l.PayStatus == 1 && l.Status == 1).FirstOrDefault();
+                var b = db.ShopOrder.Where(l => l.Gid == Gid && l.MemberGid== MemberGid && l.PayStatus == 1 && l.Status == 1).FirstOrDefault();
                 if (b != null)
                 {
                     b.Status = 2;
                     b.ExpressStatus = 3;
                     if (db.SaveChanges() == 1)
                     {
-                        if (db.Member.Where(l => l.Gid == b.ShopGid).Update(l => new Member { ShopMoney = l.ShopMoney + b.PayPrice }) == 1)
+                        Guid ShopGid = db.Shop.Where(l => l.Gid == b.ShopGid).FirstOrDefault().MemberGid;
+                        if (db.Member.Where(l => l.Gid == ShopGid).Update(l => new Member { ShopMoney = l.ShopMoney + b.PayPrice }) == 1)
                         {
                             return Json(new AjaxResult("确认成功"));
                         }
                         else
                         {
-                            LogManager.WriteLog("确认订单成功货款失败", "MemberGid=" + b.ShopGid + ",Gid=" + Gid);
+                            LogManager.WriteLog("确认订单成功货款失败", "商家=" + ShopGid + ",订单=" + Gid+ ",操作会员="+ MemberGid +", PayPrice=" + b.PayPrice);
                         }
                     }
                 }
@@ -2040,7 +2041,7 @@ namespace LJSheng.Web.Controllers
                 //积分
                 ViewBag.Money = b.Money;
                 ViewBag.Integral = b.Integral;
-                ViewBag.ShopMoney = b.ShopMoney;
+                ViewBag.ProductMoney = b.ProductMoney;
             }
             return View();
         }

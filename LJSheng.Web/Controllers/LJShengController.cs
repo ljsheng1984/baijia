@@ -1364,6 +1364,52 @@ namespace LJSheng.Web.Controllers
                 }));
             }
         }
+
+        /// <summary>
+        /// 下线列表
+        /// </summary>
+        /// <returns>返回调用结果</returns>
+        /// <para Name="result">200 是成功其他失败</para>
+        /// <para Name="data">对象结果</para>
+        /// <Remarks>
+        /// 2018-08-18 林建生
+        /// </Remarks>
+        public ActionResult MList()
+        {
+            return View();
+        }
+        [HttpPost]
+        public JsonResult M()
+        {
+            //查询的参数json
+            string json = "";
+            using (StreamReader sr = new StreamReader(Request.InputStream))
+            {
+                json = HttpUtility.UrlDecode(sr.ReadLine());
+            }
+            //解析参数
+            JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
+            using (EFDB db = new EFDB())
+            {
+                Guid Gid = Guid.Parse(paramJson["Gid"].ToString());
+                //查询所有等级
+                List<Guid> list = new List<Guid>();
+                list = Helper.MGidALL(Gid, db.Member.Where(l => l.MemberGid != null).ToList(), list);
+                var b = db.Member.AsQueryable();
+                string GList = string.Join(",", list.ToArray());
+                b = b.Where(l => GList.Contains(l.Gid.ToString()));
+                int pageindex = Int32.Parse(paramJson["pageindex"].ToString());
+                int pagesize = Int32.Parse(paramJson["pagesize"].ToString());
+
+                return Json(new AjaxResult(new
+                {
+                    other = "",
+                    count = b.Count(),
+                    pageindex,
+                    list = b.OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
+                }));
+            }
+        }
         #endregion
 
         #region 管理员模块
@@ -5934,6 +5980,71 @@ namespace LJSheng.Web.Controllers
                     LogManager.WriteLog("彩链失败", "当前没有可统计的数据或已有分红的数据,Year=" + Year.ToString() + ",Month=" + Month.ToString());
                 }
                 return Json(new AjaxResult(300, "没有需要分红的数据!"));
+            }
+        }
+
+        /// <summary>
+        /// 团队业绩列表
+        /// </summary>
+        /// <returns>返回调用结果</returns>
+        /// <para Name="result">200 是成功其他失败</para>
+        /// <para Name="data">对象结果</para>
+        /// <Remarks>
+        /// 2018-08-18 林建生
+        /// </Remarks>
+        public ActionResult CLTOrderList()
+        {
+            return View();
+        }
+        [HttpPost]
+        public JsonResult CLTOrder()
+        {
+            //查询的参数json
+            string json = "";
+            using (StreamReader sr = new StreamReader(Request.InputStream))
+            {
+                json = HttpUtility.UrlDecode(sr.ReadLine());
+            }
+            //解析参数
+            JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
+            using (EFDB db = new EFDB())
+            {
+                int Year = int.Parse(paramJson["Year"].ToString());
+                int Month = int.Parse(paramJson["Month"].ToString());
+                Guid Gid = Guid.Parse(paramJson["Gid"].ToString());
+                //统计月份的第一天和最后一天
+                DateTime MonthFirst = DTime.FirstDayOfMonth(DateTime.Parse(Year + "-" + Month + "-" + "01"));
+                DateTime MonthLast = DTime.LastDayOfMonth(DateTime.Parse(Year + "-" + Month + "-" + "01 23:59:59"));
+                //查询所有等级
+                List <Guid> list = new List<Guid>();
+                list = Helper.MGidALL(Gid, db.Member.Where(l => l.MemberGid != null).ToList(), list);
+                var b = db.Order.Where(l=>l.PayStatus==1 && l.Type==3 && l.PayTime>= MonthFirst && l.PayTime<= MonthLast).GroupJoin(db.Member,
+                    l => l.MemberGid,
+                    j => j.Gid,
+                    (l, j) => new
+                    {
+                        l.Gid,
+                        l.AddTime,
+                        l.MemberGid,
+                        l.CLLevel,
+                        l.Remarks,
+                        l.OrderNo,
+                        l.PayPrice,
+                        l.Product,
+                        j.FirstOrDefault().Account
+                    }).AsQueryable();
+                string GList = string.Join(",", list.ToArray());
+                b = b.Where(l => GList.Contains(l.MemberGid.ToString()));
+                int pageindex = Int32.Parse(paramJson["pageindex"].ToString());
+                int pagesize = Int32.Parse(paramJson["pagesize"].ToString());
+
+                return Json(new AjaxResult(new
+                {
+                    other = "",
+                    count = b.Count(),
+                    pageindex,
+                    list = b.OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
+                }));
             }
         }
 

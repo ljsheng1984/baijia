@@ -1,0 +1,186 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=yes">
+    <title>彩链-我的</title>
+    <meta name="keywords" content="彩链">
+    <meta name="description" content="彩链">
+    <meta name="author" content="彩链">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+</head>
+<body>
+    <div class="center">
+        <!--我的头部-->
+        <div class="center-header">
+            <div class="center-header-content">
+                <div class="center-header-msg">
+                    <div class="center-header-avatar">
+                        <img src="/uploadfiles/member/@ViewBag.Picture" alt="头像" />
+                    </div>
+                    <div class="center-header-text">
+                        <p>@ViewBag.Account (@ViewBag.RealName)</p>
+                        <p>@ViewBag.LevelName</p>
+                    </div>
+                </div>
+                <a href="/Member/Info" class="center-header-arrow">
+                    <img src="images/icon/icon-25.png" />
+                </a>
+            </div>
+            <div class="logout" onclick="self.location='/Home/LoginOut?login=/Home/Login';">退出登录</div>
+        </div>
+        <!--my token-->
+        <div class="default-block my-token">
+            <div class="my-token-item">
+                <img src="images/icon/icon-1.png" />
+                <span class="my-token-item-titlt">My Token</span>
+                <span class="my-token-item-num">
+                    <span class="">BCCB:</span>
+                    <span>1200</span>
+                </span>
+            </div>
+            <div class="my-token-item">
+                <img src="images/icon/icon-2.png" />
+                <span class="my-token-item-titlt">我的彩链:</span>
+                <span class="my-token-item-price">
+                    库存=@ViewBag.Stock (未付款=@ViewBag.LockStock -24小时释放)
+                    <img src="images/icon/icon-25.png" />
+                </span>
+            </div>
+        </div>
+        <!--积分-->
+        <div class="default-block integral">
+            <div class="default-block-title">
+                积分
+                <a href="#this" class="more-btn">
+                    查看更多<img src="images/icon/icon-24.png" />
+                </a>
+            </div>
+            <div class="integral-content">
+                <div class="integral-item">
+                    <img src="images/icon/icon-3.png" />
+                    <p>可提积分 <span>9100</span></p>
+                </div>
+                <div class="integral-item">
+                    <img src="images/icon/icon-4.png" />
+                    <p>购物积分 <span>9100</span></p>
+                </div>
+            </div>
+        </div>
+        <!--商城积分-->
+        <div class="default-block mall-points">
+            <div class="default-block-title">
+                商城积分
+                <a href="#this" class="more-btn">
+                    查看更多<img src="images/icon/icon-24.png" />
+                </a>
+            </div>
+            <div class="integral-content">
+                <div class="integral-item">
+                    <img src="images/icon/icon-3.png" />
+                    <p>可提积分 <span>9100</span></p>
+                    <p>消费金额 <span>9100</span></p>
+                </div>
+                <div class="integral-item">
+                    <img src="images/icon/icon-5.png" />
+                    <p>团队积分 <span>9100</span></p>
+                    <p>消费金额 <span>9100</span></p>
+                </div>
+                <div class="integral-item">
+                    <img src="images/icon/icon-3.png" />
+                    <p>冻结积分 <span>9100</span></p>
+                </div>
+            </div>
+        </div>
+        <!--商家中心-->
+        <div class="default-block integral">
+            <div class="default-block-title">
+                商家中心
+                <a href="/Shop/Index" class="more-btn">
+                    查看更多<img src="images/icon/icon-24.png" />
+                </a>
+            </div>
+            <div class="integral-content">
+                <div class="integral-item" onclick="self.location='/Member/Integral?tab=1';">
+                    <img src="images/icon/icon-6.png" />
+                    <p class="integral-item-tag"><span>可提积分</span></p>
+                    <p><span>20</span></p>
+                </div>
+                <div class="integral-item" onclick="self.location='/Member/Integral?tab=2';">
+                    <img src="images/icon/icon-7.png" />
+                    <p>购物积分</p>
+                    <p><span>7810</span></p>
+                </div>
+            </div>
+        </div>
+        <!--我的团队-->
+        <div class="default-block my-team">
+            <div class="my-team-item" onclick="self.location='/Member/Team';">
+                <p>
+                    <span class="my-team-item-title">我的团队</span>
+                    <span>(团队 本月业绩：540000)</span>
+                </p>
+                <a href="#this" class="more-btn">
+                    <img src="images/icon/icon-24.png" />
+                </a>
+            </div>
+            <div class="my-team-item" onclick="self.location='/Member/Order?tab=0';">
+                <p>
+                    <span class="my-team-item-title">订单中心</span>
+                </p>
+                <a href="#this" class="more-btn">
+                    <img src="images/icon/icon-24.png" />
+                </a>
+            </div>
+        </div>
+        <!--联系我们-->
+        <div class="default-block concat-us">
+            <div class="concat-item" onclick="self.location='/Home/Share?m=@LJSheng.Common.LCookie.GetCK("linjiansheng", "Account")&gid=@LJSheng.Common.LCookie.GetMemberGid()&MID=@ViewBag.MID';">
+                <img src="images/icon/icon-8.png" />
+                <p>分享二维码</p>
+            </div>
+            <div class="concat-item">
+                <img src="images/icon/icon-9.png" />
+                <p>联系我们</p>
+            </div>
+        </div>
+    </div>
+    <div class="bottom-menu">
+        <div class="bottom-menu-content">
+            <ul>
+                <li>
+                    <a href="/Home/Index" class="active">
+                        <img src="images/icon/icon-42.png" class="bottom-menu-default-icon" />
+                        <img src="images/icon/icon-41.png" class="bottom-menu-active-icon" />
+                        <span>首页</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/Home/APP">
+                        <img src="images/icon/icon-38.png" class="bottom-menu-default-icon" />
+                        <img src="images/icon/icon-39.png" class="bottom-menu-active-icon" />
+                        <span>APP</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/Home/Shop">
+                        <img src="images/icon/icon-43.png" class="bottom-menu-default-icon" />
+                        <img src="images/icon/icon-44.png" class="bottom-menu-active-icon" />
+                        <span>商城</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/Member/Index">
+                        <img src="images/icon/icon-45.png" class="bottom-menu-default-icon" />
+                        <img src="images/icon/icon-46.png" class="bottom-menu-active-icon" />
+                        <span>我的</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

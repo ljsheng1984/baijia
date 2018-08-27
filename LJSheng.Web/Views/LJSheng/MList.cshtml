@@ -1,0 +1,48 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" Content="width=device-width, initial-scale=1" />
+    <title>下线列表</title>
+    <link rel="stylesheet" href="~/plugins/zui/css/zui.min.css">
+</head>
+<body>
+    <div class="row" id="search">
+        <input type="text" name="Gid" value="@Request.QueryString["Gid"]" hidden>
+    </div>
+    <br />
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>帐号</th>
+                <th>真实姓名</th>
+                <th>注册时间</th>
+            </tr>
+        </thead>
+        <tbody id="tbody">
+            <script id="tpl" type="text/html">
+                {{each list as item index}}
+                <tr style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
+                    <td>{{index+1}}</td>
+                    <td>{{item.Account}}</td>
+                    <td>{{item.RealName}}</td>
+                    <td>{{item.AddTime}}</td>
+                </tr>
+                {{/each}}
+            </script>
+        </tbody>
+    </table>
+    <ul class="pager" id="pager"></ul>
+    <ul class="pager" id="pages" style="overflow:hidden;"></ul>
+    <script src="~/plugins/zui/lib/jquery/jquery.js"></script>
+    <script src="~/plugins/zui/js/zui.min.js"></script>
+    <script src="~/js/template-web.js"></script>
+    <script src="~/js/list.js"></script>
+</body>
+</html>

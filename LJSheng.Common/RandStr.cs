@@ -4,6 +4,7 @@
 // 修改内容: LJSheng 项目通用类
 //-----------------------------------------------------------
 using System;
+using System.Text;
 
 namespace LJSheng.Common
 {
@@ -100,7 +101,21 @@ namespace LJSheng.Common
             }
             return str_Number;
         }
-
+        /// <summary>
+        ///生成制定位数的随机码（数字）
+        /// </summary>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        public static string GenerateRandomCode(int length)
+        {
+            var result = new StringBuilder();
+            for (var i = 0; i < length; i++)
+            {
+                var r = new Random(Guid.NewGuid().GetHashCode());
+                result.Append(r.Next(0, 10));
+            }
+            return result.ToString();
+        }
         /// <summary>
         /// 生成订单
         /// </summary>

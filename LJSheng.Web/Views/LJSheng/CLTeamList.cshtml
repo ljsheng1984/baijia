@@ -101,7 +101,9 @@
                     <td>
                         {{item.Account}}({{item.RealName}})
                     </td>
-                    <td>{{item.TMoney}}</td>
+                    <td onclick="Show('{{item.Account}}','CLTOrderList?Gid={{item.MemberGid}}&Year={{item.Year}}&Month={{item.Month}}');">
+                        <button class="btn btn-mini">{{item.TMoney}}</button>
+                    </td>
                     <td>{{item.MMoney}}</td>
                     <td title="{{item.ProjectRemarks}}">
                         <div class="btn-group">

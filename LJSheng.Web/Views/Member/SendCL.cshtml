@@ -44,7 +44,7 @@
     <script src="/js/jquery.js"></script>
     <script>
         function Send() {
-            if ($("#Number").val().length>0 && $("#MID").val().length ==7) {
+            if ($("#Number").val().length>0 && $("#MID").val().length ==8) {
                 if ($("#Number").val() <=@ViewBag.Stock) {
                     if (window.confirm('你确定要转让嘛!')) {
                         $.ajax({
