@@ -162,6 +162,7 @@
                             <button class="btn" onclick="Show('{{item.OrderNo}}','OrderAU?gid={{item.Gid}}&account={{item.Account}}&realName={{item.RealName}}');">编辑</button>
                             <button class="btn btn-danger hidden" onclick="Delete('{{item.Gid}}');">删除</button>
                         </div>
+                        <a target="_blank" href="/uploadfiles/voucher/{{item.Voucher}}">付款凭证</a>
                     </td>
                 </tr>
                 <tr id="{{item.Gid}}" style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">

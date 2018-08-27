@@ -3074,6 +3074,7 @@ namespace LJSheng.Web.Controllers
                         l.RobTime,
                         l.Money,
                         l.Integral,
+                        l.Voucher,
                         j.FirstOrDefault().Account,
                         j.FirstOrDefault().RealName
                     }).GroupJoin(db.Level,
@@ -3107,6 +3108,7 @@ namespace LJSheng.Web.Controllers
                         l.ShopGid,
                         l.Money,
                         l.Integral,
+                        l.Voucher,
                         LevelName = y.FirstOrDefault().Name,
                         y.FirstOrDefault().Label,
                         Shop = l.Type == 3 ? "公司发货" : db.Member.Where(m => m.Gid == l.ShopGid).FirstOrDefault().Account,
@@ -5311,6 +5313,7 @@ namespace LJSheng.Web.Controllers
                         l.Remarks,
                         l.Status,
                         l.ConsumptionCode,
+                        l.Voucher,
                         j.FirstOrDefault().Name,
                         j.FirstOrDefault().ContactNumber
                     }).GroupJoin(db.Member,
@@ -5338,6 +5341,7 @@ namespace LJSheng.Web.Controllers
                         l.ConsumptionCode,
                         l.Name,
                         l.ContactNumber,
+                        l.Voucher,
                         j.FirstOrDefault().Account,
                         j.FirstOrDefault().RealName,
                         ShopAccount = db.Member.Where(m=>m.Gid==l.ShopGid).FirstOrDefault().Account,

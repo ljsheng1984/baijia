@@ -524,6 +524,7 @@ namespace LJSheng.Web.Controllers
                         l.RealName,
                         l.ContactNumber,
                         l.Address,
+                        l.Voucher,
                         Number = db.OrderDetails.Where(od => od.OrderGid == l.Gid).Sum(od => od.Number),
                         list = db.OrderDetails.Where(o => o.OrderGid == l.Gid).GroupJoin(db.Product,
                                 x => x.ProductGid,
@@ -1540,6 +1541,7 @@ namespace LJSheng.Web.Controllers
                         x.TotalPrice,
                         x.OrderNo,
                         x.ConsumptionCode,
+                        x.Voucher,
                         y.FirstOrDefault().RealName,
                         y.FirstOrDefault().Account,
                         Picture = db.ShopProduct.Where(sp => sp.Gid == db.OrderDetails.Where(od => od.OrderGid == x.Gid).FirstOrDefault().ProductGid).FirstOrDefault().Picture

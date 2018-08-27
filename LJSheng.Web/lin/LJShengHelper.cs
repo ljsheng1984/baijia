@@ -41,7 +41,7 @@ namespace LJSheng.Web
         {
             get
             {
-                return "/uploadfiles/Product/";
+                return "/uploadfiles/product/";
             }
         }
         /// <summary>
@@ -51,7 +51,7 @@ namespace LJSheng.Web
         {
             get
             {
-                return "/uploadfiles/Member/";
+                return "/uploadfiles/member/";
             }
         }
         /// <summary>
@@ -62,6 +62,16 @@ namespace LJSheng.Web
             get
             {
                 return "/uploadfiles/news/";
+            }
+        }
+        /// <summary>
+        /// 银行凭证
+        /// </summary>
+        public static string Voucher
+        {
+            get
+            {
+                return "/uploadfiles/voucher/";
             }
         }
         #endregion

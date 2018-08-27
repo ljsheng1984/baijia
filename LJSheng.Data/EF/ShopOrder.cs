@@ -144,5 +144,10 @@ namespace LJSheng.Data
         /// 消费状态[1=待消费 2=已消费]
         /// </summary>
         public int Status { get; set; }
+
+        /// <summary>
+        /// 付款凭证
+        /// </summary>
+        public string Voucher { get; set; }
     }
 }

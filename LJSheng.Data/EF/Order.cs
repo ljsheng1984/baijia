@@ -183,5 +183,10 @@ namespace LJSheng.Data
         /// 下单时候的级别
         /// </summary>
         public int CLLevel { get; set; }
+
+        /// <summary>
+        /// 付款凭证
+        /// </summary>
+        public string Voucher { get; set; }
     }
 }

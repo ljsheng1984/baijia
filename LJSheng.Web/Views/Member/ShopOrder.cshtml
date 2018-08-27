@@ -54,6 +54,10 @@
                     <img src="/images/icon/icon-21.png" />
                     <span>已收货</span>
                 </li>
+                <li onclick="getlist(4);">
+                    <img src="/images/icon/icon-21.png" />
+                    <span>未付款</span>
+                </li>
             </ul>
         </div>
         <div class="mescroll" id="scroll">
@@ -90,6 +94,7 @@
                                     {{/if}}
                                 </li>
                                 <li id="{{item.Gid}}" class="confirm-goods {{item.Status==2?"hide":""}}" onclick="show('{{item.Gid}}','{{item.Product}}');">确认收货</li>
+                                <li class="confirm-goods {{item.PayStatus!=2?"hide":""}}"><a href="/Home/Bank?Type=2&OrderNo={{item.OrderNo}}&Money={{item.TotalPrice}}&Voucher={{item.Voucher}}">付款凭证</a></li>
                             </ul>
                         </div>
                     </div>
