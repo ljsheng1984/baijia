@@ -6592,7 +6592,7 @@ namespace LJSheng.Web.Controllers
                     l.AddTime,
                     l.MemberGid,
                     l.MGid,
-                    TA = l.MGid == l.ShopGid?"默认发货人": "公司发货",
+                    TA = l.MGid == l.ShopGid?"上级发货人": "公司发货",
                     MA = db.Member.Where(m => m.Gid == l.MemberGid).FirstOrDefault().Account,
                     SA = db.Member.Where(m => m.Gid == l.MGid).FirstOrDefault().Account
                 }).AsQueryable();

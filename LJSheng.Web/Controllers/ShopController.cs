@@ -326,52 +326,56 @@ namespace LJSheng.Web.Controllers
         /// </summary>
         public ActionResult ProductAU()
         {
-            using (EFDB db = new EFDB())
+            try
             {
-                if (!string.IsNullOrEmpty(Request.QueryString["gid"]))
+                using (EFDB db = new EFDB())
                 {
-                    Guid Gid = Guid.Parse(Request.QueryString["gid"]);
-                    var b = db.ShopProduct.Where(l => l.Gid == Gid).FirstOrDefault();
-                    ViewBag.Name = b.Name;
-                    ViewBag.Price = b.Price;
-                    ViewBag.OriginalPrice = b.OriginalPrice;
-                    ViewBag.Number = b.Number;
-                    ViewBag.Stock = b.Stock;
-                    ViewBag.Profile = b.Profile;
-                    ViewBag.Content = b.Content;
-                    ViewBag.Sort = b.Sort;
-                    ViewBag.Show = b.Show;
-                    ViewBag.Picture = Help.Product + b.Picture;
-                    //ViewBag.GraphicDetails = b.GraphicDetails;
-                    ViewBag.ClassifyGid = b.ClassifyGid;
-                    ViewBag.Remarks = b.Remarks;
-                    ViewBag.ExpressFee = b.ExpressFee;
-                    ViewBag.Company = b.Company;
-                    ViewBag.Brand = b.Brand;
-                    ViewBag.Prefix = b.Prefix;
-                }
-                else
-                {
-                    ViewBag.OriginalPrice = 0;
-                    ViewBag.Number = 0;
-                    ViewBag.Sort = 1;
-                    ViewBag.Show = 1;
-                    ViewBag.ClassifyGid = 0;
-                    ViewBag.Prefix = "";
-                    ViewBag.Stock = "";
-                    ViewBag.Price = "";
-                }
-                Guid ShopGid = LCookie.GetShopGid();
-                var sc = db.ShopClassify.Where(l => l.ShopGid == ShopGid).ToList();
-                if (sc.Count() != 0)
-                {
-                    return View(sc);
-                }
-                else
-                {
-                    return Helper.Redirect("错误！", "/Shop/ShopClassify", "请先设置商品分类!");
+                    if (!string.IsNullOrEmpty(Request.QueryString["gid"]))
+                    {
+                        Guid Gid = Guid.Parse(Request.QueryString["gid"]);
+                        var b = db.ShopProduct.Where(l => l.Gid == Gid).FirstOrDefault();
+                        ViewBag.Name = b.Name;
+                        ViewBag.Price = b.Price;
+                        ViewBag.OriginalPrice = b.OriginalPrice;
+                        ViewBag.Number = b.Number;
+                        ViewBag.Stock = b.Stock;
+                        ViewBag.Profile = b.Profile;
+                        ViewBag.Content = b.Content;
+                        ViewBag.Sort = b.Sort;
+                        ViewBag.Show = b.Show;
+                        ViewBag.Picture = Help.Product + b.Picture;
+                        //ViewBag.GraphicDetails = b.GraphicDetails;
+                        ViewBag.ClassifyGid = b.ClassifyGid;
+                        ViewBag.Remarks = b.Remarks;
+                        ViewBag.ExpressFee = b.ExpressFee;
+                        ViewBag.Company = b.Company;
+                        ViewBag.Brand = b.Brand;
+                        ViewBag.Prefix = b.Prefix;
+                    }
+                    else
+                    {
+                        ViewBag.OriginalPrice = 0;
+                        ViewBag.Number = 0;
+                        ViewBag.Sort = 1;
+                        ViewBag.Show = 1;
+                        ViewBag.ClassifyGid = 0;
+                        ViewBag.Prefix = "";
+                        ViewBag.Stock = "";
+                        ViewBag.Price = "";
+                    }
+                    Guid ShopGid = LCookie.GetShopGid();
+                    var sc = db.ShopClassify.Where(l => l.ShopGid == ShopGid).ToList();
+                    if (sc.Count() != 0)
+                    {
+                        return View(sc);
+                    }
+                    else
+                    {
+                        return Helper.Redirect("错误！", "/Shop/ShopClassify", "请先设置商品分类!");
+                    }
                 }
             }
+            catch { return Helper.Redirect("错误！", "/Shop/Index", "请选择合适的图片!"); }
         }
         [HttpPost]
         public ActionResult ProductAU(Guid? Gid)
@@ -384,16 +388,17 @@ namespace LJSheng.Web.Controllers
                 int Stock = int.Parse(Request.Form["Stock"]);
                 decimal Price = decimal.Parse(Request.Form["Price"]);
                 decimal RMB = Stock * Price;
-                if (m.CLMoney >= RMB)
+                decimal CLMoney = m.CLMoney;
+                if (CLMoney >= RMB)
                 {
-                    m.CLMoney = m.CLMoney - RMB;
+                    m.CLMoney = CLMoney - RMB;
                     if (Gid != null || db.SaveChanges() == 1)
                     {
                         ShopProduct b;
                         if (Gid == null)
                         {
                             Guid spgid = Guid.NewGuid();
-                            Helper.CLRecordAdd(gid, -RMB, m.CLMoney, 0, 0, "额度扣除=" + spgid.ToString());
+                            Helper.CLRecordAdd(gid, -RMB, CLMoney, 0, 0, "额度扣除=" + spgid.ToString());
                             b = new ShopProduct();
                             b.Gid = spgid;
                             b.AddTime = DateTime.Now;
@@ -457,7 +462,7 @@ namespace LJSheng.Web.Controllers
                 }
                 else
                 {
-                    return Helper.Redirect("操作失败！", "/Shop/CLMoney", "你的额度(" + m.CLMoney.ToString() + ")不足发布总价(" + RMB.ToString() + ")" + ",请先兑换!");
+                    return Helper.Redirect("操作失败！", "/Shop/CLMoney", "你的额度(" + CLMoney.ToString() + ")不足发布总价(" + RMB.ToString() + ")" + ",请先兑换!");
                 }
             }
         }
@@ -536,7 +541,7 @@ namespace LJSheng.Web.Controllers
                         decimal Money = b.Stock * b.Price;
                         var m = db.Member.Where(l => l.Gid == gid).FirstOrDefault();
                         decimal CLMoney = m.CLMoney;
-                        m.CLMoney = m.CLMoney + Money;
+                        m.CLMoney = CLMoney + Money;
                         if (db.SaveChanges() == 1)
                         {
                             Helper.CLRecordAdd(gid, Money, CLMoney, 0, 0, "额度退回="+ Gid.ToString());

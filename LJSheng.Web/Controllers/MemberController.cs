@@ -501,10 +501,17 @@ namespace LJSheng.Web.Controllers
             Guid MemberGid = LCookie.GetMemberGid();
             using (EFDB db = new EFDB())
             {
-                var b = db.Order.Where(l => l.PayStatus == 1 && l.MemberGid == MemberGid).AsQueryable();
+                var b = db.Order.Where(l => l.MemberGid == MemberGid).AsQueryable();
                 if (ExpressStatus != 0)
                 {
-                    b = b.Where(l => l.ExpressStatus == ExpressStatus);
+                    if (ExpressStatus == 4)
+                    {
+                        b = b.Where(l => l.PayStatus == 2);
+                    }
+                    else
+                    {
+                        b = b.Where(l => l.PayStatus == 1&& l.ExpressStatus == ExpressStatus);
+                    }
                 }
                 int pageindex = Int32.Parse(paramJson["pageindex"].ToString());
                 int pagesize = Int32.Parse(paramJson["pagesize"].ToString());
@@ -1528,7 +1535,7 @@ namespace LJSheng.Web.Controllers
             Guid MemberGid = LCookie.GetMemberGid();
             using (EFDB db = new EFDB())
             {
-                var b = db.ShopOrder.Where(l => l.PayStatus == 1 && l.MemberGid == MemberGid).GroupJoin(db.Member,
+                var b = db.ShopOrder.Where(l => l.MemberGid == MemberGid).GroupJoin(db.Member,
                     x => x.MemberGid,
                     y => y.Gid,
                     (x, y) => new
@@ -1542,13 +1549,18 @@ namespace LJSheng.Web.Controllers
                         x.OrderNo,
                         x.ConsumptionCode,
                         x.Voucher,
+                        x.PayStatus,
                         y.FirstOrDefault().RealName,
                         y.FirstOrDefault().Account,
                         Picture = db.ShopProduct.Where(sp => sp.Gid == db.OrderDetails.Where(od => od.OrderGid == x.Gid).FirstOrDefault().ProductGid).FirstOrDefault().Picture
                     }).AsQueryable();
-                if (ExpressStatus != 0)
+                if (ExpressStatus == 4)
                 {
-                    b = b.Where(l => l.ExpressStatus == ExpressStatus);
+                    b = b.Where(l => l.PayStatus == 2);
+                }
+                else
+                {
+                    b = b.Where(l => l.PayStatus == 1 && l.ExpressStatus == ExpressStatus);
                 }
                 int pageindex = Int32.Parse(paramJson["pageindex"].ToString());
                 int pagesize = Int32.Parse(paramJson["pagesize"].ToString());
@@ -1893,6 +1905,7 @@ namespace LJSheng.Web.Controllers
                         if (avg > 0)
                         {
                             decimal Token = Integral * (1 / avg);
+                            LogMsg += ",Token=" + Token;
                             Guid TRGid = Guid.NewGuid();
                             if (Helper.TokenRecordAdd(TRGid, gid, Integral, Token, 1, TB))
                             {

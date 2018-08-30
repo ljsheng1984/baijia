@@ -27,49 +27,50 @@ namespace LJSheng.Web.Controllers
         /// 线下汇款
         /// </summary>
         public ActionResult Bank(string Type, string OrderNo, string base64Data)
-        { return View(); }
-        /// <summary>
-        /// 上传凭证
-        /// </summary>
-        public ActionResult Voucher(string Type, string OrderNo, string base64Data)
         {
             using (EFDB db = new EFDB())
             {
-                Guid Gid = LCookie.GetMemberGid();
-                string picture = Helper.jsimg(LJShengHelper.Voucher, base64Data);
-                if (!string.IsNullOrEmpty(picture))
+                if (string.IsNullOrEmpty(base64Data))
+                { return View(); }
+                else
                 {
-                    if (Type == "2")
+                    Guid Gid = LCookie.GetMemberGid();
+                    string picture = Helper.jsimg(LJShengHelper.Voucher, base64Data);
+                    if (!string.IsNullOrEmpty(picture))
                     {
-                        var b = db.Order.Where(l => l.MemberGid == Gid && l.OrderNo == OrderNo).FirstOrDefault();
-                        b.Voucher = picture;
-                        if (db.SaveChanges() == 1)
+                        if (Type == "1")
                         {
-                            return Helper.Redirect("成功", "history.go(-1);", "成功");
+                            var b = db.Order.Where(l => l.MemberGid == Gid && l.OrderNo == OrderNo).FirstOrDefault();
+                            b.Voucher = picture;
+                            if (db.SaveChanges() == 1)
+                            {
+                                return new RedirectResult("/Member/Order?tab=4");
+                            }
+                            else
+                            {
+                                return Helper.Redirect("失败", "history.go(-1);", "失败,请重试");
+                            }
                         }
                         else
                         {
-                            return Helper.Redirect("失败", "history.go(-1);", "失败,请重试");
+                            var b = db.ShopOrder.Where(l => l.MemberGid == Gid && l.OrderNo == OrderNo).FirstOrDefault();
+                            b.Voucher = picture;
+                            if (db.SaveChanges() == 1)
+                            {
+                                return new RedirectResult("/Member/ShopOrder?tab=4");
+                            }
+                            else
+                            {
+                                return Helper.Redirect("失败", "history.go(-1);", "失败,请重试");
+                            }
                         }
                     }
                     else
-                    {
-                        var b = db.ShopOrder.Where(l => l.MemberGid == Gid && l.OrderNo == OrderNo).FirstOrDefault();
-                        b.Voucher = picture;
-                        if (db.SaveChanges() == 1)
-                        {
-                            return Helper.Redirect("成功", "history.go(-1);", "成功");
-                        }
-                        else
-                        {
-                            return Helper.Redirect("失败", "history.go(-1);", "失败,请重试");
-                        }
-                    }
+                    { return Helper.Redirect("失败", "history.go(-1);", "图片上传失败"); }
                 }
-                else
-                { return Helper.Redirect("失败", "history.go(-1);", "图片上传失败"); }
             }
         }
+
         /// <summary>
         /// 页面操作提示
         /// </summary>

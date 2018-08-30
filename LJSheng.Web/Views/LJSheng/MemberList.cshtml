@@ -74,7 +74,7 @@
                     <td>
                         {{item.Account}}
                         <br />
-                        <button class="btn btn-danger btn-mini" onclick="PWD('{{item.Gid}}');">重设密码</button>
+                        <button class="btn btn-mini" onclick="PWD('{{item.Gid}}');">重设密码</button>
                     </td>
                     <td>
                         {{item.Gender}}/{{item.RealName}}
@@ -118,7 +118,8 @@
                     <td>
                         <div class="btn-group">
                             <button class="btn" onclick="Show('{{item.Account}}','OrderList?MemberGid={{item.Gid}}&Type=3');">业绩</button>
-                            <button class="btn" onclick="Show('{{item.Account}}','WithdrawalsList?MemberGid={{item.Gid}}');">提现</button>
+                            <button class="btn" onclick="Show('{{item.Account}}','WithdrawalsList?MemberGid={{item.Gid}}');">彩提</button>
+                            <button class="btn" onclick="Show('{{item.Account}}','ShopWithdrawalsList?MemberGid={{item.Gid}}');">商提</button>
                             <button class="btn" onclick="Show('{{item.Account}}','MList?Gid={{item.Gid}}');">下线</button>
                         </div>
                     </td>

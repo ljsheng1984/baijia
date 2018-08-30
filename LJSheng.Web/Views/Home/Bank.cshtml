@@ -23,7 +23,7 @@
             </a>
         </span> 线下收款
     </div>
-    @using (Html.BeginForm("Voucher", "Home", new { Type = Request.QueryString["Type"]}, FormMethod.Post, new { @class = "", enctype = "multipart/form-data" }))
+    @using (Html.BeginForm("Bank", "Home", new { Type = Request.QueryString["Type"]}, FormMethod.Post, new { @class = "", enctype = "multipart/form-data" }))
     {
     <div class="withdrawal offline-payment">
         <div class="withdrawal-content">
@@ -38,7 +38,7 @@
                 </div>
             </div>
             <div class="withdrawal-operation">
-                <p class="offline-payment-title">付款信息</p>
+                <p class="offline-payment-title">请汇款到以下帐号</p>
                 <div class="withdrawal-operation-input">
                     <span class="withdrawal-operation-tag">姓名</span>
                     <input type="text" placeholder="收款人姓名" readonly />
@@ -67,5 +67,6 @@
     }
     <script src="~/js/jquery.js"></script>
     <script src="~/js/image.js"></script>
+
 </body>
 </html>

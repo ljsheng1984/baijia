@@ -424,7 +424,7 @@ namespace LJSheng.Web
                                         Member.UPTime = DateTime.Now;
                                         if (db.SaveChanges() == 1)
                                         {
-                                            msg += "会员升级成功原等级=" + CLLevel.ToString() + ",升等级=" + UPCLLevel.ToString();
+                                            msg += "会员升级成功原等级("+ Member.CLLevel.ToString() + ")=" + CLLevel.ToString() + ",升等级=" + UPCLLevel.ToString();
                                             //更新发货人-防止上级以上有升级到发货人,所以要先处理自己作为发货人的情况
                                             if (UPCLLevel > 24)
                                             {
@@ -2926,10 +2926,10 @@ namespace LJSheng.Web
         #region 生成唯一邀请码
         public static int CreateMNumber()
         {
-            int MID = int.Parse(RandStr.GenerateRandomCode(8));
+            int MID = int.Parse("1" + RandStr.GenerateRandomCode(7));
             using (EFDB db = new EFDB())
             {
-                if (db.Member.Where(l => l.MID == MID).Count() != 0)
+                if (MID.ToString().Length!=8 && db.Member.Where(l => l.MID == MID).Count() != 0)
                 {
                     CreateMNumber();
                 }

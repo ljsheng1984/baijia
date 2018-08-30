@@ -428,6 +428,6 @@ var s = ["Province", "City", "Area"];
 var opt0 = ["请选择省份", "请选择城市", "请选择区域"];
 function setup() {
     for (i = 0; i < s.length - 1; i++)
-        document.getElementById(s[i]).onchange = new Function("change(" + (i + 1) + ");promptinfo();");
+        document.getElementById(s[i]).onchange = new Function("change(" + (i + 1) + ");");
     change(0);
 }

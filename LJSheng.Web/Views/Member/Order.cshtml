@@ -79,7 +79,7 @@
                         <div class="order-item-num">￥<span>{{od.Price}}</span></div>
                     </a>
                     {{/each}}
-                    <li class="confirm-goods {{item.PayStatus!=2?"hide":""}}"><a href="/Home/Bank?Type=1&OrderNo={{item.OrderNo}}&Money={{item.TotalPrice}}&Voucher={{item.Voucher}}">付款凭证</a></li>
+                    <li class="confirm-goods"><a href="/Home/Bank?Type=1&OrderNo={{item.OrderNo}}&Money={{item.TotalPrice}}&Voucher={{item.Voucher}}">付款凭证</a></li>
                     {{/each}}
                 </script>
             </div>

@@ -34,7 +34,7 @@
         </div>
         <div class="form-group">
             <label class="col-sm-2"><input type="text" name="Picture" value="" class="form-control hidden"></label>
-            <div class="col-md-3 col-sm-5">
+            <div class="col-md-3 col-sm-5 sp">
                 <img data-toggle="lightbox" src="@ViewBag.Picture" data-caption="@ViewBag.Name" class="img-thumbnail" onerror="this.src='/images/nopic.png'" width="200">
             </div>
         </div>
@@ -206,7 +206,7 @@
             deleteActionOnDone: function (file, doRemoveFile) { $("input[name='Picture']").val(""); $(".form-group img").attr("src", ""); return true; },
             responseHandler: function (responseObject, file) {
                 $("input[name='Picture']").val(file.remoteData.title);
-                $(".form-group img").attr("src", file.remoteData.src);
+                $(".sp img").attr("src", file.remoteData.src);
             }
         });
     </script>
