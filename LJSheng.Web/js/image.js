@@ -15,7 +15,6 @@
             //console.log("压缩后：" + base.length / 1024 + " " + base);
         });
     }
-    tip("已自动为你压缩图片了");
 });
 function dealImage(path, obj, callback) {
     var img = new Image();

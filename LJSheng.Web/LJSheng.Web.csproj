@@ -159,6 +159,11 @@
     <Content Include="Global.asax" />
     <Content Include="images\admin-header-bg.png" />
     <Content Include="images\bg-nav.png" />
+    <Content Include="images\business-license.png" />
+    <Content Include="images\businessman1.png" />
+    <Content Include="images\businessman2.png" />
+    <Content Include="images\businessman3.png" />
+    <Content Include="images\faren.png" />
     <Content Include="images\ic-access-time-dark.png" />
     <Content Include="images\ic-access-time.png" />
     <Content Include="images\ic-address.png" />
@@ -281,6 +286,11 @@
     <Content Include="images\nav-btn-name.png" />
     <Content Include="images\nav-btn-web.png" />
     <Content Include="images\nopic.png" />
+    <Content Include="images\permit-upload.png" />
+    <Content Include="images\question1.png" />
+    <Content Include="images\question2.png" />
+    <Content Include="images\question3.png" />
+    <Content Include="images\question4.png" />
     <Content Include="images\女.png" />
     <Content Include="images\男.png" />
     <Content Include="js\daochu.js" />
@@ -1088,6 +1098,11 @@
     <Content Include="Views\Shop\ToAPP.cshtml" />
     <Content Include="Views\LJSheng\CLTOrderList.cshtml" />
     <Content Include="Views\LJSheng\MList.cshtml" />
+    <Content Include="Views\Member\ToShop.cshtml" />
+    <Content Include="Views\Shop\UPCertificates.cshtml" />
+    <Content Include="Views\Member\SendList.cshtml" />
+    <Content Include="Views\Shop\FrozenList.cshtml" />
+    <Content Include="Views\Shop\Licence.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

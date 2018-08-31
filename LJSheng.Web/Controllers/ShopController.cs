@@ -1084,5 +1084,127 @@ namespace LJSheng.Web.Controllers
             }
         }
         #endregion
+
+        #region 新页面
+        /// <summary>
+        /// 冻结记录
+        /// </summary>
+        /// <returns>返回调用结果</returns>
+        /// <para name="result">200 是成功其他失败</para>
+        /// <para name="data">对象结果</para>
+        /// <remarks>
+        /// 2018-08-18 林建生
+        /// </remarks>
+        public ActionResult FrozenList()
+        {
+            return View();
+        }
+        [HttpPost]
+        public JsonResult FrozenListData()
+        {
+            string json = "";
+            using (StreamReader sr = new StreamReader(Request.InputStream))
+            {
+                json = HttpUtility.UrlDecode(sr.ReadLine());
+            }
+            JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
+            Guid MemberGid = LCookie.GetMemberGid();
+            using (EFDB db = new EFDB())
+            {
+                var b = db.ShopRecord.Where(l => l.MemberGid == MemberGid && l.Type==2).GroupJoin(db.Member,
+                    l => l.MemberGid,
+                    j => j.Gid,
+                    (l, j) => new
+                    {
+                        l.AddTime,
+                        l.TIntegral,
+                        l.ThawTime,
+                        l.State,
+                        l.MemberGid,
+                        j.FirstOrDefault().Account
+                    }).AsQueryable();
+                int pageindex = Int32.Parse(paramJson["pageindex"].ToString());
+                int pagesize = Int32.Parse(paramJson["pagesize"].ToString());
+                return Json(new AjaxResult(new
+                {
+                    other = "",
+                    count = b.Count(),
+                    pageindex,
+                    list = b.OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
+                }));
+            }
+        }
+
+        /// <summary>
+        /// 许可证
+        /// </summary>
+        /// <returns>返回调用结果</returns>
+        /// <para name="result">200 是成功其他失败</para>
+        /// <para name="data">对象结果</para>
+        /// <remarks>
+        /// 2018-08-18 林建生
+        /// </remarks>
+        public ActionResult Licence()
+        {
+            return View();
+        }
+
+        /// <summary>
+        /// 证件上传
+        /// </summary>
+        /// <returns>返回调用结果</returns>
+        /// <para name="result">200 是成功其他失败</para>
+        /// <para name="data">对象结果</para>
+        /// <remarks>
+        /// 2018-08-18 林建生
+        /// </remarks>
+        public ActionResult UPCertificates()
+        {
+            using (EFDB db = new EFDB())
+            {
+                Guid Gid = LCookie.GetShopGid();
+                var b = db.Shop.Where(l => l.Gid == Gid).FirstOrDefault();
+                if (b != null)
+                {
+                    ViewBag.LegalPerson = Help.Shop + b.LegalPerson;
+                    ViewBag.USCI = Help.Shop + b.USCI;
+                    ViewBag.Licence = Help.Shop + b.Licence;
+                }
+                return View();
+            }
+        }
+        [HttpPost]
+        public ActionResult UPShop()
+        {
+            using (EFDB db = new EFDB())
+            {
+                Guid Gid = LCookie.GetShopGid();
+                var b = db.Shop.Where(l => l.Gid == Gid).FirstOrDefault();
+                string LegalPerson = Helper.jsimg(Help.Shop, Request.Form["base64Data"]);
+                string USCI = Helper.jsimg(Help.Shop, Request.Form["USCI"]);
+                string Licence = Helper.jsimg(Help.Shop, Request.Form["Licence"]);
+                if (!string.IsNullOrEmpty(LegalPerson))
+                {
+                    b.LegalPerson = LegalPerson;
+                }
+                if (!string.IsNullOrEmpty(USCI))
+                {
+                    b.USCI = USCI;
+                }
+                if (!string.IsNullOrEmpty(Licence))
+                {
+                    b.Licence = Licence;
+                }
+                if (db.SaveChanges() == 1)
+                {
+                    return Helper.Redirect("上传成功", "/Shop/UPCertificates", "上传成功");
+                }
+                else
+                {
+                    return Helper.Redirect("操作失败,请检查录入的数据！", "history.go(-1);", "上传失败,请检查和你的图片!");
+                }
+            }
+        }
+        #endregion
     }
 }

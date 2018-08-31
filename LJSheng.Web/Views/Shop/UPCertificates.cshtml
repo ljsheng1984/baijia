@@ -1,0 +1,120 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=yes">
+    <title>彩链-上传证件</title>
+    <meta name="keywords" content="彩链">
+    <meta name="description" content="彩链">
+    <meta name="author" content="彩链">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="/css/style.css" />
+</head>
+
+<body>
+    <div class="default-header-nav header-nav-blue">
+        <span>
+            <a href="/Member/Index">
+                <img src="/images/icon/icon-26.png" />
+            </a>
+        </span> 上传证件
+    </div>
+
+    <div class="upload-documents">
+        <div class="upload-documents-tip">
+            证件照片
+        </div>
+        @using (Html.BeginForm("UPShop", "Shop", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            <div class="upload-documents-content">
+                <div class="upload-documents-item">
+                    <p class="upload-documents-item-type">身份证照</p>
+                    <div class="upload-documents-item-img">
+                        <!--上传控件-->
+                        <div class="file-upload-controll">
+                            <input type="file" name="Picture" id="Picture" style="position:absolute;opacity:0.0;filter:alpha(opacity=20);width:300px;height:100px;" />
+                        </div>
+                        <!--上传完成之后 替换图片 src 链接即可-->
+                        <img id="upimg" src="@ViewBag.LegalPerson" onerror="this.src='/images/nopic.png'" />
+                    </div>
+                    <div class="upload-documents-item-text">
+                        <p>需要手持上传身份证照照片</p>
+                        <a href="/Shop/LegalPerson">查看示例图</a>
+                    </div>
+                </div>
+                <div class="upload-documents-item">
+                    <p class="upload-documents-item-type">营业执照</p>
+                    <div class="upload-documents-item-img">
+                        <!--上传控件-->
+                        <div class="file-upload-controll">
+                            <input type="file" name="yyzx" id="yyzx" style="position:absolute;opacity:0.0;filter:alpha(opacity=20);width:300px;height:100px;" />
+                        </div>
+                        <img id="yyzximg" src="@ViewBag.USCI" onerror="this.src='/images/nopic.png'" />
+                    </div>
+                    <div class="upload-documents-item-text">
+                        <p>需要上传营业执照</p>
+                        <a href="/Shop/USCI">查看示例图</a>
+                    </div>
+                </div>
+                <div class="upload-documents-item">
+                    <p class="upload-documents-item-type">许可证</p>
+                    <div class="upload-documents-item-img">
+                        <!--上传控件-->
+                        <div class="file-upload-controll">
+                            <input type="file" name="xkz" id="xkz" style="position:absolute;opacity:0.0;filter:alpha(opacity=20);width:300px;height:100px;" />
+                        </div>
+                        <img id="xkzimg" src="@ViewBag.Licence" onerror="this.src='/images/nopic.png'" />
+                    </div>
+                    <div class="upload-documents-item-text">
+                        <p>需要上传许可证</p>
+                        <a href="/Shop/Licence">查看示例图</a>
+                    </div>
+                </div>
+            </div>
+            <textarea id="USCI" name="USCI" hidden></textarea>
+            <textarea id="Licence" name="Licence" hidden></textarea>
+            <textarea id="base64Data" name="base64Data" hidden></textarea>
+            <div class="permit-upload-btn">
+                <button type="submit">确定提交</button>
+            </div>
+        }
+    </div>
+    <script src="/js/jquery.js"></script>
+    <script src="/js/image.js"></script>
+    <script>
+        $("#yyzx").on('change', function () {
+            console.log(this.files);
+            var ready = new FileReader();
+            ready.readAsDataURL(this.files[0]);
+            ready.onload = function () {
+                var re = this.result;　　　　　　　　　　　　　　　　
+                dealImage(re, {
+                    width: 200
+                }, function (base) {
+                    document.getElementById("yyzximg").src = base;
+                    $("#USCI").val(base);
+                });
+            }
+        });
+        $("#xkz").on('change', function () {
+            var ready = new FileReader();
+            ready.readAsDataURL(this.files[0]);
+            ready.onload = function () {
+                var re = this.result; 　　　　　　　　　　　　　　　　
+                dealImage(re, {
+                    width: 200
+                }, function (base) {
+                    document.getElementById("xkzimg").src = base;
+                    $("#Licence").val(base);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

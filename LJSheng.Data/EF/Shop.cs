@@ -86,6 +86,12 @@ namespace LJSheng.Data
         public string LegalPerson { get; set; }
 
         /// <summary>
+        /// 许可证
+        /// </summary>
+        [StringLength(50)]
+        public string Licence { get; set; }
+
+        /// <summary>
         /// 浏览次数
         /// </summary>
         public int Number { get; set; }

@@ -49,7 +49,6 @@
                     @foreach (var item in Model)
                     {
                         <li class="active" onclick="getlist('@item.Value');">
-                            <img src="/uploadfiles/fl/@(item.Key + ".png")">
                             <span>@item.Key</span>
                         </li>
                     }

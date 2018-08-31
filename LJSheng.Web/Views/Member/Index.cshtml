@@ -106,9 +106,9 @@
         </div>
         <!--商家中心-->
         <div class="default-block integral @(ViewBag.Shop ==0?"":"hide")">
-            <div class="default-block-title" onclick="javascript:Shop();">
+            <a class="default-block-title" href="/Member/ToShop">
                 申请入驻成为商家
-            </div>
+            </a>
         </div>
         <div class="default-block integral hidden @(ViewBag.Shop !=0?"":"hide")">
             <div class="default-block-title">
@@ -162,9 +162,15 @@
                 </a>
             </div>
             <div class="concat-item">
-                <a href="/Member/">
+                <a href="/Member/SendList?type=1">
                     <img src="/images/icon/icon-8.png" />
                     <p>转赠记录</p>
+                </a>
+            </div>
+            <div class="concat-item">
+                <a href="/Member/SendList?type=2">
+                    <img src="/images/icon/icon-8.png" />
+                    <p>收赠记录</p>
                 </a>
             </div>
         </div>
@@ -245,22 +251,6 @@
             } else {
                 return false;
             }
-        }
-        function b(account, b) {
-            $.ajax({
-                url: "/ajax/api.ashx?ff=mb",
-                data: "account=" + account + "&b=" + b,
-                type: "post",
-                cache: false,
-                timeout: 8000,
-                dataType: "json",
-                ContentType: "application/json; charset=utf-8",
-                error: function () { new $.zui.Messager('请求超时!').show(); },
-                beforeSend: function () { },
-                success: function (data) {
-                    document.getElementById(b).innerHTML = data.data;
-                },
-            });
         }
     </script>
 </body>

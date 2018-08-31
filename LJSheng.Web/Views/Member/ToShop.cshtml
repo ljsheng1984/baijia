@@ -1,0 +1,97 @@
+﻿
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=yes">
+    <title>彩链-成为商家</title>
+    <meta name="keywords" content="彩链">
+    <meta name="description" content="彩链">
+    <meta name="author" content="彩链">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="/css/style.css" />
+</head>
+
+<body>
+    <div class="default-header-nav header-nav-blue">
+        <span>
+            <a href="/Member/Index">
+                <img src="/images/icon/icon-26.png" />
+            </a>
+        </span> 成为商家
+    </div>
+    <div class="become-businessman">
+        <p class="become-businessman-tip">
+            申请成为商家前，请准备一下材料
+        </p>
+        <div class="become-businessman-content">
+            <div class="become-businessman-item">
+                <div class="become-businessman-item-img">
+                    <img src="/images/businessman1.png" />
+                </div>
+                <div class="become-businessman-item-text">
+                    <p>身份证照片</p>
+                    <span>1）需清晰展示五官和身份证文字信息：2）不可自拍、不可只身份证拍</span>
+                </div>
+            </div>
+            <div class="become-businessman-item">
+                <div class="become-businessman-item-img">
+                    <img src="/images/businessman2.png" />
+                </div>
+                <div class="become-businessman-item-text">
+                    <p>营业执照</p>
+                    <span>1）需文字清晰、边款完整、露出国徽：2）拍复印件需加盖章、可用有效特许证件替代</span>
+                </div>
+            </div>
+            <div class="become-businessman-item">
+                <div class="become-businessman-item-img">
+                    <img src="/images/businessman3.png" />
+                </div>
+                <div class="become-businessman-item-text">
+                    <p>行业许可证</p>
+                    <span>1）需文字清晰、边框完整；2）用食品流通许可证等其他有效证件代替可</span>
+                </div>
+            </div>
+        </div>
+        <div class="permit-upload-content">
+            <div class="permit-upload-btn">
+                <a onclick="Shop();">准备好了，成为商家</a>
+            </div>
+        </div>
+    </div>
+    <script src="/js/jquery.js"></script>
+    <script>
+        function Shop() {
+            if (window.confirm('你确定要入住吗？必须上传商家证件才可以审核哦!')) {
+                $.ajax({
+                    url: "/Member/OpenShop",
+                    data: "",
+                    type: "post",
+                    cache: false,
+                    timeout: 8000,
+                    dataType: "json",
+                    ContentType: "application/json; charset=utf-8",
+                    error: function () { alert('请求超时!'); },
+                    beforeSend: function () { },
+                    success: function (data) {
+                        if (data.result === 200) {
+                            self.location = "/Shop/UPCertificates";
+                        }
+                        else {
+                            alert(data.data);
+                        }
+                    },
+                });
+                return true;
+            } else {
+                return false;
+            }
+        }
+    </script>
+</body>
+</html>

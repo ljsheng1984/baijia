@@ -2143,6 +2143,76 @@ namespace LJSheng.Web.Controllers
             }
             return View();
         }
+        /// <summary>
+        /// 彩链转让记录
+        /// </summary>
+        /// <returns>返回调用结果</returns>
+        /// <para name="result">200 是成功其他失败</para>
+        /// <para name="data">结果提示</para>
+        /// <remarks>
+        /// 2016-06-30 林建生
+        /// </remarks>
+        public ActionResult SendList()
+        {
+            return View();
+        }
+        [HttpPost]
+        public JsonResult SendListData()
+        {
+            string json = "";
+            using (StreamReader sr = new StreamReader(Request.InputStream))
+            {
+                json = HttpUtility.UrlDecode(sr.ReadLine());
+            }
+            JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
+            Guid MemberGid = LCookie.GetMemberGid();
+            int type = int.Parse(paramJson["type"].ToString());
+            using (EFDB db = new EFDB())
+            {
+                var b = db.Order.Where(l => l.PayStatus == 1 && l.PayType == 4 && l.TotalPrice == 0).GroupJoin(db.Member,
+                    l => l.MemberGid,
+                    j => j.Gid,
+                    (l, j) => new
+                    {
+                        l.AddTime,
+                        l.ShopGid,
+                        l.MemberGid,
+                        Number = db.OrderDetails.Where(od => od.OrderGid == l.Gid).Select(od => od.Number).DefaultIfEmpty(0).Sum(),
+                        j.FirstOrDefault().Account,
+                        j.FirstOrDefault().MID
+                    }).AsQueryable();
+                if (type == 1)
+                {
+                    b = b.Where(l => l.ShopGid == MemberGid);
+                }
+                else
+                {
+                    b = b.Where(l => l.MemberGid == MemberGid);
+                }
+                int pageindex = Int32.Parse(paramJson["pageindex"].ToString());
+                int pagesize = Int32.Parse(paramJson["pagesize"].ToString());
+                return Json(new AjaxResult(new
+                {
+                    other = "",
+                    count = b.Count(),
+                    pageindex,
+                    list = b.OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
+                }));
+            }
+        }
+        /// <summary>
+        /// 成为商家
+        /// </summary>
+        /// <returns>返回调用结果</returns>
+        /// <para name="result">200 是成功其他失败</para>
+        /// <para name="data">结果提示</para>
+        /// <remarks>
+        /// 2016-06-30 林建生
+        /// </remarks>
+        public ActionResult ToShop()
+        {
+            return View();
+        }
         #endregion
     }
 }
