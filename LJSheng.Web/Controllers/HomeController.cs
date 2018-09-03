@@ -845,15 +845,20 @@ namespace LJSheng.Web.Controllers
                 }
                 if (!string.IsNullOrEmpty(paramJson["Project"].ToString()))
                 {
-                    foreach (string g in paramJson["Project"].ToString().Split(','))
-                    {
-                        if (!string.IsNullOrEmpty(g))
-                        {
-                            int Project = int.Parse(g);
-                            b = b.Where(l => l.Project != Project);
-                        }
-                    }
+                    int Project = int.Parse(paramJson["Project"].ToString());
+                    b = b.Where(l => l.Project == Project);
                 }
+                //if (!string.IsNullOrEmpty(paramJson["Project"].ToString()))
+                //{
+                //    foreach (string g in paramJson["Project"].ToString().Split(','))
+                //    {
+                //        if (!string.IsNullOrEmpty(g))
+                //        {
+                //            int Project = int.Parse(g);
+                //            b = b.Where(l => l.Project != Project);
+                //        }
+                //    }
+                //}
                 int pageindex = Int32.Parse(paramJson["pageindex"].ToString());
                 int pagesize = Int32.Parse(paramJson["pagesize"].ToString());
                 return Json(new AjaxResult(new

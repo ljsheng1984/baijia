@@ -45,6 +45,11 @@ namespace LJSheng.Data
         public int TB { get; set; }
 
         /// <summary>
+        /// 兑换币种[1=成功, 2=失败]
+        /// </summary>
+        public int State { get; set; }
+
+        /// <summary>
         /// 兑换Token
         /// </summary>
         public decimal Token { get; set; }

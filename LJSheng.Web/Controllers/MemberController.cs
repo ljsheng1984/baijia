@@ -202,11 +202,13 @@ namespace LJSheng.Web.Controllers
                 ViewBag.Money = b.Money;
                 ViewBag.Integral = b.Integral;
                 ViewBag.ShopIntegral = b.ShopIntegral;
+                ViewBag.MIntegral = b.MIntegral;
                 ViewBag.TIntegral = b.TIntegral;
                 //商城查询
                 var so = db.ShopOrder.Where(l => l.PayStatus == 1).ToList();
                 //待处理订单
-                ViewBag.SOC = so.Where(l => l.ShopGid == MemberGid && l.Status==1).Count();
+                Guid ShopGid = LCookie.GetShopGid();
+                ViewBag.SOC = so.Where(l => l.ShopGid == ShopGid && l.Status==1).Count();
                 //商城消费金额
                 ViewBag.ShopOrder = so.Where(l => l.MemberGid == MemberGid).Select(l => l.TotalPrice).DefaultIfEmpty(0).Sum();
                 //商城货款
@@ -1554,13 +1556,16 @@ namespace LJSheng.Web.Controllers
                         y.FirstOrDefault().Account,
                         Picture = db.ShopProduct.Where(sp => sp.Gid == db.OrderDetails.Where(od => od.OrderGid == x.Gid).FirstOrDefault().ProductGid).FirstOrDefault().Picture
                     }).AsQueryable();
-                if (ExpressStatus == 4)
+                if (ExpressStatus != 0)
                 {
-                    b = b.Where(l => l.PayStatus == 2);
-                }
-                else
-                {
-                    b = b.Where(l => l.PayStatus == 1 && l.ExpressStatus == ExpressStatus);
+                    if (ExpressStatus == 4)
+                    {
+                        b = b.Where(l => l.PayStatus == 2);
+                    }
+                    else
+                    {
+                        b = b.Where(l => l.PayStatus == 1 && l.ExpressStatus == ExpressStatus);
+                    }
                 }
                 int pageindex = Int32.Parse(paramJson["pageindex"].ToString());
                 int pagesize = Int32.Parse(paramJson["pagesize"].ToString());
@@ -1621,8 +1626,8 @@ namespace LJSheng.Web.Controllers
             Guid MemberGid = LCookie.GetMemberGid();
             using (EFDB db = new EFDB())
             {
-                var b = db.ShopOrder.Where(l => l.Gid == Gid && l.MemberGid== MemberGid && l.PayStatus == 1 && l.Status == 1).FirstOrDefault();
-                if (b != null)
+                var b = db.ShopOrder.Where(l => l.Gid == Gid && l.MemberGid== MemberGid && l.Status == 1).FirstOrDefault();
+                if (b != null && b.PayStatus == 1)
                 {
                     b.Status = 2;
                     b.ExpressStatus = 3;
@@ -1640,7 +1645,7 @@ namespace LJSheng.Web.Controllers
                     }
                 }
             }
-            return Json(new AjaxResult(300, "更新失败"));
+            return Json(new AjaxResult(300, "未付款不能确认订单"));
         } 
         #endregion
 
@@ -1917,7 +1922,14 @@ namespace LJSheng.Web.Controllers
                                 else
                                 {
                                     LogManager.WriteLog("彩链积分兑换记录成功兑换APP钱包失败", LogMsg);
-                                    db.TokenRecord.Where(l => l.Gid == TRGid).Update(l => new TokenRecord { Remarks = "钱包兑换接口失败" });
+                                    string Remarks = "钱包兑换接口失败";
+                                    //撤销兑换的积分
+                                    //b.Money = b.Money + Integral;
+                                    //if (db.SaveChanges() == 1)
+                                    //{
+                                    //    Remarks = "已退回账户";
+                                    //}
+                                    db.TokenRecord.Where(l => l.Gid == TRGid).Update(l => new TokenRecord { Remarks = Remarks, State = 2 });
                                     return Helper.Redirect("失败", "/Member/IntegralAPP", "彩链积分兑换记录成功兑换APP钱包失败");
                                 }
                             }

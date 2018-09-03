@@ -83,14 +83,14 @@
                             <ul>
                                 <li>码:{{item.ConsumptionCode}}</li>
                                 <li>
-                                    {{if item.ExpressStatus=="1"}}
-                                    待出货
-                                    {{else if item.ExpressStatus=="2"}}
-                                    快递中
-                                    {{else if item.ExpressStatus=="3"}}
-                                    已签收
+                                    {{if item.PayStatus=="1"}}
+                                    已付款
+                                    {{else if item.PayStatus=="2"}}
+                                    未付款
+                                    {{else if item.PayStatus=="3"}}
+                                    已退款
                                     {{else}}
-                                    退回
+                                    已关闭
                                     {{/if}}
                                 </li>
                                 <li id="{{item.Gid}}" class="confirm-goods {{item.Status==2?"hide":""}}" onclick="show('{{item.Gid}}','{{item.Product}}');">确认收货</li>

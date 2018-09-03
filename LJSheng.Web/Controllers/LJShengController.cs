@@ -4599,6 +4599,7 @@ namespace LJSheng.Web.Controllers
                     ViewBag.Picture = Help.Shop + b.Picture;
                     ViewBag.USCI = Help.Shop + b.USCI;
                     ViewBag.LegalPerson = Help.Shop + b.LegalPerson;
+                    ViewBag.Licence = Help.Shop + b.Licence;
                     ViewBag.Project = b.Project;
                     ViewBag.Remarks = b.Remarks;
                     ViewBag.ContactNumber = b.ContactNumber;
@@ -6447,6 +6448,7 @@ namespace LJSheng.Web.Controllers
                         l.OldIntegral,
                         l.Token,
                         l.Type,
+                        l.State,
                         l.Remarks,
                         j.FirstOrDefault().Account,
                         j.FirstOrDefault().RealName
@@ -6460,6 +6462,11 @@ namespace LJSheng.Web.Controllers
                 if (Type != 0)
                 {
                     b = b.Where(l => l.Type == Type);
+                }
+                int State = Int32.Parse(paramJson["State"].ToString());
+                if (State != 0)
+                {
+                    b = b.Where(l => l.State == State);
                 }
                 //时间查询
                 if (!string.IsNullOrEmpty(STime) || !string.IsNullOrEmpty(ETime))
@@ -6491,6 +6498,59 @@ namespace LJSheng.Web.Controllers
                     list = b.OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
                 }));
             }
+        }
+
+        /// <summary>
+        /// 重新兑换
+        /// </summary>
+        /// <returns>返回调用结果</returns>
+        /// <para name="result">200 是成功其他失败</para>
+        /// <para name="data">结果提示</para>
+        /// <remarks>
+        /// 2016-06-30 林建生
+        /// </remarks>
+        [HttpPost]
+        public JsonResult APPToken(Guid Gid)
+        {
+            Guid MemberGid = LCookie.GetMemberGid();
+            using (EFDB db = new EFDB())
+            {
+                var b = db.TokenRecord.Where(l => l.Gid == Gid && l.State == 2).GroupJoin(db.Member,
+                    l => l.MemberGid,
+                    j => j.Gid,
+                    (l, j) => new
+                    {
+                        l.TB,
+                        l.Token,
+                        l.Type,
+                        j.FirstOrDefault().Account
+                    }).FirstOrDefault();
+                if (b != null)
+                {
+                    //提交到APP
+                    if (AppApi.AddMB(b.Account, b.TB == 1 ? "BCCB" : "FBCC", b.Token.ToString()))
+                    {
+                        if (db.TokenRecord.Where(l => l.Gid == Gid && l.State == 2).Update(l => new TokenRecord { State = 1, Remarks = l.Remarks + ",重新兑换成功" }) == 1)
+                        {
+                            return Json(new AjaxResult("重新兑换成功"));
+                        }
+                        else
+                        {
+                            LogManager.WriteLog("重新兑换APP成功更新记录失败", "记录GID=" + Gid.ToString());
+                            return Json(new AjaxResult("重新兑换APP成功更新记录失败"));
+                        }
+                    }
+                    else
+                    {
+                        return Json(new AjaxResult("重新兑换APP失败"));
+                    }
+                }
+                else
+                {
+                    return Json(new AjaxResult("当前记录发生变化,请刷新!"));
+                }
+            }
+            return Json(new AjaxResult(300, "未付款不能确认订单"));
         }
         #endregion
 

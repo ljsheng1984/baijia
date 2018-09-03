@@ -481,7 +481,7 @@ namespace LJSheng.Web.Controllers
                             case 5:
                                 return MShopPay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), paramJson["TotalPrice"].ToString(), Guid.Parse(paramJson["OrderGid"].ToString()), Request.Form["PayPWD"]);
                             case 3:
-                                return new RedirectResult("/Home/Bank?Type=2&OrderNo=" + paramJson["OrderNo"].ToString());
+                                return new RedirectResult("/Home/Bank?Type=2&OrderNo=" + paramJson["OrderNo"].ToString() + "&Money=" + paramJson["TotalPrice"].ToString());
                             default:
                                 return Helper.Redirect("失败", "history.go(-1);", "非法支付");
                         }

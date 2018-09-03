@@ -46,6 +46,9 @@
             <div class="shop-type">
                 <p>商品分类</p>
                 <ul>
+                    <li class="active" onclick="getlist('');">
+                        <span>全部</span>
+                    </li>
                     @foreach (var item in Model)
                     {
                         <li class="active" onclick="getlist('@item.Value');">
@@ -66,7 +69,6 @@
                                 </div>
                                 <div class="shop-store-item-text">
                                     <p class="shop-store-item-name">{{item.Name}}</p>
-                                    <p class="shop-store-item-brief">{{item.Remarks}}</p>
                                     <p class="shop-store-item-product">{{item.Profile}}</p>
                                 </div>
                             </div>
@@ -94,7 +96,7 @@
             }
         }
         function getlist(gid) {
-            document.getElementById("Project").value = gid + ",";
+            document.getElementById("Project").value = gid;
             //重置列表数据
             scroll.resetUpScroll();
             //隐藏回到顶部按钮

@@ -47,6 +47,10 @@ namespace LJSheng.Web
                     {
                         tl = true;
                     }
+                    else
+                    {
+                        LogManager.WriteLog("APP注册失败", paramJson["message"].ToString() + ":会员=" + phone + ",invite_code=" + invite_code);
+                    }
                 }
                 //LogManager.WriteLog("APP接口", paramJson["message"].ToString());
                 //LogManager.WriteLog("APP参数", Helper.PostUrl(dic));
@@ -81,7 +85,7 @@ namespace LJSheng.Web
                 tl = bool.Parse(paramJson["success"].ToString());
                 if (!tl)
                 {
-                    LogManager.WriteLog("修改密码", paramJson["message"].ToString() + ":会员=" + phone + ",type=" + type);
+                    LogManager.WriteLog("APP修改密码失败", paramJson["message"].ToString() + ":会员=" + phone + ",type=" + type);
                 }
             }
             catch (Exception err)
@@ -146,7 +150,7 @@ namespace LJSheng.Web
                 tl = bool.Parse(paramJson["success"].ToString());
                 if (!tl)
                 {
-                    LogManager.WriteLog("扣除用户余额", paramJson["message"].ToString() + ":会员=" + phone + ",币种=" + coin_name + ",金额=" + amount);
+                    LogManager.WriteLog("APP扣除用户余额失败", paramJson["message"].ToString() + ":会员=" + phone + ",币种=" + coin_name + ",金额=" + amount);
                 }
             }
             catch (Exception err)
@@ -180,7 +184,7 @@ namespace LJSheng.Web
                 tl = bool.Parse(paramJson["success"].ToString());
                 if (!tl)
                 {
-                    LogManager.WriteLog("积分兑换APP失败", paramJson["message"].ToString()+ ":会员="+ phone + ",币种=" + coin_name + ",金额=" + amount);
+                    LogManager.WriteLog("APP积分兑换失败", paramJson["message"].ToString()+ ":会员="+ phone + ",币种=" + coin_name + ",金额=" + amount);
                 }
             }
             catch (Exception err)

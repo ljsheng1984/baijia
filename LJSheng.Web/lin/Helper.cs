@@ -2447,6 +2447,7 @@ namespace LJSheng.Web
                     b.MemberGid = MemberGid;
                     b.Type = Type;
                     b.TB = TB;
+                    b.State = 1;
                     b.Integral = Integral;
                     b.Token = Token;
                     if (Type == 1)

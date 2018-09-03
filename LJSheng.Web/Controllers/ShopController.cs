@@ -590,80 +590,87 @@ namespace LJSheng.Web.Controllers
                 ViewBag.Token = decimal.Parse(db.DictionariesList.Where(dl => dl.Key == "Token" && dl.DGid == db.Dictionaries.Where(d => d.DictionaryType == "CL").FirstOrDefault().Gid).FirstOrDefault().Value);
                 ViewBag.BCCB = AppApi.MB(b.Account, "BCCB");
                 ViewBag.Token24 = AppApi.AVG(1);
-                if (Money == 0)
+                if (ViewBag.Token24 > 0)
                 {
-                    if (string.IsNullOrEmpty(b.Bank) || string.IsNullOrEmpty(b.BankName) || string.IsNullOrEmpty(b.BankNumber))
+                    if (Money == 0)
                     {
-                        ViewBag.Number = "请完善资料";
-                    }
-                    else
-                    {
-                        ViewBag.Bank = b.Bank;
-                        ViewBag.BankName = b.BankName;
-                        ViewBag.BankNumber = b.BankNumber;
-                        ViewBag.Number = b.BankNumber.Substring(b.BankNumber.Length - 4, 4);
-                    }
-                    return View();
-                }
-                else
-                {
-                    if (Money < 100)
-                    {
-                        return Helper.Redirect("失败", "history.go(-1);", "最少100积分起提");
-                    }
-                    else
-                    {
-                        if (Money > b.ShopMoney)
+                        if (string.IsNullOrEmpty(b.Bank) || string.IsNullOrEmpty(b.BankName) || string.IsNullOrEmpty(b.BankNumber))
                         {
-                            return Helper.Redirect("失败", "history.go(-1);", "可提积分不足");
+                            ViewBag.Number = "请完善资料";
                         }
                         else
                         {
-                            decimal bccb = Money * ViewBag.Token / ViewBag.Token24;
-                            if (ViewBag.BCCB >= bccb)
+                            ViewBag.Bank = b.Bank;
+                            ViewBag.BankName = b.BankName;
+                            ViewBag.BankNumber = b.BankNumber;
+                            ViewBag.Number = b.BankNumber.Substring(b.BankNumber.Length - 4, 4);
+                        }
+                        return View();
+                    }
+                    else
+                    {
+                        if (Money < 100)
+                        {
+                            return Helper.Redirect("失败", "history.go(-1);", "最少100积分起提");
+                        }
+                        else
+                        {
+                            if (Money > b.ShopMoney)
                             {
-                                if (AppApi.UPMB(b.Account, "BCCB", bccb.ToString()))
+                                return Helper.Redirect("失败", "history.go(-1);", "可提积分不足");
+                            }
+                            else
+                            {
+                                decimal bccb = Money * ViewBag.Token / ViewBag.Token24;
+                                if (ViewBag.BCCB >= bccb)
                                 {
-                                    if (Helper.RMBRecordAdd(gid, Money, 2))
+                                    if (AppApi.UPMB(b.Account, "BCCB", bccb.ToString()))
                                     {
-                                        var wd = new ShopWithdrawals();
-                                        wd.Gid = Guid.NewGuid();
-                                        wd.AddTime = DateTime.Now;
-                                        wd.State = 1;
-                                        wd.Money = Money;
-                                        wd.Bank = b.Bank;
-                                        wd.BankName = b.BankName;
-                                        wd.BankNumber = b.BankNumber;
-                                        wd.ShopGid = gid;
-                                        wd.Token = bccb;
-                                        db.ShopWithdrawals.Add(wd);
-                                        if (db.SaveChanges() == 1)
+                                        if (Helper.RMBRecordAdd(gid, Money, 2))
                                         {
-                                            return Helper.Redirect("成功", "/Shop/Money", "恭喜你,提现成功,等待财务审核后打款");
+                                            var wd = new ShopWithdrawals();
+                                            wd.Gid = Guid.NewGuid();
+                                            wd.AddTime = DateTime.Now;
+                                            wd.State = 1;
+                                            wd.Money = Money;
+                                            wd.Bank = b.Bank;
+                                            wd.BankName = b.BankName;
+                                            wd.BankNumber = b.BankNumber;
+                                            wd.ShopGid = gid;
+                                            wd.Token = bccb;
+                                            db.ShopWithdrawals.Add(wd);
+                                            if (db.SaveChanges() == 1)
+                                            {
+                                                return Helper.Redirect("成功", "/Shop/Money", "恭喜你,提现成功,等待财务审核后打款");
+                                            }
+                                            else
+                                            {
+                                                LogManager.WriteLog("商家扣除成功打款记录失败", "gid=" + gid.ToString() + ",money=" + Money.ToString() + ",bccb=" + bccb.ToString());
+                                                return Helper.Redirect("失败", "history.go(-1);", "扣除成功打款记录失败");
+                                            }
                                         }
                                         else
                                         {
-                                            LogManager.WriteLog("商家扣除成功打款记录失败", "gid=" + gid.ToString() + ",money=" + Money.ToString() + ",bccb=" + bccb.ToString());
-                                            return Helper.Redirect("失败", "history.go(-1);", "扣除成功打款记录失败");
+                                            LogManager.WriteLog("BCCB扣除成功增加资金失败", "gid=" + gid.ToString() + ",money=" + Money.ToString() + ",bccb=" + bccb.ToString());
+                                            return Helper.Redirect("失败", "history.go(-1);", "扣除失败");
                                         }
                                     }
                                     else
                                     {
-                                        LogManager.WriteLog("BCCB扣除成功增加资金失败", "gid=" + gid.ToString() + ",money=" + Money.ToString() + ",bccb=" + bccb.ToString());
-                                        return Helper.Redirect("失败", "history.go(-1);", "扣除失败");
+                                        return Helper.Redirect("失败", "history.go(-1);", "BCCB手续费扣除失败");
                                     }
                                 }
                                 else
                                 {
-                                    return Helper.Redirect("失败", "history.go(-1);", "BCCB手续费扣除失败");
+                                    return Helper.Redirect("失败", "history.go(-1);", "BCCB手续费不足");
                                 }
-                            }
-                            else
-                            {
-                                return Helper.Redirect("失败", "history.go(-1);", "BCCB手续费不足");
                             }
                         }
                     }
+                }
+                else
+                {
+                    return Helper.Redirect("失败", "history.go(-1);", "APP返回均价失败");
                 }
             }
         }
@@ -691,72 +698,79 @@ namespace LJSheng.Web.Controllers
                 ViewBag.Token = decimal.Parse(db.DictionariesList.Where(dl => dl.Key == "Token" && dl.DGid == db.Dictionaries.Where(d => d.DictionaryType == "CL").FirstOrDefault().Gid).FirstOrDefault().Value);
                 ViewBag.BCCB = AppApi.MB(b.Account, "BCCB");
                 ViewBag.Token24 = AppApi.AVG(1);
-                if (Money==0)
+                if (ViewBag.Token24 > 0)
                 {
-                    ViewBag.Bank = b.Bank;
-                    ViewBag.BankName = b.BankName;
-                    ViewBag.BankNumber = b.BankNumber;
-                    return View();
-                }
-                else
-                {
-                    if (Money < 100)
+                    if (Money == 0)
                     {
-                        return Helper.Redirect("失败", "history.go(-1);", "最少100积分起提");
+                        ViewBag.Bank = b.Bank;
+                        ViewBag.BankName = b.BankName;
+                        ViewBag.BankNumber = b.BankNumber;
+                        return View();
                     }
                     else
                     {
-                        if (Money > b.ShopMoney)
+                        if (Money < 100)
                         {
-                            return Helper.Redirect("失败", "history.go(-1);", "可提积分不足");
+                            return Helper.Redirect("失败", "history.go(-1);", "最少100积分起提");
                         }
                         else
                         {
-                            decimal bccb = Money * ViewBag.Token / ViewBag.Token24;
-                            if (ViewBag.BCCB >= bccb)
+                            if (Money > b.ShopMoney)
                             {
-                                if (AppApi.UPMB(b.Account, "BCCB", bccb.ToString()))
+                                return Helper.Redirect("失败", "history.go(-1);", "可提积分不足");
+                            }
+                            else
+                            {
+                                decimal bccb = Money * ViewBag.Token / ViewBag.Token24;
+                                if (ViewBag.BCCB >= bccb)
                                 {
-                                    if (Helper.RMBRecordAdd(gid, Money, 2))
+                                    if (AppApi.UPMB(b.Account, "BCCB", bccb.ToString()))
                                     {
-                                        var wd = new ShopWithdrawals();
-                                        wd.Gid = Guid.NewGuid();
-                                        wd.AddTime = DateTime.Now;
-                                        wd.State = 1;
-                                        wd.Money = Money;
-                                        wd.Bank = b.Bank;
-                                        wd.BankName = b.BankName;
-                                        wd.BankNumber = b.BankNumber;
-                                        wd.ShopGid = gid;
-                                        wd.Token = bccb;
-                                        db.ShopWithdrawals.Add(wd);
-                                        if (db.SaveChanges() == 1)
+                                        if (Helper.RMBRecordAdd(gid, Money, 2))
                                         {
-                                            return Helper.Redirect("成功", "/Shop/Money", "恭喜你,提现成功,等待财务审核后打款");
+                                            var wd = new ShopWithdrawals();
+                                            wd.Gid = Guid.NewGuid();
+                                            wd.AddTime = DateTime.Now;
+                                            wd.State = 1;
+                                            wd.Money = Money;
+                                            wd.Bank = b.Bank;
+                                            wd.BankName = b.BankName;
+                                            wd.BankNumber = b.BankNumber;
+                                            wd.ShopGid = gid;
+                                            wd.Token = bccb;
+                                            db.ShopWithdrawals.Add(wd);
+                                            if (db.SaveChanges() == 1)
+                                            {
+                                                return Helper.Redirect("成功", "/Shop/Money", "恭喜你,提现成功,等待财务审核后打款");
+                                            }
+                                            else
+                                            {
+                                                LogManager.WriteLog("商家扣除成功打款记录失败", "gid=" + gid.ToString() + ",money=" + Money.ToString() + ",bccb=" + bccb.ToString());
+                                                return Helper.Redirect("失败", "history.go(-1);", "扣除成功打款记录失败");
+                                            }
                                         }
                                         else
                                         {
-                                            LogManager.WriteLog("商家扣除成功打款记录失败", "gid=" + gid.ToString() + ",money=" + Money.ToString() + ",bccb=" + bccb.ToString());
-                                            return Helper.Redirect("失败", "history.go(-1);", "扣除成功打款记录失败");
+                                            LogManager.WriteLog("BCCB扣除成功增加资金失败", "gid=" + gid.ToString() + ",money=" + Money.ToString() + ",bccb=" + bccb.ToString());
+                                            return Helper.Redirect("失败", "history.go(-1);", "扣除失败");
                                         }
                                     }
                                     else
                                     {
-                                        LogManager.WriteLog("BCCB扣除成功增加资金失败", "gid=" + gid.ToString() + ",money=" + Money.ToString() + ",bccb=" + bccb.ToString());
-                                        return Helper.Redirect("失败", "history.go(-1);", "扣除失败");
+                                        return Helper.Redirect("失败", "history.go(-1);", "BCCB手续费扣除失败");
                                     }
                                 }
                                 else
                                 {
-                                    return Helper.Redirect("失败", "history.go(-1);", "BCCB手续费扣除失败");
+                                    return Helper.Redirect("失败", "history.go(-1);", "BCCB手续费不足");
                                 }
-                            }
-                            else
-                            {
-                                return Helper.Redirect("失败", "history.go(-1);", "BCCB手续费不足");
                             }
                         }
                     }
+                }
+                else
+                {
+                    return Helper.Redirect("失败", "history.go(-1);", "APP返回均价失败");
                 }
             }
         }
@@ -970,7 +984,8 @@ namespace LJSheng.Web.Controllers
                             else
                             {
                                 LogManager.WriteLog(T + "积分兑换记录成功兑换APP钱包失败", LogMsg);
-                                db.TokenRecord.Where(l => l.Gid == TRGid).Update(l => new TokenRecord { Remarks = "钱包兑换接口失败" });
+                                string Remarks = "钱包兑换接口失败";
+                                db.TokenRecord.Where(l => l.Gid == TRGid).Update(l => new TokenRecord { Remarks = Remarks, State=2 });
                                 return Helper.Redirect("失败", "/Shop/IntegralAPP?type=" + Type, "积分兑换记录成功兑换APP钱包失败");
                             }
                         }

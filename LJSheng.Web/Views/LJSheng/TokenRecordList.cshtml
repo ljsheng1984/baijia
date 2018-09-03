@@ -15,6 +15,7 @@
     <div class="row" id="search">
         <div class="col-sm-11">
             <div class="input-group">
+                <span class="input-group-addon"><i class="icon-search"></i></span>
                 <select class="form-control" name="Type">
                     <option value="0" selected>=全部=</option>
                     <option value="1">彩链分</option>
@@ -22,7 +23,12 @@
                     <option value="3">商城分</option>
                 </select>
                 <span class="input-group-addon fix-padding">-</span>
-                <span class="input-group-addon"><i class="icon-search"></i></span>
+                <select class="form-control" name="State">
+                    <option value="0" selected>=全部=</option>
+                    <option value="1">成功</option>
+                    <option value="2">失败</option>
+                </select>
+                <span class="input-group-addon fix-padding">-</span>
                 <span class="input-group-addon">手机号</span>
                 <input type="text" name="Account" class="form-control" onkeyup="value=value.replace(/[^\d]/g,'');" value="@Request.QueryString["Account"]">
                 <span class="input-group-addon">时间</span>
@@ -46,13 +52,14 @@
                 <th>兑换Token</th>
                 <th>类型</th>
                 <th>备注</th>
+                <th>操作</th>
                 <th>添加时间</th>
             </tr>
         </thead>
         <tbody id="tbody">
             <script id="tpl" type="text/html">
                 {{each list as item index}}
-                <tr id="{{item.Gid}}" style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
+                <tr style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
                     <td>{{++index}}</td>
                     <td>{{item.Account}}({{item.RealName}})</td>
                     <td>{{item.Integral}}</td>
@@ -68,6 +75,13 @@
                         {{/if}}
                     </td>
                     <td>{{item.Remarks}}</td>
+                    <td id="{{item.Gid}}">
+                        {{if item.State==2}}
+                        <button class="btn btn-danger" onclick="APP('{{item.Gid}}');">重新兑换</button>
+                        {{else}}
+                        兑换成功
+                        {{/if}}
+                    </td>
                     <td>{{item.AddTime}}</td>
                 </tr>
                 {{/each}}
@@ -82,23 +96,20 @@
     <script src="~/plugins/My97DatePicker/WdatePicker.js"></script>
     <script src="~/js/list.js"></script>
     <script>
-        function JD(gid) {
-            if (window.confirm('解冻会直接把积分加到用户团队积分上哦!')) {
+        function APP(gid) {
+            if (window.confirm('确认重新兑换到APP吗?')) {
                 $.ajax({
-                    url: "/LJSheng/UnFrozen",
-                    data: "gid=" + gid + "&cache=" + Math.random(),
+                    url: "/LJSheng/APPToken",
+                    data: "Gid=" + gid + "&cache=" + Math.random(),
                     type: "post",
                     cache: false,
                     timeout: 8000,
                     dataType: "json",
                     ContentType: "application/json; charset=utf-8",
-                    error: function () { new $.zui.Messager('请求超时!').show(); },
+                    error: function () { alert("请求超时!"); },
                     beforeSend: function () { },
                     success: function (data) {
-                        if (data.result == 200) {
-                            $("#" + gid).html("成功");
-                        }
-                        Messager(data.data, data.result);
+                        $("#" + gid).html(data.data);
                     },
                 });
                 return true;
