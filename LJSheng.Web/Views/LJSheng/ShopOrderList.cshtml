@@ -72,6 +72,7 @@
                 <th>支付积分</th>
                 <th>订单状态</th>
                 <th>管理操作</th>
+                <th>付款凭证</th>
             </tr>
         </thead>
         <tbody id="tbody">
@@ -131,7 +132,9 @@
                             <button class="btn" onclick="Show('{{item.OrderNo}}','ShopOrderAU?gid={{item.Gid}}&account={{item.Account}}&realName={{item.RealName}}&Name={{item.Name}}');">编辑</button>
                             <button class="btn btn-danger hidden" onclick="Delete('{{item.Gid}}');">删除</button>
                         </div>
-                        <a class="{{item.Voucher==""?"hidden":""}}"  target="_blank" href="/uploadfiles/voucher/{{item.Voucher}}">付款凭证</a>
+                    </td>
+                    <td rowspan="2">
+                        <a target="_blank" href="/uploadfiles/voucher/{{item.Voucher}}"><img data-caption="{{item.Account}}" data-toggle="lightbox" src="/uploadfiles/voucher/{{item.Voucher}}" class="img-thumbnail" onerror="this.src='/images/nopic.png'" style="width:80px;height:80px;"></a>
                     </td>
                 </tr>
                 <tr id="{{item.Gid}}" style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">

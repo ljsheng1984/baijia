@@ -436,9 +436,10 @@ namespace LJSheng.Web.Controllers
                         x.Price,
                         x.Company,
                         x.Stock,
+                        x.Sort,
                         x.Prefix,
                         y.FirstOrDefault().Project
-                    }).Where(l => l.Project == Project).ToList();
+                    }).Where(l => l.Project == Project).OrderBy(l=>l.Sort).ToList();
                 string phtm = "";
                 foreach (var dr in p)
                 {

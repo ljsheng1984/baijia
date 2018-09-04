@@ -590,30 +590,30 @@ namespace LJSheng.Web.Controllers
                 ViewBag.Token = decimal.Parse(db.DictionariesList.Where(dl => dl.Key == "Token" && dl.DGid == db.Dictionaries.Where(d => d.DictionaryType == "CL").FirstOrDefault().Gid).FirstOrDefault().Value);
                 ViewBag.BCCB = AppApi.MB(b.Account, "BCCB");
                 ViewBag.Token24 = AppApi.AVG(1);
-                if (ViewBag.Token24 > 0)
+                if (Money == 0)
                 {
-                    if (Money == 0)
+                    if (string.IsNullOrEmpty(b.Bank) || string.IsNullOrEmpty(b.BankName) || string.IsNullOrEmpty(b.BankNumber))
                     {
-                        if (string.IsNullOrEmpty(b.Bank) || string.IsNullOrEmpty(b.BankName) || string.IsNullOrEmpty(b.BankNumber))
-                        {
-                            ViewBag.Number = "请完善资料";
-                        }
-                        else
-                        {
-                            ViewBag.Bank = b.Bank;
-                            ViewBag.BankName = b.BankName;
-                            ViewBag.BankNumber = b.BankNumber;
-                            ViewBag.Number = b.BankNumber.Substring(b.BankNumber.Length - 4, 4);
-                        }
-                        return View();
+                        ViewBag.Number = "请完善资料";
                     }
                     else
                     {
-                        if (Money < 100)
-                        {
-                            return Helper.Redirect("失败", "history.go(-1);", "最少100积分起提");
-                        }
-                        else
+                        ViewBag.Bank = b.Bank;
+                        ViewBag.BankName = b.BankName;
+                        ViewBag.BankNumber = b.BankNumber;
+                        ViewBag.Number = b.BankNumber.Substring(b.BankNumber.Length - 4, 4);
+                    }
+                    return View();
+                }
+                else
+                {
+                    if (Money < 100)
+                    {
+                        return Helper.Redirect("失败", "history.go(-1);", "最少100积分起提");
+                    }
+                    else
+                    {
+                        if (ViewBag.Token24 > 0)
                         {
                             if (Money > b.ShopMoney)
                             {
@@ -645,13 +645,13 @@ namespace LJSheng.Web.Controllers
                                             }
                                             else
                                             {
-                                                LogManager.WriteLog("商家扣除成功打款记录失败", "gid=" + gid.ToString() + ",money=" + Money.ToString() + ",bccb=" + bccb.ToString());
+                                                LogManager.WriteLog("商家提现扣除成功打款记录失败", "gid=" + gid.ToString() + ",money=" + Money.ToString() + ",bccb=" + bccb.ToString());
                                                 return Helper.Redirect("失败", "history.go(-1);", "扣除成功打款记录失败");
                                             }
                                         }
                                         else
                                         {
-                                            LogManager.WriteLog("BCCB扣除成功增加资金失败", "gid=" + gid.ToString() + ",money=" + Money.ToString() + ",bccb=" + bccb.ToString());
+                                            LogManager.WriteLog("商家BCCB扣除成功提现记录失败", "gid=" + gid.ToString() + ",money=" + Money.ToString() + ",bccb=" + bccb.ToString());
                                             return Helper.Redirect("失败", "history.go(-1);", "扣除失败");
                                         }
                                     }
@@ -666,11 +666,11 @@ namespace LJSheng.Web.Controllers
                                 }
                             }
                         }
+                        else
+                        {
+                            return Helper.Redirect("失败", "history.go(-1);", "APP返回均价失败");
+                        }
                     }
-                }
-                else
-                {
-                    return Helper.Redirect("失败", "history.go(-1);", "APP返回均价失败");
                 }
             }
         }

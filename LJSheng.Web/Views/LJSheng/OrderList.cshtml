@@ -117,6 +117,7 @@
                 <th>支付信息</th>
                 <th>支付金额</th>
                 <th>管理操作</th>
+                <th>付款凭证</th>
             </tr>
         </thead>
         <tbody id="tbody">
@@ -162,7 +163,9 @@
                             <button class="btn" onclick="Show('{{item.OrderNo}}','OrderAU?gid={{item.Gid}}&account={{item.Account}}&realName={{item.RealName}}');">编辑</button>
                             <button class="btn btn-danger hidden" onclick="Delete('{{item.Gid}}');">删除</button>
                         </div>
-                        <a class="{{item.Voucher==""?"hidden":""}}" target="_blank" href="/uploadfiles/voucher/{{item.Voucher}}">付款凭证</a>
+                    </td>
+                    <td rowspan="2">
+                        <a target="_blank" href="/uploadfiles/voucher/{{item.Voucher}}"><img data-caption="{{item.Account}}" data-toggle="lightbox" src="/uploadfiles/voucher/{{item.Voucher}}" class="img-thumbnail" onerror="this.src='/images/nopic.png'" style="width:80px;height:80px;"></a>
                     </td>
                 </tr>
                 <tr id="{{item.Gid}}" style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
@@ -190,7 +193,7 @@
                     </td>
                     <td>购买时级别</td>
                     <td><span class="label {{item.Label}}">{{item.LevelName}}</span></td>
-                    <td><button class="btn btn-info btn-mini disabled hidden">利润 <span class="label label-badge">{{item.Profit}}</span></button></td>
+                    <td></td>
                     <td><button class="btn btn-mini" onclick="Show('{{item.OrderNo}}','Express?express={{item.Express}}&expressnumber={{item.ExpressNumber}}');" {{item.ExpressStatus==1?"disabled":""}}>查看物流</button></td>
                 </tr>
                 {{/each}}

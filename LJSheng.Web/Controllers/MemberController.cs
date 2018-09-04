@@ -992,7 +992,6 @@ namespace LJSheng.Web.Controllers
                         }
                         else
                         {
-
                             if (Helper.RMBRecordAdd(MemberGid, PM, 1))
                             {
                                 var wd = new Withdrawals();
@@ -1012,7 +1011,7 @@ namespace LJSheng.Web.Controllers
                                 }
                                 else
                                 {
-                                    LogManager.WriteLog("扣除金额成功提现记录失败", "MemberGid=" + MemberGid.ToString() + ",Money=" + Money);
+                                    LogManager.WriteLog("彩链扣除金额成功打款记录失败", "MemberGid=" + MemberGid.ToString() + ",Money=" + Money);
                                     return Helper.Redirect("失败", "history.go(-1);", "扣除金额成功提现记录失败,请联系客服人员!");
                                 }
                             }
