@@ -26,7 +26,7 @@
                     </div>
                     <div class="center-header-text">
                         <p>@ViewBag.Account (@ViewBag.RealName)</p>
-                        <p class="label @ViewBag.CLLabel">@ViewBag.CLLevelName</p>
+                        <p class="label @ViewBag.CLLabel">@ViewBag.CLLevelName (ID:@ViewBag.MID)</p>
                     </div>
                 </div>
                 <a href="/Member/Info" class="center-header-arrow">
@@ -51,10 +51,10 @@
             </div>
             <div class="my-token-item">
                 <img src="/images/icon/icon-2.png" />
-                <span class="my-token-item-titlt">我的彩链:</span>
+                <span class="my-token-item-titlt">我的彩码:</span>
                 <span class="my-token-item-price">
-                    库存=@ViewBag.Stock (未付款=@ViewBag.LockStock / 24小时释放)
-                    <a href="/Member/CL">
+                    库存=@ViewBag.Stock
+                    <a href="/Member/CL?LockStock=@ViewBag.LockStock">
                         <img src="/images/icon/icon-25.png" />
                     </a>
                 </span>

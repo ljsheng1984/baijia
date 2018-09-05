@@ -503,7 +503,7 @@ namespace LJSheng.Web.Controllers
             Guid MemberGid = LCookie.GetMemberGid();
             using (EFDB db = new EFDB())
             {
-                var b = db.Order.Where(l => l.MemberGid == MemberGid).AsQueryable();
+                var b = db.Order.Where(l => l.MemberGid == MemberGid && l.PayStatus <4).AsQueryable();
                 if (ExpressStatus != 0)
                 {
                     if (ExpressStatus == 4)
@@ -512,7 +512,7 @@ namespace LJSheng.Web.Controllers
                     }
                     else
                     {
-                        b = b.Where(l => l.PayStatus == 1&& l.ExpressStatus == ExpressStatus);
+                        b = b.Where(l => l.PayStatus == 1 && l.ExpressStatus == ExpressStatus);
                     }
                 }
                 int pageindex = Int32.Parse(paramJson["pageindex"].ToString());
@@ -1536,7 +1536,7 @@ namespace LJSheng.Web.Controllers
             Guid MemberGid = LCookie.GetMemberGid();
             using (EFDB db = new EFDB())
             {
-                var b = db.ShopOrder.Where(l => l.MemberGid == MemberGid).GroupJoin(db.Member,
+                var b = db.ShopOrder.Where(l => l.MemberGid == MemberGid && l.PayStatus < 4).GroupJoin(db.Member,
                     x => x.MemberGid,
                     y => y.Gid,
                     (x, y) => new
@@ -2180,18 +2180,15 @@ namespace LJSheng.Web.Controllers
             int type = int.Parse(paramJson["type"].ToString());
             using (EFDB db = new EFDB())
             {
-                var b = db.Order.Where(l => l.PayStatus == 1 && l.PayType == 4 && l.TotalPrice == 0).GroupJoin(db.Member,
-                    l => l.MemberGid,
-                    j => j.Gid,
-                    (l, j) => new
+                var b = db.Order.Where(l => l.PayStatus == 1 && l.PayType == 4 && l.TotalPrice == 0).Select(l => new
+             
                     {
                         l.AddTime,
                         l.ShopGid,
                         l.MemberGid,
                         Number = db.OrderDetails.Where(od => od.OrderGid == l.Gid).Select(od => od.Number).DefaultIfEmpty(0).Sum(),
-                        j.FirstOrDefault().Account,
-                        j.FirstOrDefault().MID
-                    }).AsQueryable();
+                        Account = type == 1?db.Member.Where(m=>m.Gid==l.ShopGid).FirstOrDefault().Account: db.Member.Where(m => m.Gid == l.MemberGid).FirstOrDefault().Account
+                }).AsQueryable();
                 if (type == 1)
                 {
                     b = b.Where(l => l.ShopGid == MemberGid);

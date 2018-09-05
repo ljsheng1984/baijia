@@ -93,7 +93,7 @@
                                     已关闭
                                     {{/if}}
                                 </li>
-                                <li id="{{item.Gid}}" class="confirm-goods {{item.Status==2?"hide":""}}" onclick="show('{{item.Gid}}','{{item.Product}}');">确认收货</li>
+                                <li id="{{item.Gid}}" class="confirm-goods" onclick="show('{{item.Gid}}','{{item.Product}}');">{{item.Status==2?"已收货":"确认收货"}}</li>
                                 <li class="confirm-goods"><a href="/Home/Bank?Type=2&OrderNo={{item.OrderNo}}&Money={{item.TotalPrice}}&Voucher={{item.Voucher}}">付款凭证</a></li>
                             </ul>
                         </div>
