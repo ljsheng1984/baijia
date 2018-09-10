@@ -168,6 +168,69 @@ namespace LJSheng.Web.Controllers
         // 后台中心
         public ActionResult Index()
         {
+            using (EFDB db = new EFDB())
+            {
+                //返还24小时被扣除的彩链订单库存
+                {
+                    DateTime dt = DateTime.Now.AddHours(-24);
+                    var b = db.Order.Where(l => l.ShopGid != null && l.PayStatus == 2 && l.AddTime < dt).Select(l => new
+                    {
+                        l.Gid,
+                        l.ShopGid,
+                        Number = db.OrderDetails.Where(od => od.OrderGid == l.Gid).Select(od => od.Number).DefaultIfEmpty(0).Sum()
+                    }).ToList();
+                    //默认商品
+                    Guid ProductGid = Helper.GetProductGid();
+                    foreach (var dr in b)
+                    {
+                        if (db.Order.Where(l => l.Gid == dr.Gid).Update(l => new Order { PayStatus = 4 }) == 1)
+                        {
+                            if (dr.Number > 0)
+                            {
+                                if (db.Stock.Where(l => l.MemberGid == dr.ShopGid && l.ProductGid == ProductGid).Update(l => new Stock { Number = l.Number + dr.Number }) == 1)
+                                {
+                                    LogManager.WriteLog("订单库存赎回成功", "订单=" + dr.Gid.ToString() + "库存=" + dr.Number.ToString());
+                                }
+                                else
+                                {
+                                    LogManager.WriteLog("订单关闭成功库存赎回失败", "订单=" + dr.Gid.ToString() + "库存=" + dr.Number.ToString());
+                                }
+                            }
+                        }
+                        else
+                        {
+                            LogManager.WriteLog("订单库存赎回状态失败", "订单=" + dr.Gid.ToString() + "库存=" + dr.Number.ToString());
+                        }
+                    }
+                }
+                //商城15天后自动确认收货打款
+                {
+                    DateTime dt = DateTime.Now.AddDays(-15);
+                    var so = db.ShopOrder.Where(l => l.ShopGid != null && l.PayStatus == 1 && l.Status==1 && l.AddTime < dt).Select(l => new{l.Gid}).ToList();
+                    foreach (var dr in so)
+                    {
+                        var b = db.ShopOrder.Where(l => l.Gid == dr.Gid && l.Status == 1).FirstOrDefault();
+                        if (b != null && b.PayStatus == 1)
+                        {
+                            b.Status = 2;
+                            b.ExpressStatus = 3;
+                            b.Remarks = "自动确认收货";
+                            if (db.SaveChanges() == 1)
+                            {
+                                Guid ShopGid = db.Shop.Where(l => l.Gid == b.ShopGid).FirstOrDefault().MemberGid;
+                                if (db.Member.Where(l => l.Gid == ShopGid).Update(l => new Member { ShopMoney = l.ShopMoney + b.PayPrice }) == 1)
+                                {
+                                    LogManager.WriteLog("自动确认收货成功", "订单=" + dr.Gid);
+                                }
+                                else
+                                {
+                                    LogManager.WriteLog("自动确认收货成功货款失败", "订单=" + dr.Gid);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             return View();
         }
         //快递
@@ -2930,104 +2993,6 @@ namespace LJSheng.Web.Controllers
 
         public ActionResult OrderList()
         {
-            //解锁24小时之前锁定的产品
-            //using (EFDB db = new EFDB())
-            //{
-            //    var b = db.Order.Where(l => l.Type == 5 && l.PayStatus == 2).GroupJoin(db.OrderDetails,
-            //        x => x.Gid,
-            //        y => y.OrderGid,
-            //        (x, y) => new
-            //        {
-            //            x.Gid,
-            //            x.AddTime,
-            //            x.MemberGid,
-            //            x.Money,
-            //            x.Integral,
-            //            x.ShopGid,
-            //            x.Type,
-            //            y.FirstOrDefault().Number,
-            //            MMoney = y.FirstOrDefault().Money,
-            //            MIntegral = y.FirstOrDefault().Integral
-            //        }).ToList();
-            //    //当前时间
-            //    DateTime dt = DateTime.Now;
-            //    //默认商品
-            //    Guid ProductGid = Helper.GetProductGid();
-            //    foreach (var dr in b)
-            //    {
-            //        //大于24小时解锁
-            //        TimeSpan ts = dt - dr.AddTime;
-            //        if (ts.Hours >= 24)
-            //        {
-            //            //转让订单只要接锁
-            //            if (dr.Type == 5)
-            //            {
-            //                Guid ShopGid = (Guid)dr.ShopGid;
-            //                string OrderNO = RandStr.CreateOrderNO();
-            //                if (db.Order.Where(l => l.Gid == dr.Gid).Update(l => new Order { MemberGid = ShopGid, OrderNo = OrderNO }) == 1)
-            //                {
-            //                    LogManager.WriteLog("发货积分解除失败", "订单=" + dr.Gid.ToString() + "会员=" + dr.ShopGid.ToString() + "推荐人积分=" + dr.Money.ToString() + "购物积分=" + dr.Integral.ToString() + "积分=" + dr.MMoney.ToString() + "购物积分=" + dr.MIntegral.ToString());
-            //                }
-            //            }
-            //            //合伙人订单,关闭交易.赎回库存和积分
-            //            else
-            //            {
-            //                var od = db.OrderDetails.Where(l => l.OrderGid == dr.Gid).FirstOrDefault();
-            //                //转让产品赎回库存
-            //                if (db.Stock.Where(l => l.MemberGid == dr.MemberGid && l.ProductGid == ProductGid).Update(l => new Stock { Number = l.Number + od.Number }) == 1)
-            //                {
-            //                    //解除发货人扣除积分
-            //                    if (Helper.MoneyRecordAdd(dr.Gid, (Guid)dr.ShopGid, dr.Money + dr.MMoney, dr.Integral + dr.MIntegral, 25, "发货积分解除") == null)
-            //                    {
-            //                        LogManager.WriteLog("订单库存赎回成功积分赎回失败", "订单=" + dr.Gid.ToString() + "会员=" + dr.ShopGid.ToString() + "推荐人积分=" + dr.Money.ToString() + "购物积分=" + dr.Integral.ToString() + "积分=" + dr.MMoney.ToString() + "购物积分=" + dr.MIntegral.ToString());
-            //                        return Json(new AjaxResult(300, "赎回失败,请联系客服!"));
-            //                    }
-            //                    return Json(new AjaxResult("赎回成功"));
-            //                }
-            //                else
-            //                {
-            //                    LogManager.WriteLog("订单库存赎回失败", "订单=" + dr.Gid.ToString() + "库存=" + od.Number.ToString());
-            //                    return Json(new AjaxResult(300, "赎回失败,请联系客服!"));
-            //                }
-            //            }
-            //        }
-            //    }
-            //}
-
-            using (EFDB db = new EFDB())
-            {
-                //返还24小时被扣除的订单库存
-                DateTime dt = DateTime.Now.AddHours(-24);
-                var b = db.Order.Where(l => l.ShopGid != null && l.PayStatus == 2 && l.AddTime < dt).Select(l => new
-                {
-                    l.Gid,
-                    l.ShopGid,
-                    Number = db.OrderDetails.Where(od => od.OrderGid == l.Gid).Select(od => od.Number).DefaultIfEmpty(0).Sum()
-                }).ToList();
-                //默认商品
-                Guid ProductGid = Helper.GetProductGid();
-                foreach (var dr in b)
-                {
-                    if (db.Order.Where(l => l.Gid == dr.Gid).Update(l => new Order { PayStatus = 4 }) == 1)
-                    {
-                        if (dr.Number > 0)
-                        {
-                            if (db.Stock.Where(l => l.MemberGid == dr.ShopGid && l.ProductGid == ProductGid).Update(l => new Stock { Number = l.Number + dr.Number }) == 1)
-                            {
-                                LogManager.WriteLog("订单库存赎回成功", "订单=" + dr.Gid.ToString() + "库存=" + dr.Number.ToString());
-                            }
-                            else
-                            {
-                                LogManager.WriteLog("订单关闭成功库存赎回失败", "订单=" + dr.Gid.ToString() + "库存=" + dr.Number.ToString());
-                            }
-                        }
-                    }
-                    else
-                    {
-                        LogManager.WriteLog("订单库存赎回状态失败", "订单=" + dr.Gid.ToString() + "库存=" + dr.Number.ToString());
-                    }
-                }
-            }
             return View();
         }
 

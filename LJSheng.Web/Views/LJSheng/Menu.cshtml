@@ -44,16 +44,6 @@
             </li>
             <li class="has-list">
                 <i class="list-toggle icon"></i>
-                <a href="#"><i class="icon icon-time"></i>商家管理</a>
-                <ul>
-                    <li><a href="ShopList?State=2" target="list">商家列表</a></li>
-                    <li><a href="ShopList?State=1" target="list">商家审核</a></li>
-                    <li><a href="ShopOrderList" target="list">商家订单</a></li>
-                    <li><a href="ShopWithdrawalsList" target="list">商家提现</a></li>
-                </ul>
-            </li>
-            <li class="has-list">
-                <i class="list-toggle icon"></i>
                 <a href="#"><i class="icon icon-time"></i>会员等级</a>
                 <ul>
                     @foreach (var item in Model)
@@ -92,11 +82,47 @@
             </li>
             <li class="has-list">
                 <i class="list-toggle icon"></i>
-                <a href="#"><i class="icon icon-time"></i>财务订单</a>
+                <a href="#"><i class="icon icon-time"></i>彩链商品</a>
+                <ul>
+                    @foreach (var item in Model)
+                    {
+                        <li><a href="ProductList?project=@item.Value" target="list">@(item.Key)列表</a></li>
+                        <li><a href="ProductAU?project=@item.Value" target="list">@(item.Key)添加</a></li>
+                        <li><a href="OrderList?project=@item.Value" target="list">@(item.Key)订单</a></li>
+                    }
+                </ul>
+            </li>
+            <li class="has-list">
+                <i class="list-toggle icon"></i>
+                <a href="#"><i class="icon icon-time"></i>发货人</a>
+                <ul>
+                    <li><a href="ConsignorList" target="list">发货人</a></li>
+                    <li><a href="MProductList" target="list">库存不足</a></li>
+                </ul>
+            </li>
+            <li class="has-list">
+                <i class="list-toggle icon"></i>
+                <a href="#"><i class="icon icon-time"></i>商家管理</a>
+                <ul>
+                    <li><a href="ShopList?State=2" target="list">商家列表</a></li>
+                    <li><a href="ShopList?State=1" target="list">商家审核</a></li>
+                    <li><a href="ShopOrderList" target="list">商家订单</a></li>
+                    <li><a href="ShopWithdrawalsList" target="list">商家提现</a></li>
+                </ul>
+            </li>
+            <li class="has-list">
+                <i class="list-toggle icon"></i>
+                <a href="#"><i class="icon icon-time"></i>彩链管理</a>
                 <ul>
                     <li><a href="OrderList" target="list">订单管理</a></li>
-                    <li><a href="ReportForm" target="list">财务报表</a></li>
                     <li><a href="WithdrawalsList" target="list">提现管理</a></li>
+                </ul>
+            </li>
+            <li class="has-list">
+                <i class="list-toggle icon"></i>
+                <a href="#"><i class="icon icon-time"></i>财务订单</a>
+                <ul>
+                    <li><a href="ReportForm" target="list">财务报表</a></li>
                     <li><a href="OrderPay?type=1" target="list">彩链线下</a></li>
                     <li><a href="OrderPay?type=2" target="list">商城线下</a></li>
                 </ul>
@@ -122,26 +148,6 @@
                     <li><a href="CLRecordList" target="list">额度兑换</a></li>
                     <li><a href="FrozenIntegralList" target="list">冻结记录</a></li>
                     <li><a href="TokenRecordList" target="list">兑换记录</a></li>
-                </ul>
-            </li>
-            <li class="has-list">
-                <i class="list-toggle icon"></i>
-                <a href="#"><i class="icon icon-time"></i>项目管理</a>
-                <ul>
-                    @foreach (var item in Model)
-                    {
-                        <li><a href="ProductList?project=@item.Value" target="list">@(item.Key)列表</a></li>
-                        <li><a href="ProductAU?project=@item.Value" target="list">@(item.Key)添加</a></li>
-                        <li><a href="OrderList?project=@item.Value" target="list">@(item.Key)订单</a></li>
-                    }
-                </ul>
-            </li>
-            <li class="has-list">
-                <i class="list-toggle icon"></i>
-                <a href="#"><i class="icon icon-time"></i>发货人</a>
-                <ul>
-                    <li><a href="ConsignorList" target="list">发货人</a></li>
-                    <li><a href="MProductList" target="list">库存不足</a></li>
                 </ul>
             </li>
         </ul>
