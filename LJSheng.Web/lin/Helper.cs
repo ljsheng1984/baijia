@@ -381,7 +381,6 @@ namespace LJSheng.Web
                         Guid? ShopGid = b.ShopGid;//发货人/商家Gid
                         Guid OrderGid = b.Gid;//订单Gid
                         msg += "购买会员=" + MGid.ToString() + ",发货会员=" + (ShopGid == null ? "没有发货人" : ShopGid.ToString()) + rn;
-                        PayPrice = b.Price;//测试要删
                         b.PayStatus = b.Price == PayPrice ? 1 : 5;
                         b.TradeNo = TradeNo;
                         b.PayTime = DateTime.Now;
@@ -1510,7 +1509,6 @@ namespace LJSheng.Web
                     if (b != null && b.PayStatus == 2)
                     {
                         msg += "购买会员=" + b.MemberGid.ToString() + ",商家=" + b.ShopGid.ToString() + rn;
-                        PayPrice = b.Price;//测试要删
                         b.PayStatus = b.Price == PayPrice ? 1 : 5;
                         b.TradeNo = TradeNo;
                         b.PayTime = DateTime.Now;

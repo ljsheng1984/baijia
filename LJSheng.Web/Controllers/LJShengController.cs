@@ -3326,88 +3326,116 @@ namespace LJSheng.Web.Controllers
             }
             using (EFDB db = new EFDB())
             {
-                //订单统计
-                var order = db.Order.Where(l => l.PayStatus == 1).GroupJoin(db.Product,
-                    x => x.Gid,
-                    y => y.Gid,
-                    (x, y) => new
+                //彩链订单统计
+                {
+                    var order = db.Order.AsQueryable();
+                    if (order.Count() > 0)
                     {
-                        x.AddTime,
-                        x.PayType,
-                        x.Price,
-                        x.Profit,
-                        x.Type,
-                        y.FirstOrDefault().ClassifyGid
-                    }).GroupJoin(db.Classify,
-                    x => x.ClassifyGid,
-                    y => y.Gid,
-                    (x, y) => new
+                        ViewBag.order = order.Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.alipay = order.Where(l => l.PayType == 1).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.wxpay = order.Where(l => l.PayType == 2).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.rmb = order.Where(l => l.PayType == 3).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.integral = order.Where(l => l.PayType == 5).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                    }
+                    order = order.Where(l => l.AddTime >= st && l.AddTime <= et);
+                    if (order.Count() > 0)
                     {
-                        x.AddTime,
-                        x.PayType,
-                        x.Price,
-                        x.Profit,
-                        x.Type,
-                        y.FirstOrDefault().Project
-                    }).AsQueryable();
-                if (Project != 0)
-                {
-                    order = order.Where(l => l.Project == Project);
+                        ViewBag.ordertime = order.Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.alipaytime = order.Where(l => l.PayType == 1).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.wxpaytime = order.Where(l => l.PayType == 2).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.rmbtime = order.Where(l => l.PayType == 3).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.integraltime = order.Where(l => l.PayType == 5).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                    }
+                    //提现
+                    var w = db.Withdrawals.Where(l => l.State == 2).AsQueryable();
+                    if (w.Count() > 0)
+                    {
+                        ViewBag.bank = w.Select(l => l.Money).DefaultIfEmpty(0m).Sum();
+                    }
+                    w = w.Where(l => l.AddTime >= st && l.AddTime <= et);
+                    if (w.Count() > 0)
+                    {
+                        ViewBag.banktime = w.Select(l => l.Money).DefaultIfEmpty(0m).Sum();
+                    }
                 }
-                if (order.Count() > 0)
+                //商城订单统计
                 {
-                    ViewBag.order = order.Select(l => l.Price).DefaultIfEmpty(0m).Sum();
-                    ViewBag.profit = order.Select(l => l.Profit).DefaultIfEmpty(0m).Sum();
-                    ViewBag.lv = order.Where(l => l.Type == 2).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
-                    ViewBag.alipay = order.Where(l => l.PayType == 1).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
-                    ViewBag.wxpay = order.Where(l => l.PayType == 2).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
-                    ViewBag.rmb = order.Where(l => l.PayType == 3).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
-                    ViewBag.integral = order.Where(l => l.PayType == 5).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
-                }
-                order = order.Where(l => l.AddTime >= st && l.AddTime <= et);
-                if (order.Count() > 0)
-                {
-                    ViewBag.ordertime = order.Select(l => l.Price).DefaultIfEmpty(0m).Sum();
-                    ViewBag.profittime = order.Select(l => l.Profit).DefaultIfEmpty(0m).Sum();
-                    ViewBag.lvtime = order.Where(l => l.Type == 2).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
-                    ViewBag.alipaytime = order.Where(l => l.PayType == 1).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
-                    ViewBag.wxpaytime = order.Where(l => l.PayType == 2).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
-                    ViewBag.rmbtime = order.Where(l => l.PayType == 3).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
-                    ViewBag.integraltime = order.Where(l => l.PayType == 5).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
-                }
-                //提现
-                var w = db.Withdrawals.Where(l => l.State == 2).AsQueryable();
-                if (w.Count() > 0)
-                {
-                    ViewBag.bank = w.Select(l => l.Money).DefaultIfEmpty(0m).Sum();
-                }
-                w = w.Where(l => l.AddTime >= st && l.AddTime <= et);
-                if (w.Count() > 0)
-                {
-                    ViewBag.banktime = w.Select(l => l.Money).DefaultIfEmpty(0m).Sum();
+                    var shoporder = db.ShopOrder.AsQueryable();
+                    if (shoporder.Count() > 0)
+                    {
+                        ViewBag.shoporder = shoporder.Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.shopalipay = shoporder.Where(l => l.PayType == 1).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.shopwxpay = shoporder.Where(l => l.PayType == 2).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.shoprmb = shoporder.Where(l => l.PayType == 3).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.shopintegral = shoporder.Where(l => l.PayType == 5).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                    }
+                    shoporder = shoporder.Where(l => l.AddTime >= st && l.AddTime <= et);
+                    if (shoporder.Count() > 0)
+                    {
+                        ViewBag.shopordertime = shoporder.Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.shopalipaytime = shoporder.Where(l => l.PayType == 1).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.shopwxpaytime = shoporder.Where(l => l.PayType == 2).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.shoprmbtime = shoporder.Where(l => l.PayType == 3).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.shopintegraltime = shoporder.Where(l => l.PayType == 5).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                    }
+                    //提现
+                    var sw = db.ShopWithdrawals.Where(l => l.State == 2).AsQueryable();
+                    if (sw.Count() > 0)
+                    {
+                        ViewBag.shopbank = sw.Select(l => l.Money).DefaultIfEmpty(0m).Sum();
+                    }
+                    sw = sw.Where(l => l.AddTime >= st && l.AddTime <= et);
+                    if (sw.Count() > 0)
+                    {
+                        ViewBag.shopbanktime = sw.Select(l => l.Money).DefaultIfEmpty(0m).Sum();
+                    }
+                    //团队积分
+                    var team = db.ShopRecord.Where(l => l.Type >3).AsQueryable();
+                    if (team.Count() > 0)
+                    {
+                        ViewBag.team = team.Select(l => l.TIntegral).DefaultIfEmpty(0m).Sum();
+                    }
+                    team = team.Where(l => l.AddTime >= st && l.AddTime <= et);
+                    if (team.Count() > 0)
+                    {
+                        ViewBag.teamtime = team.Select(l => l.TIntegral).DefaultIfEmpty(0m).Sum();
+                    }
+                    //团队积分冻结
+                    var mteam = db.ShopRecord.Where(l => l.Type ==2).AsQueryable();
+                    if (mteam.Count() > 0)
+                    {
+                        ViewBag.mteam = mteam.Select(l => l.TIntegral).DefaultIfEmpty(0m).Sum();
+                    }
+                    mteam = mteam.Where(l => l.AddTime >= st && l.AddTime <= et);
+                    if (mteam.Count() > 0)
+                    {
+                        ViewBag.mteamtime = mteam.Select(l => l.TIntegral).DefaultIfEmpty(0m).Sum();
+                    }
                 }
                 //会员统计
-                var member = db.Member.AsQueryable();
-                if (member.Count() > 0)
                 {
-                    ViewBag.member = member.Count();
-                    ViewBag.lv6 = member.Where(l => l.Level == 6).Count();
-                    ViewBag.lv7 = member.Where(l => l.Level == 7).Count();
-                    ViewBag.lv8 = member.Where(l => l.Level == 8).Count();
-                    ViewBag.lv9 = member.Where(l => l.Level == 9).Count();
-                    ViewBag.lv10 = member.Where(l => l.Level == 10).Count();
-                    ViewBag.lv11 = member.Where(l => l.Level == 11).Count();
-                }
-                member = member.Where(l => l.AddTime >= st && l.AddTime <= et);
-                if (member.Count() > 0)
-                {
-                    ViewBag.membertime = member.Count();
-                    ViewBag.lv6time = member.Where(l => l.Level == 6).Count();
-                    ViewBag.lv7time = member.Where(l => l.Level == 7).Count();
-                    ViewBag.lv8time = member.Where(l => l.Level == 8).Count();
-                    ViewBag.lv9time = member.Where(l => l.Level == 9).Count();
-                    ViewBag.lv10time = member.Where(l => l.Level == 10).Count();
-                    ViewBag.lv11time = member.Where(l => l.Level == 11).Count();
+                    var member = db.Member.AsQueryable();
+                    if (member.Count() > 0)
+                    {
+                        ViewBag.member = member.Count();
+                        ViewBag.lv = member.Where(l => l.Level == 11).Count();
+                        ViewBag.lv22 = member.Where(l => l.CLLevel == 22).Count();
+                        ViewBag.lv23 = member.Where(l => l.CLLevel == 23).Count();
+                        ViewBag.lv24 = member.Where(l => l.CLLevel == 24).Count();
+                        ViewBag.lv25 = member.Where(l => l.CLLevel == 25).Count();
+                        ViewBag.lv26 = member.Where(l => l.CLLevel == 26).Count();
+                    }
+                    member = member.Where(l => l.AddTime >= st && l.AddTime <= et);
+                    if (member.Count() > 0)
+                    {
+                        ViewBag.membertime = member.Count();
+                        ViewBag.lvtime = member.Where(l => l.Level == 11).Count();
+                        ViewBag.lv22time = member.Where(l => l.CLLevel == 22).Count();
+                        ViewBag.lv23time = member.Where(l => l.CLLevel == 23).Count();
+                        ViewBag.lv24time = member.Where(l => l.CLLevel == 24).Count();
+                        ViewBag.lv25time = member.Where(l => l.CLLevel == 25).Count();
+                        ViewBag.lv26time = member.Where(l => l.CLLevel == 26).Count();
+                    }
                 }
                 var d = db.Dictionaries.Where(l => l.DictionaryType == "ClassifyType").FirstOrDefault();
                 return View(db.DictionariesList.Where(l => l.DGid == d.Gid).ToList());

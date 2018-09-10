@@ -148,7 +148,7 @@ namespace LJSheng.Web.Controllers
                         switch (PayType)
                         {
                             case 1:
-                                return Alipay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), "0.01", 1);//测试要删   //return Alipay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), paramJson["TotalPrice"].ToString());
+                                return Alipay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), paramJson["TotalPrice"].ToString(), 1);
                             case 3:
                                 return new RedirectResult("/Home/Bank?Type=1&OrderNo=" + paramJson["OrderNo"].ToString() + "&Money=" + paramJson["TotalPrice"].ToString());
                             default:
@@ -477,7 +477,7 @@ namespace LJSheng.Web.Controllers
                         switch (PayType)
                         {
                             case 1:
-                                return Alipay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), "0.01", 2);//测试要删                                                                                  //return MPay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), paramJson["TotalPrice"].ToString(), Guid.Parse(paramJson["OrderGid"].ToString()));
+                                return Alipay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), paramJson["TotalPrice"].ToString(), 2);                                                                                 //return MPay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), paramJson["TotalPrice"].ToString(), Guid.Parse(paramJson["OrderGid"].ToString()));
                             case 5:
                                 return MShopPay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), paramJson["TotalPrice"].ToString(), Guid.Parse(paramJson["OrderGid"].ToString()), Request.Form["PayPWD"]);
                             case 3:

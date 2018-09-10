@@ -940,6 +940,7 @@ namespace LJSheng.Web.Controllers
             {
                 Guid gid = LCookie.GetMemberGid();
                 var b = db.Member.Where(l => l.Gid == gid).FirstOrDefault();
+                ViewBag.FBCC = AppApi.AVG(2);
                 string T = "";//查询兑换比例类型
                 if (Type == 2)
                 {

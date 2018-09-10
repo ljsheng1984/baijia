@@ -32,16 +32,16 @@
                         <span class="withdrawal-operation-tag">兑换积分</span>
                         <input type="text" placeholder="最少100起提" id="Integral" name="Integral" onkeyup="value=value.replace(/[^\d]/g,'');" />
                     </div>
-                    <div class="withdrawal-operation-input hide">
+                    <div class="withdrawal-operation-input hidden">
                         <span class="withdrawal-operation-tag">兑换币种</span>
                         <select class="form-control" name="TB" placeholder="选择兑换币种">
-                            <option value="1" selected>BCCB</option>
-                            <option value="2">FBCC</option>
+                            <option value="1">BCCB</option>
+                            <option value="2" selected>FBCC</option>
                         </select>
                     </div>
                 </div>
                 <div class="withdrawal-text">
-                    <span>你当前可提积分为=@ViewBag.Integral</span>
+                    <span>你当前可提积分为=@ViewBag.Integral FBCC均价=@ViewBag.FBCC</span>
                 </div>
                 <div class="withdrawal-btn">
                     <input type="text" name="Type" value="@Request.QueryString["Type"]" hidden />

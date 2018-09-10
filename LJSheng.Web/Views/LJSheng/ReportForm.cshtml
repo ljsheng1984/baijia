@@ -16,14 +16,6 @@
         <div class="col-sm-8">
             <div class="input-group">
                 <span class="input-group-addon"><i class="icon-search"></i></span>
-                <span class="input-group-addon">项目</span>
-                <select class="form-control" name="Project">
-                    <option value="0">=全 部=</option>
-                    @foreach (var item in Model)
-                    {
-                        <option value="@item.Value">@item.Key</option>
-                    }
-                </select>
                 <span class="input-group-addon">时间</span>
                 <input type="text" class="form-control" placeholder="开始时间" name="STime" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd HH:mm:ss',alwaysUseStartDate:true})" />
                 <span class="input-group-addon fix-padding">-</span>
@@ -38,24 +30,20 @@
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th></th>
+                <th>彩链</th>
                 <th>全部订单</th>
-                <th>利润</th>
                 <th>提现</th>
-                <th>合伙人订单</th>
                 <th>支付宝</th>
                 <th>微信</th>
-                <th>线下付款</th>
-                <th>积分购物</th>
+                <th>线下</th>
+                <th>积分</th>
             </tr>
         </thead>
         <tbody>
             <tr>
                 <td>全部(金额)</td>
                 <td>@ViewBag.order</td>
-                <td>@ViewBag.profit</td>
                 <td>@ViewBag.bank</td>
-                <td>@ViewBag.lv</td>
                 <td>@ViewBag.alipay</td>
                 <td>@ViewBag.wxpay</td>
                 <td>@ViewBag.rmb</td>
@@ -64,9 +52,7 @@
             <tr>
                 <td>按时间查询</td>
                 <td>@ViewBag.ordertime</td>
-                <td>@ViewBag.profittime</td>
                 <td>@ViewBag.banktime</td>
-                <td>@ViewBag.lvtime</td>
                 <td>@ViewBag.alipaytime</td>
                 <td>@ViewBag.wxpaytime</td>
                 <td>@ViewBag.rmbtime</td>
@@ -77,13 +63,53 @@
     <table class="table table-bordered">
         <thead>
             <tr>
+                <th>商城</th>
+                <th>全部订单</th>
+                <th>提现</th>
+                <th>支付宝</th>
+                <th>微信</th>
+                <th>线下</th>
+                <th>积分</th>
+                <th>团队积分</th>
+                <th>团队满足</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>全部(金额)</td>
+                <td>@ViewBag.shoporder</td>
+                <td>@ViewBag.shopbank</td>
+                <td>@ViewBag.shopalipay</td>
+                <td>@ViewBag.shopwxpay</td>
+                <td>@ViewBag.shoprmb</td>
+                <td>@ViewBag.shopintegral</td>
+                <td>@ViewBag.shopintegral</td>
+                <td>@ViewBag.team</td>
+                <td>@ViewBag.mteam</td>
+            </tr>
+            <tr>
+                <td>按时间查询</td>
+                <td>@ViewBag.shopordertime</td>
+                <td>@ViewBag.shopbanktime</td>
+                <td>@ViewBag.shopalipaytime</td>
+                <td>@ViewBag.shopwxpaytime</td>
+                <td>@ViewBag.shoprmbtime</td>
+                <td>@ViewBag.shopintegraltime</td>
+                <td>@ViewBag.teamtime</td>
+                <td>@ViewBag.mteamtime</td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
                 <th></th>
                 <th>会员总数</th>
-                <th>项目合伙人</th>
-                <th>主任</th>
-                <th>经理</th>
-                <th>总裁</th>
-                <th>生态圈</th>
+                <th>VIP</th>
+                <th>代理商</th>
+                <th>合伙人</th>
+                <th>联合创始人</th>
+                <th>创始人</th>
                 <th>股东</th>
             </tr>
         </thead>
@@ -91,22 +117,22 @@
             <tr>
                 <td>全部</td>
                 <td>@ViewBag.member</td>
-                <td>@ViewBag.lv6</td>
-                <td>@ViewBag.lv7</td>
-                <td>@ViewBag.lv8</td>
-                <td>@ViewBag.lv9</td>
-                <td>@ViewBag.lv10</td>
-                <td>@ViewBag.lv11</td>
+                <td>@ViewBag.lv22</td>
+                <td>@ViewBag.lv23</td>
+                <td>@ViewBag.lv24</td>
+                <td>@ViewBag.lv25</td>
+                <td>@ViewBag.lv26</td>
+                <td>@ViewBag.lv</td>
             </tr>
             <tr>
                 <td>按时间查询</td>
                 <td>@ViewBag.membertime</td>
-                <td>@ViewBag.lv6time</td>
-                <td>@ViewBag.lv7time</td>
-                <td>@ViewBag.lv8time</td>
-                <td>@ViewBag.lv9time</td>
-                <td>@ViewBag.lv10time</td>
-                <td>@ViewBag.lv11time</td>
+                <td>@ViewBag.lv22time</td>
+                <td>@ViewBag.lv23time</td>
+                <td>@ViewBag.lv24time</td>
+                <td>@ViewBag.lv25time</td>
+                <td>@ViewBag.lv26time</td>
+                <td>@ViewBag.lvtime</td>
             </tr>
         </tbody>
     </table>
