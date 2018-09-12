@@ -23,11 +23,11 @@ function dealImage(path, obj, callback) {
         var that = this;
         // 默认按比例压缩
         var w = that.width,
-            h = that.height,
-            scale = w / h;
-        w = obj.width || w;
-        h = obj.height || (w / scale);
-        var quality = 0.7;  // 默认图片质量为0.7
+            h = that.height;
+        //    scale = w / h;
+        //w = obj.width || w;
+        //h = obj.height || (w / scale);
+        var quality = 0.8;  // 默认图片质量为0.7
         //生成canvas
         var canvas = document.createElement('canvas');
         var ctx = canvas.getContext('2d');

@@ -15,6 +15,10 @@ namespace LJSheng.Web.Controllers
 {
     public class HomeController : Controller
     {
+        public ActionResult APP()
+        {
+            return new RedirectResult("https://www.pgyer.com/rPns");
+        }
         /// <summary>
         /// 项目跳转
         /// </summary>

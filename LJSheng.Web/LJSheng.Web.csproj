@@ -1103,6 +1103,7 @@
     <Content Include="Views\Member\SendList.cshtml" />
     <Content Include="Views\Shop\FrozenList.cshtml" />
     <Content Include="Views\Shop\Licence.cshtml" />
+    <Content Include="Views\Member\APP.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
