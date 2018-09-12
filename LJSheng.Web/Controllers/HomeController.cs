@@ -165,6 +165,7 @@ namespace LJSheng.Web.Controllers
         /// <param name="account">会员帐号</param>
         /// <param name="pwd">会员密码</param>
         /// <param name="paypwd">支付密码</param>
+        /// <param name="RealName">真实姓名</param>
         /// <param name="identifyingCode">注册验证码</param>
         /// <returns>返回调用结果</returns>
         /// <para name="result">200 是成功其他失败</para>
@@ -172,7 +173,7 @@ namespace LJSheng.Web.Controllers
         /// <remarks>
         /// 2016-06-30 林建生
         /// </remarks>
-        public ActionResult Register(string account, string pwd, string paypwd, string identifyingCode)
+        public ActionResult Register(string account, string pwd, string paypwd, string RealName, string identifyingCode)
         {
             if (string.IsNullOrEmpty(account) || string.IsNullOrEmpty(pwd) || string.IsNullOrEmpty(identifyingCode))
             {
@@ -211,7 +212,7 @@ namespace LJSheng.Web.Controllers
                                     b.Gid = Gid;
                                     b.AddTime = DateTime.Now;
                                     b.Account = account;
-                                    b.RealName = "请实名";
+                                    b.RealName = RealName;
                                     b.LoginIdentifier = "0000000000";
                                     b.IP = Helper.IP;
                                     b.Money = 0;
@@ -249,7 +250,7 @@ namespace LJSheng.Web.Controllers
                                         b.MemberGid = MemberGid;
                                         ID = db.Member.Where(l => l.Gid == MemberGid).FirstOrDefault().MID.ToString();
                                     }
-                                    b.APP = AppApi.AppMR(account, pwd, paypwd, account, MID.ToString()) ? 2 : 1;
+                                    b.APP = AppApi.AppMR(RealName, pwd, paypwd, account, MID.ToString()) ? 2 : 1;
                                     //b.Jurisdiction = Request.Form["Jurisdiction"];
                                     //b.Gender = Request.Form["Gender"];
                                     //b.NickName = Request.Form["NickName"];
@@ -814,7 +815,7 @@ namespace LJSheng.Web.Controllers
             using (EFDB db = new EFDB())
             {
                 Guid DGid = db.Dictionaries.Where(l => l.DictionaryType == "Shop").FirstOrDefault().Gid;
-                return View(db.DictionariesList.Where(dl => dl.DGid == DGid).ToList());
+                return View(db.DictionariesList.Where(dl => dl.DGid == DGid).OrderBy(dl=>dl.Sort).ToList());
             }
         }
 
@@ -867,7 +868,7 @@ namespace LJSheng.Web.Controllers
                     other = "",
                     count = b.Count(),
                     pageindex,
-                    list = b.OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).Select(l => new
+                    list = b.OrderBy(l => l.Sort).Skip(pagesize * (pageindex - 1)).Take(pagesize).Select(l => new
                     {
                         l.Gid,
                         l.Name,

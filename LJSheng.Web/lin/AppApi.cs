@@ -30,7 +30,7 @@ namespace LJSheng.Web
             {
                 SortedDictionary<string, string> dic = new SortedDictionary<string, string>();
                 dic.Add("httpid", LCommon.TimeToUNIX(DateTime.Now));
-                dic.Add("username", username);
+                dic.Add("username", HttpUtility.UrlEncode(username));
                 dic.Add("password", password);
                 dic.Add("pay_password", pay_password);
                 dic.Add("phone", phone);

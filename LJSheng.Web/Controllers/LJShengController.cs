@@ -206,7 +206,7 @@ namespace LJSheng.Web.Controllers
                 //商城15天后自动确认收货打款
                 {
                     DateTime dt = DateTime.Now.AddDays(-15);
-                    var so = db.ShopOrder.Where(l => l.ShopGid != null && l.PayStatus == 1 && l.Status==1 && l.AddTime < dt).Select(l => new{l.Gid}).ToList();
+                    var so = db.ShopOrder.Where(l => l.ShopGid != null && l.PayStatus == 1 && l.Status==1 && l.DeliveryTime < dt).Select(l => new{l.Gid}).ToList();
                     foreach (var dr in so)
                     {
                         var b = db.ShopOrder.Where(l => l.Gid == dr.Gid && l.Status == 1).FirstOrDefault();

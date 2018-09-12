@@ -2822,6 +2822,7 @@ namespace LJSheng.Web
             //组合参数数组
             string prestr = CreateLinkString(dicPara);
             //获得加密结果转换为大写的加密串
+            //LogManager.WriteLog("签名", MD5.GetMD5(prestr).ToUpper());
             return MD5.GetMD5(prestr).ToUpper();
         }
         /// <summary>
@@ -2858,7 +2859,6 @@ namespace LJSheng.Web
                     dicArray.Add(temp.Key, temp.Value);
                 }
             }
-
             return dicArray;
         }
 
@@ -2873,7 +2873,7 @@ namespace LJSheng.Web
 
             int nLen = prestr.Length;
             prestr.Remove(nLen - 1, 1);
-
+            //LogManager.WriteLog("签名", prestr.ToString());
             return prestr.ToString();
         }
         #endregion

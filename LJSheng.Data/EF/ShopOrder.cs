@@ -149,5 +149,16 @@ namespace LJSheng.Data
         /// 付款凭证
         /// </summary>
         public string Voucher { get; set; }
+
+        /// <summary>
+        /// 发货时间
+        /// </summary>
+        public DateTime? DeliveryTime { get; set; }
+
+        /// <summary>
+        /// 统一订单号
+        /// </summary>
+        [StringLength(50)]
+        public string ALLOrderNo { get; set; }
     }
 }

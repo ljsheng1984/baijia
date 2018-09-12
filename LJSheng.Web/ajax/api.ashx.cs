@@ -419,6 +419,7 @@ namespace LJSheng.Web.ajax
                     b.Express = Express;
                     b.ExpressNumber = ExpressNumber;
                     b.ExpressStatus = 2;
+                    b.DeliveryTime = DateTime.Now;
                     if (db.SaveChanges() == 1)
                     {
                         return new AjaxResult("发货成功");
@@ -483,7 +484,7 @@ namespace LJSheng.Web.ajax
             {
                 Guid Gid = Guid.Parse(context.Request["gid"]);
                 var b = db.Member.Where(l => l.Gid == Gid).FirstOrDefault();
-                if (AppApi.AppMR(b.Account, "123456", "123456", b.Account, b.MID.ToString()))
+                if (AppApi.AppMR(b.RealName, "123456", "123456", b.Account, b.MID.ToString()))
                 {
                     b.APP = 2;
                     b.PWD = MD5.GetMD5ljsheng("123456");

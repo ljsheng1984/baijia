@@ -109,7 +109,7 @@
                 申请入驻成为商家
             </a>
         </div>
-        <div class="default-block integral hidden @(ViewBag.Shop !=0?"":"hidden")">
+        <div class="default-block integral @(ViewBag.Shop !=0?"":"hidden")">
             <div class="default-block-title">
                 商家中心
                 <a href="/Shop/Index?Account=@ViewBag.Account&RealName=@ViewBag.RealName&LevelName=@ViewBag.LevelName&Label=@ViewBag.Label" class="more-btn">
