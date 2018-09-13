@@ -3296,20 +3296,22 @@ namespace LJSheng.Web.Controllers
                     var order = db.Order.AsQueryable();
                     if (order.Count() > 0)
                     {
-                        ViewBag.order = order.Select(l => l.Price).DefaultIfEmpty(0m).Sum();
-                        ViewBag.alipay = order.Where(l => l.PayType == 1).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
-                        ViewBag.wxpay = order.Where(l => l.PayType == 2).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
-                        ViewBag.rmb = order.Where(l => l.PayType == 3).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
-                        ViewBag.integral = order.Where(l => l.PayType == 5).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.norder = order.Where(l => l.PayStatus == 2).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.order = order.Where(l=> l.PayStatus == 1).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.alipay = order.Where(l => l.PayType == 1 && l.PayStatus == 1).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.wxpay = order.Where(l => l.PayType == 2 && l.PayStatus == 1).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.rmb = order.Where(l => l.PayType == 3 && l.PayStatus == 1).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.integral = order.Where(l => l.PayType == 5 && l.PayStatus == 1).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
                     }
                     order = order.Where(l => l.AddTime >= st && l.AddTime <= et);
                     if (order.Count() > 0)
                     {
-                        ViewBag.ordertime = order.Select(l => l.Price).DefaultIfEmpty(0m).Sum();
-                        ViewBag.alipaytime = order.Where(l => l.PayType == 1).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
-                        ViewBag.wxpaytime = order.Where(l => l.PayType == 2).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
-                        ViewBag.rmbtime = order.Where(l => l.PayType == 3).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
-                        ViewBag.integraltime = order.Where(l => l.PayType == 5).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.nordertime = order.Where(l => l.PayStatus == 2).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.ordertime = order.Where(l => l.PayStatus == 1).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.alipaytime = order.Where(l => l.PayType == 1 && l.PayStatus == 1).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.wxpaytime = order.Where(l => l.PayType == 2 && l.PayStatus == 1).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.rmbtime = order.Where(l => l.PayType == 3 && l.PayStatus == 1).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.integraltime = order.Where(l => l.PayType == 5 && l.PayStatus == 1).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
                     }
                     //提现
                     var w = db.Withdrawals.Where(l => l.State == 2).AsQueryable();
@@ -3328,20 +3330,22 @@ namespace LJSheng.Web.Controllers
                     var shoporder = db.ShopOrder.AsQueryable();
                     if (shoporder.Count() > 0)
                     {
-                        ViewBag.shoporder = shoporder.Select(l => l.Price).DefaultIfEmpty(0m).Sum();
-                        ViewBag.shopalipay = shoporder.Where(l => l.PayType == 1).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
-                        ViewBag.shopwxpay = shoporder.Where(l => l.PayType == 2).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
-                        ViewBag.shoprmb = shoporder.Where(l => l.PayType == 3).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
-                        ViewBag.shopintegral = shoporder.Where(l => l.PayType == 5).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.nshoporder = shoporder.Where(l => l.PayStatus == 2).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.shoporder = shoporder.Where(l => l.PayStatus == 1).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.shopalipay = shoporder.Where(l => l.PayType == 1 && l.PayStatus == 1).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.shopwxpay = shoporder.Where(l => l.PayType == 2 && l.PayStatus == 1).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.shoprmb = shoporder.Where(l => l.PayType == 3 && l.PayStatus == 1).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.shopintegral = shoporder.Where(l => l.PayType == 5 && l.PayStatus == 1).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
                     }
                     shoporder = shoporder.Where(l => l.AddTime >= st && l.AddTime <= et);
                     if (shoporder.Count() > 0)
                     {
-                        ViewBag.shopordertime = shoporder.Select(l => l.Price).DefaultIfEmpty(0m).Sum();
-                        ViewBag.shopalipaytime = shoporder.Where(l => l.PayType == 1).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
-                        ViewBag.shopwxpaytime = shoporder.Where(l => l.PayType == 2).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
-                        ViewBag.shoprmbtime = shoporder.Where(l => l.PayType == 3).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
-                        ViewBag.shopintegraltime = shoporder.Where(l => l.PayType == 5).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.nshopordertime = shoporder.Where(l => l.PayStatus == 2).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.shopordertime = shoporder.Where(l => l.PayStatus == 1).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.shopalipaytime = shoporder.Where(l => l.PayType == 1 && l.PayStatus == 1).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.shopwxpaytime = shoporder.Where(l => l.PayType == 2 && l.PayStatus == 1).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.shoprmbtime = shoporder.Where(l => l.PayType == 3 && l.PayStatus == 1).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.shopintegraltime = shoporder.Where(l => l.PayType == 5 && l.PayStatus == 1).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
                     }
                     //提现
                     var sw = db.ShopWithdrawals.Where(l => l.State == 2).AsQueryable();

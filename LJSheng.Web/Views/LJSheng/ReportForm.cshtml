@@ -31,7 +31,8 @@
         <thead>
             <tr>
                 <th>彩链</th>
-                <th>全部订单</th>
+                <th>未支付</th>
+                <th>已支付</th>
                 <th>提现</th>
                 <th>支付宝</th>
                 <th>微信</th>
@@ -42,6 +43,7 @@
         <tbody>
             <tr>
                 <td>全部(金额)</td>
+                <td>@ViewBag.norder</td>
                 <td>@ViewBag.order</td>
                 <td>@ViewBag.bank</td>
                 <td>@ViewBag.alipay</td>
@@ -51,6 +53,7 @@
             </tr>
             <tr>
                 <td>按时间查询</td>
+                <td>@ViewBag.norder</td>
                 <td>@ViewBag.ordertime</td>
                 <td>@ViewBag.banktime</td>
                 <td>@ViewBag.alipaytime</td>
@@ -64,7 +67,8 @@
         <thead>
             <tr>
                 <th>商城</th>
-                <th>全部订单</th>
+                <th>未支付</th>
+                <th>已支付</th>
                 <th>提现</th>
                 <th>支付宝</th>
                 <th>微信</th>
@@ -77,6 +81,7 @@
         <tbody>
             <tr>
                 <td>全部(金额)</td>
+                <td>@ViewBag.nshoporder</td>
                 <td>@ViewBag.shoporder</td>
                 <td>@ViewBag.shopbank</td>
                 <td>@ViewBag.shopalipay</td>
@@ -88,6 +93,7 @@
             </tr>
             <tr>
                 <td>按时间查询</td>
+                <td>@ViewBag.nshopordertime</td>
                 <td>@ViewBag.shopordertime</td>
                 <td>@ViewBag.shopbanktime</td>
                 <td>@ViewBag.shopalipaytime</td>

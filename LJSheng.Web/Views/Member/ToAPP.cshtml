@@ -69,6 +69,7 @@
         }
         document.getElementById("btn").innerText = "正在提交...";
         document.getElementById("btn").disabled = true;
+        document.getElementById("btn").style.display = "none";
         document.forms[0].submit();
     }
     function tooltip(field) {
