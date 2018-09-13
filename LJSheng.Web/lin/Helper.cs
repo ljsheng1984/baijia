@@ -1756,7 +1756,7 @@ namespace LJSheng.Web
                     }
                 }
                 //条件查找结束,增加会员关系
-                MRelation(Gid, list);
+                //MRelation(Gid, MemberGid);
             }
         }
 
@@ -1764,8 +1764,8 @@ namespace LJSheng.Web
         /// 会员关系
         /// </summary>
         /// <param name="Gid">注册用户</param>
-        /// <param name="list">会员关系列表</param>
-        public static void MRelation(Guid Gid, List<Guid> list)
+        /// <param name="MemberGid">推荐人</param>
+        public static void MRelation(Guid Gid, Guid MemberGid)
         {
             using (EFDB db = new EFDB())
             {
@@ -1781,23 +1781,21 @@ namespace LJSheng.Web
                 }
                 else
                 {
-                    LogManager.WriteLog("会员关系已存在", "Gid=" + Gid.ToString() + " \r\n count=" + list.Count.ToString() + " \r\n list=" + string.Join(",", list.ToArray()));
+                    LogManager.WriteLog("会员关系已存在", "Gid=" + Gid.ToString());
                 }
-                int count = list.Count;
-                if (count > 0)
+                MR.M1 = MemberGid;
+                MR.M1Time = DateTime.Now;
+                var M2 = db.Member.Where(l => l.Gid == MemberGid).FirstOrDefault();
+                if (M2.MemberGid!=null)
                 {
-                    MR.M1 = list[0];
-                    MR.M1Time = DateTime.Now;
-                }
-                if (count > 1)
-                {
-                    MR.M2 = list[1];
+                    MR.M2 = M2.MemberGid;
                     MR.M2Time = DateTime.Now;
-                }
-                if (count > 2)
-                {
-                    MR.M3 = list[2];
-                    MR.M3Time = DateTime.Now;
+                    var M3 = db.Member.Where(l => l.Gid == M2.MemberGid).FirstOrDefault();
+                    if (M3.MemberGid != null)
+                    {
+                        MR.M3 = M3.MemberGid;
+                        MR.M3Time = DateTime.Now;
+                    }
                 }
                 if (Add)
                 {
@@ -1805,7 +1803,7 @@ namespace LJSheng.Web
                 }
                 if (db.SaveChanges() != 1)
                 {
-                    LogManager.WriteLog("会员关系失败", "Gid=" + Gid.ToString() + " \r\n count=" + count.ToString() + " \r\n list=" + string.Join(",", list.ToArray()));
+                    LogManager.WriteLog("会员关系失败", "Gid=" + Gid.ToString());
                 }
             }
         }

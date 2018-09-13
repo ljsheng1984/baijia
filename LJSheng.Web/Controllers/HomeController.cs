@@ -140,7 +140,7 @@ namespace LJSheng.Web.Controllers
                     using (EFDB db = new EFDB())
                     {
                         string pwdMD5 = MD5.GetMD5ljsheng(pwd);
-                        var b = db.Member.Where(l => l.Account == account && l.PWD == pwdMD5).FirstOrDefault();
+                        var b = db.Member.Where(l => l.Account == account && l.PWD == pwdMD5).OrderBy(l=>l.AddTime).FirstOrDefault();
                         if (b != null)
                         {
                             //更新登录时间戳
@@ -238,7 +238,6 @@ namespace LJSheng.Web.Controllers
                                     b.PWD = MD5.GetMD5ljsheng(pwd);
                                     b.PayPWD = MD5.GetMD5ljsheng(paypwd);
                                     b.MID = MID;
-                                    b.MemberGid = null;
                                     b.Jurisdiction = "正常";
                                     b.Gender = "男";
                                     b.CLLevel = 21;
@@ -252,7 +251,6 @@ namespace LJSheng.Web.Controllers
                                     if (MemberGid != null)
                                     {
                                         b.MemberGid = MemberGid;
-                                        ID = db.Member.Where(l => l.Gid == MemberGid).FirstOrDefault().MID.ToString();
                                     }
                                     b.APP = AppApi.AppMR(RealName, pwd, paypwd, account, MID.ToString()) ? 2 : 1;
                                     //b.Jurisdiction = Request.Form["Jurisdiction"];
@@ -278,19 +276,22 @@ namespace LJSheng.Web.Controllers
                                     //    b.Picture = Picture;
                                     //}
                                     db.Member.Add(b);
-                                    if (db.Member.Where(l => l.Account == account || l.MID == MID).Count() == 0 && db.SaveChanges() == 1)
+                                    if (db.SaveChanges() == 1)
                                     {
-                                        //增加彩链发货人
-                                        Helper.SetConsignor(b.Gid, b.MemberGid);
-                                        //增加推荐人的人数
-                                        List<Guid> list = new List<Guid>();
-                                        if (b.MemberGid != null)
+                                        //删除重复注册数据
+                                        var md = db.Member.Where(l => l.Account == account && l.Gid != Gid).ToList();
+                                        foreach (var dr in md)
                                         {
-                                            Helper.Member(Gid, b.MemberGid, 1, 3, list);
+                                            db.Member.Where(l => l.MemberGid == dr.MemberGid).Delete();
+                                            db.MRelation.Where(l => l.MemberGid == dr.MemberGid).Delete();
+                                            db.Consignor.Where(l => l.MemberGid == dr.MemberGid).Delete();
                                         }
-                                        else
+                                        //增加彩链发货人
+                                        Helper.SetConsignor(b.Gid, MemberGid);
+                                        //增加推荐人
+                                        if (MemberGid != null)
                                         {
-                                            Helper.MRelation(Gid, list);
+                                            Helper.MRelation(Gid, (Guid)MemberGid);
                                         }
                                         LCookie.DelCookie("linjiansheng");
                                         return Helper.Redirect("成功", "/Home/Login", "注册成功,请登录");

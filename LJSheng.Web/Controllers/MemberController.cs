@@ -1331,6 +1331,18 @@ namespace LJSheng.Web.Controllers
             int Month = DateTime.Now.Month;
             using (EFDB db = new EFDB())
             {
+                //会员关系异常日记
+                //var mr = db.MRelation.ToList();
+                //foreach (var dr in mr)
+                //{
+                //    int n = db.Member.Where(l => l.Gid == dr.MemberGid).Count();
+                //    if (n != 1)
+                //    {
+                //        db.MRelation.Where(l => l.MemberGid == dr.MemberGid).Delete();
+                //        db.Consignor.Where(l => l.MemberGid == dr.MemberGid).Delete();
+                //        LogManager.WriteLog("会员关系异常日记", dr.MemberGid + "=" + n);
+                //    }
+                //}
                 var b = db.MRelation.Where(l => l.M1 == MemberGid || l.M2 == MemberGid || l.M3 == MemberGid).GroupJoin(db.Member,
                     l => l.MemberGid,
                     j => j.Gid,

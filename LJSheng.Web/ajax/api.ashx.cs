@@ -565,7 +565,6 @@ namespace LJSheng.Web.ajax
                             b.PWD = MD5.GetMD5ljsheng(context.Request.Form["PWD"]);
                             b.PayPWD = MD5.GetMD5ljsheng(context.Request.Form["PayPWD"]);
                             b.MID = MID;
-                            b.MemberGid = null;
                             b.Jurisdiction = "正常";
                             b.Gender = "男";
                             b.CLLevel = 21;
@@ -586,19 +585,22 @@ namespace LJSheng.Web.ajax
                                 }
                             }
                             db.Member.Add(b);
-                            if (db.Member.Where(l => l.Account == Account || l.MID == MID).Count() == 0 && db.SaveChanges() == 1)
+                            if (db.SaveChanges() == 1)
                             {
+                                //删除重复注册数据
+                                var md = db.Member.Where(l => l.Account == Account && l.Gid != Gid).ToList();
+                                foreach (var dr in md)
+                                {
+                                    db.Member.Where(l => l.MemberGid == dr.MemberGid).Delete();
+                                    db.MRelation.Where(l => l.MemberGid == dr.MemberGid).Delete();
+                                    db.Consignor.Where(l => l.MemberGid == dr.MemberGid).Delete();
+                                }
                                 //增加彩链发货人
                                 Helper.SetConsignor(b.Gid, b.MemberGid);
-                                //增加推荐人的人数
-                                List<Guid> list = new List<Guid>();
+                                //增加推荐人
                                 if (b.MemberGid != null)
                                 {
-                                    Helper.Member(Gid, b.MemberGid, 1, 3, list);
-                                }
-                                else
-                                {
-                                    Helper.MRelation(Gid, list);
+                                    Helper.MRelation(Gid, (Guid)b.MemberGid);
                                 }
                                 return new AjaxResult(MID);
                             }
