@@ -12,21 +12,6 @@ namespace LJSheng.Web
                       "~/js/jquery.js",
                       "~/plugins/mlayer/layer.js"
                       ));
-
-            bundles.Add(new ScriptBundle("~/shopcart").Include(
-                      "~/plugins/shopcart/cookie.js",
-                      "~/plugins/shopcart/server.js",
-                      "~/plugins/shopcart/shop.js",
-                      "~/plugins/shopcart/cart.js"
-                      ));
-
-            bundles.Add(new ScriptBundle("~/shop").Include(
-                      "~/plugins/shop/cookie.js",
-                      "~/plugins/shop/server.js",
-                      "~/plugins/shop/shop.js",
-                      "~/plugins/shop/cart.js"
-                      ));
-
             bundles.Add(new StyleBundle("~/css").Include(
                       "~/css/main.css"));
 

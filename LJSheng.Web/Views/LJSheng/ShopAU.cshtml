@@ -16,12 +16,13 @@
     @using (Html.BeginForm("ShopAU", "LJSheng", new { gid = Request.QueryString["gid"] }, FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data" }))
     {
         <div class="form-group">
+            <input type="text" name="Project" id="Project" placeholder="请最少设置一个类别" value="@ViewBag.Project" hidden />
             <label class="col-sm-2">分类</label>
             <div class="col-md-5 col-sm-5">
                 @foreach (var item in Model)
                 {
-                    <label class="radio-inline">
-                        <input type="radio" name="Project" value="@item.Value"> @item.Key
+                    <label class="checkbox-inline" onclick="set('@item.Value');">
+                        <input type="checkbox" name="fl" value="@item.Value"> @item.Key
                     </label>
                 }
             </div>
@@ -165,7 +166,14 @@
     <script>
         var ue = UE.getEditor('Content');
         $(":radio[name='Show'][value='@ViewBag.Show']").prop("checked", "checked");
-        $(":radio[name='Project'][value='@ViewBag.Project']").prop("checked", "checked");
+        var p="@ViewBag.Project";
+        if (p!= "") {
+            var Project = p.split(",");
+            for (var i = 0; i < Project.length - 1; i++)
+            {
+                $(":checkbox[name='fl'][value='" + Project[i]+"']").prop("checked", "checked");
+            }
+        }
         $(":radio[name='State'][value='@ViewBag.State']").prop("checked", "checked");
         setup();
         if ("@ViewBag.province".length > 0) {
@@ -186,6 +194,11 @@
                 return false;
             }
             field = $("input[name='Number']");
+            if (field.val().length == 0) {
+                tooltip(field);
+                return false;
+            }
+            field = $("input[name='Project']");
             if (field.val().length == 0) {
                 tooltip(field);
                 return false;
@@ -214,6 +227,17 @@
                 $(".sp img").attr("src", file.remoteData.src);
             }
         });
+
+        function set() {
+            document.getElementById("Project").value = "";
+            var groupCheckbox = $("input[name='fl']");
+            for (i = 0; i < groupCheckbox.length; i++) {
+                if (groupCheckbox[i].checked) {
+                    var val = groupCheckbox[i].value;
+                    document.getElementById("Project").value += val + ",";
+                }
+            }
+        }
     </script>
 </body>
 </html>

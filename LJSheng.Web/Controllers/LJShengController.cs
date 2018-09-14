@@ -4603,7 +4603,17 @@ namespace LJSheng.Web.Controllers
                     ViewBag.USCI = Help.Shop + b.USCI;
                     ViewBag.LegalPerson = Help.Shop + b.LegalPerson;
                     ViewBag.Licence = Help.Shop + b.Licence;
-                    ViewBag.Project = b.Project;
+                    //ViewBag.Project = b.Project;
+                    var sp = db.ShopProject.Where(l => l.ShopGid == Gid).Select(l => new { l.Project }).ToList();
+                    if (sp != null)
+                    {
+                        string s = "";
+                        foreach (var dr in sp)
+                        {
+                            s += dr.Project.ToString() + ",";
+                        }
+                        ViewBag.Project = s;
+                    }
                     ViewBag.Remarks = b.Remarks;
                     ViewBag.ContactNumber = b.ContactNumber;
                     ViewBag.Province = b.Province;
@@ -4613,7 +4623,7 @@ namespace LJSheng.Web.Controllers
                     ViewBag.State = b.State;
                 }
                 Guid DGid = db.Dictionaries.Where(l => l.DictionaryType == "Shop").FirstOrDefault().Gid;
-                return View(db.DictionariesList.Where(dl => dl.DGid == DGid).ToList());
+                return View(db.DictionariesList.Where(dl => dl.DGid == DGid).OrderBy(dl=>dl.Sort).ToList());
             }
         }
         [HttpPost]
@@ -4623,41 +4633,47 @@ namespace LJSheng.Web.Controllers
             using (EFDB db = new EFDB())
             {
                 string Name = Request.Form["Name"];
-                int Project = int.Parse(Request.Form["Project"]);
-                if (db.Shop.Where(l => l.Name == Name && l.Gid != Gid && l.Project == Project).Count() > 0)
+                //int Project = int.Parse(Request.Form["Project"]);
+                var b = db.Shop.Where(l => l.Gid == Gid).FirstOrDefault();
+                b.Project = 0;
+                b.Name = Name;
+                b.Number = int.Parse(Request.Form["Number"]);
+                b.Money = decimal.Parse(Request.Form["Money"]);
+                b.Profile = Request.Form["Profile"];
+                b.Content = Request.Form["Content"];
+                b.Remarks = Request.Form["Remarks"];
+                b.Show = Int32.Parse(Request.Form["Show"]);
+                b.Sort = Int32.Parse(Request.Form["Sort"]);
+                if (!string.IsNullOrEmpty(Request.Form["Picture"]))
                 {
-                    return Helper.WebRedirect("名称已存在！", "history.go(-1);", "名称已存在");
+                    b.Picture = Request.Form["Picture"];
+                }
+                b.ContactNumber = Request.Form["ContactNumber"];
+                b.Province = Request.Form["Province"];
+                b.City = Request.Form["City"];
+                b.Area = Request.Form["Area"];
+                b.Address = Request.Form["Address"];
+                b.State = int.Parse(Request.Form["State"]);
+                //更新分类
+                string[] Project = Request.Form["Project"].Split(',');
+                db.ShopProject.Where(l => l.ShopGid == Gid).Delete();
+                for (int i = 0; i < Project.Length-1; i++)
+                {
+                    var sp = new ShopProject();
+                    sp.Gid = Guid.NewGuid();
+                    sp.AddTime = DateTime.Now;
+                    sp.ShopGid = (Guid)Gid;
+                    sp.Project = int.Parse(Project[i]);
+                    db.ShopProject.Add(sp);
+                }
+                db.SaveChanges();
+                if (db.SaveChanges() == 1)
+                {
+                    return Helper.WebRedirect("操作成功！", "history.go(-1);", "操作成功!");
                 }
                 else
                 {
-                    var b = db.Shop.Where(l => l.Gid == Gid).FirstOrDefault();
-                    b.Project = Project;
-                    b.Name = Name;
-                    b.Number = int.Parse(Request.Form["Number"]);
-                    b.Money = decimal.Parse(Request.Form["Money"]);
-                    b.Profile = Request.Form["Profile"];
-                    b.Content = Request.Form["Content"];
-                    b.Remarks = Request.Form["Remarks"];
-                    b.Show = Int32.Parse(Request.Form["Show"]);
-                    b.Sort = Int32.Parse(Request.Form["Sort"]);
-                    if (!string.IsNullOrEmpty(Request.Form["Picture"]))
-                    {
-                        b.Picture = Request.Form["Picture"];
-                    }
-                    b.ContactNumber = Request.Form["ContactNumber"];
-                    b.Province = Request.Form["Province"];
-                    b.City = Request.Form["City"];
-                    b.Area = Request.Form["Area"];
-                    b.Address = Request.Form["Address"];
-                    b.State = int.Parse(Request.Form["State"]);
-                    if (db.SaveChanges() == 1)
-                    {
-                        return Helper.WebRedirect("操作成功！", "history.go(-1);", "操作成功!");
-                    }
-                    else
-                    {
-                        return Helper.WebRedirect("操作失败,请检查录入的数据！", "history.go(-1);", "操作失败,请检查录入的数据!");
-                    }
+                    return Helper.WebRedirect("操作失败", "history.go(-1);", "商家基本资料更新失败,如果是更新分类忽略即可!");
                 }
             }
         }

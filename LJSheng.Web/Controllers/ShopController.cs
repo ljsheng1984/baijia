@@ -71,7 +71,17 @@ namespace LJSheng.Web.Controllers
                     ViewBag.Picture = Help.Shop + b.Picture;
                     ViewBag.USCI = Help.Shop + b.USCI;
                     ViewBag.LegalPerson = Help.Shop + b.LegalPerson;
-                    ViewBag.Project = b.Project;
+                    //ViewBag.Project = b.Project;
+                    var sp = db.ShopProject.Where(l => l.ShopGid == Gid).Select(l => new { l.Project }).ToList();
+                    if (sp != null)
+                    {
+                        string s = "";
+                        foreach (var dr in sp)
+                        {
+                            s += dr.Project.ToString() + ",";
+                        }
+                        ViewBag.Project = s;
+                    }
                     ViewBag.Remarks = b.Remarks;
                     ViewBag.ContactNumber = b.ContactNumber;
                     ViewBag.Province = b.Province;
@@ -81,7 +91,7 @@ namespace LJSheng.Web.Controllers
                     ViewBag.State = b.State;
                 }
                 Guid DGid = db.Dictionaries.Where(l => l.DictionaryType == "Shop").FirstOrDefault().Gid;
-                return View(db.DictionariesList.Where(dl => dl.DGid == DGid).ToList());
+                return View(db.DictionariesList.Where(dl => dl.DGid == DGid).OrderBy(dl=>dl.Sort).ToList());
             }
         }
         [HttpPost]
@@ -92,7 +102,7 @@ namespace LJSheng.Web.Controllers
             {
                 Guid Gid = LCookie.GetShopGid();
                 var b = db.Shop.Where(l => l.Gid == Gid).FirstOrDefault();
-                b.Project = int.Parse(Request.Form["Project"]);
+                b.Project = 0;
                 b.Name = Request.Form["Name"];
                 //b.Number = int.Parse(Request.Form["Number"]);
                //b.Money = decimal.Parse(Request.Form["Money"]);
@@ -112,13 +122,26 @@ namespace LJSheng.Web.Controllers
                 b.Area = Request.Form["Area"];
                 b.Address = Request.Form["Address"];
                 //b.State = int.Parse(Request.Form["State"]);
+                //更新分类
+                string[] Project = Request.Form["Project"].Split(',');
+                db.ShopProject.Where(l => l.ShopGid == Gid).Delete();
+                for (int i = 0; i < Project.Length - 1; i++)
+                {
+                    var sp = new ShopProject();
+                    sp.Gid = Guid.NewGuid();
+                    sp.AddTime = DateTime.Now;
+                    sp.ShopGid = (Guid)Gid;
+                    sp.Project = int.Parse(Project[i]);
+                    db.ShopProject.Add(sp);
+                }
+                db.SaveChanges();
                 if (db.SaveChanges() == 1)
                 {
                     return Helper.Redirect("操作成功！", "history.go(-1);", "操作成功!");
                 }
                 else
                 {
-                    return Helper.Redirect("操作失败,请检查录入的数据！", "history.go(-1);", "操作失败,请检查录入的数据!");
+                    return Helper.Redirect("操作失败", "history.go(-1);", "商家基本资料更新失败,如果是更新分类忽略即可!");
                 }
             }
         }

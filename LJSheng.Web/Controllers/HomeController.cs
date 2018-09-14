@@ -936,8 +936,11 @@ namespace LJSheng.Web.Controllers
         /// </remarks>
         public ActionResult ShopClassify()
         {
-            LCookie.AddCookie("ShopGid", Request.QueryString["Gid"], 0);
-            return View();
+            Guid ShopGid = Guid.Parse(Request.QueryString["Gid"]);
+            using (EFDB db = new EFDB())
+            {
+                return View(db.ShopClassify.Where(l => l.Show == 1 && l.ShopGid == ShopGid).OrderByDescending(l => l.Sort).Select(l => new { l.Gid, l.Name }).ToList());
+            }
         }
 
         /// <summary>

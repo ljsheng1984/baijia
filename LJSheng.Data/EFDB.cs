@@ -193,5 +193,9 @@ namespace LJSheng.Data
         /// 金额记录
         /// </summary>
         public DbSet<RMBRecord> RMBRecord { get; set; }
+        /// <summary>
+        /// 商家分类关联列表
+        /// </summary>
+        public DbSet<ShopProject> ShopProject { get; set; }
     }
 }

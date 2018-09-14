@@ -24,7 +24,7 @@
                     @foreach (string name in Enum.GetNames(typeof(LJSheng.Common.Help.PayStatus)))
                     {
                         LJSheng.Common.Help.PayStatus type = (LJSheng.Common.Help.PayStatus)Enum.Parse(typeof(LJSheng.Common.Help.PayStatus), name, true);
-                        <option value="@((int)type)" @(name == "支付成功" ? "selected" : "")>@name</option>
+                        <option value="@((int)type)">@name</option>
                     }
                 </select>
                 <span class="input-group-addon fix-padding">-</span>

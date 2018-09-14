@@ -1,0 +1,130 @@
+﻿
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=yes">
+    <title>彩链-确认订单</title>
+    <meta name="keywords" content="彩链">
+    <meta name="description" content="彩链">
+    <meta name="author" content="彩链">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="/css/style.css" />
+</head>
+
+<body>
+    <div class="shop-order-detial">
+        <div class="shop-order-header">
+            <img src="/images/icon/icon-26.png" onclick="history.go(-1);"  />
+            <span>确认订单</span>
+        </div>
+    </div>
+    <div class="make-order">
+        <div class="order-detial-goods" id="dataList">
+            <script id="tpl" type="text/html">
+                {{each list as item index}}
+                <div class="order-detial-goods-store">
+                    <a href="/SMall/Detail?ShopGid={{item.ShopGid}}">
+                        <span>
+                            <img src="/images/icon/icon-53.png" class="order-detial-goods-store-img" />
+                            {{item.Name}}
+                        </span>
+                    </a>
+                </div>
+                {{each item.list as od index}}
+                <div id="{{od.Gid}}">
+                    <div class="order-detial-goods-content">
+                        <a href="/SMall/Product?ShopGid={{item.ShopGid}}&Gid={{od.ProductGid}}">
+                            <div class="order-detial-goods-content-img">
+                                <img src="/uploadfiles/product/{{od.Picture}}" />
+                            </div>
+                            <div class="order-detial-goods-content-text">
+                                <div class="order-detial-goods-content-title">
+                                    <p>{{od.Name}}</p>
+                                    <span>¥{{od.Price}}</span>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="make-order-nums">
+                        <span>购买数量</span>
+                        <p class="make-order-num">
+                            <span onclick="buy('{{item.ShopGid}}', '{{od.ProductGid}}','{{od.Gid}}', -1);">-</span>
+                            <input type="text" value="{{od.Number}}" readonly />
+                            <span onclick="buy('{{item.ShopGid}}', '{{od.ProductGid}}','{{od.Gid}}', 1);">+</span>
+                        </p>
+                    </div>
+                </div>
+                {{/each}}
+                <div class="make-order-note">
+                   
+                </div>
+                {{/each}}
+            </script>
+        </div>
+    </div>
+    <div class="make-order-btn">
+        <p>
+            合计
+            <span id="rmb">￥ @ViewBag.RMB </span>
+        </p>
+        <a class="make-order-btn-pay" href="/Pay/ShopPay">支付</a>
+    </div>
+    <script src="/js/jquery.js"></script>
+    <script src="/js/template-web.js"></script>
+    <script>
+        getList();
+        function getList() {
+            $.ajax({
+                url: "/SMall/CartData",
+                data: "",
+                type: "post",
+                cache: false,
+                timeout: 8000,
+                dataType: "json",
+                ContentType: "application/json; charset=utf-8",
+                error: function () { },
+                beforeSend: function () {},
+                success: function (data) {
+                    var html = template('tpl', data.data);
+                    document.getElementById('dataList').innerHTML = html;
+                },
+            });
+        }
+        function buy(ShopGid, ProductGid, Gid, num) {
+            $.ajax({
+                url: "/SMall/AddCart",
+                data: "ShopGid=" + ShopGid + "&Gid=" + ProductGid + "&Number=" + num,
+                type: "post",
+                cache: false,
+                timeout: 8000,
+                dataType: "json",
+                ContentType: "application/json; charset=utf-8",
+                error: function () { alert('请求超时!'); },
+                beforeSend: function () { },
+                success: function (data) {
+                    if (data.result === 200) {
+                        var n = $("#" + Gid + " input");
+                        if (Number(n.val()) > 0) {
+                            n.val(Number(n.val()) + Number(num));
+                        }
+                        else {
+                            $("#" + Gid).hide();
+                        }
+                        $("#rmb").html(data.data);
+                    }
+                    else {
+                        alert(data.data);
+                    }
+                },
+            });
+        }
+    </script>
+</body>
+
+</html>

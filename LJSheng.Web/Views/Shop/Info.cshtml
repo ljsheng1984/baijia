@@ -6,16 +6,17 @@
 <section class="section">
     @using (Html.BeginForm("ShopAU", "Shop", FormMethod.Post, new { @class = "box", enctype = "multipart/form-data" }))
     {
-        <div class="control">
-            <label>商家类别</label>
-            @foreach (var item in Model)
-            {
-                <div class="radio inline-block">
-                    <input type="radio" name="Project" value="@item.Value">
-                    <label for="flgid">@item.Key</label>
-                </div>
-            }
-        </div>
+    <div class="control">
+        <input type="text" name="Project" id="Project" placeholder="请最少设置一个类别" value="@ViewBag.Project" hidden />
+        <label>商家类别</label>
+        @foreach (var item in Model)
+        {
+            <div class="checkbox inline-block" onclick="set('@item.Value');">
+                <input type="checkbox" name="fl" value="@item.Value">
+                <label for="fl">@item.Key</label>
+            </div>
+        }
+    </div>
         <div class="control">
             <label>商家封面</label>
             <div>
@@ -74,7 +75,14 @@
 <script src="~/js/pca.js" charset="gb2312"></script>
 <script src="~/js/image.js"></script>
 <script>
-        $(":radio[name='Project'][value='@ViewBag.Project']").prop("checked", "checked");
+    var p="@ViewBag.Project";
+        if (p!= "") {
+            var Project = p.split(",");
+            for (var i = 0; i < Project.length - 1; i++)
+            {
+                $(":checkbox[name='fl'][value='" + Project[i]+"']").prop("checked", "checked");
+            }
+        }
         setup();
         if ("@ViewBag.province".length > 0) {
             preselect("@ViewBag.Province");
@@ -110,7 +118,10 @@
                 tip("请选择区域");
                 return false;
             }
-
+            if (document.getElementById("Project").value == "") {
+                tip("最少设置一个分类");
+                return false;
+            }
             document.forms[0].submit();
             return true;
         }
@@ -120,5 +131,15 @@
                 , skin: 'msg'
                 , time: 5
             });
+    }
+    function set() {
+        document.getElementById("Project").value = "";
+        var groupCheckbox = $("input[name='fl']");
+        for (i = 0; i < groupCheckbox.length; i++) {
+            if (groupCheckbox[i].checked) {
+                var val = groupCheckbox[i].value;
+                document.getElementById("Project").value += val + ",";
+            }
         }
+    }
 </script>

@@ -96,6 +96,7 @@
     <Compile Include="EF\ShopClassify.cs" />
     <Compile Include="EF\ShopOrder.cs" />
     <Compile Include="EF\ShopProduct.cs" />
+    <Compile Include="EF\ShopProject.cs" />
     <Compile Include="EF\ShopRecord.cs" />
     <Compile Include="EF\TokenRecord.cs" />
     <Compile Include="EF\ShopWithdrawals.cs" />

@@ -432,8 +432,6 @@ namespace LJSheng.Web
                                             //判断上级团队升级条件
                                             if (MemberGid != null)
                                             {
-                                                DateTime dt = DateTime.Now.AddMonths(-1);
-                                                msg += "团队升级=" + CLTeam((Guid)MemberGid, lv) + rn;
                                                 //升级奖
                                                 var ML = db.Member.Where(l => l.Gid == MemberGid).GroupJoin(db.Level,
                                                                 l => l.CLLevel,
@@ -452,6 +450,8 @@ namespace LJSheng.Web
                                                         msg += "升级奖失败:会员=" + MemberGid.ToString() + ",Price=" + PayPrice.ToString() + rn;
                                                     }
                                                 }
+                                                //判断上级团队是否升级
+                                                msg += "团队升级=" + CLTeam((Guid)MemberGid, lv) + rn;
                                             }
                                         }
                                         else

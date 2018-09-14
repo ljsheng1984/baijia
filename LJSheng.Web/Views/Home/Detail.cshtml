@@ -44,15 +44,6 @@
                 <p>客服</p>
             </a>
         </li>
-        <li class="@(LJSheng.Common.LCookie.Project()==2?"hide":"")">
-            <a class="cart" href="~/Home/ShopCart">
-                <p><i class="icon-sc"></i></p>
-                <p>购物车</p>
-            </a>
-        </li>
-        <li class="@(LJSheng.Common.LCookie.Project()==2?"hide":"")"><a class="btn btn-success btn-lg btn-block addcart">加入购物车<i id="ccount">0</i></a></li>
-        <li class="@(LJSheng.Common.LCookie.Project()==2?"hide":"")"><a class="btn btn-danger btn-lg btn-block addcart">立即购买</a></li>
-        <li class="@(LJSheng.Common.LCookie.Project()==1?"hide":"")"><a class="btn btn-danger btn-lg btn-block" href="/Pay/GoPay?PGid=@ViewBag.Gid&Price=@ViewBag.Price">立即购买</a></li>
+        <li><a class="btn btn-danger btn-lg btn-block" href="/Pay/GoPay?PGid=@ViewBag.Gid&Price=@ViewBag.Price">立即购买</a></li>
     </ul>
 </footer>
-@Scripts.Render("~/shopcart")

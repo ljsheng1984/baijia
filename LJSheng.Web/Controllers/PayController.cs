@@ -532,7 +532,7 @@ namespace LJSheng.Web.Controllers
                 }
                 else
                 {
-                    return Helper.Redirect("失败", "/Home/Shop", "支付密码错误!");
+                    return Helper.Redirect("失败", "/SMall/Index", "支付密码错误!");
                 }
             }
         }

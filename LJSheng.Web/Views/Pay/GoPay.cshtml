@@ -13,7 +13,7 @@
 </head>
 <body class="index">
     <div class="sub-header">
-        <a class="icon-arrow-left" href="@(ViewBag.Project == 1 ? "/Home/ShopCart" : "/Home/Index")">返回</a>
+        <a class="icon-arrow-left" href="/Home/Index">返回</a>
         <div class="title">支付</div>
     </div>
     @using (Html.BeginForm("Pay", "Pay", FormMethod.Post))
@@ -52,11 +52,9 @@
         <input hidden type="text" name="OrderNo" id="OrderNo" value="@Request.QueryString["OrderNo"]" />
     }
     <script src="~/js/jquery.js"></script>
-    <script src="~/plugins/shopcart/cookie.js"></script>
-    <script src="~/plugins/shopcart/server.js"></script>
     <script src="~/plugins/mlayer/layer.js"></script>
     <script>
-        var price = @ViewBag.Project==1 ? getTotalPrice() : @Request.QueryString["Price"];
+        var price = @Request.QueryString["Price"];
         if (price <= 0) {
             self.location = "/Home/Url";
         }
@@ -72,14 +70,13 @@
             }
             else {
                 if (document.getElementsByName("RealName")[0].value.length > 1 && document.getElementsByName("ContactNumber")[0].value.length > 10 && document.getElementsByName("Addr")[0].value.length > 3) {
-                    document.getElementById("shopcart").value = @ViewBag.Project==1 ? cookieObj.get("datas") : "@Request.QueryString["PGid"]";
+                    document.getElementById("shopcart").value = "@Request.QueryString["PGid"]";
                     document.getElementById("PayType").value = PayType;
                     if (document.getElementById("shopcart").value.length > 10 || document.getElementById("OrderNo").value.length > 10) {
                         layer.open({
                             type: 2
                             , content: '正在请求支付网关...'
                         });
-                        cookieObj.del("datas");
                         document.forms[0].submit();
                     }
                     else {
