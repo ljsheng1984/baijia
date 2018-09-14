@@ -47,7 +47,6 @@
     <a class="info" onclick="return Add();">提交</a>
 </nav>
 <script src="~/plugins/zui/lib/jquery/jquery.js"></script>
-<script src="~/plugins/mlayer/layer.js"></script>
 <script src="~/js/image.js"></script>
 <script>
     function Add() {
@@ -56,22 +55,15 @@
         //    return false;
         //}
         if (document.getElementById("Number").value.length < 1) {
-            tip("请填写转让数量");
+            alert("请填写转让数量");
             return false;
         }
         if (document.getElementById("Price").value.length < 1) {
-            tip("请填写要转让的价格");
+            alert("请填写要转让的价格");
             return false;
         }
         document.forms[0].submit();
         return true;
-    }
-    function tip(msg) {
-        layer.open({
-            content: msg
-            , skin: 'msg'
-            , time: 5
-        });
     }
     function money() {
         var Number = document.getElementById("Number").value;
@@ -82,7 +74,7 @@
         }
         else {
             document.getElementById("Number").value = "";
-            tip("你的库存只有 @ViewBag.Stock");
+            alert("你的库存只有 @ViewBag.Stock");
         }
     }
 </script>

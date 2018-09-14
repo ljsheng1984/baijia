@@ -503,17 +503,21 @@ namespace LJSheng.Web.Controllers
             Guid MemberGid = LCookie.GetMemberGid();
             using (EFDB db = new EFDB())
             {
-                var b = db.Order.Where(l => l.MemberGid == MemberGid && l.PayStatus <4).AsQueryable();
+                var b = db.Order.Where(l => l.MemberGid == MemberGid && l.PayStatus < 3).AsQueryable();
                 if (ExpressStatus != 0)
                 {
                     if (ExpressStatus == 4)
                     {
-                        b = b.Where(l => l.PayStatus == 2);
+                        b = b.Where(l => l.PayStatus == 2 && l.PayType == 3);
                     }
                     else
                     {
                         b = b.Where(l => l.PayStatus == 1 && l.ExpressStatus == ExpressStatus);
                     }
+                }
+                else
+                {
+                    b = b.Where(l => l.PayStatus == 1);
                 }
                 int pageindex = Int32.Parse(paramJson["pageindex"].ToString());
                 int pagesize = Int32.Parse(paramJson["pagesize"].ToString());
@@ -1332,17 +1336,17 @@ namespace LJSheng.Web.Controllers
             using (EFDB db = new EFDB())
             {
                 //会员关系异常日记
-                //var mr = db.MRelation.ToList();
-                //foreach (var dr in mr)
-                //{
-                //    int n = db.Member.Where(l => l.Gid == dr.MemberGid).Count();
-                //    if (n != 1)
-                //    {
-                //        db.MRelation.Where(l => l.MemberGid == dr.MemberGid).Delete();
-                //        db.Consignor.Where(l => l.MemberGid == dr.MemberGid).Delete();
-                //        LogManager.WriteLog("会员关系异常日记", dr.MemberGid + "=" + n);
-                //    }
-                //}
+                var mr = db.MRelation.ToList();
+                foreach (var dr in mr)
+                {
+                    int n = db.Member.Where(l => l.Gid == dr.MemberGid).Count();
+                    if (n != 1)
+                    {
+                        db.MRelation.Where(l => l.MemberGid == dr.MemberGid).Delete();
+                        db.Consignor.Where(l => l.MemberGid == dr.MemberGid).Delete();
+                        LogManager.WriteLog("会员关系异常日记", dr.MemberGid + "=" + n + ",时间=" + dr.AddTime);
+                    }
+                }
                 var b = db.MRelation.Where(l => l.M1 == MemberGid || l.M2 == MemberGid || l.M3 == MemberGid).GroupJoin(db.Member,
                     l => l.MemberGid,
                     j => j.Gid,
@@ -1548,7 +1552,7 @@ namespace LJSheng.Web.Controllers
             Guid MemberGid = LCookie.GetMemberGid();
             using (EFDB db = new EFDB())
             {
-                var b = db.ShopOrder.Where(l => l.MemberGid == MemberGid && l.PayStatus < 4).GroupJoin(db.Member,
+                var b = db.ShopOrder.Where(l => l.MemberGid == MemberGid && l.PayStatus < 3).GroupJoin(db.Member,
                     x => x.MemberGid,
                     y => y.Gid,
                     (x, y) => new
@@ -1558,6 +1562,7 @@ namespace LJSheng.Web.Controllers
                         x.ExpressStatus,
                         x.Status,
                         x.Product,
+                        x.PayType,
                         x.TotalPrice,
                         x.OrderNo,
                         x.ConsumptionCode,
@@ -1571,12 +1576,16 @@ namespace LJSheng.Web.Controllers
                 {
                     if (ExpressStatus == 4)
                     {
-                        b = b.Where(l => l.PayStatus == 2);
+                        b = b.Where(l => l.PayStatus == 2 && l.PayType == 3);
                     }
                     else
                     {
                         b = b.Where(l => l.PayStatus == 1 && l.ExpressStatus == ExpressStatus);
                     }
+                }
+                else
+                {
+                    b = b.Where(l => l.PayStatus == 1);
                 }
                 int pageindex = Int32.Parse(paramJson["pageindex"].ToString());
                 int pagesize = Int32.Parse(paramJson["pagesize"].ToString());

@@ -39,7 +39,6 @@
         }
     </div>
     <script src="~/js/jquery.js"></script>
-    <script src="~/plugins/mlayer/layer.js"></script>
     <script>
         var wait = 120;
         function time() {
@@ -103,14 +102,10 @@
         }
         function tooltip(field) {
             field.focus();
-            tip(field.attr('placeholder'));
+            alert(field.attr('placeholder'));
         }
         function tip(msg) {
-            layer.open({
-                content: msg
-                , skin: 'msg'
-                , time: 2
-            });
+            alert(msg);
         }
     </script>
 </body>

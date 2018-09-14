@@ -2975,5 +2975,28 @@ namespace LJSheng.Web
             return list;
         }
         #endregion
+
+        #region 用户注册
+        /// <summary>
+        /// 会员注册
+        /// </summary>
+        /// <param name="account">会员帐号</param>
+        /// <param name="pwd">会员密码</param>
+        /// <param name="paypwd">支付密码</param>
+        /// <param name="realname">真实姓名</param>
+        /// <param name="identifyingCode">注册验证码</param>
+        /// <param name="membergid">邀请人Gid</param>
+        /// <param name="id">邀请人MID</param>
+        /// <returns>返回调用结果</returns>
+        /// <para name="result">200 是成功其他失败</para>
+        /// <para name="data">结果提示</para>
+        /// <remarks>
+        /// 2016-06-30 林建生
+        /// </remarks>
+        public static int Register(string Account, string pwd, string paypwd, string realname, string identifyingCode,string membergid,int id)
+        {
+            return 1;
+        }
+        #endregion
     }
 }

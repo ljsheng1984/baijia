@@ -584,29 +584,37 @@ namespace LJSheng.Web.ajax
                                     b.MemberGid = m.Gid;
                                 }
                             }
-                            db.Member.Add(b);
-                            if (db.SaveChanges() == 1)
+                            if (db.Member.Where(l => l.Account == Account).Count() == 0)
                             {
-                                //删除重复注册数据
-                                var md = db.Member.Where(l => l.Account == Account && l.Gid != Gid).ToList();
-                                foreach (var dr in md)
+                                db.Member.Add(b);
+                                if (db.SaveChanges() == 1)
                                 {
-                                    db.Member.Where(l => l.MemberGid == dr.MemberGid).Delete();
-                                    db.MRelation.Where(l => l.MemberGid == dr.MemberGid).Delete();
-                                    db.Consignor.Where(l => l.MemberGid == dr.MemberGid).Delete();
+                                    //删除重复注册数据
+                                    //db.Member.Where(l => l.Account == Account && l.Gid != Gid).Delete();
+                                    //var md = db.Member.Where(l => l.Account == Account && l.Gid != Gid).ToList();
+                                    //foreach (var dr in md)
+                                    //{
+                                    //    db.Member.Where(l => l.MemberGid == dr.MemberGid).Delete();
+                                    //    db.MRelation.Where(l => l.MemberGid == dr.MemberGid).Delete();
+                                    //    db.Consignor.Where(l => l.MemberGid == dr.MemberGid).Delete();
+                                    //}
+                                    //增加彩链发货人
+                                    Helper.SetConsignor(b.Gid, b.MemberGid);
+                                    //增加推荐人
+                                    if (b.MemberGid != null)
+                                    {
+                                        Helper.MRelation(Gid, (Guid)b.MemberGid);
+                                    }
+                                    return new AjaxResult(MID);
                                 }
-                                //增加彩链发货人
-                                Helper.SetConsignor(b.Gid, b.MemberGid);
-                                //增加推荐人
-                                if (b.MemberGid != null)
+                                else
                                 {
-                                    Helper.MRelation(Gid, (Guid)b.MemberGid);
+                                    return new AjaxResult(302, "注册失败");
                                 }
-                                return new AjaxResult(MID);
                             }
                             else
                             {
-                                return new AjaxResult(302, "帐号已存在");
+                                return Helper.Redirect("失败", "history.go(-1);", "帐号已存在");
                             }
                         }
                         catch

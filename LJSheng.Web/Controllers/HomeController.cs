@@ -193,7 +193,6 @@ namespace LJSheng.Web.Controllers
                 //判断是否有推荐人
                 string m = LCookie.GetCookie("m");
                 Guid? MemberGid = null;
-                string ID = "";
                 if (!string.IsNullOrEmpty(m))
                 {
                     MemberGid = Guid.Parse(m);
@@ -275,26 +274,34 @@ namespace LJSheng.Web.Controllers
                                     //{
                                     //    b.Picture = Picture;
                                     //}
-                                    db.Member.Add(b);
-                                    if (db.SaveChanges() == 1)
+                                    if (db.Member.Where(l => l.Account == account).Count() == 0)
                                     {
-                                        //删除重复注册数据
-                                        var md = db.Member.Where(l => l.Account == account && l.Gid != Gid).ToList();
-                                        foreach (var dr in md)
+                                        db.Member.Add(b);
+                                        if (db.SaveChanges() == 1)
                                         {
-                                            db.Member.Where(l => l.MemberGid == dr.MemberGid).Delete();
-                                            db.MRelation.Where(l => l.MemberGid == dr.MemberGid).Delete();
-                                            db.Consignor.Where(l => l.MemberGid == dr.MemberGid).Delete();
+                                            //删除重复注册数据
+                                            //db.Member.Where(l => l.Account == account && l.Gid != Gid).Delete();
+                                            //var md = db.Member.Where(l => l.Account == account && l.Gid != Gid).ToList();
+                                            //foreach (var dr in md)
+                                            //{
+                                            //    db.Member.Where(l => l.MemberGid == dr.MemberGid).Delete();
+                                            //    db.MRelation.Where(l => l.MemberGid == dr.MemberGid).Delete();
+                                            //    db.Consignor.Where(l => l.MemberGid == dr.MemberGid).Delete();
+                                            //}
+                                            //增加彩链发货人
+                                            Helper.SetConsignor(b.Gid, MemberGid);
+                                            //增加推荐人
+                                            if (MemberGid != null)
+                                            {
+                                                Helper.MRelation(Gid, (Guid)MemberGid);
+                                            }
+                                            LCookie.DelCookie("linjiansheng");
+                                            return Helper.Redirect("成功", "/Home/Login", "注册成功,请登录");
                                         }
-                                        //增加彩链发货人
-                                        Helper.SetConsignor(b.Gid, MemberGid);
-                                        //增加推荐人
-                                        if (MemberGid != null)
+                                        else
                                         {
-                                            Helper.MRelation(Gid, (Guid)MemberGid);
+                                            return Helper.Redirect("失败", "history.go(-1);", "注册失败");
                                         }
-                                        LCookie.DelCookie("linjiansheng");
-                                        return Helper.Redirect("成功", "/Home/Login", "注册成功,请登录");
                                     }
                                     else
                                     {

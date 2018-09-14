@@ -1296,6 +1296,7 @@ namespace LJSheng.Web.Controllers
             string RealName = paramJson["RealName"].ToString();
             string MAccount = paramJson["MAccount"].ToString();
             int Level = int.Parse(paramJson["Level"].ToString());
+            int CLLevel = int.Parse(paramJson["CLLevel"].ToString());
             int Number = int.Parse(paramJson["Number"].ToString());
             Guid MemberGid = Guid.Parse(paramJson["MemberGid"].ToString());
             //按月份查询业绩
@@ -1305,13 +1306,13 @@ namespace LJSheng.Web.Controllers
             DateTime MonthLast = string.IsNullOrEmpty(Year) ? DateTime.Now : DTime.LastDayOfMonth(DateTime.Parse(Year + "-" + Month + "-" + "01 23:59:59"));
             using (EFDB db = new EFDB())
             {
-                var b = db.MRelation.Where(l => l.MemberGid == MemberGid ||  l.M1 == MemberGid || l.M2 == MemberGid | l.M3 == MemberGid).GroupJoin(db.Member,
+                var b = db.MRelation.Where(l => l.M1 == MemberGid || l.M2 == MemberGid || l.M3 == MemberGid).GroupJoin(db.Member,
                     l => l.MemberGid,
                     j => j.Gid,
                     (l, j) => new
                     {
                         MAddTime = l.AddTime,
-                        Number = l.MemberGid == MemberGid ? 0 :l.M1 == MemberGid ? 1 : l.M2 == MemberGid ? 2 : 3,
+                        Number = l.M1 == MemberGid ? 1 : l.M2 == MemberGid ? 2 : 3,
                         j.FirstOrDefault().Account,
                         j.FirstOrDefault().Picture,
                         j.FirstOrDefault().RealName,
@@ -1358,6 +1359,7 @@ namespace LJSheng.Web.Controllers
                         l.Level7,
                         l.Level8,
                         l.Level9,
+                        l.CLLevel,
                         MRealName = Nullable<Guid>.Equals(l.MemberGid, null) ? "" : db.Member.Where(m => m.Gid == l.MemberGid).FirstOrDefault().RealName,
                         MAccount = Nullable<Guid>.Equals(l.MemberGid, null) ? "" : db.Member.Where(m => m.Gid == l.MemberGid).FirstOrDefault().Account,
                         l.MAddTime,
@@ -1395,6 +1397,10 @@ namespace LJSheng.Web.Controllers
                 if (Level != 0)
                 {
                     b = b.Where(l => l.Level == Level);
+                }
+                if (CLLevel != 0)
+                {
+                    b = b.Where(l => l.CLLevel == CLLevel);
                 }
                 //时间查询
                 if (!string.IsNullOrEmpty(STime) || !string.IsNullOrEmpty(ETime))

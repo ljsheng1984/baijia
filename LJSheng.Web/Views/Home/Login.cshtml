@@ -35,7 +35,6 @@
         }
     </div>
     <script src="~/js/jquery.js"></script>
-    <script src="~/plugins/mlayer/layer.js"></script>
     <script>
         function check() {
             var field = $("input[name='account']");
@@ -55,14 +54,7 @@
         }
         function tooltip(field) {
             field.focus();
-            tip(field.attr('placeholder'));
-        }
-        function tip(msg) {
-            layer.open({
-                content: msg
-                , skin: 'msg'
-                , time: 2
-            });
+            alert(field.attr('placeholder'));
         }
     </script>
 </body>

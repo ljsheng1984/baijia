@@ -56,7 +56,6 @@
         </div>
     }
     <script src="~/js/jquery.js"></script>
-    <script src="~/plugins/mlayer/layer.js"></script>
     <script>
     function check() {
         var field = $("input[name='BankName']");
@@ -88,17 +87,13 @@
         document.getElementById("btn").style.display = "none";
         document.forms[0].submit();
     }
-    function tooltip(field) {
-        field.focus();
-        tip(field.attr('placeholder'));
-    }
-    function tip(msg) {
-        layer.open({
-            content: msg
-            , skin: 'msg'
-            , time: 2
-        });
-    }
+        function tooltip(field) {
+            field.focus();
+            alert(field.attr('placeholder'));
+        }
+        function tip(msg) {
+            alert(msg);
+        }
     </script>
 </body>
 </html>
