@@ -82,7 +82,7 @@
                     <td rowspan="2">{{index+1}}</td>
                     <td>{{item.OrderNo}}<br />{{item.TradeNo}}</td>
                     <td>{{item.AddTime}}<br />{{item.PayTime}}</td>
-                    <td title="查看购买详情" onclick="Show('{{item.OrderNo}}','ShopOrderDetailsList?gid={{item.Gid}}');">{{item.Product}}</td>
+                    <td title="查看购买详情" onclick="Show('{{item.OrderNo}}','ShopOrderDetailsList?gid={{item.Gid}}');">查看商品</td>
                     <td>{{item.Name}}<br />{{item.ShopAccount}}</td>
                     <td>{{item.Account}}<br />{{item.RealName}}</td>
                     <td>
@@ -111,7 +111,7 @@
                         {{/if}}
                     </td>
                     <td>
-                        订单金额:{{item.TotalPrice}}<br />
+                        合并订单金额:{{item.RMB}}<br />
                         支付金额:{{item.Price}}/{{item.PayPrice}}
                     </td>
                     <td>

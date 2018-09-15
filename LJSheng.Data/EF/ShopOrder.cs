@@ -156,9 +156,8 @@ namespace LJSheng.Data
         public DateTime? DeliveryTime { get; set; }
 
         /// <summary>
-        /// 统一订单号
+        /// 多订单支付总额
         /// </summary>
-        [StringLength(50)]
-        public string ALLOrderNo { get; set; }
+        public decimal RMB { get; set; }
     }
 }

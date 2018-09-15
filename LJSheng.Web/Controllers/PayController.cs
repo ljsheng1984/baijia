@@ -354,7 +354,7 @@ namespace LJSheng.Web.Controllers
                     string trade_status = Request.Form["trade_status"];
                     if (trade_status == "TRADE_SUCCESS" || trade_status == "TRADE_FINISHED")
                     {
-                        if (Helper.ShopPayOrder(out_trade_no, trade_no, 1, decimal.Parse(total_amount)))
+                        if (Helper.ShopOrder(out_trade_no, trade_no, 1, decimal.Parse(total_amount)))
                         {
                             return Content("success");
                         }
@@ -441,6 +441,8 @@ namespace LJSheng.Web.Controllers
                     }
                     //获取用户积分
                     ViewBag.Integral = db.Member.Where(l => l.Gid == MemberGid).FirstOrDefault().Integral;
+                    //订单金额
+                    ViewBag.RMB = Helper.OrderRMB(MemberGid);
                     return View();
                 }
                 else
@@ -451,7 +453,7 @@ namespace LJSheng.Web.Controllers
         }
 
         /// <summary>
-        /// 下单支付
+        /// 商城下单支付
         /// </summary>
         [HttpPost]
         public ActionResult PayShop()
@@ -459,38 +461,112 @@ namespace LJSheng.Web.Controllers
             string RealName = Request.Form["RealName"];
             string ContactNumber = Request.Form["ContactNumber"];
             string Address = Request.Form["Addr"];
-            string Product = Request.Form["shopcart"];
             string Remarks = Request.Form["Remarks"];
             int PayType = int.Parse(Request.Form["PayType"]);
-            Guid ShopGid = Guid.Parse(LCookie.GetCookie("ShopGid"));
-            string Order = Helper.ShopOrder(PayType, Product, ShopGid, LCookie.GetMemberGid(), Remarks, Address, RealName, ContactNumber);
-            if (!string.IsNullOrEmpty(Order))
+            string OrderNo = RandStr.CreateOrderNO();
+            decimal RMB = 0;//全部订单金额
+            using (EFDB db = new EFDB())
             {
-                JObject paramJson = JsonConvert.DeserializeObject(Order) as JObject;
+                Guid MGid = LCookie.GetMemberGid();
+                //如果是积分支付先验证支付密码
+                var m = db.Member.Where(l => l.Gid == MGid).FirstOrDefault();
+                if (PayType==5)
                 {
-                    if (paramJson["OrderNo"].ToString() == "")
+                    if (m.PayPWD != MD5.GetMD5ljsheng(Request.Form["PayPWD"]))
                     {
-                        return Helper.Redirect("失败", "history.go(-1);", paramJson["body"].ToString() + "-的库存少于你购买的数量!");
+                        return Helper.Redirect("失败", "history.go(-1);", "支付密码错误!");
                     }
-                    else
+                }
+                //购物车转化成订单
+                var c = db.Cart.Where(l => l.MemberGid == MGid && l.State == 1).ToList();
+                if (c != null)
+                {
+                    foreach(var dr in c)
+                    {
+                        decimal Price = 0;//订单金额
+                        //扣除库存
+                        var od = db.OrderDetails.Where(l => l.OrderGid == dr.Gid).ToList();
+                        foreach (var d in od)
+                        {
+                            var p = db.ShopProduct.Where(l => l.Gid == d.ProductGid).FirstOrDefault();
+                            if (p.Stock >= d.Number)
+                            {
+                                //扣除库存
+                                p.Stock = p.Stock - d.Number;
+                                if (db.SaveChanges() == 1)
+                                {
+                                    //库存扣除状态
+                                    if (db.OrderDetails.Where(l => l.Gid == d.Gid).Update(l => new OrderDetails { State = 1 }) == 1)
+                                    {
+                                        RMB += d.Number * p.Price;
+                                        Price += d.Number * p.Price;
+                                    }
+                                    else {
+                                        LogManager.WriteLog("库存扣除成功更新OD失败", "Gid=" + d.Gid);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                //库存不足的直接删除
+                                db.OrderDetails.Where(l => l.Gid == d.Gid).Delete();
+                            }
+                        }
+                        //生成订单
+                        var b = new ShopOrder();
+                        b.Gid = dr.Gid;
+                        b.AddTime = DateTime.Now;
+                        b.MemberGid = MGid;
+                        b.ShopGid = dr.ShopGid;
+                        b.OrderNo = OrderNo;
+                        b.PayStatus = 2;
+                        b.PayType = 3;
+                        b.RMB = 0;
+                        b.TotalPrice = Price;
+                        b.Price = Price;
+                        b.CouponPrice = 0;
+                        b.ExpressStatus = 1;
+                        b.PayPrice = 0;
+                        b.Profit = 0;
+                        b.ConsumptionCode = RandStr.CreateValidateNumber(8);
+                        b.Status = 1;
+                        b.Remarks = Remarks;
+                        db.ShopOrder.Add(b);
+                        if (db.SaveChanges() == 1)
+                        {
+                            if (db.Cart.Where(l => l.Gid == dr.Gid).Delete() != 1)
+                            {
+                                LogManager.WriteLog("删除购物车订单失败", "Gid=" + dr.Gid);
+                            }
+                        }
+                        else {
+                            LogManager.WriteLog("购物车转订单失败", "Gid=" + dr.Gid);
+                        }
+                    }
+                    if (RMB>0)
                     {
                         switch (PayType)
                         {
                             case 1:
-                                return Alipay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), paramJson["TotalPrice"].ToString(), 2);                                                                                 //return MPay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), paramJson["TotalPrice"].ToString(), Guid.Parse(paramJson["OrderGid"].ToString()));
+                                return Alipay(OrderNo, "商城订单支付", RMB.ToString(), 2);                                                                                 //return MPay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), paramJson["TotalPrice"].ToString(), Guid.Parse(paramJson["OrderGid"].ToString()));
                             case 5:
-                                return MShopPay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), paramJson["TotalPrice"].ToString(), Guid.Parse(paramJson["OrderGid"].ToString()), Request.Form["PayPWD"]);
+                                return MShopPay(OrderNo, "商城订单支付", RMB,m.Integral);
                             case 3:
-                                return new RedirectResult("/Home/Bank?Type=2&OrderNo=" + paramJson["OrderNo"].ToString() + "&Money=" + paramJson["TotalPrice"].ToString());
+                                db.ShopOrder.Where(l => l.OrderNo == OrderNo && l.PayType == 3).Update(l => new ShopOrder { RMB = RMB });
+                                return new RedirectResult("/Home/Bank?Type=2&OrderNo=" + OrderNo + "&Money=" + RMB.ToString());
                             default:
                                 return Helper.Redirect("失败", "history.go(-1);", "非法支付");
                         }
                     }
+                    else
+                    {
+                        return Helper.Redirect("失败", "history.go(-1);", "提交订单失败!");
+                    }
                 }
-            }
-            else
-            {
-                return Helper.Redirect("失败", "history.go(-1);", "提交订单失败!");
+                else
+                {
+                    return Helper.Redirect("失败", "history.go(-1);", "购物车发生变化!");
+                }
             }
         }
 
@@ -498,41 +574,39 @@ namespace LJSheng.Web.Controllers
         /// <summary>
         /// 商城积分支付
         /// </summary>
-        /// <param name="out_trade_no">外部订单号，商户网站订单系统中唯一的订单号</param>
+        /// <param name="OrderNo">外部订单号，商户网站订单系统中唯一的订单号</param>
         /// <param name="subject">订单名称</param>
-        /// <param name="total_amout">会员帐号</param>
-        /// <param name="OrderGid">订单Gid</param>
-        /// <param name="PayPWD">支付密码</param>
+        /// <param name="RMB">支付金额</param>
+        /// <param name="Integral">用户的积分</param>
         /// <returns>返回调用结果</returns>
         /// <para name="result">200 是成功其他失败</para>
         /// <para name="data">结果提示</para>
         /// <remarks>
         /// 2016-06-30 林建生
         /// </remarks>
-        public ActionResult MShopPay(string out_trade_no, string subject, string total_amout, Guid OrderGid,string PayPWD)
+        public ActionResult MShopPay(string OrderNo, string subject, decimal RMB, decimal Integral)
         {
             Guid MemberGid = LCookie.GetMemberGid();
             using (EFDB db = new EFDB())
             {
-                var b = db.Member.Where(l => l.Gid == MemberGid).FirstOrDefault();
-                if (b.PayPWD == MD5.GetMD5ljsheng(PayPWD))
+                if (Integral >= RMB)
                 {
-                    decimal Price = decimal.Parse(total_amout);
-                    if (b.Integral >= Price)
+                    var so = db.ShopOrder.Where(l => l.OrderNo == OrderNo).ToList();
+                    foreach (var dr in so)
                     {
-                        if (Helper.MoneyRecordAdd(OrderGid, MemberGid, 0, -Price, 1) != null)
+                        if (Helper.MoneyRecordAdd(dr.Gid, MemberGid, 0, -dr.Price, 1) != null)
                         {
-                            if (Helper.ShopPayOrder(out_trade_no, "", 5, Price))
+                            if (!Helper.ShopPayOrder(dr.Gid, "", 5, dr.Price))
                             {
-                                return new RedirectResult("/Pay/PayOK?type=2&OrderNo=" + out_trade_no);
+                                LogManager.WriteLog("积分支付成功更新订单失败", "订单=" + dr.Gid);
                             }
                         }
                     }
-                    return Helper.Redirect("失败", "history.go(-1);", "积分不足!");
+                    return new RedirectResult("/Pay/PayOK?type=2&OrderNo=" + OrderNo);
                 }
                 else
                 {
-                    return Helper.Redirect("失败", "/SMall/Index", "支付密码错误!");
+                    return Helper.Redirect("失败", "history.go(-1);", "积分不足!");
                 }
             }
         }

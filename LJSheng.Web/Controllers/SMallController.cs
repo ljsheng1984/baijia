@@ -220,8 +220,8 @@ namespace LJSheng.Web.Controllers
         /// <summary>
         /// 添加购物车
         /// </summary>
-        /// <param name="ShopGid">商家GID</param>
-        /// <param name="Gid">产品gID</param>
+        /// <param name="ShopGid">商家Gid</param>
+        /// <param name="Gid">产品Gid</param>
         /// <param name="Number">数量</param>
         /// <returns>返回调用结果</returns>
         /// <para name="result">200 是成功其他失败</para>
@@ -241,11 +241,11 @@ namespace LJSheng.Web.Controllers
             {
                 if (ShopOrder(Gid, ShopGid, MemberGid, Number))
                 {
-                    return Json(new AjaxResult(OrderRMB(MemberGid)));
+                    return Json(new AjaxResult(Helper.OrderRMB(MemberGid)));
                 }
                 else
                 {
-                    return Json(new AjaxResult(300, "添加失败,请重新登陆!"));
+                    return Json(new AjaxResult(300, "库存不足"));
                 }
             }
         }
@@ -268,29 +268,21 @@ namespace LJSheng.Web.Controllers
             using (EFDB db = new EFDB())
             {
                 bool ok = true;
+                //商品信息
+                var p = db.ShopProduct.Where(l => l.Gid == ProductGid).FirstOrDefault();
                 //判断当前用户在此商家有没有未付款的订单数据
-                var b = db.ShopOrder.Where(l => l.ShopGid == ShopGid && l.MemberGid == MemberGid && l.PayStatus == 2 && l.ALLOrderNo == null).FirstOrDefault();
+                var b = db.Cart.Where(l => l.ShopGid == ShopGid && l.MemberGid == MemberGid).FirstOrDefault();
                 //订单的Gid
                 Guid OrderGid = Guid.NewGuid();
                 if (b == null)
                 {
-                    b = new ShopOrder();
+                    b = new Cart();
                     b.Gid = OrderGid;
                     b.AddTime = DateTime.Now;
                     b.MemberGid = MemberGid;
                     b.ShopGid = ShopGid;
-                    b.OrderNo = RandStr.CreateOrderNO();
-                    b.PayStatus = 2;
-                    b.PayType = 3;
-                    b.TotalPrice = 0;
-                    b.Price = 0;
-                    b.CouponPrice = 0;
-                    b.ExpressStatus = 1;
-                    b.PayPrice = 0;
-                    b.Profit = 0;
-                    b.ConsumptionCode = RandStr.CreateValidateNumber(8);
-                    b.Status = 1;
-                    db.ShopOrder.Add(b);
+                    b.State = 1;
+                    db.Cart.Add(b);
                     db.SaveChanges();
                 }
                 else
@@ -299,6 +291,8 @@ namespace LJSheng.Web.Controllers
                 }
                 //增加产品
                 var od = db.OrderDetails.Where(l => l.ProductGid == ProductGid && l.OrderGid == OrderGid).FirstOrDefault();
+                //产品价格
+                decimal Price = p.Price;
                 if (od == null)
                 {
                     od = new OrderDetails();
@@ -307,13 +301,14 @@ namespace LJSheng.Web.Controllers
                     od.OrderGid = OrderGid;
                     od.ProductGid = ProductGid;
                     od.Number = Number;
-                    od.Price = db.ShopProduct.Where(l => l.Gid == ProductGid).FirstOrDefault().Price;
+                    od.State = 2;
+                    od.Price = Price;
                     db.OrderDetails.Add(od);
                 }
                 else
                 {
                     od.Number = od.Number + Number;
-                    od.Price = db.ShopProduct.Where(l => l.Gid == ProductGid).FirstOrDefault().Price;
+                    od.Price = Price;
                 }
                 if (od.Number <= 0)
                 {
@@ -321,46 +316,24 @@ namespace LJSheng.Web.Controllers
                     //订单里没有产品删除订单
                     if (db.OrderDetails.Where(l => l.OrderGid == OrderGid).Count() == 0)
                     {
-                        db.ShopOrder.Where(l => l.Gid == ShopGid && l.PayStatus==2).Delete();
+                        db.Cart.Where(l => l.Gid == OrderGid).Delete();
                     }
                 }
                 else
                 {
-                    if (db.SaveChanges() != 1)
+                    if (p.Stock >= od.Number)
+                    {
+                        if (db.SaveChanges() != 1)
+                        {
+                            ok = false;
+                        }
+                    }
+                    else//库存不足
                     {
                         ok = false;
                     }
                 }
                 return ok;
-            }
-        }
-
-        /// <summary>
-        /// 就算用户需要付款的金额
-        /// </summary>
-        /// <returns>返回调用结果</returns>
-        /// <para name="result">200 是成功其他失败</para>
-        /// <para name="data">结果提示</para>
-        /// <remarks>
-        /// 2016-06-30 林建生
-        /// </remarks>
-        public static decimal OrderRMB(Guid MemberGid)
-        {
-            using (EFDB db = new EFDB())
-            {
-                return db.OrderDetails.GroupJoin(db.ShopOrder,
-                    l => l.OrderGid,
-                    j => j.Gid,
-                    (l, j) => new
-                    {
-                        l.Number,
-                        l.Price,
-                        j.FirstOrDefault().PayStatus,
-                        j.FirstOrDefault().MemberGid
-                    }).Where(l => l.MemberGid == MemberGid && l.PayStatus == 2).Select(l => new
-                    {
-                        rmb = l.Number * l.Price
-                    }).Select(l => l.rmb).DefaultIfEmpty(0m).Sum();
             }
         }
 
@@ -382,7 +355,7 @@ namespace LJSheng.Web.Controllers
             }
             else
             {
-                ViewBag.RMB = OrderRMB(MemberGid);
+                ViewBag.RMB = Helper.OrderRMB(MemberGid);
                 return View();
             }
         }
@@ -393,11 +366,10 @@ namespace LJSheng.Web.Controllers
             Guid MemberGid = LCookie.GetMemberGid();
             using (EFDB db = new EFDB())
             {
-                var b = db.ShopOrder.Where(l => l.MemberGid == MemberGid && l.PayStatus == 2).Select(l => new
+                var b = db.Cart.Where(l => l.MemberGid == MemberGid).Select(l => new
                 {
                         l.Gid,
                         l.ShopGid,
-                        l.Remarks,
                         db.Shop.Where(s=>s.Gid==l.ShopGid).FirstOrDefault().Name,
                         list = db.OrderDetails.Where(o => o.OrderGid == l.Gid).GroupJoin(db.ShopProduct,
                                 x => x.ProductGid,

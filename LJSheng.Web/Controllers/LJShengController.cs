@@ -45,9 +45,9 @@ namespace LJSheng.Web.Controllers
                     }
                     else if (type == 2)
                     {
-                        if (db.ShopOrder.Where(l => l.OrderNo == OrderNo && l.Price == PayPrice && l.PayType == PayType && l.PayStatus == 2).Count() == 1)
+                        if (db.ShopOrder.Where(l => l.OrderNo == OrderNo && l.RMB == PayPrice && l.PayType == PayType && l.PayStatus == 2).Count() >0)
                         {
-                            if (Helper.ShopPayOrder(OrderNo, Request.QueryString["TradeNo"], PayType, PayPrice))
+                            if (Helper.ShopOrder(OrderNo, Request.QueryString["TradeNo"], PayType, PayPrice))
                             {
                                 msg = "商城订单(" + OrderNo + ")已操作成功";
                             }
@@ -226,6 +226,37 @@ namespace LJSheng.Web.Controllers
                                 {
                                     LogManager.WriteLog("自动确认收货成功货款失败", "订单=" + dr.Gid);
                                 }
+                            }
+                        }
+                    }
+                }
+                //返还商城24小时被扣除的库存
+                {
+                    DateTime dt = DateTime.Now.AddHours(-24);
+                    var b = db.ShopOrder.Where(l => l.ShopGid != null && l.PayStatus == 2 && l.AddTime < dt).ToList();
+                    foreach (var dr in b)
+                    {
+                        var od = db.OrderDetails.Where(l => l.OrderGid == dr.Gid && l.State == 1).ToList();
+                        foreach(var o in od)
+                        {
+                            if (db.OrderDetails.Where(l => l.Gid == o.Gid && l.State == 1).Update(l => new OrderDetails { State = 3 })==1)
+                            {
+                                decimal Money = o.Number * o.Price;
+                                var m = db.Member.Where(l => l.Gid == dr.MemberGid).FirstOrDefault();
+                                decimal CLMoney = m.CLMoney;
+                                m.CLMoney = CLMoney + Money;
+                                if (db.SaveChanges() == 1)
+                                {
+                                    Helper.CLRecordAdd(dr.MemberGid, Money, CLMoney, 0, 0, "订单额度退回=" + o.Gid.ToString());
+                                }
+                                else
+                                {
+                                    LogManager.WriteLog("订单额度退回失败", "会员=" + dr.MemberGid.ToString() + ",订单库存=" + o.Gid.ToString() + ",额度=" + Money.ToString());
+                                }
+                            }
+                            else
+                            {
+                                LogManager.WriteLog("订单库存更新状态失败", "订单库存=" + o.Gid.ToString());
                             }
                         }
                     }
@@ -5326,6 +5357,7 @@ namespace LJSheng.Web.Controllers
                         l.TotalPrice,
                         l.PayPrice,
                         l.Price,
+                        l.RMB,
                         l.Profit,
                         l.ExpressStatus,
                         l.Express,
@@ -5460,8 +5492,6 @@ namespace LJSheng.Web.Controllers
             }
             //解析参数
             JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
-            string STime = paramJson["STime"].ToString();
-            string ETime = paramJson["ETime"].ToString();
             using (EFDB db = new EFDB())
             {
                 Guid Gid = Guid.Parse(paramJson["Gid"].ToString());

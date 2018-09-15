@@ -54,5 +54,10 @@ namespace LJSheng.Data
         /// </summary>
         [StringLength(500)]
         public string Remarks { get; set; }
+
+        /// <summary>
+        /// 库存扣除情况[1=已扣除 2=未扣除 3=已退回]
+        /// </summary>
+        public int State { get; set; }
     }
 }

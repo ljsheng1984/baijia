@@ -1377,6 +1377,36 @@ namespace LJSheng.Web
         #endregion
 
         #region 商城订单
+
+        /// <summary>
+        /// 计算用户需要付款的金额
+        /// </summary>
+        /// <returns>返回调用结果</returns>
+        /// <para name="result">200 是成功其他失败</para>
+        /// <para name="data">结果提示</para>
+        /// <remarks>
+        /// 2016-06-30 林建生
+        /// </remarks>
+        public static decimal OrderRMB(Guid MemberGid)
+        {
+            using (EFDB db = new EFDB())
+            {
+                return db.OrderDetails.GroupJoin(db.Cart,
+                    l => l.OrderGid,
+                    j => j.Gid,
+                    (l, j) => new
+                    {
+                        l.Number,
+                        l.Price,
+                        j.FirstOrDefault().State,
+                        j.FirstOrDefault().MemberGid
+                    }).Where(l => l.MemberGid == MemberGid && l.State == 1).Select(l => new
+                    {
+                        rmb = l.Number * l.Price
+                    }).Select(l => l.rmb).DefaultIfEmpty(0m).Sum();
+            }
+        }
+
         /// <summary>
         /// 下单
         /// </summary>
@@ -1486,55 +1516,73 @@ namespace LJSheng.Web
         }
 
         /// <summary>
-        /// 商城支付成功更新订单
+        /// 商城多订单对账
         /// </summary>
         /// <param name="OrderNo">网站订单号</param>
         /// <param name="TradeNo">网银订单号</param>
         /// <param name="PayType">支付类型</param>
         /// <param name="PayPrice">在线支付金额</param>
         /// <returns>返回调用结果</returns>
-        public static bool ShopPayOrder(string OrderNo, string TradeNo, int PayType, decimal PayPrice)
+        public static bool ShopOrder(string OrderNo, string TradeNo, int PayType, decimal PayPrice)
+        {
+            using (EFDB db = new EFDB())
+            {
+                bool tl = false;
+                var b = db.ShopOrder.Where(l => l.OrderNo == OrderNo && l.PayStatus == 2).ToList();
+                foreach (var dr in b)
+                {
+                    tl = ShopPayOrder(dr.Gid, TradeNo, PayType, PayPrice);
+                }
+                return tl;
+            }
+        }
+
+        /// <summary>
+        /// 商城支付成功更新订单
+        /// </summary>
+        /// <param name="OrderGid">订单Gid</param>
+        /// <param name="TradeNo">网银订单号</param>
+        /// <param name="PayType">支付类型</param>
+        /// <param name="PayPrice">在线支付金额</param>
+        /// <returns>返回调用结果</returns>
+        public static bool ShopPayOrder(Guid OrderGid, string TradeNo, int PayType, decimal PayPrice)
         {
             bool Pay = false;
-            string LogMsg = "订单号:" + OrderNo + ",网银订单号:" + TradeNo + ",支付类型:" + PayType.ToString() + ",网上支付金额:" + PayPrice.ToString();
+            string LogMsg = "订单:" + OrderGid + ",网银订单号:" + TradeNo + ",支付类型:" + PayType.ToString() + ",网上支付金额:" + PayPrice.ToString();
             string rn = "\r\n-----------------------------------------------------\r\n";
-            string msg = "订单号=" + OrderNo + rn;
+            string msg = "";
             try
             {
                 using (EFDB db = new EFDB())
                 {
                     //支付类型
                     string payname = ((PayType)Enum.Parse(typeof(LJShengHelper.PayType), PayType.ToString())).ToString();
-                    var b = db.ShopOrder.Where(l => l.OrderNo == OrderNo).FirstOrDefault();
+                    var b = db.ShopOrder.Where(l => l.Gid == OrderGid).FirstOrDefault();
+                    msg = "订单号=" + b.OrderNo + ",RMB="+b.RMB + rn;
                     if (b != null && b.PayStatus == 2)
                     {
                         msg += "购买会员=" + b.MemberGid.ToString() + ",商家=" + b.ShopGid.ToString() + rn;
-                        b.PayStatus = b.Price == PayPrice ? 1 : 5;
+                        if (PayType == 5)
+                        {
+                            b.PayStatus = b.Price == PayPrice ? 1 : 5;
+                        }
+                        else
+                        {
+                            b.PayStatus = b.RMB == PayPrice ? 1 : 5;
+                        }
                         b.TradeNo = TradeNo;
                         b.PayTime = DateTime.Now;
                         b.PayType = PayType;
                         b.PayPrice = PayPrice;
+                        b.RMB = PayPrice;
                         b.TotalPrice = PayPrice;
                         b.ExpressStatus = 1;
                         b.Profit = PayPrice;
                         if (db.SaveChanges() == 1)
                         {
                             Pay = true;
-                            //扣除库存
-                            OrderStock(b.Gid);
                             if (b.PayStatus == 1)
                             {
-                                //获取商家的会员GID
-                                //Guid MGid = db.Shop.Where(s => s.Gid == b.ShopGid).FirstOrDefault().MemberGid;
-                                //增加货款-8月变更确认收货后增加货款
-                                //if (db.Member.Where(l => l.Gid == MGid).Update(l => new Member { ShopMoney = l.ShopMoney + PayPrice }) == 1)
-                                //{
-                                //    msg += "货款成功=" + b.Profit.ToString() + rn;
-                                //}
-                                //else
-                                //{
-                                //    msg += "货款失败:=" + b.Profit.ToString() + rn;
-                                //}
                                 //基数积分增加
                                 if (ShopRecordAdd(b.Gid, b.MemberGid, PayPrice, 0, 3, 1) == null)
                                 {

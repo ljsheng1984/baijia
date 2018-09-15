@@ -197,5 +197,9 @@ namespace LJSheng.Data
         /// 商家分类关联列表
         /// </summary>
         public DbSet<ShopProject> ShopProject { get; set; }
+        /// <summary>
+        /// 购物车
+        /// </summary>
+        public DbSet<Cart> Cart { get; set; }
     }
 }
