@@ -428,21 +428,28 @@ namespace LJSheng.Web.Controllers
                 Guid MemberGid = LCookie.GetMemberGid();
                 if (MemberGid.ToString() != "00000000-0000-0000-0000-000000000000")
                 {
-                    var b = db.Address.Where(l => l.MemberGid == MemberGid && l.Default == 2).FirstOrDefault();
-                    if (b != null)
+                    if (db.Cart.Where(l => l.MemberGid == MemberGid && l.State == 1).Count() > 0)
                     {
-                        ViewBag.Addr = b.Addr;
-                        ViewBag.RealName = b.RealName;
-                        ViewBag.ContactNumber = b.ContactNumber;
+                        var b = db.Address.Where(l => l.MemberGid == MemberGid && l.Default == 2).FirstOrDefault();
+                        if (b != null)
+                        {
+                            ViewBag.Addr = b.Addr;
+                            ViewBag.RealName = b.RealName;
+                            ViewBag.ContactNumber = b.ContactNumber;
+                        }
+                        else
+                        {
+                            ViewBag.RealName = "请设置你的收货地址";
+                        }
+                        //获取用户积分
+                        ViewBag.Integral = db.Member.Where(l => l.Gid == MemberGid).FirstOrDefault().Integral;
+                        //订单金额
+                        ViewBag.RMB = Helper.OrderRMB(MemberGid);
                     }
                     else
                     {
-                        ViewBag.RealName = "请设置你的收货地址";
+                        return Helper.Redirect("失败", "/SMall/Index", "请先添加商品!");
                     }
-                    //获取用户积分
-                    ViewBag.Integral = db.Member.Where(l => l.Gid == MemberGid).FirstOrDefault().Integral;
-                    //订单金额
-                    ViewBag.RMB = Helper.OrderRMB(MemberGid);
                     return View();
                 }
                 else

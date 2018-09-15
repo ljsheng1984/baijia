@@ -1,0 +1,132 @@
+﻿
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=yes">
+    <title>彩链-积分商城明细</title>
+    <meta name="keywords" content="彩链">
+    <meta name="description" content="彩链">
+    <meta name="author" content="彩链">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="/css/mobileSelect.css" />
+    <link rel="stylesheet" type="text/css" href="/css/style.css" />
+    <link href="/plugins/mescroll/mescroll.css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="default-header-nav header-nav-blue">
+        <a href="/Member/MyShop">
+            <img src="/images/icon/icon-30.png" />
+        </a> 积分商城明细
+    </div>
+    <div class="integral-mall-subsidiary">
+        <div class="integral-mall-subsidiary-type">
+            <ul>
+                <li class="hidden">
+                    个人积分
+                </li>
+                <li class="hidden">
+                    全部明细
+                </li>
+                <li>
+                    选择时间
+                    <span class="select_time"></span>
+                </li>
+            </ul>
+        </div>
+        <div class="subsidiary-time">
+            全部时间
+        </div>
+        <div id="scroll">
+            <div class="integral-mall-content" id="dataList">
+                <script id="tpl" type="text/html">
+                    {{each list as item index}}
+                    <div class="integral-mall-item">
+                        <div class="integral-mall-item-text">
+                            <span class="integral-mall-item-type tag-consumption">消费</span>
+                            <div class="integral-mall-item-order">
+                                <p>订单号: {{item.OrderNo}}</p>
+                                <span>{{item.AddTime}}</span>
+                            </div>
+                        </div>
+                        <div class="integral-mall-item-num">
+                            <p class="num-add">
+                                +{{item.MIntegral}}
+                            </p>
+                            <span>消费{{item.MIntegral}}</span>
+                        </div>
+                    </div>
+                    {{/each}}
+                </script>
+            </div>
+        </div>
+        <div id="search">
+            <div class="integral-type-content">
+                <ul>
+                    <li class="active">个人积分</li>
+                    <li>团队积分</li>
+                </ul>
+            </div>
+            <div class="integral-type-content">
+                <ul>
+                    <li class="active">全部明细</li>
+                    <li>消费</li>
+                    <li>冻结</li>
+                </ul>
+            </div>
+            <div class="integral-back"><input id="date" name="date" type="text" hidden /></div>
+        </div>
+    </div>
+        <script src="/js/jquery.js"></script>
+        <script src="/js/mobileSelect.js"></script>
+        <script src="/js/selectDate.js"></script>
+        <script src="/js/template-web.js"></script>
+        <script src="/plugins/mescroll/mescroll.js"></script>
+        <script src="/js/mlist.js"></script>
+        <script>
+            $(".integral-mall-subsidiary-type ul li").each(function (i) {
+                $(this).click(function () {
+                    $(this).addClass("active").siblings().removeClass("active");
+                    if (i != 2) {
+                        $(".integral-type-content").eq(i).addClass("active").siblings().removeClass("active");
+                        $(".integral-back").addClass("active");
+                        $("body").addClass("yhidden");
+                    } else {
+                        $(".integral-type-content, .integral-back").removeClass("active");
+                        $("body").removeClass("yhidden");
+                    }
+                })
+            });
+            $(".integral-back").click(function () {
+                $(".integral-type-content, .integral-back").removeClass("active");
+                $("body").removeClass("yhidden");
+            });
+
+            $(".integral-type-content ul li").each(function () {
+                $(this).click(function () {
+                    $(this).addClass("active").siblings().removeClass("active");
+                })
+            });
+
+            /*只选择年月*/
+            $.selectDateSimple(".select_time", {
+                title: "选择时间",
+                start: 2010, //起始年份
+                end: 2050, //结束年份
+                select: [2018, 9] //默认值
+            }, function (data) {
+                //回调函数,输出时间
+                $("#date").val(data.year + "-" + data.month);
+                $(".subsidiary-time").html(data.year + "-" + data.month);
+                scrollSearch();
+            });
+        </script>
+</body>
+</html>

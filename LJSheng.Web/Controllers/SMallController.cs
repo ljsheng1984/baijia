@@ -392,5 +392,62 @@ namespace LJSheng.Web.Controllers
                 }));
             }
         }
+
+        /// <summary>
+        /// 团队积分明细
+        /// </summary>
+        /// <returns>返回调用结果</returns>
+        /// <para name="result">200 是成功其他失败</para>
+        /// <para name="data">结果提示</para>
+        /// <remarks>
+        /// 2016-06-30 林建生
+        /// </remarks>
+        public ActionResult TeamIntegral()
+        {
+            return View();
+        }
+        [HttpPost]
+        public JsonResult TeamIntegralData()
+        {
+            string json = "";
+            using (StreamReader sr = new StreamReader(Request.InputStream))
+            {
+                json = HttpUtility.UrlDecode(sr.ReadLine());
+            }
+            //解析参数
+            JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
+            //统计月份的第一天和最后一天
+            DateTime MonthFirst = DTime.FirstDayOfMonth(DateTime.Parse("2018-08-08"));
+            DateTime MonthLast = DTime.LastDayOfMonth(DateTime.Now);
+            string date = paramJson["date"].ToString();
+            if (!string.IsNullOrEmpty(date))
+            {
+                //统计月份的第一天和最后一天
+                MonthFirst = DTime.FirstDayOfMonth(DateTime.Parse(date + "-" + "01"));
+                MonthLast = DTime.LastDayOfMonth(DateTime.Parse(date + "-" + "01 23:59:59"));
+            }
+            using (EFDB db = new EFDB())
+            {
+                Guid MGid = LCookie.GetMemberGid(); ;
+                var b = db.ShopRecord.Where(l => l.MemberGid == MGid && l.Type==3 && l.AddTime >= MonthFirst && l.AddTime <= MonthLast).GroupJoin(db.ShopOrder,
+                    l => l.OrderGid,
+                    j => j.Gid,
+                    (l, j) => new
+                    {
+                        l.AddTime,
+                        l.MIntegral,
+                        j.FirstOrDefault().OrderNo
+                    }).AsQueryable();
+                int pageindex = Int32.Parse(paramJson["pageindex"].ToString());
+                int pagesize = Int32.Parse(paramJson["pagesize"].ToString());
+                return Json(new AjaxResult(new
+                {
+                    other = "",
+                    count = b.Count(),
+                    pageindex,
+                    list = b.OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
+                }));
+            }
+        }
     }
 }

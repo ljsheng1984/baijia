@@ -16,7 +16,7 @@
     {
         <a class="shop-info shop-info-none">
             @(new HtmlString(LJSheng.Web.Helper.GetShopProduct(item.ProductGid)))
-            <div class="price">￥@item.Price X @item.Number</div><div class="stock @(Request.QueryString["type"]=="1"?"":"hide")">@(LJSheng.Web.Helper.GetStock(item.ProductGid))</div>
+            <div class="price">￥@item.Price X @item.Number</div>
         </a>
     }
     <div class="shop-number"><span>共<em>@Request.QueryString["Number"]</em>件商品</span> <span>合计：<b>￥@ViewBag.TotalPrice</b></span></div>

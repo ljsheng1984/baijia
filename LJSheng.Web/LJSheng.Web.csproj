@@ -155,6 +155,7 @@
     <Content Include="bin\TopSdk.dll" />
     <Content Include="bin\WebGrease.dll" />
     <Content Include="css\main.css" />
+    <Content Include="css\mobileSelect.css" />
     <Content Include="css\style.css" />
     <Content Include="Global.asax" />
     <Content Include="images\admin-header-bg.png" />
@@ -317,8 +318,10 @@
     <Content Include="js\list.js" />
     <Content Include="js\ljsheng.js" />
     <Content Include="js\mlist.js" />
+    <Content Include="js\mobileSelect.js" />
     <Content Include="js\page.js" />
     <Content Include="js\pca.js" />
+    <Content Include="js\selectDate.js" />
     <Content Include="js\shopcart.js" />
     <Content Include="js\template-web.js" />
     <Content Include="plugins\mescroll\mescroll.css" />
@@ -1118,6 +1121,7 @@
     <Content Include="Views\SMall\Detail.cshtml" />
     <Content Include="Views\SMall\Product.cshtml" />
     <Content Include="Views\SMall\Cart.cshtml" />
+    <Content Include="Views\SMall\TeamIntegral.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
