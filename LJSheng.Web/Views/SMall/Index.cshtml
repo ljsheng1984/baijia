@@ -8,7 +8,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="format-detection" content="telephone=yes">
-    <title>彩链-商城</title>
+    <title>链商城</title>
     <meta name="keywords" content="彩链">
     <meta name="description" content="彩链">
     <meta name="author" content="彩链">
@@ -20,19 +20,19 @@
 <body>
     <div class="shop">
         <div class="shop-header" id="search">
-            <input id="Project" name="Project" type="text" class="hidden">
-            <div class="shop-header-input">
-                <input type="text" name="Name" id="Name" value="" placeholder="搜索商家、服务" />
+            <input id="Project" name="Project" type="text" value="00" class="hidden">
+            <a class="shop-header-input" href="Search">
+                <input type="text" name="s" placeholder="搜索商品名称" />
                 <img src="/images/icon/icon-37.png" />
-            </div>
-            <div class="shop-header-crea" onclick="list();">
+            </a>
+            <a class="shop-header-crea" href="/Home/Index">
                 <img src="/images/icon/icon-50.png" />
-            </div>
+            </a>
         </div>
         <div class="shop-index">
             <div class="shop-index-type">
                 <ul>
-                    <li class="active" onclick="getlist('');">全部</li>
+                    <li class="active" onclick="getlist('00');">全部</li>
                     @foreach (var item in Model)
                     {
                         <li onclick="getlist('@item.Value');">@item.Key</li>
@@ -40,15 +40,18 @@
                 </ul>
             </div>
             <div class="shop-index-content">
-                <div class="shop-index-content-banner">
-                    <a href="@ViewBag.ADTopUrl"><img src="/uploadfiles/ad/@ViewBag.ADTopPicture" /></a>
-                </div>
+                @foreach (var item in @ViewBag.AD)
+                {
+                    <div class="shop-index-content-banner" id="@("ad" +item.Remarks)">
+                        <a href="@item.Url"><img src="/uploadfiles/ad/@item.Picture" /></a>
+                    </div>
+                }
                 <div class="shop-index-goods" id="scroll">
                     <ul id="dataList">
                         <script id="tpl" type="text/html">
                             {{each list as item index}}
                             <li>
-                                <a href="/SMall/Detail?ShopGid={{item.ShopGid}}">
+                                <a href="/SMall/Shop?Gid={{item.ShopGid}}">
                                     <img src="/uploadfiles/shop/{{item.Picture}}" />
                                     <span>{{item.Name}}</span>
                                 </a>
@@ -60,72 +63,19 @@
             </div>
         </div>
     </div>
-    <div class="bottom-menu">
-        <div class="bottom-menu-content">
-            <ul>
-                <li>
-                    <a href="/Home/Index">
-                        <img src="/images/icon/icon-42.png" class="bottom-menu-default-icon" />
-                        <img src="/images/icon/icon-41.png" class="bottom-menu-active-icon" />
-                        <span>首页</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="/Home/APP">
-                        <img src="/images/icon/icon-38.png" class="bottom-menu-default-icon" />
-                        <img src="/images/icon/icon-39.png" class="bottom-menu-active-icon" />
-                        <span>APP</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="/SMall/Index" class="active">
-                        <img src="/images/icon/icon-43.png" class="bottom-menu-default-icon" />
-                        <img src="/images/icon/icon-44.png" class="bottom-menu-active-icon" />
-                        <span>商城</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="/Member/Index">
-                        <img src="/images/icon/icon-45.png" class="bottom-menu-default-icon" />
-                        <img src="/images/icon/icon-46.png" class="bottom-menu-active-icon" />
-                        <span>我的</span>
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </div>
-
     <script src="/js/jquery.js"></script>
     <script src="/js/template-web.js"></script>
     <script src="/plugins/mescroll/mescroll.js"></script>
     <script src="/js/mlist.js"></script>
     <script>
-        function setfl() {
-            document.getElementById("Project").value = "";
-            var groupCheckbox = $("input[name='fl']");
-            for (i = 0; i < groupCheckbox.length; i++) {
-                if (!groupCheckbox[i].checked) {
-                    var val = groupCheckbox[i].value;
-                    document.getElementById("Project").value += val + ",";
-                }
-            }
-        }
         function getlist(gid, ev) {
+            $(".shop-index-content-banner").hide();
+            $("#ad" + gid).show();
+            document.getElementById("Project").value = gid;
             $(".shop-index-type li").removeClass("active");
             ev = ev || window.event;
             var tmp = ev.target || ev.srcElement;
             tmp.className = "active";
-            document.getElementById("Project").value = gid;
-            //重置列表数据
-            scroll.resetUpScroll();
-            //隐藏回到顶部按钮
-            scroll.hideTopBtn();
-        }
-        function list() {
-            $(".shop-index-type li").removeClass("active");
-            $(".shop-index-type li")[0].className = "active";
-            //$(".shop-index-type li").[0].addClass("active");
-            document.getElementById("Project").value = "";
             //重置列表数据
             scroll.resetUpScroll();
             //隐藏回到顶部按钮

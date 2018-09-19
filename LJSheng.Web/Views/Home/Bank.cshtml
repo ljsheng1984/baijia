@@ -61,12 +61,22 @@
         </div>
         <div class="padding-btn-group" style="margin-top:50px;">
             <textarea id="base64Data" name="base64Data" hidden></textarea>
-            <button type="submit">上传付款凭证</button>
+            <button id="btn" type="submit" onclick="return check();">上传付款凭证</button>
         </div>
     </div>
     }
     <script src="~/js/jquery.js"></script>
     <script src="~/js/image.js"></script>
-
+    <script>
+        function check() {
+            if ($("#base64Data").val() < 88) {
+                alert("请选择上传付款凭证");
+                return false;
+            }
+            document.getElementById("btn").disabled = true;
+            document.getElementById("btn").style.display = "none";
+            document.forms[0].submit();
+        }
+    </script>
 </body>
 </html>

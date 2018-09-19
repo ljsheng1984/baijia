@@ -14,17 +14,16 @@ namespace LJSheng.Web.Controllers
     public class SMallController : Controller
     {
         // GET: SMall
-        public ActionResult Index()
+        public ActionResult Index(string City)
         {
             using (EFDB db = new EFDB())
             {
-                //获取广告
-                var AD = db.AD.Where(l => l.Show == 1 && l.Project == 2 && l.Sort == 9).FirstOrDefault();
-                if (AD != null)
+                if (!string.IsNullOrEmpty(City))
                 {
-                    ViewBag.ADTopPicture = AD.Picture;
-                    ViewBag.ADTopUrl = AD.Url;
+                    LCookie.AddCookie("city", City, 30);
                 }
+                //获取广告
+                ViewBag.AD = db.AD.Where(l => l.Show == 1 && l.Project == 2 && l.Profile=="商城广告").ToList();
                 Guid DGid = db.Dictionaries.Where(l => l.DictionaryType == "Shop").FirstOrDefault().Gid;
                 return View(db.DictionariesList.Where(dl => dl.DGid == DGid).OrderBy(dl => dl.Sort).ToList());
             }
@@ -48,7 +47,7 @@ namespace LJSheng.Web.Controllers
                 json = HttpUtility.UrlDecode(sr.ReadLine());
             }
             JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
-            string Name = paramJson["Name"].ToString();
+            string City = LCookie.GetCity();
             using (EFDB db = new EFDB())
             {
                 var b = db.ShopProject.GroupJoin(db.Shop,
@@ -62,13 +61,10 @@ namespace LJSheng.Web.Controllers
                         j.FirstOrDefault().Name,
                         j.FirstOrDefault().Sort,
                         j.FirstOrDefault().Show,
-                        j.FirstOrDefault().State
-                    }).Where(l => l.Show == 1 && l.State == 2).DistinctBy(l => new { l.ShopGid }).AsQueryable();
-                if (!string.IsNullOrEmpty(Name))
-                {
-                    b = b.Where(l => l.Name.Contains(Name));
-                }
-                if (!string.IsNullOrEmpty(paramJson["Project"].ToString()))
+                        j.FirstOrDefault().State,
+                        j.FirstOrDefault().City
+                    }).Where(l => l.Show == 1 && l.State == 2 && l.City == City).DistinctBy(l => new { l.ShopGid }).AsQueryable();
+                if (paramJson["Project"].ToString()!="00")
                 {
                     int Project = int.Parse(paramJson["Project"].ToString());
                     b = b.Where(l => l.Project == Project);
@@ -94,9 +90,8 @@ namespace LJSheng.Web.Controllers
         /// <remarks>
         /// 2016-06-30 林建生
         /// </remarks>
-        public ActionResult Detail()
+        public ActionResult Detail(Guid ShopGid)
         {
-            Guid ShopGid = Guid.Parse(Request.QueryString["ShopGid"]);
             using (EFDB db = new EFDB())
             {
                 return View(db.ShopClassify.Where(l => l.Show == 1 && l.ShopGid == ShopGid).ToList());
@@ -197,10 +192,8 @@ namespace LJSheng.Web.Controllers
         /// <remarks>
         /// 2016-06-30 林建生
         /// </remarks>
-        public ActionResult Product()
+        public ActionResult Product(Guid Gid, Guid ShopGid)
         {
-            Guid ShopGid = Guid.Parse(Request.QueryString["ShopGid"]);
-            Guid Gid = Guid.Parse(Request.QueryString["Gid"]);
             using (EFDB db = new EFDB())
             {
                 var s = db.Shop.Where(l => l.Gid == ShopGid).FirstOrDefault();
@@ -446,6 +439,189 @@ namespace LJSheng.Web.Controllers
                     count = b.Count(),
                     pageindex,
                     list = b.OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
+                }));
+            }
+        }
+
+        /// <summary>
+        /// 商家详情
+        /// </summary>
+        /// <returns>返回调用结果</returns>
+        /// <para name="result">200 是成功其他失败</para>
+        /// <para name="data">结果提示</para>
+        /// <remarks>
+        /// 2016-06-30 林建生
+        /// </remarks>
+        public ActionResult Shop(Guid Gid)
+        {
+            using (EFDB db = new EFDB())
+            {
+                return View(db.Shop.Where(l => l.Gid == Gid).ToList());
+            }
+        }
+        /// <summary>
+        /// 产品列表
+        /// </summary>
+        /// <returns>返回调用结果</returns>
+        /// <para name="result">200 是成功其他失败</para>
+        /// <para name="data">结果提示</para>
+        /// <remarks>
+        /// 2016-06-30 林建生
+        /// </remarks>
+        [HttpPost]
+        public JsonResult ShopData()
+        {
+            string json = "";
+            using (StreamReader sr = new StreamReader(Request.InputStream))
+            {
+                json = HttpUtility.UrlDecode(sr.ReadLine());
+            }
+            //解析参数
+            JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
+            using (EFDB db = new EFDB())
+            {
+                Guid ShopGid = Guid.Parse(paramJson["ShopGid"].ToString());
+                var b = db.ShopProduct.Where(l => l.Show == 1 && l.ShopGid == ShopGid).Select(l => new
+                {
+                    l.Gid,
+                    l.ShopGid,
+                    l.Prefix,
+                    l.Name,
+                    l.Sort,
+                    l.Picture,
+                    l.Price,
+                    l.OriginalPrice,
+                    l.Company,
+                    l.Brand,
+                    l.ClassifyGid,
+                    Sales = db.OrderDetails.Where(od => od.ProductGid == l.Gid).GroupJoin(db.ShopOrder,
+                    x => x.OrderGid,
+                    y => y.Gid,
+                    (x, y) => new
+                    {
+                        y.FirstOrDefault().PayStatus
+                    }).Where(s => s.PayStatus == 1).Count()
+                }).AsQueryable();
+                string ClassifyGid = paramJson["ClassifyGid"].ToString();
+                if (!string.IsNullOrEmpty(ClassifyGid))
+                {
+                    Guid CGid = Guid.Parse(ClassifyGid);
+                    b = b.Where(l => l.ClassifyGid == CGid);
+                }
+                int pageindex = Int32.Parse(paramJson["pageindex"].ToString());
+                int pagesize = Int32.Parse(paramJson["pagesize"].ToString());
+                return Json(new AjaxResult(new
+                {
+                    other = "",
+                    count = b.Count(),
+                    pageindex,
+                    list = b.OrderBy(l => l.Sort).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
+                }));
+            }
+        }
+
+        /// <summary>
+        /// 搜索页面
+        /// </summary>
+        /// <returns>返回调用结果</returns>
+        /// <para name="result">200 是成功其他失败</para>
+        /// <para name="data">结果提示</para>
+        /// <remarks>
+        /// 2016-06-30 林建生
+        /// </remarks>
+        public ActionResult Search()
+        {
+            using (EFDB db = new EFDB())
+            {
+                return View();
+            }
+        }
+
+        /// <summary>
+        /// 分类搜索
+        /// </summary>
+        /// <returns>返回调用结果</returns>
+        /// <para name="result">200 是成功其他失败</para>
+        /// <para name="data">结果提示</para>
+        /// <remarks>
+        /// 2016-06-30 林建生
+        /// </remarks>
+        public ActionResult Classify(Guid ShopGid)
+        {
+            using (EFDB db = new EFDB())
+            {
+                return View(db.ShopClassify.Where(l => l.Show == 1 && l.ShopGid == ShopGid).ToList());
+            }
+        }
+
+        /// <summary>
+        /// 搜索列表
+        /// </summary>
+        /// <returns>返回调用结果</returns>
+        /// <para name="result">200 是成功其他失败</para>
+        /// <para name="data">结果提示</para>
+        /// <remarks>
+        /// 2016-06-30 林建生
+        /// </remarks>
+        public ActionResult SProduct()
+        {
+            return View();
+        }
+        /// <summary>
+        /// 搜索列表
+        /// </summary>
+        /// <param name="Name">产品名称</param>
+        /// <param name="ClassifyGid">产品分类</param>
+        /// <returns>返回调用结果</returns>
+        /// <para name="result">200 是成功其他失败</para>
+        /// <para name="data">结果提示</para>
+        /// <remarks>
+        /// 2016-06-30 林建生
+        /// </remarks>
+        [HttpPost]
+        public JsonResult SProductData()
+        {
+            string json = "";
+            using (StreamReader sr = new StreamReader(Request.InputStream))
+            {
+                json = HttpUtility.UrlDecode(sr.ReadLine());
+            }
+            //解析参数
+            JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
+            using (EFDB db = new EFDB())
+            {
+                var b = db.ShopProduct.Where(l => l.Show == 1).Select(l => new
+                {
+                    l.Gid,
+                    l.ShopGid,
+                    l.Prefix,
+                    l.Name,
+                    l.Sort,
+                    l.Picture,
+                    l.Price,
+                    l.Company,
+                    l.Brand,
+                    Sales = db.OrderDetails.Where(od => od.ProductGid == l.Gid).GroupJoin(db.ShopOrder,
+                    x => x.OrderGid,
+                    y => y.Gid,
+                    (x, y) => new
+                    {
+                        y.FirstOrDefault().PayStatus
+                    }).Where(s => s.PayStatus == 1).Count()
+                }).AsQueryable();
+                string Name = paramJson["Name"].ToString();
+                if (!string.IsNullOrEmpty(Name))
+                {
+                    b = b.Where(l => l.Name.Contains(Name));
+                }
+                int pageindex = Int32.Parse(paramJson["pageindex"].ToString());
+                int pagesize = Int32.Parse(paramJson["pagesize"].ToString());
+                return Json(new AjaxResult(new
+                {
+                    other = "",
+                    count = b.Count(),
+                    pageindex,
+                    list = b.OrderBy(l => l.Sort).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
                 }));
             }
         }

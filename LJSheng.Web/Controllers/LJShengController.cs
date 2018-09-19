@@ -187,11 +187,7 @@ namespace LJSheng.Web.Controllers
                         {
                             if (dr.Number > 0)
                             {
-                                if (db.Stock.Where(l => l.MemberGid == dr.ShopGid && l.ProductGid == ProductGid).Update(l => new Stock { Number = l.Number + dr.Number }) == 1)
-                                {
-                                    LogManager.WriteLog("订单库存赎回成功", "订单=" + dr.Gid.ToString() + "库存=" + dr.Number.ToString());
-                                }
-                                else
+                                if (db.Stock.Where(l => l.MemberGid == dr.ShopGid && l.ProductGid == ProductGid).Update(l => new Stock { Number = l.Number + dr.Number }) != 1)
                                 {
                                     LogManager.WriteLog("订单关闭成功库存赎回失败", "订单=" + dr.Gid.ToString() + "库存=" + dr.Number.ToString());
                                 }
@@ -218,11 +214,7 @@ namespace LJSheng.Web.Controllers
                             if (db.SaveChanges() == 1)
                             {
                                 Guid ShopGid = db.Shop.Where(l => l.Gid == b.ShopGid).FirstOrDefault().MemberGid;
-                                if (db.Member.Where(l => l.Gid == ShopGid).Update(l => new Member { ShopMoney = l.ShopMoney + b.PayPrice }) == 1)
-                                {
-                                    LogManager.WriteLog("自动确认收货成功", "订单=" + dr.Gid);
-                                }
-                                else
+                                if (db.Member.Where(l => l.Gid == ShopGid).Update(l => new Member { ShopMoney = l.ShopMoney + b.PayPrice }) != 1)
                                 {
                                     LogManager.WriteLog("自动确认收货成功货款失败", "订单=" + dr.Gid);
                                 }
@@ -259,6 +251,19 @@ namespace LJSheng.Web.Controllers
                                 LogManager.WriteLog("订单库存更新状态失败", "订单库存=" + o.Gid.ToString());
                             }
                         }
+                    }
+                }
+                //判断会员关系存在帐号不存在
+                var mr = db.MRelation.ToList();
+                foreach (var dr in mr)
+                {
+                    int n = db.Member.Where(l => l.Gid == dr.MemberGid).Count();
+                    if (n != 1)
+                    {
+                        db.MRelation.Where(l => l.MemberGid == dr.MemberGid).Delete();
+                        db.Consignor.Where(l => l.MemberGid == dr.MemberGid).Delete();
+                        db.Achievement.Where(l => l.MemberGid == dr.MemberGid).Delete();
+                        LogManager.WriteLog("会员关系异常日记", dr.MemberGid + "=" + n + ",时间=" + dr.AddTime);
                     }
                 }
             }
@@ -5383,6 +5388,7 @@ namespace LJSheng.Web.Controllers
                         l.PayStatus,
                         l.TotalPrice,
                         l.Price,
+                        l.RMB,
                         l.PayPrice,
                         l.Profit,
                         l.ExpressStatus,

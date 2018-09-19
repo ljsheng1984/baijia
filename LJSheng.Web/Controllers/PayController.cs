@@ -583,7 +583,7 @@ namespace LJSheng.Web.Controllers
         /// </summary>
         /// <param name="OrderNo">外部订单号，商户网站订单系统中唯一的订单号</param>
         /// <param name="subject">订单名称</param>
-        /// <param name="RMB">支付金额</param>
+        /// <param name="PayPrice">支付金额</param>
         /// <param name="Integral">用户的积分</param>
         /// <returns>返回调用结果</returns>
         /// <para name="result">200 是成功其他失败</para>
@@ -591,25 +591,34 @@ namespace LJSheng.Web.Controllers
         /// <remarks>
         /// 2016-06-30 林建生
         /// </remarks>
-        public ActionResult MShopPay(string OrderNo, string subject, decimal RMB, decimal Integral)
+        public ActionResult MShopPay(string OrderNo, string subject, decimal PayPrice, decimal Integral)
         {
             Guid MemberGid = LCookie.GetMemberGid();
             using (EFDB db = new EFDB())
             {
-                if (Integral >= RMB)
+                if (Integral >= PayPrice)
                 {
-                    var so = db.ShopOrder.Where(l => l.OrderNo == OrderNo).ToList();
-                    foreach (var dr in so)
+                    var b = db.ShopOrder.Where(l => l.OrderNo == OrderNo && l.PayStatus == 2).ToList();
+                    if (b.Select(l => l.Price).Sum() == PayPrice)
                     {
-                        if (Helper.MoneyRecordAdd(dr.Gid, MemberGid, 0, -dr.Price, 1) != null)
+                        db.ShopOrder.Where(l => l.OrderNo == OrderNo && l.PayStatus == 2).Update(l => new ShopOrder { RMB = PayPrice });
+                        foreach (var dr in b)
                         {
-                            if (!Helper.ShopPayOrder(dr.Gid, "", 5, dr.Price))
+                            if (Helper.MoneyRecordAdd(dr.Gid, MemberGid, 0, -dr.Price, 1) != null)
                             {
-                                LogManager.WriteLog("积分支付成功更新订单失败", "订单=" + dr.Gid);
+                                if (!Helper.ShopPayOrder(dr.Gid, "", 5, dr.Price))
+                                {
+                                    LogManager.WriteLog("积分支付成功更新订单失败", "订单=" + dr.Gid);
+                                }
                             }
                         }
+                        return new RedirectResult("/Pay/PayOK?type=2&OrderNo=" + OrderNo);
                     }
-                    return new RedirectResult("/Pay/PayOK?type=2&OrderNo=" + OrderNo);
+                    else
+                    {
+                        LogManager.WriteLog("合并金额和支付金额不对", "OrderNo=" + OrderNo + ",PayPrice=" + PayPrice);
+                        return Helper.Redirect("失败", "history.go(-1);", "支付异常,请联系客服!");
+                    }
                 }
                 else
                 {

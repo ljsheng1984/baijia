@@ -6,6 +6,7 @@
 <div class="index-header">
     <!--搜索栏-->
     <div class="search-box">
+        <a class="icon-loaction" href="/Home/City">@LJSheng.Common.LCookie.GetCity()</a>
         <i class="icon-search"></i>
         <div onclick="self.location = '/Home/Search';">
             <input class="text" placeholder="请输入你要搜索的关键字" />
@@ -22,14 +23,4 @@
 </div>
 <ul class="index-groom">
     @(new HtmlString(ViewBag.Product))
-    @*@foreach (var item in ViewBag.Product)
-        {
-            <li>
-                <a href="/Home/Detail?gid=@item.Gid">
-                    <p><img src="/uploadfiles/product/@item.Picture" /></p>
-                    <p class="title">@item.Prefix@item.Name</p>
-                    <p class="price">￥@item.Price/@item.Stock @item.Company</p>
-                </a>
-            </li>
-        }*@
 </ul>

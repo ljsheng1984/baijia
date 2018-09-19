@@ -79,6 +79,7 @@ namespace LJSheng.Web
                     od.ProductGid = (Guid)ProductGid;
                     od.Number = Number;
                     od.Price = p.Price;
+                    od.State = 1;
                     db.OrderDetails.Add(od);
                 }
                 if (db.SaveChanges() == json.Count())
@@ -292,6 +293,7 @@ namespace LJSheng.Web
                     od.Money = 0;
                     od.Integral = 0;
                     od.Price = TotalPrice;
+                    od.State = 1;
                     db.OrderDetails.Add(od);
                     if (db.SaveChanges() == 1)
                     {
@@ -1454,6 +1456,7 @@ namespace LJSheng.Web
                         od.ProductGid = (Guid)ProductGid;
                         od.Number = Number;
                         od.Price = p.Price;
+                        od.State = 1;
                         db.OrderDetails.Add(od);
                     }
                     else
@@ -1529,9 +1532,17 @@ namespace LJSheng.Web
             {
                 bool tl = false;
                 var b = db.ShopOrder.Where(l => l.OrderNo == OrderNo && l.PayStatus == 2).ToList();
-                foreach (var dr in b)
+                if (b.Select(l => l.Price).Sum() == PayPrice)
                 {
-                    tl = ShopPayOrder(dr.Gid, TradeNo, PayType, PayPrice);
+                    db.ShopOrder.Where(l => l.OrderNo == OrderNo && l.PayStatus == 2).Update(l => new ShopOrder { RMB = PayPrice });
+                    foreach (var dr in b)
+                    {
+                        tl = ShopPayOrder(dr.Gid, TradeNo, PayType, dr.Price);
+                    }
+                }
+                else
+                {
+                    LogManager.WriteLog("合并金额和支付金额不对", "OrderNo=" + OrderNo + ",PayPrice=" + PayPrice);
                 }
                 return tl;
             }
@@ -1562,19 +1573,12 @@ namespace LJSheng.Web
                     if (b != null && b.PayStatus == 2)
                     {
                         msg += "购买会员=" + b.MemberGid.ToString() + ",商家=" + b.ShopGid.ToString() + rn;
-                        if (PayType == 5)
-                        {
-                            b.PayStatus = b.Price == PayPrice ? 1 : 5;
-                        }
-                        else
-                        {
-                            b.PayStatus = b.RMB == PayPrice ? 1 : 5;
-                        }
+                        b.PayStatus = b.Price == PayPrice ? 1 : 5;
                         b.TradeNo = TradeNo;
                         b.PayTime = DateTime.Now;
                         b.PayType = PayType;
                         b.PayPrice = PayPrice;
-                        b.RMB = PayPrice;
+                        //b.RMB = PayPrice;
                         b.TotalPrice = PayPrice;
                         b.ExpressStatus = 1;
                         b.Profit = PayPrice;

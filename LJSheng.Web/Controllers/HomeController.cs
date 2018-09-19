@@ -312,7 +312,7 @@ namespace LJSheng.Web.Controllers
                                 {
                                     db.Member.Where(l => l.Gid == Gid).Delete();
                                     db.MRelation.Where(l => l.MemberGid == Gid).Delete();
-                                    db.Achievement.Where(l => l.MemberGid == Gid).Delete();
+                                    db.Consignor.Where(l => l.MemberGid == Gid).Delete();
                                     return Helper.Redirect("失败", "history.go(-1);", "服务器请求超时");
                                 }
                             }

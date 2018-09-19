@@ -284,6 +284,7 @@
     <Content Include="images\icon\icon-61.png" />
     <Content Include="images\icon\icon-62.png" />
     <Content Include="images\icon\icon-63.png" />
+    <Content Include="images\icon\icon-64.png" />
     <Content Include="images\icon\icon-7.png" />
     <Content Include="images\icon\icon-8.png" />
     <Content Include="images\icon\icon-9.png" />
@@ -1122,6 +1123,10 @@
     <Content Include="Views\SMall\Product.cshtml" />
     <Content Include="Views\SMall\Cart.cshtml" />
     <Content Include="Views\SMall\TeamIntegral.cshtml" />
+    <Content Include="Views\SMall\Shop.cshtml" />
+    <Content Include="Views\SMall\Search.cshtml" />
+    <Content Include="Views\SMall\SProduct.cshtml" />
+    <Content Include="Views\SMall\Classify.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

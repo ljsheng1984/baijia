@@ -621,7 +621,7 @@ namespace LJSheng.Web.ajax
                         {
                             db.Member.Where(l => l.Gid == Gid).Delete();
                             db.MRelation.Where(l => l.MemberGid == Gid).Delete();
-                            db.Achievement.Where(l => l.MemberGid == Gid).Delete();
+                            db.Consignor.Where(l => l.MemberGid == Gid).Delete();
                             return new AjaxResult(300, "服务器请求超时!!!");
                         }
                     }
@@ -744,6 +744,7 @@ namespace LJSheng.Web.ajax
                             od.Money = 0;
                             od.Integral = 0;
                             od.Price = 0;
+                            od.State = 1;
                             db.OrderDetails.Add(od);
                             if (db.SaveChanges() == 1)
                             {

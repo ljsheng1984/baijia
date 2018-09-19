@@ -1,0 +1,41 @@
+﻿
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=yes">
+    <title>彩链-分类</title>
+    <meta name="keywords" content="彩链">
+    <meta name="description" content="彩链">
+    <meta name="author" content="彩链">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="/css/style.css" />
+</head>
+
+<body>
+    <div class="category-apge">
+        <div class="shop-order-detial">
+            <div class="shop-order-header">
+                <img src="/images/icon/icon-26.png" onclick="history.go(-1);" />
+                <span>分类</span>
+            </div>
+        </div>
+        <div class="shop-category-content">
+            <p>商品类别</p>
+            <ul>
+                @foreach (var item in Model)
+                {
+                    <li><a href="/SMall/Shop?Gid=@Request.QueryString["ShopGid"]&ClassifyGid=@item.Gid">@item.Name</a></li>
+                }
+            </ul>
+        </div>
+    </div>
+</body>
+
+</html>

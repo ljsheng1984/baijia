@@ -1,0 +1,101 @@
+﻿
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=yes">
+    <title>彩链-商家主页</title>
+    <meta name="keywords" content="彩链">
+    <meta name="description" content="彩链">
+    <meta name="author" content="彩链">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="/css/style.css" />
+    <link href="/plugins/mescroll/mescroll.css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="shop-order-detial">
+        <div class="shop-order-header-new">
+            <img src="/images/icon/icon-26.png" class="shop-order-header-back" onclick="history.go(-1);" />
+            <a href="Search" class="shop-order-search">
+                <input type="text" placeholder="搜索商品" />
+                <img src="/images/icon/icon-37.png" />
+            </a>
+            <a href="Classify?ShopGid=@Request.QueryString["Gid"]" class="shop-order-header-right">
+                <img src="/images/icon/icon-64.png" />
+                分类
+            </a>
+        </div>
+    </div>
+    @foreach (var item in Model)
+    {
+        <div class="merchants">
+            <div class="merchants-header">
+                <div class="merchants-header-title">
+                    <div class="merchants-header-title-avatar">
+                        <img src="/uploadfiles/shop/{{item.Picture}}" />
+                    </div>
+                    <div class="merchants-header-title-text">
+                        <p>@item.Name</p>
+                        <span>@item.Profile</span>
+                    </div>
+                </div>
+                <div class="merchants-header-address">
+                    <img src="/images/icon/icon-55.png" />
+                    <p>@item.Province@item.City@item.Area@item.Address</p>
+                </div>
+                <div class="merchants-header-time">
+                    <p>
+                        <img src="/images/icon/icon-56.png" />
+                        <span>@item.Bus</span>
+                    </p>
+                    <a href="tel:@item.ContactNumber">
+                        <img src="/images/icon/icon-54.png" />
+                    </a>
+                </div>
+            </div>
+            <div class="merchants-content" id="scroll">
+                <div id="dataList">
+                    <script id="tpl" type="text/html">
+                        {{each list as item index}}
+                        <div class="merchants-item">
+                            <a href="/SMall/Product?ShopGid={{item.ShopGid}}&Gid={{item.Gid}}">
+                                <div class="merchants-item-img">
+                                    <img src="/images/shop/shop-7.png" />
+                                </div>
+                                <div class="merchants-item-text">
+                                    <p class="merchants-item-title">{{item.Name}}</p>
+                                    <p class="merchants-item-sales">月销{{item.Sales}}</p>
+                                    <p class="merchants-item-price">
+                                        <span>
+                                            ￥{{item.Price}}
+                                        </span>
+                                        <span>
+                                            ￥{{item.OriginalPrice}}
+                                        </span>
+                                    </p>
+                                </div>
+                            </a>
+                        </div>
+                        {{/each}}
+                    </script>
+                </div>
+            </div>
+        </div>
+    }
+    <div class="shop-inside-header" id="search">
+        <input name="ShopGid" type="text" value="@Request.QueryString["Gid"]" class="hidden">
+        <input name="ClassifyGid" type="text" value="@Request.QueryString["ClassifyGid"]" class="hidden">
+    </div>
+    <script src="/js/jquery.js"></script>
+    <script src="/js/template-web.js"></script>
+    <script src="/plugins/mescroll/mescroll.js"></script>
+    <script src="/js/mlist.js"></script>
+</body>
+</html>

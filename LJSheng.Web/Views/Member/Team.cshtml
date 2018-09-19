@@ -19,7 +19,7 @@
 <body>
     <div class="default-header-nav">
         <span>
-            <a onclick="window.history.go(-1);">
+            <a href="/Member/Index">
                 <img src="/images/icon/icon-26.png" />
             </a>
         </span> 我的团队
@@ -29,6 +29,10 @@
             <li onclick="getlist(0);">
                 <span>查看</span>
                 <span>全部</span>
+            </li>
+            <li onclick="getlist(21);">
+                <span>注册会员</span>
+                <span>@ViewBag.Level21</span>
             </li>
             <li onclick="getlist(22);">
                 <span>VIP</span>
@@ -54,16 +58,16 @@
     </div>
     <div id="search" hidden>
         <input type="text" name="type" id="type" value="0" />
+        <input type="text" name="MemberGid" id="MemberGid" value="" />
     </div>
     <div class="mescroll" id="scroll">
         <div class="team-content" id="dataList">
             <script id="tpl" type="text/html">
                 {{each list as item index}}
-                <div class="team-item">
+                <div class="team-item" onclick="mgid('{{item.Gid}}');">
                     <div class="team-item-msg">
                         <div class="team-item-avatar">
                             <img src="/uploadfiles/member/{{item.Picture}}" onerror="this.src='/images/{{item.Gender}}.png'" />
-                            <span>{{item.Number}}</span>
                         </div>
                         <div class="team-item-text">
                             <p>
@@ -76,6 +80,7 @@
                                     <span>{{item.Account}}</span>
                                 </a>
                             </p>
+                            <p><span>{{item.AddTime}}</span></p>
                         </div>
                     </div>
                     <div class="team-item-num">
@@ -97,6 +102,13 @@
             ev = ev || window.event;
             var tmp = ev.target || ev.srcElement;
             tmp.className = "active";
+            //重置列表数据
+            scroll.resetUpScroll();
+            //隐藏回到顶部按钮
+            scroll.hideTopBtn();
+        }
+        function mgid(MemberGid) {
+            $("#MemberGid").val(MemberGid);
             //重置列表数据
             scroll.resetUpScroll();
             //隐藏回到顶部按钮

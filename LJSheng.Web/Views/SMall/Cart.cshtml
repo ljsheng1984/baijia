@@ -20,7 +20,7 @@
 <body>
     <div class="shop-order-detial">
         <div class="shop-order-header">
-            <img src="/images/icon/icon-26.png" onclick="history.go(-1);"  />
+            <a href="/SMall/Index"><img src="/images/icon/icon-26.png" /></a>
             <span>确认订单</span>
         </div>
     </div>
@@ -109,9 +109,9 @@
                 beforeSend: function () { },
                 success: function (data) {
                     if (data.result === 200) {
-                        var n = $("#" + Gid + " input");
-                        if (Number(n.val()) > 0) {
-                            n.val(Number(n.val()) + Number(num));
+                        var n = Number($("#" + Gid + " input").val()) + Number(num);
+                        if (n > 0) {
+                            $("#" + Gid + " input").val(n);
                         }
                         else {
                             $("#" + Gid).hide();

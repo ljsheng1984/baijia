@@ -1311,6 +1311,7 @@ namespace LJSheng.Web.Controllers
                 Guid gid = LCookie.GetMemberGid();
                 ViewBag.Level1 = db.MRelation.Where(l => l.M1 == gid).Count();
                 var b = db.Member.Where(l => l.Gid == gid).FirstOrDefault();
+                ViewBag.Level21 = db.Member.Where(l => l.MemberGid == gid && l.CLLevel == 21).Count();
                 ViewBag.Level22 = db.Member.Where(l => l.MemberGid == gid && l.CLLevel == 22).Count();
                 ViewBag.Level23 = db.Member.Where(l => l.MemberGid == gid && l.CLLevel == 23).Count();
                 ViewBag.Level24 = db.Member.Where(l => l.MemberGid == gid && l.CLLevel == 24).Count();
@@ -1329,52 +1330,31 @@ namespace LJSheng.Web.Controllers
             }
             JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
             Guid MemberGid = LCookie.GetMemberGid();
+            if (!string.IsNullOrEmpty(paramJson["MemberGid"].ToString()))
+            {
+                MemberGid = Guid.Parse(paramJson["MemberGid"].ToString());
+            }
             int type = int.Parse(paramJson["type"].ToString());
             //统计月份的第一天和最后一天
             int Year = DateTime.Now.Year;
             int Month = DateTime.Now.Month;
             using (EFDB db = new EFDB())
             {
-                //会员关系异常日记
-                var mr = db.MRelation.ToList();
-                foreach (var dr in mr)
-                {
-                    int n = db.Member.Where(l => l.Gid == dr.MemberGid).Count();
-                    if (n != 1)
-                    {
-                        db.MRelation.Where(l => l.MemberGid == dr.MemberGid).Delete();
-                        db.Consignor.Where(l => l.MemberGid == dr.MemberGid).Delete();
-                        LogManager.WriteLog("会员关系异常日记", dr.MemberGid + "=" + n + ",时间=" + dr.AddTime);
-                    }
-                }
-                var b = db.MRelation.Where(l => l.M1 == MemberGid || l.M2 == MemberGid || l.M3 == MemberGid).GroupJoin(db.Member,
-                    l => l.MemberGid,
-                    j => j.Gid,
-                    (l, j) => new
-                    {
-                        l.AddTime,
-                        Number = l.M1 == MemberGid ? 1 : l.M2 == MemberGid ? 2 : 3,
-                        j.FirstOrDefault().Account,
-                        j.FirstOrDefault().Picture,
-                        j.FirstOrDefault().RealName,
-                        j.FirstOrDefault().CLLevel,
-                        j.FirstOrDefault().Gender,
-                        MemberGid = j.FirstOrDefault().Gid
-                    }).GroupJoin(db.Level,
+                var b = db.Member.Where(l => l.MemberGid == MemberGid).GroupJoin(db.Level,
                     l => l.CLLevel,
                     j => j.LV,
                     (l, j) => new
                     {
+                        l.Gid,
                         l.AddTime,
-                        Account = l.Account.Substring(0, 3) + "****" +l.Account.Substring(6,4),
+                        Account = l.Account.Substring(0, 3) + "****" +l.Account.Substring(7,4),
                         l.Picture,
                         l.RealName,
                         l.Gender,
-                        l.Number,
                         l.CLLevel,
                         j.FirstOrDefault().Label,
                         LevelName = j.FirstOrDefault().Name,
-                        Money = db.Achievement.Where(a => a.Year == Year && a.Month == Month && l.MemberGid == MemberGid).Select(a => a.TMoney).DefaultIfEmpty(0).Sum()
+                        Money = db.Achievement.Where(a => a.Year == Year && a.Month == Month && l.MemberGid == l.Gid).Select(a => a.TMoney).DefaultIfEmpty(0).Sum()
                     }).AsQueryable();
                 if (type != 0)
                 {
