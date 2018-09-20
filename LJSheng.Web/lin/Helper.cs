@@ -2119,8 +2119,7 @@ namespace LJSheng.Web
                     b.Level
                 })), 30);
                 //设置用户读取数据的城市
-                LCookie.AddCookie("city", b.City, 30);
-                LCookie.AddCookie("ordercity", b.City, 30);
+                LCookie.AddCookie("city", string.IsNullOrEmpty(b.City)?"福州市": b.City, 30);
             }
         }
 

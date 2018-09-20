@@ -22,7 +22,9 @@
 <body>
     <div class="shop-order-detial">
         <div class="shop-order-header-new">
-            <img src="/images/icon/icon-26.png" class="shop-order-header-back" onclick="history.go(-1);" />
+            <a href="/SMall/Index">
+                <img src="/images/icon/icon-26.png" class="shop-order-header-back" />
+            </a>
             <a href="Search" class="shop-order-search">
                 <input type="text" placeholder="搜索商品" />
                 <img src="/images/icon/icon-37.png" />
@@ -39,21 +41,21 @@
             <div class="merchants-header">
                 <div class="merchants-header-title">
                     <div class="merchants-header-title-avatar">
-                        <img src="/uploadfiles/shop/{{item.Picture}}" />
+                        <img src="/uploadfiles/shop/@item.Picture" />
                     </div>
                     <div class="merchants-header-title-text">
                         <p>@item.Name</p>
                         <span>@item.Profile</span>
                     </div>
                 </div>
-                <div class="merchants-header-address">
+                <a class="merchants-header-address" href="/Home/Map?addr=@item.Province@item.City@item.Area@item.Address&name=@item.Name">
                     <img src="/images/icon/icon-55.png" />
                     <p>@item.Province@item.City@item.Area@item.Address</p>
-                </div>
+                </a>
                 <div class="merchants-header-time">
                     <p>
                         <img src="/images/icon/icon-56.png" />
-                        <span>@item.Bus</span>
+                        <span>@item.Remarks</span>
                     </p>
                     <a href="tel:@item.ContactNumber">
                         <img src="/images/icon/icon-54.png" />
@@ -67,7 +69,7 @@
                         <div class="merchants-item">
                             <a href="/SMall/Product?ShopGid={{item.ShopGid}}&Gid={{item.Gid}}">
                                 <div class="merchants-item-img">
-                                    <img src="/images/shop/shop-7.png" />
+                                    <img src="/uploadfiles/product/{{item.Picture}}" />
                                 </div>
                                 <div class="merchants-item-text">
                                     <p class="merchants-item-title">{{item.Name}}</p>

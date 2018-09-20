@@ -15,6 +15,11 @@ namespace LJSheng.Web.Controllers
 {
     public class HomeController : Controller
     {
+        //地图
+        public ActionResult Map()
+        {
+            return View();
+        }
         public ActionResult APP()
         {
             return new RedirectResult("https://www.pgyer.com/rPns");

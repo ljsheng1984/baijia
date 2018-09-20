@@ -621,7 +621,7 @@ namespace LJSheng.Web.Controllers
                     other = "",
                     count = b.Count(),
                     pageindex,
-                    list = b.OrderBy(l => l.Sort).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
+                    list = b.OrderByDescending(l => l.Sales).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
                 }));
             }
         }

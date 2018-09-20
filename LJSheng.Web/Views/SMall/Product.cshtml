@@ -55,8 +55,10 @@
             <ul>
                 <li>
                     <p>
-                        <img src="/images/icon/icon-51.png" />
-                        <span>@ViewBag.Address</span>
+                        <a href="/Home/Map?addr=@ViewBag.Address&name=@ViewBag.ShopName">
+                            <img src="/images/icon/icon-51.png" />
+                            <span>@ViewBag.Address</span>
+                        </a>
                     </p>
                     <a href="tel:@ViewBag.ContactNumber" class="shop-detial-business-phone">
                         <img src="/images/icon/icon-52.png" />

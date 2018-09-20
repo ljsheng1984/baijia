@@ -4702,8 +4702,7 @@ namespace LJSheng.Web.Controllers
                     sp.Project = int.Parse(Project[i]);
                     db.ShopProject.Add(sp);
                 }
-                db.SaveChanges();
-                if (db.SaveChanges() == 1)
+                if (db.SaveChanges() >0)
                 {
                     return Helper.WebRedirect("操作成功！", "history.go(-1);", "操作成功!");
                 }
@@ -4755,6 +4754,7 @@ namespace LJSheng.Web.Controllers
                         l.Money,
                         l.Picture,
                         l.State,
+                        l.Sort,
                         l.Project,
                         l.ContactNumber,
                         j.FirstOrDefault().Account,
@@ -4803,7 +4803,7 @@ namespace LJSheng.Web.Controllers
                     other = "",
                     count = b.Count(),
                     pageindex,
-                    list = b.OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
+                    list = b.OrderBy(l => l.Sort).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
                 }));
             }
         }

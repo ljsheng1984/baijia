@@ -49,6 +49,7 @@
                 <th>封面</th>
                 <th>状态</th>
                 <th>分类管理</th>
+                <th>排序</th>
                 <th>商品管理</th>
                 <th>用户数据</th>
                 <th>管理操作</th>
@@ -80,6 +81,7 @@
                             <button class="btn" onclick="Show('{{item.Name}}','ShopClassifyAU?ShopGid={{item.Gid}}');">添加分类</button>
                         </div>
                     </td>
+                    <td>{{item.Sort}}</td>
                     <td>
                         <div class="btn-group">
                             <button class="btn" onclick="Show('{{item.Name}}','ShopProductList?ShopGid={{item.Gid}}');">查看商品</button>

@@ -1127,6 +1127,7 @@
     <Content Include="Views\SMall\Search.cshtml" />
     <Content Include="Views\SMall\SProduct.cshtml" />
     <Content Include="Views\SMall\Classify.cshtml" />
+    <Content Include="Views\Home\Map.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

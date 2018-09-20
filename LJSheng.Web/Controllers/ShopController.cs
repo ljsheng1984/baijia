@@ -134,8 +134,7 @@ namespace LJSheng.Web.Controllers
                     sp.Project = int.Parse(Project[i]);
                     db.ShopProject.Add(sp);
                 }
-                db.SaveChanges();
-                if (db.SaveChanges() == 1)
+                if (db.SaveChanges() >0)
                 {
                     return Helper.Redirect("操作成功！", "history.go(-1);", "操作成功!");
                 }

@@ -37,7 +37,7 @@ namespace LJSheng.Web
                 dic.Add("invite_code", invite_code);
                 dic.Add("sign", Helper.BuildRequest(dic));
                 string json = PostGet.Post("http://bccbtoken.com/api/Memberapi/register", dic);
-                LogManager.WriteLog("APP接口", json);
+                //LogManager.WriteLog("APP接口", json);
                 JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
                 tl = bool.Parse(paramJson["success"].ToString());
                 if (!tl)
@@ -80,7 +80,7 @@ namespace LJSheng.Web
                 dic.Add("type", type);
                 dic.Add("sign", Helper.BuildRequest(dic));
                 string json = PostGet.Post("http://bccbtoken.com/api/Memberapi/changePwd", dic);
-                LogManager.WriteLog("APP接口", json);
+                //LogManager.WriteLog("APP接口", json);
                 JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
                 tl = bool.Parse(paramJson["success"].ToString());
                 if (!tl)
@@ -112,7 +112,7 @@ namespace LJSheng.Web
                 dic.Add("coin_name", coin_name);
                 string sign = Helper.BuildRequest(dic);
                 string json = PostGet.Get("http://bccbtoken.com/api/Memberapi/getUserBalance?phone=" + phone + "&coin_name=" + coin_name + "&sign=" + sign);
-                LogManager.WriteLog("APP接口", json);
+                //LogManager.WriteLog("APP接口", json);
                 JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
                 if (paramJson["success"].ToString() == "True")
                 {
@@ -145,7 +145,7 @@ namespace LJSheng.Web
                 dic.Add("amount", amount);
                 dic.Add("sign", Helper.BuildRequest(dic));
                 string json = PostGet.Post("http://bccbtoken.com/api/Memberapi/deductUserBalance", dic);
-                LogManager.WriteLog("APP接口", json);
+                //LogManager.WriteLog("APP接口", json);
                 JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
                 tl = bool.Parse(paramJson["success"].ToString());
                 if (!tl)
@@ -179,7 +179,7 @@ namespace LJSheng.Web
                 dic.Add("amount", amount);
                 dic.Add("sign", Helper.BuildRequest(dic));
                 string json = PostGet.Post("http://bccbtoken.com/api/Memberapi/transfer", dic);
-                LogManager.WriteLog("APP接口", json);
+                //LogManager.WriteLog("APP接口", json);
                 JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
                 tl = bool.Parse(paramJson["success"].ToString());
                 if (!tl)
@@ -222,7 +222,7 @@ namespace LJSheng.Web
             try
             {
                 string json = PostGet.Get("http://bccbtoken.com/api/Memberapi/dailyAvg");
-                LogManager.WriteLog("APP接口", json);
+                //LogManager.WriteLog("APP接口", json);
                 JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
                 if (paramJson["success"].ToString() == "True")
                 {

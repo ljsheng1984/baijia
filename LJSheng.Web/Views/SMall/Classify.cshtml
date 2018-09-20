@@ -29,6 +29,7 @@
         <div class="shop-category-content">
             <p>商品类别</p>
             <ul>
+                <li><a href="/SMall/Shop?Gid=@Request.QueryString["ShopGid"]&ClassifyGid=">全部</a></li>
                 @foreach (var item in Model)
                 {
                     <li><a href="/SMall/Shop?Gid=@Request.QueryString["ShopGid"]&ClassifyGid=@item.Gid">@item.Name</a></li>

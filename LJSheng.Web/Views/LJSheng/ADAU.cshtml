@@ -18,12 +18,15 @@
         <div class="form-group">
             <label class="col-sm-2">项目</label>
             <div class="col-md-5 col-sm-5">
-                @foreach (var item in Model)
+                <label class="radio-inline">
+                    <input type="radio" name="Project" value="2"> 彩链包
+                </label>
+                @*@foreach (var item in Model)
                 {
                     <label class="radio-inline">
                         <input type="radio" name="Project" value="@item.Value"> @item.Key
                     </label>
-                }
+                }*@
             </div>
         </div>
         <div class="form-group">
@@ -97,7 +100,7 @@
     <script src="~/plugins/zui/lib/uploader/zui.uploader.min.js"></script>
     <script>
         $(":radio[name='Show'][value='@ViewBag.Show']").prop("checked", "checked");
-        $(":radio[name='Project'][value='@ViewBag.Project']").prop("checked", "checked");
+        $(":radio[name='Project'][value='2']").prop("checked", "checked");
         function check()
         {
             var field = $("input[name='Name']");
