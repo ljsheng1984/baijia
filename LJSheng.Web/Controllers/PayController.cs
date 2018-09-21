@@ -76,7 +76,7 @@ namespace LJSheng.Web.Controllers
                     //获取用户积分
                     ViewBag.Integral = db.Member.Where(l => l.Gid == MemberGid).FirstOrDefault().Integral;
                     //获取最低合伙人金额
-                    ViewBag.BuyAmount = db.Level.Where(l => l.LV == 6).FirstOrDefault().BuyAmount;
+                    //ViewBag.BuyAmount = db.Level.Where(l => l.LV == 6).FirstOrDefault().BuyAmount;
                     return View();
                 }
                 else

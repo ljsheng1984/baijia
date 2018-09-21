@@ -23,7 +23,7 @@ namespace LJSheng.Web.Controllers
                     LCookie.AddCookie("city", City, 30);
                 }
                 //获取广告
-                ViewBag.AD = db.AD.Where(l => l.Show == 1 && l.Project == 2 && l.Profile=="商城广告").ToList();
+                ViewBag.AD = db.AD.Where(l => l.Show == 1 && l.Project == 2 && l.Sort == 0 && l.Profile=="商城广告").ToList();
                 Guid DGid = db.Dictionaries.Where(l => l.DictionaryType == "Shop").FirstOrDefault().Gid;
                 return View(db.DictionariesList.Where(dl => dl.DGid == DGid).OrderBy(dl => dl.Sort).ToList());
             }

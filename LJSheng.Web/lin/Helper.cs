@@ -477,7 +477,6 @@ namespace LJSheng.Web
                                             msg += "发货人截止=" + Consignor((Guid)MemberGid, PayPrice, OrderGid, lv, ML.Recommendation, CLLevel, (Guid)ShopGid) + rn;
                                         }
                                     }
-
                                     //团队业绩和级差积分
                                     msg += "团队业绩=" + CLTeamMoney(MGid, PayPrice, OrderGid, b.Type) + rn;
                                 }
@@ -2118,8 +2117,6 @@ namespace LJSheng.Web
                     b.Gender,
                     b.Level
                 })), 30);
-                //设置用户读取数据的城市
-                LCookie.AddCookie("city", string.IsNullOrEmpty(b.City)?"福州市": b.City, 30);
             }
         }
 

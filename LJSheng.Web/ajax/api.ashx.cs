@@ -576,6 +576,9 @@ namespace LJSheng.Web.ajax
                             b.CLTMoney = 0;
                             b.CLTNumber = 0;
                             b.APP = 3;
+                            b.Province = "福建省";
+                            b.City = "福州市";
+                            b.Area = "鼓楼区";
                             if (ID != 0)
                             {
                                 var m = db.Member.Where(l => l.MID == ID).FirstOrDefault();

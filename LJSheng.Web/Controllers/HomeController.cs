@@ -22,7 +22,7 @@ namespace LJSheng.Web.Controllers
         }
         public ActionResult APP()
         {
-            return new RedirectResult("https://www.pgyer.com/rPns");
+            return new RedirectResult("https://fir.im/frkm");
         }
         /// <summary>
         /// 项目跳转
@@ -152,6 +152,11 @@ namespace LJSheng.Web.Controllers
                             b.LoginIdentifier = LCommon.TimeToUNIX(DateTime.Now);
                             db.SaveChanges();
                             Helper.MLogin(b.Gid);
+                            //设置用户读取数据的城市
+                            if (string.IsNullOrEmpty(LCookie.GetCity().Trim()))
+                            {
+                                LCookie.AddCookie("city", string.IsNullOrEmpty(b.City.Trim()) ? "福州市" : b.City, 30);
+                            }
                             string url = LCookie.Project() == 1 ? "Tea" : "Index";
                             return new RedirectResult("/Home/"+ url);
                         }
@@ -263,9 +268,9 @@ namespace LJSheng.Web.Controllers
                                     //b.RealName = b.RealName;
                                     //b.Gender = b.Gender;
                                     //b.ContactNumber = Request.Form["ContactNumber"];
-                                    //b.Province = Request.Form["Province"];
-                                    //b.City = Request.Form["City"];
-                                    //b.Area = Request.Form["Area"];
+                                    b.Province = "福建省";
+                                    b.City = "福州市";
+                                    b.Area = "鼓楼区";
                                     //b.Address = Request.Form["Address"];
                                     //b.Openid = b.Openid;
                                     //b.Money = decimal.Parse(Request.Form["Money"]);

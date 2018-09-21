@@ -42,11 +42,11 @@
             <div class="shop-index-content">
                 @foreach (var item in @ViewBag.AD)
                 {
-                    <div class="shop-index-content-banner" id="@("ad" +item.Remarks)">
+                    <div class="shop-index-content-banner @(item.Remarks=="00"?"":"hidden")" id="@("ad" +item.Remarks)">
                         <a href="@item.Url"><img src="/uploadfiles/ad/@item.Picture" /></a>
                     </div>
                 }
-                <div class="shop-index-goods" id="scroll">
+                <div class="shop-index-goods mescroll" id="scroll">
                     <ul id="dataList">
                         <script id="tpl" type="text/html">
                             {{each list as item index}}
