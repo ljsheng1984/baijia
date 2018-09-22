@@ -64,7 +64,7 @@
                     <td>{{item.Name}}<br />{{item.ContactNumber}}</td>
                     <td>{{item.Money}}</td>
                     <td>
-                        <img data-caption="{{item.Name}}" data-toggle="lightbox" src="/uploadfiles/shop/{{item.Picture}}" class="img-thumbnail" onerror="this.src='/images/nopic.png'" width="50">
+                        <img data-caption="{{item.Name}}" data-toggle="lightbox" src="/uploadfiles/shop/{{item.Gid}}/logo.png" class="img-thumbnail" onerror="this.src='/images/nopic.png'" width="50">
                     </td>
                     <td>
                         {{if item.State=="1"}}
@@ -97,6 +97,7 @@
                     <td>
                         <div class="btn-group">
                             <button class="btn" onclick="Show('{{item.Gid}}');">编辑</button>
+                            <button class="btn" onclick="Show('{{item.Name}}','Files?name={{item.Name}}&gid={{item.Gid}}&filename=bj.png');">背景图</button>
                             <button class="btn hidden" onclick="Show('{{item.Name}}','ShopProject?ShopGid={{item.Gid}}');">商家类别</button>
                         </div>
                     </td>

@@ -4,6 +4,7 @@ using LJSheng.Data;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Web;
@@ -206,7 +207,23 @@ namespace LJSheng.Web.Controllers
                 ViewBag.Picture = b.Picture;
                 ViewBag.Name = b.Name;
                 ViewBag.Content = b.Content;
-                return View();
+
+                string path = "/uploadfiles/shop/" + ShopGid + "/" + Gid + "/";
+                List<FileInfo> files = new List<FileInfo>();
+                ///获取文件列表信息  
+                if (Directory.Exists(System.Web.HttpContext.Current.Server.MapPath(path)))
+                {
+                    foreach (var file in Directory.GetFiles(System.Web.HttpContext.Current.Server.MapPath(path)))
+                    {
+                        files.Add(new FileInfo(file));
+                    }
+                }
+                ViewBag.path = path;
+                ///查询文件列表信息  
+                var filevalues = from file in files
+                                 orderby file.CreationTime descending
+                                 select file;
+                return View(filevalues.ToList());
             }
         }
 

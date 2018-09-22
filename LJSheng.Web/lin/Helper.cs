@@ -1964,9 +1964,8 @@ namespace LJSheng.Web
         /// </summary>
         /// <param name="base64str"></param>
         /// <returns></returns>
-        public static string jsimg(string path, string base64str)
+        public static string jsimg(string path, string base64str,string filename="")
         {
-            string FileName = "";
             try
             {
                 if (!string.IsNullOrEmpty(base64str))
@@ -1987,13 +1986,16 @@ namespace LJSheng.Web
                         {
                             Directory.CreateDirectory(path);
                         }
-                        FileName = Guid.NewGuid() + ".jpg";
-                        img.Save(path + FileName);
+                        if (string.IsNullOrEmpty(filename))
+                        {
+                            filename = RandStr.CreateOrderNO() + ".png";
+                        }
+                        img.Save(path + filename);
                     }
                 }
             }
             catch { }
-            return FileName;
+            return filename;
         }
 
         #endregion
@@ -2004,14 +2006,18 @@ namespace LJSheng.Web
         /// </summary> 
         /// <param name="path">上传路径</param>
         /// <param name="file">文件</param> 
-        public static string UploadFiles(string path, HttpPostedFileBase file)
+        /// <param name="filename">文件</param> 
+        public static string UploadFiles(string path, HttpPostedFileBase file,string filename="")
         {
             StringBuilder sb = new StringBuilder();
             if (!Directory.Exists(HttpContext.Current.Server.MapPath(path)))  //判断当前目录是否存在。
             {
                 Directory.CreateDirectory(HttpContext.Current.Server.MapPath(path));  //建立上传文件存放目录。
             }
-            string filename = RandStr.CreateOrderNO() + Path.GetExtension(file.FileName);
+            if (string.IsNullOrEmpty(filename))
+            {
+                filename = RandStr.CreateOrderNO() + Path.GetExtension(file.FileName);
+            }
             file.SaveAs(HttpContext.Current.Server.MapPath(path + filename));
             return filename;
         }

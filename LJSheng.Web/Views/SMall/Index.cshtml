@@ -21,12 +21,12 @@
     <div class="shop">
         <div class="shop-header" id="search">
             <input id="Project" name="Project" type="text" value="00" class="hidden">
+            <a class="shop-header-back" href="/Home/Index">
+                <img src="/images/icon/icon-26.png" />
+            </a>
             <a class="shop-header-input" href="Search">
                 <input type="text" name="s" placeholder="搜索商品名称" />
                 <img src="/images/icon/icon-37.png" />
-            </a>
-            <a class="shop-header-crea" href="/Home/Index">
-                <img src="/images/icon/icon-50.png" />
             </a>
         </div>
         <div class="shop-index">
@@ -52,7 +52,7 @@
                             {{each list as item index}}
                             <li>
                                 <a href="/SMall/Shop?Gid={{item.ShopGid}}">
-                                    <img src="/uploadfiles/shop/{{item.Picture}}" />
+                                    <img src="/uploadfiles/shop/{{item.ShopGid}}/logo.png" />
                                     <span>{{item.Name}}</span>
                                 </a>
                             </li>

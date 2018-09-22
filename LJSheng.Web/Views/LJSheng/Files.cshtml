@@ -1,0 +1,102 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" Content="width=device-width, initial-scale=1" />
+    <title>相册上传-@Request.QueryString["name"]</title>
+    <link rel="stylesheet" href="~/plugins/zui/css/zui.min.css">
+    <link href="~/plugins/zui/lib/uploader/zui.uploader.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="form-group">
+        <label class="col-sm-2">选择图片</label>
+        <div id="Picture" class="col-md-3 col-sm-5 uploader">
+            <div class="file-list" data-drag-placeholder="请拖拽文件到此处"></div>
+            <button type="button" class="btn btn-primary uploader-btn-browse"><i class="icon icon-cloud-upload"></i> 选择图片</button>
+        </div>
+    </div>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>图片</th>
+                <th>文件名</th>
+                <th>文件大小(字节)</th>
+                <th>时间</th>
+                <th>管理操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+            <tr id="@(LJSheng.Common.LCommon.TimeToUNIX(item.CreationTime))">
+                <td style="width:200px;height:100px;">
+                    <a href="@(ViewBag.path + item.Name)" target="_blank">
+                        <img src="@(ViewBag.path + item.Name)" />
+                    </a>
+                </td>
+                <td>@item.Name</td>
+                <td>@item.Length</td>
+                <td>@item.CreationTime</td>
+                <td>
+                    <div class="btn-group">
+                        <button class="btn btn-danger btn-mini" onclick="Delete('@(ViewBag.path + item.Name)','@(LJSheng.Common.LCommon.TimeToUNIX(item.CreationTime))');">删除</button>
+                    </div>
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+    <script src="~/plugins/zui/lib/jquery/jquery.js"></script>
+    <script src="~/plugins/zui/js/zui.min.js"></script>
+    <script src="~/plugins/zui/lib/uploader/zui.uploader.min.js"></script>
+    <script>
+        function Delete(name, id) {
+            if (window.confirm('你确定要删除吗？')) {
+                $.ajax({
+                    url: "/LJSheng/DBFile",
+                    data: "name=" + name,
+                    type: "post",
+                    cache: false,
+                    timeout: 8000,
+                    dataType: "json",
+                    ContentType: "application/json; charset=utf-8",
+                    error: function () { new $.zui.Messager('请求超时!').show(); },
+                    beforeSend: function () { },
+                    success: function (data) {
+                        if (data.result === 200) {
+                            $("#" + id).hide(5);
+                        }
+                        new $.zui.Messager(data.data, {
+                            icon: 'smile',
+                            placement: 'center' // 定义显示位置
+                        }).show();
+                    },
+                });
+                return true;
+            } else {
+                return false;
+            }
+        }
+        $('#Picture').uploader({
+            autoUpload: true,
+            limitFilesCount: 5,
+            url: '/LJSheng/UploadPicture?filename=@Request.QueryString["filename"]&Path=/uploadfiles/shop/@Request.QueryString["gid"]/@Request.QueryString["pgid"]/',
+            filters: {
+            mime_types: [
+                    { title: '图片', extensions: 'jpg,gif,png' }
+                ],
+                max_file_size: '518kb',
+                prevent_duplicates: true
+            },
+            deleteActionOnDone: function (file, doRemoveFile) {return true; },
+            responseHandler: function (responseObject, file) {
+        }
+    });
+    </script>
+</body>
+</html>

@@ -156,6 +156,7 @@
     <Content Include="bin\WebGrease.dll" />
     <Content Include="css\main.css" />
     <Content Include="css\mobileSelect.css" />
+    <Content Include="css\owl.carousel.css" />
     <Content Include="css\style.css" />
     <Content Include="Global.asax" />
     <Content Include="images\admin-header-bg.png" />
@@ -320,7 +321,7 @@
     <Content Include="js\ljsheng.js" />
     <Content Include="js\mlist.js" />
     <Content Include="js\mobileSelect.js" />
-    <Content Include="js\page.js" />
+    <Content Include="js\owl.carousel.min.js" />
     <Content Include="js\pca.js" />
     <Content Include="js\selectDate.js" />
     <Content Include="js\shopcart.js" />
@@ -1128,6 +1129,7 @@
     <Content Include="Views\SMall\SProduct.cshtml" />
     <Content Include="Views\SMall\Classify.cshtml" />
     <Content Include="Views\Home\Map.cshtml" />
+    <Content Include="Views\LJSheng\Files.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

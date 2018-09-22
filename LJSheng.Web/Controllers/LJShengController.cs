@@ -2270,15 +2270,14 @@ namespace LJSheng.Web.Controllers
         /// layui图片上传
         /// </summary>
         [HttpPost]
-        public JsonResult UploadPicture(string Path)
+        public JsonResult UploadPicture(string path,string filename="")
         {
             HttpPostedFileBase Picture = Request.Files["file"];
-            string FileName = "";
             if (Picture != null)
             {
-                FileName = Helper.UploadFiles(Path, Picture);
+                filename = Helper.UploadFiles(path, Picture, filename);
             }
-            return Json(new { result = 200, src = Path + FileName, title = FileName });
+            return Json(new { result = 200, src = path + filename, title = filename });
         }
         #endregion
 
@@ -4635,7 +4634,7 @@ namespace LJSheng.Web.Controllers
                     ViewBag.Content = b.Content;
                     ViewBag.Sort = b.Sort;
                     ViewBag.Show = b.Show;
-                    ViewBag.Picture = Help.Shop + b.Picture;
+                    ViewBag.Gid = b.Gid;
                     ViewBag.USCI = Help.Shop + b.USCI;
                     ViewBag.LegalPerson = Help.Shop + b.LegalPerson;
                     ViewBag.Licence = Help.Shop + b.Licence;
@@ -4830,7 +4829,7 @@ namespace LJSheng.Web.Controllers
                     ViewBag.Content = b.Content;
                     ViewBag.Sort = b.Sort;
                     ViewBag.Show = b.Show;
-                    ViewBag.Picture = Help.Product + b.Picture;
+                    //ViewBag.Picture = Help.Product + b.Picture;
                     //ViewBag.GraphicDetails = b.GraphicDetails;
                     ViewBag.ClassifyGid = b.ClassifyGid;
                     ViewBag.Remarks = b.Remarks;
@@ -6776,6 +6775,45 @@ namespace LJSheng.Web.Controllers
             }
         }
 
+        #endregion
+
+        #region 文件夹上传
+        public ActionResult Files()
+        {
+            string path = "/uploadfiles/shop/"+ Request.QueryString["gid"] + "/" + Request.QueryString["pgid"]+"/";
+            List<FileInfo> files = new List<FileInfo>();
+            ///获取文件列表信息  
+            if (Directory.Exists(System.Web.HttpContext.Current.Server.MapPath(path)))
+            {
+                foreach (var file in Directory.GetFiles(System.Web.HttpContext.Current.Server.MapPath(path)))
+                {
+                    files.Add(new FileInfo(file));
+                }
+            }
+            ViewBag.path = path;
+            ///查询文件列表信息  
+            var filevalues = from file in files
+                             orderby file.CreationTime descending
+                             select file;
+            return View(filevalues.ToList());
+        }
+        /// <summary>
+        /// 删除
+        /// </summary>
+        [HttpPost]
+        public JsonResult DBFile(string name)
+        {
+            string file = System.Web.HttpContext.Current.Server.MapPath(name);
+            if (System.IO.File.Exists(file))
+            {
+                System.IO.File.Delete(file);
+                return Json(new AjaxResult(name + " 删除成功"));
+            }
+            else
+            {
+                return Json(new AjaxResult(300, name + " 删除失败"));
+            }
+        }
         #endregion
     }
 }

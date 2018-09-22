@@ -8,7 +8,7 @@ body {
 
 .mescroll {
     width: 100%;
-    height: 88%;
+    height: 80%;
     overflow-y: auto
 }
 
@@ -55,13 +55,16 @@ body {
         vertical-align: middle
     }
 
+    .mescroll-downwarp .downwarp-tip, .mescroll-upwarp .upwarp-tip {
+        margin-left: 8px
+    }
+
     .mescroll-downwarp .downwarp-progress, .mescroll-upwarp .upwarp-progress {
         display: inline-block;
         width: 16px;
         height: 16px;
         border-radius: 50%;
         border: 1px solid gray;
-        margin-right: 8px;
         border-bottom-color: transparent;
         vertical-align: middle
     }
@@ -132,7 +135,7 @@ body {
     opacity: 0
 }
 
-.mescroll-fade-in {
+.mescroll-lazy-in, .mescroll-fade-in {
     -webkit-animation: mescrollFadeIn .5s linear forwards;
     animation: mescrollFadeIn .5s linear forwards
 }

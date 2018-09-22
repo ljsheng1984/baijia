@@ -6,22 +6,22 @@
 <section class="section">
     @using (Html.BeginForm("ShopAU", "Shop", FormMethod.Post, new { @class = "box", enctype = "multipart/form-data" }))
     {
-    <div class="control">
-        <input type="text" name="Project" id="Project" placeholder="请最少设置一个类别" value="@ViewBag.Project" hidden />
-        <label>商家类别</label>
-        @foreach (var item in Model)
-        {
-            <div class="checkbox inline-block" onclick="set('@item.Value');">
-                <input type="checkbox" name="fl" value="@item.Value">
-                <label for="fl">@item.Key</label>
-            </div>
-        }
-    </div>
+        <div class="control">
+            <input type="text" name="Project" id="Project" placeholder="请最少设置一个类别" value="@ViewBag.Project" hidden />
+            <label>商家类别</label>
+            @foreach (var item in Model)
+            {
+                <div class="checkbox inline-block" onclick="set('@item.Value');">
+                    <input type="checkbox" name="fl" value="@item.Value">
+                    <label for="fl">@item.Key</label>
+                </div>
+            }
+        </div>
         <div class="control">
             <label>商家封面</label>
             <div>
                 <input type="file" name="Picture" id="Picture" style="position:absolute;opacity:0.0;filter:alpha(opacity=20);width:300px;height:100px;" />
-                <img id="upimg" src="@ViewBag.Picture" onerror="this.src='/images/nopic.png'" style="min-width:300px; min-height:100px;" />
+                <img id="upimg" src="/uploadfiles/shop/@ViewBag.Gid/logo.png" onerror="this.src='/images/nopic.png'" style="min-width:300px; min-height:100px;" />
             </div>
             <div id="picturebt" class="help-text text-red hidden"></div>
         </div>
@@ -58,6 +58,10 @@
         <div class="control">
             <label>商家详情</label>
             <textarea type="text" name="Content" autocomplete="off" class="input" style="height:8rem;">@ViewBag.Content</textarea>
+        </div>
+        <div class="control">
+            <label>营业时间</label>
+            <input name="Remarks" value="@ViewBag.Remarks" type="text" class="input" placeholder="营业时间范围">
         </div>
         <textarea id="base64Data" name="base64Data" hidden></textarea>
     }

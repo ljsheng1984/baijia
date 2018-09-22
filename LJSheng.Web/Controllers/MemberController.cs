@@ -1548,9 +1548,9 @@ namespace LJSheng.Web.Controllers
                         x.ConsumptionCode,
                         x.Voucher,
                         x.PayStatus,
+                        x.ShopGid,
                         y.FirstOrDefault().RealName,
-                        y.FirstOrDefault().Account,
-                        Picture = db.ShopProduct.Where(sp => sp.Gid == db.OrderDetails.Where(od => od.OrderGid == x.Gid).FirstOrDefault().ProductGid).FirstOrDefault().Picture
+                        y.FirstOrDefault().Account
                     }).AsQueryable();
                 if (ExpressStatus != 0)
                 {
