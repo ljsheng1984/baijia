@@ -29,7 +29,7 @@
             <script id="tpl" type="text/html">
                 {{each list as item index}}
                 <div class="order-detial-goods-store">
-                    <a href="/SMall/Detail?ShopGid={{item.ShopGid}}">
+                    <a href="/SMall/Shop?Gid={{item.ShopGid}}">
                         <span>
                             <img src="/images/icon/icon-53.png" class="order-detial-goods-store-img" />
                             {{item.Name}}
@@ -41,7 +41,7 @@
                     <div class="order-detial-goods-content">
                         <a href="/SMall/Product?ShopGid={{item.ShopGid}}&Gid={{od.ProductGid}}">
                             <div class="order-detial-goods-content-img">
-                                <img src="/uploadfiles/product/{{od.Picture}}" />
+                                <img src="/uploadfiles/shop/{{item.ShopGid}}/{{od.ProductGid}}/logo.png" />
                             </div>
                             <div class="order-detial-goods-content-text">
                                 <div class="order-detial-goods-content-title">
@@ -120,6 +120,9 @@
                     }
                     else {
                         alert(data.data);
+                        if (data.result === 301) {
+                            self.location = "/Home/Login";
+                        }
                     }
                 },
             });

@@ -141,6 +141,9 @@
                     }
                     else {
                         alert(data.data);
+                        if (data.result === 301) {
+                            self.location = "/Home/Login";
+                        }
                     }
                 },
             });

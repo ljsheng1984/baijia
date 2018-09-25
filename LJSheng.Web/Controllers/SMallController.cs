@@ -245,7 +245,7 @@ namespace LJSheng.Web.Controllers
             Guid MemberGid = LCookie.GetMemberGid();
             if (MemberGid == Guid.Parse("00000000-0000-0000-0000-000000000000"))
             {
-                return Json(new AjaxResult(300, "请先登录!"));
+                return Json(new AjaxResult(301, "请先登录!"));
             }
             else
             {

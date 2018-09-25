@@ -724,19 +724,17 @@ namespace LJSheng.Web.ajax
                 var Member = db.Member.Where(l => l.MID == MID).FirstOrDefault();
                 if (MID.ToString().Length==8 && Member != null)
                 {
-                    Guid Gid = Member.Gid;
-                    Guid MemberGid = LCookie.GetMemberGid();
-                    string msg = "转让人=" + MemberGid + ",接受人=" + Gid + ",MID=" + MID + ",Number=" + Number;
-                    if (Helper.IsMember(Gid, MemberGid))
+                    Guid OrderGid = Guid.NewGuid();//订单的Gid
+                    Guid MGid = Member.Gid;//接受人
+                    Guid MemberGid = LCookie.GetMemberGid();//转让人
+                    string msg = "订单="+ OrderGid + ",转让人=" + MemberGid + ",接受人=" + MGid + ",MID=" + MID + ",Number=" + Number;
+                    if (Helper.IsMember(MGid, MemberGid))
                     {
-                        //订单的Gid
-                        Guid OrderGid = Guid.NewGuid();
                         //商品Gid,有订单号为会员转让商品
                         Guid ProductGid = Helper.GetProductGid();
                         //扣除库存
-                        if (Helper.CLStock(OrderGid, Gid, MemberGid, Number, 0, 0, Member.Account))
+                        if (Helper.CLStock(OrderGid, MGid, MemberGid, Number, 0, 0, Member.Account))
                         {
-                            LogManager.WriteLog("个人转让扣除库存成功", msg);
                             //订单详情
                             var od = new OrderDetails();
                             od.Gid = Guid.NewGuid();
@@ -756,7 +754,7 @@ namespace LJSheng.Web.ajax
                                 b.Gid = OrderGid;
                                 b.AddTime = DateTime.Now;
                                 b.OrderNo = "0";
-                                b.MemberGid = Gid;
+                                b.MemberGid = MGid;
                                 b.ShopGid = MemberGid;
                                 b.CLLevel = Member.CLLevel;
                                 b.PayStatus = 1;
@@ -778,25 +776,25 @@ namespace LJSheng.Web.ajax
                                 db.Order.Add(b);
                                 if (db.SaveChanges() == 1)
                                 {
-                                    if (db.Stock.Where(l => l.MemberGid == Gid && l.ProductGid == ProductGid).Update(l => new Stock { Number = l.Number + Number }) == 1)
+                                    if (Helper.AddCLStock(OrderGid, MGid).Contains("增加数量"))
                                     {
                                         return new AjaxResult("转让成功");
                                     }
                                     else
                                     {
-                                        LogManager.WriteLog("个人转让扣除库存成功增加失败", msg);
+                                        LogManager.WriteLog("个人转让扣除库存成功订单成功增加失败", msg);
                                         return new AjaxResult(300, "扣除成功转让失败");
                                     }
                                 }
                                 else
                                 {
+                                    LogManager.WriteLog("个人转让扣除库存成功OrderDetails成功增加Order失败", msg);
                                     db.OrderDetails.Where(l => l.OrderGid == OrderGid).Delete();
-                                    db.Order.Where(l => l.Gid == OrderGid).Delete();
                                 }
                             }
                             else
                             {
-                                db.OrderDetails.Where(l => l.OrderGid == OrderGid).Delete();
+                                LogManager.WriteLog("个人转让扣除库存成功增加OrderDetails失败", msg);
                             }
                         }
                         else {

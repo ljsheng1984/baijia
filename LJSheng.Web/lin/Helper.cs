@@ -1328,7 +1328,7 @@ namespace LJSheng.Web
                     }
                     else
                     {
-                        msg += ",增加失败:数量=" + od.Number.ToString();
+                        msg += "增加失败:数量=" + od.Number.ToString();
                     }
                 }
             }

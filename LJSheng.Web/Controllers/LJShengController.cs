@@ -6787,6 +6787,7 @@ namespace LJSheng.Web.Controllers
             {
                 foreach (var file in Directory.GetFiles(System.Web.HttpContext.Current.Server.MapPath(path)))
                 {
+                    if(!file.Contains("logo.png"))
                     files.Add(new FileInfo(file));
                 }
             }
