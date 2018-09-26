@@ -50,7 +50,7 @@
                 <span>联创</span>
                 <span>@ViewBag.Level25</span>
             </li>
-            <li onclick="getlist(26);">
+            <li onclick="getlist(26);" class="hidden">
                 <span>创始人</span>
                 <span>@ViewBag.Level26</span>
             </li>
@@ -84,7 +84,7 @@
                         </div>
                     </div>
                     <div class="team-item-num">
-                        {{item.Money}}
+                        {{item.Number}}
                     </div>
                 </div>
                 {{/each}}

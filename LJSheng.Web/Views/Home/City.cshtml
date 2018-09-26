@@ -2,10 +2,27 @@
     ViewBag.Title = "城市管理";
     Layout = "~/Views/Shared/_ILayout.cshtml";
 }
-<h3 class="city"><span class="location">@LJSheng.Common.LCookie.GetCity()</span><span>当前定位城市</span></h3>
+<h3 class="city"><span class="location">@LJSheng.Common.LCookie.GetCity()</span><span>当前选择城市</span></h3>
+<div class="search">
+    <div class="search-content">
+        <input type="text" id="city" placeholder="要完整名称,比如福州,要输福州市" />
+        <img src="/images/icon/icon-37.png" />
+    </div>
+    <span class="search-btn" onclick="s();">搜索</span>
+</div>
 <ul class="city-ul">
     @foreach (var item in Model)
     {
         <li class="cell"><a href="/SMall/Index?City=@item.City">@item.City</a></li>
     }
 </ul>
+<script>
+    function s() {
+        if ($("#city").val().length > 2) {
+            self.location = "/SMall/Index?City=" + $("#city").val();
+        }
+        else {
+            alert("要完整的城市名称,比如福州,要输福州市");
+        }
+    }
+</script>

@@ -21,7 +21,14 @@ namespace LJSheng.Web.Controllers
             {
                 if (!string.IsNullOrEmpty(City))
                 {
-                    LCookie.AddCookie("city", City, 30);
+                    if (db.OpenCity.Where(l => l.City == City).Count() > 0)
+                    {
+                        LCookie.AddCookie("city", City, 30);
+                    }
+                    else
+                    {
+                        return Helper.Redirect("当前城市没有开通", "history.go(-1);", "当前城市没有开通");
+                    }
                 }
                 //获取广告
                 ViewBag.AD = db.AD.Where(l => l.Show == 1 && l.Project == 2 && l.Sort == 0 && l.Profile=="商城广告").ToList();
@@ -215,7 +222,8 @@ namespace LJSheng.Web.Controllers
                 {
                     foreach (var file in Directory.GetFiles(System.Web.HttpContext.Current.Server.MapPath(path)))
                     {
-                        files.Add(new FileInfo(file));
+                        if (!file.Contains("logo.png"))
+                            files.Add(new FileInfo(file));
                     }
                 }
                 ViewBag.path = path;

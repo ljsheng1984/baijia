@@ -1336,8 +1336,8 @@ namespace LJSheng.Web.Controllers
             }
             int type = int.Parse(paramJson["type"].ToString());
             //统计月份的第一天和最后一天
-            int Year = DateTime.Now.Year;
-            int Month = DateTime.Now.Month;
+            //int Year = DateTime.Now.Year;
+            //int Month = DateTime.Now.Month;
             using (EFDB db = new EFDB())
             {
                 var b = db.Member.Where(l => l.MemberGid == MemberGid).GroupJoin(db.Level,
@@ -1354,7 +1354,8 @@ namespace LJSheng.Web.Controllers
                         l.CLLevel,
                         j.FirstOrDefault().Label,
                         LevelName = j.FirstOrDefault().Name,
-                        Money = db.Achievement.Where(a => a.Year == Year && a.Month == Month && l.MemberGid == l.Gid).Select(a => a.TMoney).DefaultIfEmpty(0).Sum()
+                        Number = db.Member.Where(m=>m.MemberGid==l.Gid).Count()
+                        //Money = db.Achievement.Where(a => a.Year == Year && a.Month == Month && l.MemberGid == l.Gid).Select(a => a.TMoney).DefaultIfEmpty(0).Sum()
                     }).AsQueryable();
                 if (type != 0)
                 {
@@ -1889,6 +1890,9 @@ namespace LJSheng.Web.Controllers
                 Guid gid = LCookie.GetMemberGid();
                 var b = db.Member.Where(l => l.Gid == gid).FirstOrDefault();
                 ViewBag.Integral = b.Money;
+                //获取兑换比例积分
+                decimal avg = AppApi.AVG(TB);
+                ViewBag.FBCC = avg;
                 ////查询兑换比例
                 //ViewBag.BCCB = 1 / AppApi.AVG(1);
                 //ViewBag.FBCC = 1 / AppApi.AVG(2);
@@ -1905,8 +1909,6 @@ namespace LJSheng.Web.Controllers
                     }
                     else
                     {
-                        //获取兑换比例积分
-                        decimal avg = AppApi.AVG(TB);
                         if (avg > 0)
                         {
                             decimal Token = Integral * (1 / avg);

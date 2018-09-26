@@ -6304,3 +6304,30 @@ span.label-danger {
 text-align:center;
 color:darkgray;
 }
+
+.search {
+    padding: 5px 25px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+    .search .search-content {
+        position: relative;
+        width: 80%;
+    }
+
+        .search .search-content input {
+            background: #F0EFEF;
+            border: none;
+            height: 28px;
+            text-indent: 10px;
+            width: 100%;
+        }
+
+        .search .search-content img {
+            position: absolute;
+            right: 10px;
+            top: 5px;
+            width: 16px;
+        }
