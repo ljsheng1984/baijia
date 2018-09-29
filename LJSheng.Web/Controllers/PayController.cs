@@ -538,6 +538,9 @@ namespace LJSheng.Web.Controllers
                         b.ConsumptionCode = RandStr.CreateValidateNumber(8);
                         b.Status = 1;
                         b.Remarks = Remarks;
+                        b.Address = Address;
+                        b.ContactNumber = ContactNumber;
+                        b.RealName = RealName;
                         db.ShopOrder.Add(b);
                         if (db.SaveChanges() == 1)
                         {

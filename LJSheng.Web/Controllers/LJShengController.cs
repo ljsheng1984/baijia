@@ -172,33 +172,33 @@ namespace LJSheng.Web.Controllers
             {
                 //返还24小时被扣除的彩链订单库存
                 {
-                    DateTime dt = DateTime.Now.AddHours(-24);
-                    var b = db.Order.Where(l => l.ShopGid != null && l.PayStatus == 2 && l.AddTime < dt).Select(l => new
+                DateTime dt = DateTime.Now.AddHours(-24);
+                var b = db.Order.Where(l => l.ShopGid != null && l.PayStatus == 2 && l.AddTime < dt).Select(l => new
+                {
+                    l.Gid,
+                    l.ShopGid,
+                    Number = db.OrderDetails.Where(od => od.OrderGid == l.Gid).Select(od => od.Number).DefaultIfEmpty(0).Sum()
+                }).ToList();
+                //默认商品
+                Guid ProductGid = Helper.GetProductGid();
+                foreach (var dr in b)
+                {
+                    if (db.Order.Where(l => l.Gid == dr.Gid).Update(l => new Order { PayStatus = 4 }) == 1)
                     {
-                        l.Gid,
-                        l.ShopGid,
-                        Number = db.OrderDetails.Where(od => od.OrderGid == l.Gid).Select(od => od.Number).DefaultIfEmpty(0).Sum()
-                    }).ToList();
-                    //默认商品
-                    Guid ProductGid = Helper.GetProductGid();
-                    foreach (var dr in b)
-                    {
-                        if (db.Order.Where(l => l.Gid == dr.Gid).Update(l => new Order { PayStatus = 4 }) == 1)
+                        if (dr.Number > 0)
                         {
-                            if (dr.Number > 0)
+                            if (db.Stock.Where(l => l.MemberGid == dr.ShopGid && l.ProductGid == ProductGid).Update(l => new Stock { Number = l.Number + dr.Number }) != 1)
                             {
-                                if (db.Stock.Where(l => l.MemberGid == dr.ShopGid && l.ProductGid == ProductGid).Update(l => new Stock { Number = l.Number + dr.Number }) != 1)
-                                {
-                                    LogManager.WriteLog("订单关闭成功库存赎回失败", "订单=" + dr.Gid.ToString() + "库存=" + dr.Number.ToString());
-                                }
+                                LogManager.WriteLog("订单关闭成功库存赎回失败", "订单=" + dr.Gid.ToString() + "库存=" + dr.Number.ToString());
                             }
                         }
-                        else
-                        {
-                            LogManager.WriteLog("订单库存赎回状态失败", "订单=" + dr.Gid.ToString() + "库存=" + dr.Number.ToString());
-                        }
+                    }
+                    else
+                    {
+                        LogManager.WriteLog("订单库存赎回状态失败", "订单=" + dr.Gid.ToString() + "库存=" + dr.Number.ToString());
                     }
                 }
+            }
                 //商城15天后自动确认收货打款
                 {
                     DateTime dt = DateTime.Now.AddDays(-15);
@@ -239,7 +239,13 @@ namespace LJSheng.Web.Controllers
                                 m.CLMoney = CLMoney + Money;
                                 if (db.SaveChanges() == 1)
                                 {
-                                    Helper.CLRecordAdd(dr.MemberGid, Money, CLMoney, 0, 0, "订单额度退回=" + o.Gid.ToString());
+                                    if (Helper.CLRecordAdd(dr.MemberGid, Money, CLMoney, 0, 0, "订单额度退回=" + o.Gid.ToString()))
+                                    {
+                                        if (db.ShopOrder.Where(l => l.Gid == dr.Gid && l.PayStatus==2).Update(l => new ShopOrder { PayStatus = 4 }) != 1)
+                                        {
+                                            LogManager.WriteLog("订单额度退回成功关闭订单失败", "会员=" + dr.MemberGid.ToString() + ",订单库存=" + o.Gid.ToString() + ",额度=" + Money.ToString());
+                                        }
+                                    }
                                 }
                                 else
                                 {

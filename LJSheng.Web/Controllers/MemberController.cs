@@ -140,7 +140,8 @@ namespace LJSheng.Web.Controllers
         {
             using (EFDB db = new EFDB())
             {
-                db.Address.Update(l => new Address { Default = 1 });
+                Guid MGid = LCookie.GetMemberGid();
+                db.Address.Where(l=>l.MemberGid==MGid).Update(l => new Address { Default = 1 });
                 if (db.Address.Where(l => l.Gid == Gid).Update(l => new Address { Default = 2 }) == 1)
                 {
                     return Json(new AjaxResult("成功"));

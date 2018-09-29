@@ -2233,7 +2233,7 @@ namespace LJSheng.Web
             using (EFDB db = new EFDB())
             {
                 var b = db.ShopProduct.Where(l => l.Gid == ProductGid).FirstOrDefault();
-                return "<img src=\"/uploadfiles/product/" + b.Picture + "\" /><h1>" + b.Name + "</h1>";
+                return "<img src=\"/uploadfiles/shop/" + b.ShopGid + "/" + b.Gid + "/logo.png\" /><h1>" + b.Name + "</h1>";
             }
         }
         #endregion
@@ -2941,8 +2941,9 @@ namespace LJSheng.Web
         /// <param name="OldNumber">原彩链包</param>
         /// <param name="Remarks">备注</param>
         /// <returns>返回调用结果</returns>
-        public static void CLRecordAdd(Guid Gid, decimal Money, decimal CLMoney, int Number, int OldNumber, string Remarks = "")
+        public static bool CLRecordAdd(Guid Gid, decimal Money, decimal CLMoney, int Number, int OldNumber, string Remarks = "")
         {
+            bool tf = false;
             string LogMsg = "会员=" + Gid + ",Money=" + Money;
             try
             {
@@ -2960,6 +2961,7 @@ namespace LJSheng.Web
                     db.CLRecord.Add(b);
                     if (db.SaveChanges() == 1)
                     {
+                        tf = true;
                     }
                     else
                     {
@@ -2971,6 +2973,7 @@ namespace LJSheng.Web
             {
                 LogManager.WriteLog("额度记录异常", LogMsg + "/r/n" + err.Message);
             }
+            return tf;
         }
         #endregion
 

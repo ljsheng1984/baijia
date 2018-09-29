@@ -93,7 +93,7 @@
                     <td>{{item.AddTime}}</td>
                     <td>
                         <div class="btn-group">
-                            <button class="btn" onclick="Show('{{item.Gid}}','ProductAU?gid={{item.Gid}}&project=@Request.QueryString["project"]');">编辑</button>
+                            <a class="btn" href="ProductAU?gid={{item.Gid}}&project=@Request.QueryString["project"]" target="_blank">编辑</a>
                             <button class="btn btn-danger hidden" onclick="Delete('{{item.Gid}}');">删除</button>
                         </div>
                     </td>

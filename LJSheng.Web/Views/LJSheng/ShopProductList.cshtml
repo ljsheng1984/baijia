@@ -87,7 +87,7 @@
                     <td>{{item.AddTime}}</td>
                     <td>
                         <div class="btn-group">
-                            <button class="btn" onclick="Show('{{item.Name}}','ShopProductAU?gid={{item.Gid}}&ShopGid={{item.ShopGid}}');">编辑</button>
+                            <a class="btn" href="ShopProductAU?gid={{item.Gid}}&ShopGid={{item.ShopGid}}" target="_blank">编辑</a>
                             <button class="btn" onclick="Show('{{item.Name}}','Files?name={{item.Name}}&gid={{item.ShopGid}}&pgid={{item.Gid}}');">商品轮播图</button>
                             <button class="btn btn-danger hidden" onclick="Delete('{{item.Gid}}');">删除</button>
                         </div>

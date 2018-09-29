@@ -214,7 +214,7 @@ namespace LJSheng.Web.Controllers
                 ViewBag.Picture = b.Picture;
                 ViewBag.Name = b.Name;
                 ViewBag.Content = b.Content;
-
+                ViewBag.Profile = b.Profile;
                 string path = "/uploadfiles/shop/" + ShopGid + "/" + Gid + "/";
                 List<FileInfo> files = new List<FileInfo>();
                 ///获取文件列表信息  

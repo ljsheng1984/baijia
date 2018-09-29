@@ -96,7 +96,7 @@
                     </td>
                     <td>
                         <div class="btn-group">
-                            <button class="btn" onclick="Show('{{item.Gid}}');">编辑</button>
+                            <a class="btn" href="ShopAU?Gid={{item.Gid}}" target="_blank">编辑</a>
                             <button class="btn" onclick="Show('{{item.Name}}','Files?name={{item.Name}}&gid={{item.Gid}}&filename=bj.png');">背景图</button>
                             <button class="btn hidden" onclick="Show('{{item.Name}}','ShopProject?ShopGid={{item.Gid}}');">商家类别</button>
                         </div>
