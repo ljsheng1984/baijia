@@ -85,7 +85,7 @@ namespace LJSheng.Web.Controllers
                     other = "",
                     count = b.Count(),
                     pageindex,
-                    list = b.OrderBy(l => l.Sort).OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
+                    list = b.OrderBy(l => l.Sort).ThenByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
                 }));
             }
         }
@@ -188,7 +188,7 @@ namespace LJSheng.Web.Controllers
                     other = "",
                     count = b.Count(),
                     pageindex,
-                    list = b.OrderBy(l => l.Sort).OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
+                    list = b.OrderBy(l => l.Sort).ThenByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
                 }));
             }
         }
@@ -543,7 +543,7 @@ namespace LJSheng.Web.Controllers
                     other = "",
                     count = b.Count(),
                     pageindex,
-                    list = b.OrderBy(l => l.Sort).OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
+                    list = b.OrderBy(l => l.Sort).ThenByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
                 }));
             }
         }
