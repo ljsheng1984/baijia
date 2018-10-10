@@ -425,7 +425,7 @@ namespace LJSheng.Web
                                         Member.UPTime = DateTime.Now;
                                         if (db.SaveChanges() == 1)
                                         {
-                                            msg += "会员升级成功原等级("+ Member.CLLevel.ToString() + ")=" + CLLevel.ToString() + ",升等级=" + UPCLLevel.ToString();
+                                            msg += "会员升级成功原等级(" + Member.CLLevel.ToString() + ")=" + CLLevel.ToString() + ",升等级=" + UPCLLevel.ToString();
                                             //更新发货人-防止上级以上有升级到发货人,所以要先处理自己作为发货人的情况
                                             if (UPCLLevel > 24)
                                             {
@@ -581,7 +581,7 @@ namespace LJSheng.Web
                                 var LVM1 = LV.Where(l => l.Number == 1).FirstOrDefault();
                                 Money = Price * LVM1.Differential;
                                 Integral = Money * LVM1.ShopProfit;
-                                if (MoneyRecordAdd(OrderGid, (Guid)mr.M1, Money - Integral, Integral, 22, "第1级级差 百分" + LVM1.Differential*100) == null)
+                                if (MoneyRecordAdd(OrderGid, (Guid)mr.M1, Money - Integral, Integral, 22, "第1级级差 百分" + LVM1.Differential * 100) == null)
                                 {
                                     msg += "级差失败:会员=" + mr.M1.ToString() + ",Price=" + Price.ToString();
                                 }
@@ -661,7 +661,7 @@ namespace LJSheng.Web
         /// <remarks>
         /// 2018-08-18 林建生
         /// </remarks>
-        public static string Consignor(Guid MemberGid, decimal Price, Guid OrderGid, List<Level> Level,decimal Recommendation,int CLLevel,Guid ShopGid)
+        public static string Consignor(Guid MemberGid, decimal Price, Guid OrderGid, List<Level> Level, decimal Recommendation, int CLLevel, Guid ShopGid)
         {
             string msg = "";
             try
@@ -860,7 +860,7 @@ namespace LJSheng.Web
         /// <remarks>
         /// 2018-08-18 林建生
         /// </remarks>
-        public static string CLTeam(Guid MemberGid, List<Level> lv,string msg="")
+        public static string CLTeam(Guid MemberGid, List<Level> lv, string msg = "")
         {
             try
             {
@@ -926,7 +926,7 @@ namespace LJSheng.Web
                             m.CLLevel = UPLevel;
                             if (db.SaveChanges() == 1)
                             {
-                                msg += "团队升级会员="+ MemberGid.ToString() + "原等级="+ CLLevel + ",升级到=" + UPLevel.ToString();
+                                msg += "团队升级会员=" + MemberGid.ToString() + "原等级=" + CLLevel + ",升级到=" + UPLevel.ToString();
                                 //更新发货人
                                 if (UPLevel > 24)
                                 {
@@ -1568,7 +1568,7 @@ namespace LJSheng.Web
                     //支付类型
                     string payname = ((PayType)Enum.Parse(typeof(LJShengHelper.PayType), PayType.ToString())).ToString();
                     var b = db.ShopOrder.Where(l => l.Gid == OrderGid).FirstOrDefault();
-                    msg = "订单号=" + b.OrderNo + ",RMB="+b.RMB + rn;
+                    msg = "订单号=" + b.OrderNo + ",RMB=" + b.RMB + rn;
                     if (b != null && b.PayStatus == 2)
                     {
                         msg += "购买会员=" + b.MemberGid.ToString() + ",商家=" + b.ShopGid.ToString() + rn;
@@ -1837,7 +1837,7 @@ namespace LJSheng.Web
                 MR.M1 = MemberGid;
                 MR.M1Time = DateTime.Now;
                 var M2 = db.Member.Where(l => l.Gid == MemberGid).FirstOrDefault();
-                if (M2.MemberGid!=null)
+                if (M2.MemberGid != null)
                 {
                     MR.M2 = M2.MemberGid;
                     MR.M2Time = DateTime.Now;
@@ -1964,11 +1964,11 @@ namespace LJSheng.Web
         /// </summary>
         /// <param name="base64str"></param>
         /// <returns></returns>
-        public static string jsimg(string path, string base64str,string filename="")
+        public static string jsimg(string path, string base64str, string filename = "")
         {
             try
             {
-                if (!string.IsNullOrEmpty(base64str))
+                if (base64str.Length>18)
                 {
                     string imgData = base64str.Split(',')[1];
                     //过滤特殊字符即可   
@@ -2007,7 +2007,7 @@ namespace LJSheng.Web
         /// <param name="path">上传路径</param>
         /// <param name="file">文件</param> 
         /// <param name="filename">文件</param> 
-        public static string UploadFiles(string path, HttpPostedFileBase file,string filename="")
+        public static string UploadFiles(string path, HttpPostedFileBase file, string filename = "")
         {
             StringBuilder sb = new StringBuilder();
             if (!Directory.Exists(HttpContext.Current.Server.MapPath(path)))  //判断当前目录是否存在。
@@ -2396,7 +2396,7 @@ namespace LJSheng.Web
                             {
                                 MRGid = b.Gid;
                                 //是否满足冻结要求
-                                if (Type !=2)
+                                if (Type != 2)
                                 {
                                     FrozenIntegral(Gid, m.MIntegral, m.TIntegral, 2, 2, FRemarks);
                                 }
@@ -2983,7 +2983,7 @@ namespace LJSheng.Web
             int MID = int.Parse("1" + RandStr.GenerateRandomCode(7));
             using (EFDB db = new EFDB())
             {
-                if (MID.ToString().Length!=8 && db.Member.Where(l => l.MID == MID).Count() != 0)
+                if (MID.ToString().Length != 8 && db.Member.Where(l => l.MID == MID).Count() != 0)
                 {
                     CreateMNumber();
                 }
@@ -3050,7 +3050,7 @@ namespace LJSheng.Web
         /// <remarks>
         /// 2016-06-30 林建生
         /// </remarks>
-        public static int Register(string Account, string pwd, string paypwd, string realname, string identifyingCode,string membergid,int id)
+        public static int Register(string Account, string pwd, string paypwd, string realname, string identifyingCode, string membergid, int id)
         {
             return 1;
         }

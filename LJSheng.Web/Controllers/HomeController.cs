@@ -890,7 +890,7 @@ namespace LJSheng.Web.Controllers
                     other = "",
                     count = b.Count(),
                     pageindex,
-                    list = b.OrderBy(l => l.Sort).Skip(pagesize * (pageindex - 1)).Take(pagesize).Select(l => new
+                    list = b.OrderBy(l => l.Sort).OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).Select(l => new
                     {
                         l.Gid,
                         l.Name,

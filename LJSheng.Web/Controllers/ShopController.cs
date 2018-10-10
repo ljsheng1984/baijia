@@ -32,7 +32,7 @@ namespace LJSheng.Web.Controllers
                 var b = db.Shop.Where(l => l.MemberGid == MemberGid).FirstOrDefault();
                 ViewBag.Name = b.Name;
                 ViewBag.State = b.State;
-                ViewBag.Picture = Help.Shop + b.Picture;
+                ViewBag.Gid =  b.Gid;
                 ViewBag.Order = db.ShopOrder.Where(l => l.Status == 1 && l.ShopGid==b.Gid).Count();
                 LCookie.AddCookie("shop", DESRSA.DESEnljsheng(JsonConvert.SerializeObject(new
                 {
@@ -1229,29 +1229,54 @@ namespace LJSheng.Web.Controllers
             using (EFDB db = new EFDB())
             {
                 Guid Gid = LCookie.GetShopGid();
-                var b = db.Shop.Where(l => l.Gid == Gid).FirstOrDefault();
-                string LegalPerson = Helper.jsimg(Help.Shop, Request.Form["base64Data"]);
-                string USCI = Helper.jsimg(Help.Shop, Request.Form["USCI"]);
-                string Licence = Helper.jsimg(Help.Shop, Request.Form["Licence"]);
-                if (!string.IsNullOrEmpty(LegalPerson))
+                if (Gid != Guid.Parse("00000000-0000-0000-0000-000000000000"))
                 {
-                    b.LegalPerson = LegalPerson;
-                }
-                if (!string.IsNullOrEmpty(USCI))
-                {
-                    b.USCI = USCI;
-                }
-                if (!string.IsNullOrEmpty(Licence))
-                {
-                    b.Licence = Licence;
-                }
-                if (db.SaveChanges() == 1)
-                {
-                    return Helper.Redirect("上传成功", "/Shop/UPCertificates", "上传成功");
+                    var b = db.Shop.Where(l => l.Gid == Gid).FirstOrDefault();
+                    if (b != null)
+                    {
+                        string LegalPerson = Helper.jsimg(Help.Shop, Request.Form["base64Data"]);
+                        string USCI = Helper.jsimg(Help.Shop, Request.Form["USCI"]);
+                        string Licence = Helper.jsimg(Help.Shop, Request.Form["Licence"]);
+                        if (!string.IsNullOrEmpty(LegalPerson))
+                        {
+                            b.LegalPerson = LegalPerson;
+                        }
+                        if (!string.IsNullOrEmpty(USCI))
+                        {
+                            b.USCI = USCI;
+                        }
+                        if (!string.IsNullOrEmpty(Licence))
+                        {
+                            b.Licence = Licence;
+                        }
+                        if (db.SaveChanges() == 1)
+                        {
+                            if (Request.QueryString["type"] == "1")
+                            {
+                                return Helper.Redirect("上传成功", "/Shop/UPCertificates?type=2", "继续上传营业执照");
+                            }
+                            else if (Request.QueryString["type"] == "2")
+                            {
+                                return Helper.Redirect("上传成功", "/Shop/UPCertificates?type=3", "继续上传许可证");
+                            }
+                            else
+                            {
+                                return Helper.Redirect("上传成功", "/Shop/Index", "上传成功");
+                            }
+                        }
+                        else
+                        {
+                            return Helper.Redirect("操作失败,请检查录入的数据！", "history.go(-1);", "上传失败,请检查和你的图片!");
+                        }
+                    }
+                    else
+                    {
+                        return Helper.Redirect("操作失败", "/Home/Login", "商家查找不到");
+                    }
                 }
                 else
                 {
-                    return Helper.Redirect("操作失败,请检查录入的数据！", "history.go(-1);", "上传失败,请检查和你的图片!");
+                    return Helper.Redirect("操作失败！", "/Home/Login", "请重新登录");
                 }
             }
         }

@@ -80,7 +80,7 @@
                     beforeSend: function () { },
                     success: function (data) {
                         if (data.result === 200) {
-                            self.location = "/Shop/UPCertificates";
+                            self.location = "/Shop/UPCertificates?type=1";
                         }
                         else {
                             alert(data.data);

@@ -30,7 +30,7 @@
             <div class="center-header-content">
                 <div class="center-header-msg">
                     <div class="center-header-avatar">
-                        <img src="@ViewBag.Picture" onerror="this.src='/images/nopic.png'" />
+                        <img src="/uploadfiles/shop/@ViewBag.Gid/logo.png" onerror="this.src='/images/nopic.png'" />
                     </div>
                     <div class="center-header-text">
                         <p>@ViewBag.Name</p>
@@ -108,32 +108,46 @@
                     </div>
                     <div class="freeze-integral-content">
                         <a href="/Shop/Info" class="freeze-integral-item">
-                                <span>
-                                    <img src="/images/icon/icon-41.png" />
-                                    商家信息
-                                </span>
-                                <img class="" src="/images/icon/icon-24.png" />
-                        </a>
-                        <a  href="/Shop/UPCertificates" class="freeze-integral-item">
-                                <span>
-                                    <img src="/images/icon/icon-41.png" />
-                                    证件上传
-                                </span>
-                                <img class="" src="/images/icon/icon-24.png" />
-                        </a>
-                        <a href="/Shop/Money" class="freeze-integral-item">
                             <span>
-                                    <img src="/images/icon/icon-20.png" />
-                                    可提货款
-                                    <span>(可提：@ViewBag.ShopMoney )</span>
+                                <img src="/images/icon/icon-41.png" />
+                                商家信息
                             </span>
                             <img class="" src="/images/icon/icon-24.png" />
                         </a>
-                        <a  href="/Shop/CLMoney" class="freeze-integral-item">
+                        <a href="/Shop/UPCertificates?type=1" class="freeze-integral-item">
                             <span>
-                                    <img src="/images/icon/icon-44.png" />
-                                    溯源码激活
-                                    <span>(@ViewBag.Stock)</span>
+                                <img src="/images/icon/icon-41.png" />
+                                上传身份证照片
+                            </span>
+                            <img class="" src="/images/icon/icon-24.png" />
+                        </a>
+                        <a href="/Shop/UPCertificates?type=2" class="freeze-integral-item">
+                            <span>
+                                <img src="/images/icon/icon-41.png" />
+                                上传营业执照
+                            </span>
+                            <img class="" src="/images/icon/icon-24.png" />
+                        </a>
+                        <a href="/Shop/UPCertificates?type=3" class="freeze-integral-item">
+                            <span>
+                                <img src="/images/icon/icon-41.png" />
+                                上传许可证
+                            </span>
+                            <img class="" src="/images/icon/icon-24.png" />
+                        </a>
+                        <a href="/Shop/Money" class="freeze-integral-item">
+                            <span>
+                                <img src="/images/icon/icon-20.png" />
+                                可提货款
+                                <span>(可提：@ViewBag.ShopMoney )</span>
+                            </span>
+                            <img class="" src="/images/icon/icon-24.png" />
+                        </a>
+                        <a href="/Shop/CLMoney" class="freeze-integral-item">
+                            <span>
+                                <img src="/images/icon/icon-44.png" />
+                                溯源码激活
+                                <span>(@ViewBag.Stock)</span>
                             </span>
                             <img class="" src="/images/icon/icon-24.png" />
                         </a>

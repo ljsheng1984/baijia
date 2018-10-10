@@ -131,7 +131,8 @@
                     success: function (data) {
                         tip(data.data);
                         if (data.result === 200) {
-                            location.reload();
+                            //location.reload();
+                            self.location = "/Shop/Order?tab=1";
                         }
                     },
                 });

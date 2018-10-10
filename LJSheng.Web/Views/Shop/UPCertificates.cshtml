@@ -30,10 +30,10 @@
         <div class="upload-documents-tip">
             证件照片
         </div>
-        @using (Html.BeginForm("UPShop", "Shop", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        @using (Html.BeginForm("UPShop", "Shop", new { type = Request.QueryString["type"] }, FormMethod.Post, new { enctype = "multipart/form-data" }))
         {
             <div class="upload-documents-content">
-                <div class="upload-documents-item">
+                <div class="upload-documents-item" @(Request.QueryString["type"]=="1"?"":"style=display:none;")>
                     <p class="upload-documents-item-type">身份证照</p>
                     <div class="upload-documents-item-img">
                         <!--上传控件-->
@@ -48,7 +48,7 @@
                         <a href="/Shop/LegalPerson">查看示例图</a>
                     </div>
                 </div>
-                <div class="upload-documents-item">
+                <div class="upload-documents-item" @(Request.QueryString["type"]=="2"?"":"style=display:none;")>
                     <p class="upload-documents-item-type">营业执照</p>
                     <div class="upload-documents-item-img">
                         <!--上传控件-->
@@ -62,7 +62,7 @@
                         <a href="/Shop/USCI">查看示例图</a>
                     </div>
                 </div>
-                <div class="upload-documents-item">
+                <div class="upload-documents-item" @(Request.QueryString["type"]=="3"?"":"style=display:none;")>
                     <p class="upload-documents-item-type">许可证</p>
                     <div class="upload-documents-item-img">
                         <!--上传控件-->

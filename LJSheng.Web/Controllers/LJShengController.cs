@@ -45,7 +45,7 @@ namespace LJSheng.Web.Controllers
                     }
                     else if (type == 2)
                     {
-                        if (db.ShopOrder.Where(l => l.OrderNo == OrderNo && l.RMB == PayPrice && l.PayType == PayType && l.PayStatus == 2).Count() >0)
+                        if (db.ShopOrder.Where(l => l.OrderNo == OrderNo && l.RMB == PayPrice && l.PayType == PayType && l.PayStatus == 2).Count() > 0)
                         {
                             if (Helper.ShopOrder(OrderNo, Request.QueryString["TradeNo"], PayType, PayPrice))
                             {
@@ -120,7 +120,7 @@ namespace LJSheng.Web.Controllers
             using (EFDB db = new EFDB())
             {
                 var d = db.Dictionaries.Where(l => l.DictionaryType == "ClassifyType").FirstOrDefault();
-                return View(db.DictionariesList.Where(l => l.DGid == d.Gid && l.Value=="2").ToList());
+                return View(db.DictionariesList.Where(l => l.DGid == d.Gid && l.Value == "2").ToList());
             }
         }
         // 头部
@@ -172,37 +172,37 @@ namespace LJSheng.Web.Controllers
             {
                 //返还24小时被扣除的彩链订单库存
                 {
-                DateTime dt = DateTime.Now.AddHours(-24);
-                var b = db.Order.Where(l => l.ShopGid != null && l.PayStatus == 2 && l.AddTime < dt).Select(l => new
-                {
-                    l.Gid,
-                    l.ShopGid,
-                    Number = db.OrderDetails.Where(od => od.OrderGid == l.Gid).Select(od => od.Number).DefaultIfEmpty(0).Sum()
-                }).ToList();
-                //默认商品
-                Guid ProductGid = Helper.GetProductGid();
-                foreach (var dr in b)
-                {
-                    if (db.Order.Where(l => l.Gid == dr.Gid).Update(l => new Order { PayStatus = 4 }) == 1)
+                    DateTime dt = DateTime.Now.AddHours(-24);
+                    var b = db.Order.Where(l => l.ShopGid != null && l.PayStatus == 2 && l.AddTime < dt).Select(l => new
                     {
-                        if (dr.Number > 0)
+                        l.Gid,
+                        l.ShopGid,
+                        Number = db.OrderDetails.Where(od => od.OrderGid == l.Gid).Select(od => od.Number).DefaultIfEmpty(0).Sum()
+                    }).ToList();
+                    //默认商品
+                    Guid ProductGid = Helper.GetProductGid();
+                    foreach (var dr in b)
+                    {
+                        if (db.Order.Where(l => l.Gid == dr.Gid).Update(l => new Order { PayStatus = 4 }) == 1)
                         {
-                            if (db.Stock.Where(l => l.MemberGid == dr.ShopGid && l.ProductGid == ProductGid).Update(l => new Stock { Number = l.Number + dr.Number }) != 1)
+                            if (dr.Number > 0)
                             {
-                                LogManager.WriteLog("订单关闭成功库存赎回失败", "订单=" + dr.Gid.ToString() + "库存=" + dr.Number.ToString());
+                                if (db.Stock.Where(l => l.MemberGid == dr.ShopGid && l.ProductGid == ProductGid).Update(l => new Stock { Number = l.Number + dr.Number }) != 1)
+                                {
+                                    LogManager.WriteLog("订单关闭成功库存赎回失败", "订单=" + dr.Gid.ToString() + "库存=" + dr.Number.ToString());
+                                }
                             }
                         }
-                    }
-                    else
-                    {
-                        LogManager.WriteLog("订单库存赎回状态失败", "订单=" + dr.Gid.ToString() + "库存=" + dr.Number.ToString());
+                        else
+                        {
+                            LogManager.WriteLog("订单库存赎回状态失败", "订单=" + dr.Gid.ToString() + "库存=" + dr.Number.ToString());
+                        }
                     }
                 }
-            }
                 //商城15天后自动确认收货打款
                 {
                     DateTime dt = DateTime.Now.AddDays(-15);
-                    var so = db.ShopOrder.Where(l => l.ShopGid != null && l.PayStatus == 1 && l.Status==1 && l.DeliveryTime < dt).Select(l => new{l.Gid}).ToList();
+                    var so = db.ShopOrder.Where(l => l.ShopGid != null && l.PayStatus == 1 && l.Status == 1 && l.DeliveryTime < dt).Select(l => new { l.Gid }).ToList();
                     foreach (var dr in so)
                     {
                         var b = db.ShopOrder.Where(l => l.Gid == dr.Gid && l.Status == 1).FirstOrDefault();
@@ -228,34 +228,36 @@ namespace LJSheng.Web.Controllers
                     var b = db.ShopOrder.Where(l => l.ShopGid != null && l.PayStatus == 2 && l.AddTime < dt).ToList();
                     foreach (var dr in b)
                     {
-                        var od = db.OrderDetails.Where(l => l.OrderGid == dr.Gid && l.State == 1).ToList();
-                        foreach(var o in od)
+                        Guid ShopGid = dr.ShopGid;
+                        if (db.ShopOrder.Where(l => l.Gid == dr.Gid && l.PayStatus == 2).Update(l => new ShopOrder { PayStatus = 4 }) == 1)
                         {
-                            if (db.OrderDetails.Where(l => l.Gid == o.Gid && l.State == 1).Update(l => new OrderDetails { State = 3 })==1)
+                            var od = db.OrderDetails.Where(l => l.OrderGid == dr.Gid && l.State == 1).ToList();
+                            foreach (var o in od)
                             {
-                                decimal Money = o.Number * o.Price;
-                                var m = db.Member.Where(l => l.Gid == dr.MemberGid).FirstOrDefault();
-                                decimal CLMoney = m.CLMoney;
-                                m.CLMoney = CLMoney + Money;
-                                if (db.SaveChanges() == 1)
+                                if (db.OrderDetails.Where(l => l.Gid == o.Gid && l.State == 1).Update(l => new OrderDetails { State = 3 }) == 1)
                                 {
-                                    if (Helper.CLRecordAdd(dr.MemberGid, Money, CLMoney, 0, 0, "订单额度退回=" + o.Gid.ToString()))
+                                    decimal Money = o.Number * o.Price;
+                                    var m = db.Member.Where(l => l.Gid == ShopGid).FirstOrDefault();
+                                    decimal CLMoney = m.CLMoney;
+                                    m.CLMoney = CLMoney + Money;
+                                    if (db.SaveChanges() == 1)
                                     {
-                                        if (db.ShopOrder.Where(l => l.Gid == dr.Gid && l.PayStatus==2).Update(l => new ShopOrder { PayStatus = 4 }) != 1)
-                                        {
-                                            LogManager.WriteLog("订单额度退回成功关闭订单失败", "会员=" + dr.MemberGid.ToString() + ",订单库存=" + o.Gid.ToString() + ",额度=" + Money.ToString());
-                                        }
+                                        Helper.CLRecordAdd(ShopGid, Money, CLMoney, 0, 0, "订单额度退回=" + o.Gid.ToString());
+                                    }
+                                    else
+                                    {
+                                        LogManager.WriteLog("订单额度退回失败", "会员=" + ShopGid.ToString() + ",订单库存=" + o.Gid.ToString() + ",额度=" + Money.ToString());
                                     }
                                 }
                                 else
                                 {
-                                    LogManager.WriteLog("订单额度退回失败", "会员=" + dr.MemberGid.ToString() + ",订单库存=" + o.Gid.ToString() + ",额度=" + Money.ToString());
+                                    LogManager.WriteLog("订单库存退回失败", "订单库存=" + o.Gid.ToString());
                                 }
                             }
-                            else
-                            {
-                                LogManager.WriteLog("订单库存更新状态失败", "订单库存=" + o.Gid.ToString());
-                            }
+                        }
+                        else
+                        {
+                            LogManager.WriteLog("订单关闭失败", "订单=" + ShopGid.ToString());
                         }
                     }
                 }
@@ -376,7 +378,7 @@ namespace LJSheng.Web.Controllers
                     other = "",
                     count = b.Count(),
                     pageindex,
-                    list = b.OrderBy(l => l.Sort).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
+                    list = b.OrderBy(l => l.Sort).OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
                 }));
             }
         }
@@ -488,7 +490,7 @@ namespace LJSheng.Web.Controllers
                     other = "",
                     count = b.Count(),
                     pageindex,
-                    list = b.OrderBy(l => l.Sort).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
+                    list = b.OrderBy(l => l.Sort).OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
                 }));
             }
         }
@@ -706,7 +708,7 @@ namespace LJSheng.Web.Controllers
         /// 2018-08-18 林建生
         /// </remarks>
         [HttpPost]
-        public JsonResult UPSellStock(Guid Gid,int Type)
+        public JsonResult UPSellStock(Guid Gid, int Type)
         {
             using (EFDB db = new EFDB())
             {
@@ -983,7 +985,7 @@ namespace LJSheng.Web.Controllers
                     //{
                     //    b.PWD = MD5.GetMD5ljsheng(PWD);
                     //}
-                    b.StockRight= decimal.Parse(Request.Form["StockRight"]);
+                    b.StockRight = decimal.Parse(Request.Form["StockRight"]);
                     b.Jurisdiction = Request.Form["Jurisdiction"];
                     if (b.Jurisdiction == "冻结")
                     {
@@ -1042,7 +1044,7 @@ namespace LJSheng.Web.Controllers
             using (EFDB db = new EFDB())
             {
                 var lv = db.Level.OrderBy(l => l.LV);
-                ViewBag.Level = lv.Where(l=>l.Project==1 && (l.LV==1 || l.LV==11)).ToList();
+                ViewBag.Level = lv.Where(l => l.Project == 1 && (l.LV == 1 || l.LV == 11)).ToList();
                 ViewBag.CLLevel = lv.Where(l => l.Project == 2).ToList();
                 return View();
             }
@@ -1184,9 +1186,9 @@ namespace LJSheng.Web.Controllers
                         AllMoney = db.Order.Where(o => o.MemberGid == l.Gid && o.PayStatus == 1 && o.PayType != 5).Select(o => o.TotalPrice).DefaultIfEmpty(0m).Sum(),
                         AllShopMoney = db.ShopOrder.Where(o => o.MemberGid == l.Gid && o.PayStatus == 1 && o.PayType != 5).Select(o => o.TotalPrice).DefaultIfEmpty(0m).Sum(),
                         //AllIntegral = db.Order.Where(o => o.MemberGid == l.Gid && o.PayStatus == 1 && o.PayType == 5).Select(o => o.TotalPrice).DefaultIfEmpty(0m).Sum(),
-                        Stock = db.Stock.Where(s=>s.MemberGid==l.Gid).Select(s => s.Number).DefaultIfEmpty(0).Sum(),
+                        Stock = db.Stock.Where(s => s.MemberGid == l.Gid).Select(s => s.Number).DefaultIfEmpty(0).Sum(),
                         TNumber = db.MRelation.Where(mr => mr.M1 == l.Gid || mr.M2 == l.Gid | mr.M3 == l.Gid).Count(),
-                        Level22 = db.Member.Where(m => m.MemberGid == l.Gid  && m.CLLevel==22).Count(),
+                        Level22 = db.Member.Where(m => m.MemberGid == l.Gid && m.CLLevel == 22).Count(),
                         Level23 = db.Member.Where(m => m.MemberGid == l.Gid && m.CLLevel == 23).Count(),
                         Level24 = db.Member.Where(m => m.MemberGid == l.Gid && m.CLLevel == 24).Count(),
                         Level25 = db.Member.Where(m => m.MemberGid == l.Gid && m.CLLevel == 25).Count(),
@@ -1241,7 +1243,7 @@ namespace LJSheng.Web.Controllers
                 int pagesize = Int32.Parse(paramJson["pagesize"].ToString());
                 return Json(new AjaxResult(new
                 {
-                    other = " | 当前查询总积分=" + b.Select(l => l.Money).DefaultIfEmpty(0m).Sum()+ ",购物积分=" + b.Select(l => l.Integral).DefaultIfEmpty(0m).Sum() + " | 股权=" + b.Select(l => l.StockRight).DefaultIfEmpty(0m).Sum(),
+                    other = " | 当前查询总积分=" + b.Select(l => l.Money).DefaultIfEmpty(0m).Sum() + ",购物积分=" + b.Select(l => l.Integral).DefaultIfEmpty(0m).Sum() + " | 股权=" + b.Select(l => l.StockRight).DefaultIfEmpty(0m).Sum(),
                     count = b.Count(),
                     pageindex,
                     list = b.OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
@@ -1408,7 +1410,7 @@ namespace LJSheng.Web.Controllers
                         l.Number,
                         j.FirstOrDefault().Label,
                         LevelName = j.FirstOrDefault().Name,
-                        AllMoney = db.Order.Where(o => o.MemberGid == l.Gid && o.PayStatus == 1 && o.Type==3 && o.PayTime>= MonthFirst && o.PayTime<=MonthLast).Select(o => o.Price).DefaultIfEmpty(0m).Sum(),
+                        AllMoney = db.Order.Where(o => o.MemberGid == l.Gid && o.PayStatus == 1 && o.Type == 3 && o.PayTime >= MonthFirst && o.PayTime <= MonthLast).Select(o => o.Price).DefaultIfEmpty(0m).Sum(),
                         Stock = db.Stock.Where(s => s.MemberGid == l.Gid).Select(s => s.Number).DefaultIfEmpty(0).Sum()
                     }).AsQueryable();
                 if (!string.IsNullOrEmpty(paramJson["Type"].ToString()))
@@ -2124,7 +2126,7 @@ namespace LJSheng.Web.Controllers
                     b.Company = Request.Form["Company"];
                     b.Brand = Request.Form["Brand"];
                     b.Prefix = Request.Form["Prefix"];
-                    b.MPrice= decimal.Parse(Request.Form["MPrice"]);
+                    b.MPrice = decimal.Parse(Request.Form["MPrice"]);
                     if (!string.IsNullOrEmpty(Request.Form["Picture"]))
                     {
                         b.Picture = Request.Form["Picture"];
@@ -2207,7 +2209,7 @@ namespace LJSheng.Web.Controllers
                 }
                 if (paramJson["ClassifyGid"].ToString() != "0" || !string.IsNullOrEmpty(Request.QueryString["ClassifyGid"]))
                 {
-                    Guid ClassifyGid = paramJson["ClassifyGid"].ToString() != "0"?Guid.Parse(paramJson["ClassifyGid"].ToString()): Guid.Parse(Request.QueryString["ClassifyGid"]);
+                    Guid ClassifyGid = paramJson["ClassifyGid"].ToString() != "0" ? Guid.Parse(paramJson["ClassifyGid"].ToString()) : Guid.Parse(Request.QueryString["ClassifyGid"]);
                     b = b.Where(l => l.ClassifyGid == ClassifyGid);
                 }
                 //时间查询
@@ -2276,7 +2278,7 @@ namespace LJSheng.Web.Controllers
         /// layui图片上传
         /// </summary>
         [HttpPost]
-        public JsonResult UploadPicture(string path,string filename="")
+        public JsonResult UploadPicture(string path, string filename = "")
         {
             HttpPostedFileBase Picture = Request.Files["file"];
             if (Picture != null)
@@ -2949,7 +2951,7 @@ namespace LJSheng.Web.Controllers
                     other = "",
                     count = b.Count(),
                     pageindex,
-                    list = b.OrderBy(l => l.Sort).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
+                    list = b.OrderBy(l => l.Sort).OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
                 }));
             }
         }
@@ -3215,7 +3217,7 @@ namespace LJSheng.Web.Controllers
                 //按月份查询业绩
                 string Year = paramJson["Year"].ToString();
                 string Month = paramJson["Month"].ToString();
-                if (Year!="0" && Month!="0")
+                if (Year != "0" && Month != "0")
                 {
                     DateTime MonthFirst = DTime.FirstDayOfMonth(DateTime.Parse(Year + "-" + Month + "-" + "01"));
                     DateTime MonthLast = DTime.LastDayOfMonth(DateTime.Parse(Year + "-" + Month + "-" + "01 23:59:59"));
@@ -3315,7 +3317,7 @@ namespace LJSheng.Web.Controllers
         /// <Remarks>
         /// 2018-08-18 林建生
         /// </Remarks>
-        public ActionResult ReportForm(string STime, string ETime, int Project = 0 )
+        public ActionResult ReportForm(string STime, string ETime, int Project = 0)
         {
             //时间查询
             DateTime? st = DateTime.Now;
@@ -3344,7 +3346,7 @@ namespace LJSheng.Web.Controllers
                     if (order.Count() > 0)
                     {
                         ViewBag.norder = order.Where(l => l.PayStatus == 2).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
-                        ViewBag.order = order.Where(l=> l.PayStatus == 1).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                        ViewBag.order = order.Where(l => l.PayStatus == 1).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
                         ViewBag.alipay = order.Where(l => l.PayType == 1 && l.PayStatus == 1).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
                         ViewBag.wxpay = order.Where(l => l.PayType == 2 && l.PayStatus == 1).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
                         ViewBag.rmb = order.Where(l => l.PayType == 3 && l.PayStatus == 1).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
@@ -3406,7 +3408,7 @@ namespace LJSheng.Web.Controllers
                         ViewBag.shopbanktime = sw.Select(l => l.Money).DefaultIfEmpty(0m).Sum();
                     }
                     //团队积分
-                    var team = db.ShopRecord.Where(l => l.Type >3).AsQueryable();
+                    var team = db.ShopRecord.Where(l => l.Type > 3).AsQueryable();
                     if (team.Count() > 0)
                     {
                         ViewBag.team = team.Select(l => l.TIntegral).DefaultIfEmpty(0m).Sum();
@@ -3417,7 +3419,7 @@ namespace LJSheng.Web.Controllers
                         ViewBag.teamtime = team.Select(l => l.TIntegral).DefaultIfEmpty(0m).Sum();
                     }
                     //团队积分冻结
-                    var mteam = db.ShopRecord.Where(l => l.Type ==2).AsQueryable();
+                    var mteam = db.ShopRecord.Where(l => l.Type == 2).AsQueryable();
                     if (mteam.Count() > 0)
                     {
                         ViewBag.mteam = mteam.Select(l => l.TIntegral).DefaultIfEmpty(0m).Sum();
@@ -3506,7 +3508,7 @@ namespace LJSheng.Web.Controllers
                 int pagesize = Int32.Parse(paramJson["pagesize"].ToString());
                 return Json(new AjaxResult(new
                 {
-                    other = " | 当前查询总金额=" + b.Where(l=>l.Project==0).Select(l => l.OrderPrice).DefaultIfEmpty(0m).Sum() + ",当前查询总利润=" + b.Where(l => l.Project == 0).Select(l => l.ProfitPrice).DefaultIfEmpty(0m).Sum(),
+                    other = " | 当前查询总金额=" + b.Where(l => l.Project == 0).Select(l => l.OrderPrice).DefaultIfEmpty(0m).Sum() + ",当前查询总利润=" + b.Where(l => l.Project == 0).Select(l => l.ProfitPrice).DefaultIfEmpty(0m).Sum(),
                     count = b.Count(),
                     pageindex,
                     list = b.OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).Select(l => new
@@ -3650,7 +3652,7 @@ namespace LJSheng.Web.Controllers
                 if (!string.IsNullOrEmpty(ReportGid))
                 {
                     Guid Gid = Guid.Parse(ReportGid);
-                    b = b.Where(l => l.ReportGid== Gid);
+                    b = b.Where(l => l.ReportGid == Gid);
                 }
                 if (!string.IsNullOrEmpty(Account))
                 {
@@ -3757,7 +3759,7 @@ namespace LJSheng.Web.Controllers
                 {
                     LogManager.WriteLog("审核分红失败", "更新分红状态失败,Gid=" + Gid.ToString());
                 }
-                return Json(new AjaxResult(300,"用户分红失败"));
+                return Json(new AjaxResult(300, "用户分红失败"));
             }
         }
 
@@ -3857,7 +3859,7 @@ namespace LJSheng.Web.Controllers
                         j.FirstOrDefault().Project
                     }).Where(l => l.PayStatus == 1 && SqlFunctions.DateDiff("day", l.PayTime, Date) == 0).ToList();
                 //级别比例数据
-                var level = db.Level.Where(l => l.LV > 5).Select(l => new { l.LV, l.Profit, l.ShopProfit,l.Bonus });
+                var level = db.Level.Where(l => l.LV > 5).Select(l => new { l.LV, l.Profit, l.ShopProfit, l.Bonus });
                 //等级的利润和购物比例
                 decimal Profit6 = level.Where(l => l.LV == 6).Select(l => new { Profit = l.Profit - (l.ShopProfit / 10) }).FirstOrDefault().Profit;
                 decimal ShopProfit6 = level.Where(l => l.LV == 6).Select(l => new { l.ShopProfit }).FirstOrDefault().ShopProfit / 10;
@@ -4075,7 +4077,7 @@ namespace LJSheng.Web.Controllers
         /// <summary>
         /// 分红记录
         /// </summary>
-        public int RL(Guid ReportGid, Guid MemberGid, int Type, decimal Money, decimal Integral, decimal Number,string Remarks="")
+        public int RL(Guid ReportGid, Guid MemberGid, int Type, decimal Money, decimal Integral, decimal Number, string Remarks = "")
         {
             using (EFDB db = new EFDB())
             {
@@ -4377,7 +4379,7 @@ namespace LJSheng.Web.Controllers
                     System.IO.MemoryStream ms = new System.IO.MemoryStream();
                     book.Write(ms);
                     ms.Seek(0, SeekOrigin.Begin);
-                    return File(ms, "application/vnd.ms-excel", "会员提现"+ DateTime.Now.ToString("MMddHHmm") + ".xls");
+                    return File(ms, "application/vnd.ms-excel", "会员提现" + DateTime.Now.ToString("MMddHHmm") + ".xls");
                 }
             }
             else
@@ -4489,7 +4491,7 @@ namespace LJSheng.Web.Controllers
         /// 2018-08-18 林建生
         /// </Remarks>
         [HttpPost]
-        public JsonResult PayMoney(Guid Gid,int State)
+        public JsonResult PayMoney(Guid Gid, int State)
         {
             using (EFDB db = new EFDB())
             {
@@ -4591,7 +4593,7 @@ namespace LJSheng.Web.Controllers
                         l.AddTime,
                         l.Type,
                         l.Remarks,
-                        OrderNo = l.OrderGid==null?"分红":db.Order.Where(o=>o.Gid==l.OrderGid).FirstOrDefault().OrderNo,
+                        OrderNo = l.OrderGid == null ? "分红" : db.Order.Where(o => o.Gid == l.OrderGid).FirstOrDefault().OrderNo,
                         j.FirstOrDefault().Account,
                         j.FirstOrDefault().RealName
                     }).AsQueryable();
@@ -4604,7 +4606,7 @@ namespace LJSheng.Web.Controllers
                 {
                     b = b.Where(l => l.Account == Account);
                 }
-                if(!string.IsNullOrEmpty(OrderNo))
+                if (!string.IsNullOrEmpty(OrderNo))
                 {
                     b = b.Where(l => l.OrderNo == OrderNo);
                 }
@@ -4664,7 +4666,7 @@ namespace LJSheng.Web.Controllers
                     ViewBag.State = b.State;
                 }
                 Guid DGid = db.Dictionaries.Where(l => l.DictionaryType == "Shop").FirstOrDefault().Gid;
-                return View(db.DictionariesList.Where(dl => dl.DGid == DGid).OrderBy(dl=>dl.Sort).ToList());
+                return View(db.DictionariesList.Where(dl => dl.DGid == DGid).OrderBy(dl => dl.Sort).ToList());
             }
         }
         [HttpPost]
@@ -4698,7 +4700,7 @@ namespace LJSheng.Web.Controllers
                 //更新分类
                 string[] Project = Request.Form["Project"].Split(',');
                 db.ShopProject.Where(l => l.ShopGid == Gid).Delete();
-                for (int i = 0; i < Project.Length-1; i++)
+                for (int i = 0; i < Project.Length - 1; i++)
                 {
                     var sp = new ShopProject();
                     sp.Gid = Guid.NewGuid();
@@ -4707,7 +4709,7 @@ namespace LJSheng.Web.Controllers
                     sp.Project = int.Parse(Project[i]);
                     db.ShopProject.Add(sp);
                 }
-                if (db.SaveChanges() >0)
+                if (db.SaveChanges() > 0)
                 {
                     return Helper.WebRedirect("操作成功！", "history.go(-1);", "操作成功!");
                 }
@@ -4745,7 +4747,7 @@ namespace LJSheng.Web.Controllers
                 string ETime = paramJson["ETime"].ToString();
                 string Account = paramJson["Account"].ToString();
                 string Name = paramJson["Name"].ToString();
-                int State = int.Parse(paramJson["State"].ToString()); 
+                int State = int.Parse(paramJson["State"].ToString());
                 int Project = int.Parse(paramJson["Project"].ToString());
                 Guid DGid = db.Dictionaries.Where(l => l.DictionaryType == "Shop").FirstOrDefault().Gid;
                 var b = db.Shop.GroupJoin(db.Member,
@@ -4773,7 +4775,7 @@ namespace LJSheng.Web.Controllers
                 {
                     b = b.Where(l => l.Name.Contains(Name));
                 }
-                if (State!=0)
+                if (State != 0)
                 {
                     b = b.Where(l => l.State == State);
                 }
@@ -4808,7 +4810,7 @@ namespace LJSheng.Web.Controllers
                     other = "",
                     count = b.Count(),
                     pageindex,
-                    list = b.OrderBy(l => l.Sort).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
+                    list = b.OrderBy(l => l.Sort).OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
                 }));
             }
         }
@@ -4849,7 +4851,7 @@ namespace LJSheng.Web.Controllers
                     ViewBag.Prefix = "";
                     ViewBag.Stock = "";
                     ViewBag.Price = "";
-                    ViewBag.OriginalPrice ="";
+                    ViewBag.OriginalPrice = "";
                     ViewBag.Number = 0;
                     ViewBag.Sort = 1;
                     ViewBag.Show = 1;
@@ -5145,7 +5147,7 @@ namespace LJSheng.Web.Controllers
                     System.IO.MemoryStream ms = new System.IO.MemoryStream();
                     book.Write(ms);
                     ms.Seek(0, SeekOrigin.Begin);
-                    return File(ms, "application/vnd.ms-excel", "商家提现"+DateTime.Now.ToString("MMddHHmm") +".xls");
+                    return File(ms, "application/vnd.ms-excel", "商家提现" + DateTime.Now.ToString("MMddHHmm") + ".xls");
                 }
             }
             else
@@ -5359,7 +5361,7 @@ namespace LJSheng.Web.Controllers
                         l.Gid,
                         l.AddTime,
                         l.MemberGid,
-                        ShopGid=j.FirstOrDefault().MemberGid,
+                        ShopGid = j.FirstOrDefault().MemberGid,
                         l.Product,
                         l.OrderNo,
                         l.PayType,
@@ -5407,7 +5409,7 @@ namespace LJSheng.Web.Controllers
                         l.Voucher,
                         j.FirstOrDefault().Account,
                         j.FirstOrDefault().RealName,
-                        ShopAccount = db.Member.Where(m=>m.Gid==l.ShopGid).FirstOrDefault().Account,
+                        ShopAccount = db.Member.Where(m => m.Gid == l.ShopGid).FirstOrDefault().Account,
                         T1 = db.ShopRecord.Where(s => s.OrderGid == l.Gid && s.Type == 4).Select(s => s.TIntegral).DefaultIfEmpty(0m).Sum(),
                         T2 = db.ShopRecord.Where(s => s.OrderGid == l.Gid && s.Type == 5).Select(s => s.TIntegral).DefaultIfEmpty(0m).Sum(),
                         T3 = db.ShopRecord.Where(s => s.OrderGid == l.Gid && s.Type == 6).Select(s => s.TIntegral).DefaultIfEmpty(0m).Sum(),
@@ -5838,13 +5840,13 @@ namespace LJSheng.Web.Controllers
                 int pageindex = Int32.Parse(paramJson["pageindex"].ToString());
                 int pagesize = Int32.Parse(paramJson["pagesize"].ToString());
                 decimal ProjectMoney = b.Select(l => l.ProjectMoney).DefaultIfEmpty(0m).Sum();
-                decimal ProjectIntegral =  b.Select(l => l.ProjectIntegral).DefaultIfEmpty(0m).Sum();
+                decimal ProjectIntegral = b.Select(l => l.ProjectIntegral).DefaultIfEmpty(0m).Sum();
                 decimal Money = b.Select(l => l.Money).DefaultIfEmpty(0m).Sum();
-                decimal Integral =  b.Select(l => l.Integral).DefaultIfEmpty(0m).Sum();
+                decimal Integral = b.Select(l => l.Integral).DefaultIfEmpty(0m).Sum();
 
                 return Json(new AjaxResult(new
                 {
-                    other = " | 当前查询总分红=" + (ProjectMoney + Money).ToString() +  ",购=" + (ProjectIntegral + Integral).ToString() + ",其中项目="+ ProjectMoney.ToString() + ",购=" + ProjectIntegral.ToString() + ",股东="+ Money.ToString()+",购="+ Integral.ToString(),
+                    other = " | 当前查询总分红=" + (ProjectMoney + Money).ToString() + ",购=" + (ProjectIntegral + Integral).ToString() + ",其中项目=" + ProjectMoney.ToString() + ",购=" + ProjectIntegral.ToString() + ",股东=" + Money.ToString() + ",购=" + Integral.ToString(),
                     count = b.Count(),
                     pageindex,
                     list = b.OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
@@ -5915,7 +5917,7 @@ namespace LJSheng.Web.Controllers
         /// 2018-08-18 林建生
         /// </Remarks>
         [HttpPost]
-        public JsonResult CLAllBonus(int Year,int Month)
+        public JsonResult CLAllBonus(int Year, int Month)
         {
             using (EFDB db = new EFDB())
             {
@@ -5970,7 +5972,7 @@ namespace LJSheng.Web.Controllers
                                     }).Where(l => l.CLLevel == 26 || l.Level == 11).ToList();
                 #endregion
 
-                if (b.Count() > 0 && b.Where(l=>l.State==3).Count()==0)
+                if (b.Count() > 0 && b.Where(l => l.State == 3).Count() == 0)
                 {
                     //创始人分红数据
                     var ml26 = db.Level.Where(l => l.LV == 26).FirstOrDefault();
@@ -6081,9 +6083,9 @@ namespace LJSheng.Web.Controllers
                 DateTime MonthFirst = DTime.FirstDayOfMonth(DateTime.Parse(Year + "-" + Month + "-" + "01"));
                 DateTime MonthLast = DTime.LastDayOfMonth(DateTime.Parse(Year + "-" + Month + "-" + "01 23:59:59"));
                 //查询所有等级
-                List <Guid> list = new List<Guid>();
+                List<Guid> list = new List<Guid>();
                 list = Helper.MGidALL(Gid, db.Member.Where(l => l.MemberGid != null).ToList(), list);
-                var b = db.Order.Where(l=>l.PayStatus==1 && l.Type==3 && l.PayTime>= MonthFirst && l.PayTime<= MonthLast).GroupJoin(db.Member,
+                var b = db.Order.Where(l => l.PayStatus == 1 && l.Type == 3 && l.PayTime >= MonthFirst && l.PayTime <= MonthLast).GroupJoin(db.Member,
                     l => l.MemberGid,
                     j => j.Gid,
                     (l, j) => new
@@ -6167,7 +6169,7 @@ namespace LJSheng.Web.Controllers
                 var mr = db.MRelation.ToList();
                 for (int i = 0; i < b.Count; i++)
                 {
-                    if (mr.Where(l=>l.M1== b[i].MGid || l.M2 == b[i].MGid|| l.M3 == b[i].MGid).Count()!=0)
+                    if (mr.Where(l => l.M1 == b[i].MGid || l.M2 == b[i].MGid || l.M3 == b[i].MGid).Count() != 0)
                     {
                         b.Remove(b[i]);
                     }
@@ -6275,7 +6277,7 @@ namespace LJSheng.Web.Controllers
             string OrderNo = paramJson["OrderNo"].ToString();
             using (EFDB db = new EFDB())
             {
-                var b = db.ShopRecord.Where(l=>l.Type!=2).GroupJoin(db.Member,
+                var b = db.ShopRecord.Where(l => l.Type != 2).GroupJoin(db.Member,
                     l => l.MemberGid,
                     j => j.Gid,
                     (l, j) => new
@@ -6361,7 +6363,7 @@ namespace LJSheng.Web.Controllers
             int State = int.Parse(paramJson["State"].ToString());
             using (EFDB db = new EFDB())
             {
-                var b = db.ShopRecord.Where(sr=>sr.Type==2).GroupJoin(db.Member,
+                var b = db.ShopRecord.Where(sr => sr.Type == 2).GroupJoin(db.Member,
                     l => l.MemberGid,
                     j => j.Gid,
                     (l, j) => new
@@ -6440,7 +6442,7 @@ namespace LJSheng.Web.Controllers
             using (EFDB db = new EFDB())
             {
                 var b = db.ShopRecord.Where(l => l.Gid == gid && l.State == 2).FirstOrDefault();
-                if(b!=null)
+                if (b != null)
                 {
                     b.State = 1;
                     if (db.SaveChanges() == 1)
@@ -6452,17 +6454,17 @@ namespace LJSheng.Web.Controllers
                         else
                         {
                             LogManager.WriteLog("解冻成功积分更新失败", "gid=" + gid.ToString());
-                            return Json(new AjaxResult(300,"解冻成功积分更新失败"));
+                            return Json(new AjaxResult(300, "解冻成功积分更新失败"));
                         }
                     }
                     else
                     {
-                        return Json(new AjaxResult(300,"解冻失败"));
+                        return Json(new AjaxResult(300, "解冻失败"));
                     }
                 }
                 else
                 { return Json(new AjaxResult(300, "解冻数据不存在!")); }
-                
+
             }
         }
         #endregion
@@ -6712,7 +6714,7 @@ namespace LJSheng.Web.Controllers
                     l.AddTime,
                     l.MemberGid,
                     l.MGid,
-                    TA = l.MGid == l.ShopGid?"上级发货人": "公司发货",
+                    TA = l.MGid == l.ShopGid ? "上级发货人" : "公司发货",
                     MA = db.Member.Where(m => m.Gid == l.MemberGid).FirstOrDefault().Account,
                     SA = db.Member.Where(m => m.Gid == l.MGid).FirstOrDefault().Account
                 }).AsQueryable();
@@ -6759,7 +6761,7 @@ namespace LJSheng.Web.Controllers
         /// 变更发货人
         /// </summary>
         [HttpPost]
-        public JsonResult MPC(Guid Gid,int Type)
+        public JsonResult MPC(Guid Gid, int Type)
         {
             using (EFDB db = new EFDB())
             {
@@ -6776,7 +6778,7 @@ namespace LJSheng.Web.Controllers
                 }
                 else
                 {
-                    return Json(new AjaxResult(300," 你没有推荐人或推荐人没有变化!"));
+                    return Json(new AjaxResult(300, " 你没有推荐人或推荐人没有变化!"));
                 }
             }
         }
@@ -6786,15 +6788,15 @@ namespace LJSheng.Web.Controllers
         #region 文件夹上传
         public ActionResult Files()
         {
-            string path = "/uploadfiles/shop/"+ Request.QueryString["gid"] + "/" + Request.QueryString["pgid"]+"/";
+            string path = "/uploadfiles/shop/" + Request.QueryString["gid"] + "/" + Request.QueryString["pgid"] + "/";
             List<FileInfo> files = new List<FileInfo>();
             ///获取文件列表信息  
             if (Directory.Exists(System.Web.HttpContext.Current.Server.MapPath(path)))
             {
                 foreach (var file in Directory.GetFiles(System.Web.HttpContext.Current.Server.MapPath(path)))
                 {
-                    if(!file.Contains("logo.png"))
-                    files.Add(new FileInfo(file));
+                    if (!file.Contains("logo.png"))
+                        files.Add(new FileInfo(file));
                 }
             }
             ViewBag.path = path;

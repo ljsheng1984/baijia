@@ -63,6 +63,7 @@ namespace LJSheng.Web.Controllers
                     j => j.Gid,
                     (l, j) => new
                     {
+                        l.AddTime,
                         l.Project,
                         l.ShopGid,
                         j.FirstOrDefault().Picture,
@@ -84,7 +85,7 @@ namespace LJSheng.Web.Controllers
                     other = "",
                     count = b.Count(),
                     pageindex,
-                    list = b.OrderBy(l => l.Sort).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
+                    list = b.OrderBy(l => l.Sort).OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
                 }));
             }
         }
@@ -135,6 +136,7 @@ namespace LJSheng.Web.Controllers
                 var b = db.ShopProduct.Where(l => l.Show == 1 && l.ShopGid == ShopGid).Select(l => new
                 {
                     l.Gid,
+                    l.AddTime,
                     l.ShopGid,
                     l.Prefix,
                     l.Name,
@@ -186,7 +188,7 @@ namespace LJSheng.Web.Controllers
                     other = "",
                     count = b.Count(),
                     pageindex,
-                    list = b.OrderBy(l => l.Sort).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
+                    list = b.OrderBy(l => l.Sort).OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
                 }));
             }
         }
@@ -509,6 +511,7 @@ namespace LJSheng.Web.Controllers
                 var b = db.ShopProduct.Where(l => l.Show == 1 && l.ShopGid == ShopGid).Select(l => new
                 {
                     l.Gid,
+                    l.AddTime,
                     l.ShopGid,
                     l.Prefix,
                     l.Name,
@@ -540,7 +543,7 @@ namespace LJSheng.Web.Controllers
                     other = "",
                     count = b.Count(),
                     pageindex,
-                    list = b.OrderBy(l => l.Sort).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
+                    list = b.OrderBy(l => l.Sort).OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
                 }));
             }
         }
