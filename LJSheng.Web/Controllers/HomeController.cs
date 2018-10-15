@@ -298,7 +298,7 @@ namespace LJSheng.Web.Controllers
                                             //    db.MRelation.Where(l => l.MemberGid == dr.MemberGid).Delete();
                                             //    db.Consignor.Where(l => l.MemberGid == dr.MemberGid).Delete();
                                             //}
-                                            //增加彩链发货人
+                                            //增加链商城发货人
                                             Helper.SetConsignor(b.Gid, MemberGid);
                                             //增加推荐人
                                             if (MemberGid != null)

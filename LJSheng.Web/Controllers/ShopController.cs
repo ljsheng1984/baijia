@@ -207,7 +207,7 @@ namespace LJSheng.Web.Controllers
         }
 
         /// <summary>
-        /// 彩链包兑换额度
+        /// 链商城包兑换额度
         /// </summary>
         /// <returns>返回调用结果</returns>
         /// <para name="result">200 是成功其他失败</para>
@@ -221,15 +221,15 @@ namespace LJSheng.Web.Controllers
             {
                 Guid gid = LCookie.GetMemberGid();
                 var b = db.Member.Where(l => l.Gid == gid).FirstOrDefault();
-                //会员原来的彩链金额
+                //会员原来的链商城金额
                 decimal CLMoney = ViewBag.CLMoney = b.CLMoney;
                 Guid ProductGid = Helper.GetProductGid();
                 var p = db.Stock.Where(l => l.MemberGid == gid && l.ProductGid == ProductGid).FirstOrDefault();
                 if (p != null)
                 {
-                    //会员原来的彩链库存
+                    //会员原来的链商城库存
                     int MStock = ViewBag.Stock = p.Number;
-                    //一个彩链兑换多少额度
+                    //一个链商城兑换多少额度
                     decimal CLM = ViewBag.CLB = decimal.Parse(db.DictionariesList.Where(dl => dl.Key == "CLB" && dl.DGid == db.Dictionaries.Where(d => d.DictionaryType == "CL").FirstOrDefault().Gid).FirstOrDefault().Value);
                     if (!string.IsNullOrEmpty(Request["Stock"]))
                     {
@@ -246,13 +246,13 @@ namespace LJSheng.Web.Controllers
                             }
                             else
                             {
-                                LogManager.WriteLog("彩链库存扣除成功兑换失败", "MemberGid=" + gid.ToString() + ",Stock=" + Stock.ToString());
-                                return Helper.Redirect("失败", "history.go(-1);", "彩链库存扣除成功兑换失败,请联系客服人员!");
+                                LogManager.WriteLog("链商城库存扣除成功兑换失败", "MemberGid=" + gid.ToString() + ",Stock=" + Stock.ToString());
+                                return Helper.Redirect("失败", "history.go(-1);", "链商城库存扣除成功兑换失败,请联系客服人员!");
                             }
                         }
                         else
                         {
-                            return Helper.Redirect("失败", "history.go(-1);", "彩链库存不足!");
+                            return Helper.Redirect("失败", "history.go(-1);", "链商城库存不足!");
                         }
                     }
                 }
@@ -961,7 +961,7 @@ namespace LJSheng.Web.Controllers
         /// </summary>
         /// <param name="Integral">兑换积分</param>
         /// <param name="TB">兑换币种[1=BCCB, 2=FBCC]</param>
-        /// <param name="Type">类型[1=彩链积分 2=商城基数积分 3=商城积分]</param>
+        /// <param name="Type">类型[1=链商城积分 2=商城基数积分 3=商城积分]</param>
         /// <returns>返回调用结果</returns>
         /// <para name="result">200 是成功其他失败</para>
         /// <para name="data">对象结果</para>
@@ -1038,7 +1038,7 @@ namespace LJSheng.Web.Controllers
         /// </summary>
         /// <param name="Integral">兑换积分</param>
         /// <param name="TB">兑换币种[1=BCCB, 2=FBCC]</param>
-        /// <param name="Type">类型[1=彩链积分 2=商城基数积分 3=商城积分]</param>
+        /// <param name="Type">类型[1=链商城积分 2=商城基数积分 3=商城积分]</param>
         /// <returns>返回调用结果</returns>
         /// <para name="result">200 是成功其他失败</para>
         /// <para name="data">对象结果</para>

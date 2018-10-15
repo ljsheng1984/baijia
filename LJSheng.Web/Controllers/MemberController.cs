@@ -1016,7 +1016,7 @@ namespace LJSheng.Web.Controllers
                                 }
                                 else
                                 {
-                                    LogManager.WriteLog("彩链扣除金额成功打款记录失败", "MemberGid=" + MemberGid.ToString() + ",Money=" + Money);
+                                    LogManager.WriteLog("链商城扣除金额成功打款记录失败", "MemberGid=" + MemberGid.ToString() + ",Money=" + Money);
                                     return Helper.Redirect("失败", "history.go(-1);", "扣除金额成功提现记录失败,请联系客服人员!");
                                 }
                             }
@@ -1924,7 +1924,7 @@ namespace LJSheng.Web.Controllers
                                 }
                                 else
                                 {
-                                    LogManager.WriteLog("彩链积分兑换记录成功兑换APP钱包失败", LogMsg);
+                                    LogManager.WriteLog("链商城积分兑换记录成功兑换APP钱包失败", LogMsg);
                                     string Remarks = "钱包兑换接口失败";
                                     //撤销兑换的积分
                                     //b.Money = b.Money + Integral;
@@ -1933,12 +1933,12 @@ namespace LJSheng.Web.Controllers
                                     //    Remarks = "已退回账户";
                                     //}
                                     db.TokenRecord.Where(l => l.Gid == TRGid).Update(l => new TokenRecord { Remarks = Remarks, State = 2 });
-                                    return Helper.Redirect("失败", "/Member/IntegralAPP", "彩链积分兑换记录成功兑换APP钱包失败");
+                                    return Helper.Redirect("失败", "/Member/IntegralAPP", "链商城积分兑换记录成功兑换APP钱包失败");
                                 }
                             }
                             else
                             {
-                                LogManager.WriteLog("彩链积分兑换记录失败", LogMsg);
+                                LogManager.WriteLog("链商城积分兑换记录失败", LogMsg);
                                 return Helper.Redirect("失败", "history.go(-1);", "积分兑换记录失败");
                             }
                         }
@@ -2000,14 +2000,14 @@ namespace LJSheng.Web.Controllers
                                 }
                                 else
                                 {
-                                    LogManager.WriteLog("彩链积分兑换记录成功兑换APP钱包失败", LogMsg);
+                                    LogManager.WriteLog("链商城积分兑换记录成功兑换APP钱包失败", LogMsg);
                                     db.TokenRecord.Where(l => l.Gid == TRGid).Update(l => new TokenRecord { Remarks = "钱包兑换接口失败" });
-                                    return Helper.Redirect("失败", "/Member/IntegralAPP", "彩链积分兑换记录成功兑换APP钱包失败");
+                                    return Helper.Redirect("失败", "/Member/IntegralAPP", "链商城积分兑换记录成功兑换APP钱包失败");
                                 }
                             }
                             else
                             {
-                                LogManager.WriteLog("彩链积分兑换记录失败", LogMsg);
+                                LogManager.WriteLog("链商城积分兑换记录失败", LogMsg);
                                 return Helper.Redirect("失败", "history.go(-1);", "积分兑换记录失败");
                             }
                         }
@@ -2115,7 +2115,7 @@ namespace LJSheng.Web.Controllers
         }
 
         /// <summary>
-        /// 我的彩链
+        /// 我的链商城
         /// </summary>
         /// <returns>返回调用结果</returns>
         /// <para name="result">200 是成功其他失败</para>
@@ -2139,7 +2139,7 @@ namespace LJSheng.Web.Controllers
         }
 
         /// <summary>
-        /// 彩链转让
+        /// 链商城转让
         /// </summary>
         /// <returns>返回调用结果</returns>
         /// <para name="result">200 是成功其他失败</para>
@@ -2159,7 +2159,7 @@ namespace LJSheng.Web.Controllers
             return View();
         }
         /// <summary>
-        /// 彩链转让记录
+        /// 链商城转让记录
         /// </summary>
         /// <returns>返回调用结果</returns>
         /// <para name="result">200 是成功其他失败</para>

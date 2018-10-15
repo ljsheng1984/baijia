@@ -447,18 +447,27 @@ namespace LJSheng.Web.ajax
         /// <remarks>
         /// 2018-08-18 林建生
         /// </remarks>
-        public object setCode(Guid gid, string ConsumptionCode)
+        public object setCode(Guid Gid, string ConsumptionCode)
         {
             using (EFDB db = new EFDB())
             {
-                var b = db.ShopOrder.Where(l => l.Gid == gid && l.PayStatus == 1 && l.ConsumptionCode == ConsumptionCode).FirstOrDefault();
+                var b = db.ShopOrder.Where(l => l.Gid == Gid && l.PayStatus == 1 && l.ConsumptionCode == ConsumptionCode).FirstOrDefault();
                 if (b != null)
                 {
                     b.Status = 2;
                     b.ExpressStatus = 3;
                     if (db.SaveChanges() == 1)
                     {
-                        return new AjaxResult("验证成功");
+                        Guid ShopGid = db.Shop.Where(l => l.Gid == b.ShopGid).FirstOrDefault().MemberGid;
+                        if (db.Member.Where(l => l.Gid == ShopGid).Update(l => new Member { ShopMoney = l.ShopMoney + b.PayPrice }) == 1)
+                        {
+                            return new AjaxResult("验证成功");
+                        }
+                        else
+                        {
+                            LogManager.WriteLog("验证成功货款失败", "商家=" + ShopGid + ",订单=" + Gid + ",操作会员=" + b.MemberGid + ", PayPrice=" + b.PayPrice);
+                            return new AjaxResult(300,"验证成功,货款增加失败,请联系客服");
+                        }
                     }
                     else
                     {
@@ -601,7 +610,7 @@ namespace LJSheng.Web.ajax
                                     //    db.MRelation.Where(l => l.MemberGid == dr.MemberGid).Delete();
                                     //    db.Consignor.Where(l => l.MemberGid == dr.MemberGid).Delete();
                                     //}
-                                    //增加彩链发货人
+                                    //增加链商城发货人
                                     Helper.SetConsignor(b.Gid, b.MemberGid);
                                     //增加推荐人
                                     if (b.MemberGid != null)

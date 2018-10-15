@@ -8,7 +8,7 @@
 <html>
 <head>
     <meta name="viewport" Content="width=device-width, initial-scale=1" />
-    <title>彩链业绩</title>
+    <title>链商城业绩</title>
     <link rel="stylesheet" href="~/plugins/zui/css/zui.min.css">
 </head>
 <body>
@@ -17,7 +17,7 @@
             <div class="input-group">
                 <span class="input-group-addon"><i class="icon-search"></i></span>
                 <select class="form-control" name="CLLevel">
-                    <option value="0" selected>彩链级别</option>
+                    <option value="0" selected>链商城级别</option>
                     @foreach (var item in ViewBag.CLLevel)
                     {
                         <option value="@item.LV" class="label @item.Label">@item.Name</option>

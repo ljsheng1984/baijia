@@ -1,13 +1,13 @@
 ﻿@{
     ViewBag.Class = "CLMoney";
-    ViewBag.Title = "彩链包额度";
+    ViewBag.Title = "链商城包额度";
     Layout = "~/Views/Shared/_SLayout.cshtml";
 }
 <section class="section">
     @using (Html.BeginForm("CLMoney", "Shop", FormMethod.Get, new { @class = "box", enctype = "multipart/form-data" }))
     {
         <div class="control">
-            <label>你可兑换的彩链包=@ViewBag.Stock (1:@ViewBag.CLB)</label>
+            <label>你可兑换的链商城包=@ViewBag.Stock (1:@ViewBag.CLB)</label>
             <div>
                 <input id="Stock" name="Stock" value="" type="text" class="input" placeholder="兑换数量" onkeyup="value=value.replace(/[^\d]/g,'');" onchange="money();">
             </div>
@@ -22,7 +22,7 @@
 </section>
 <nav class="nav affix dock-top justified">
     <a href="/shop/index"><i class="icon-5x icon-arrow-left"></i></a>
-    <a>彩链包额度</a>
+    <a>链商城包额度</a>
     <a href="/Home/Url"><i class="icon-home"></i></a>
 </nav>
 <nav class="nav affix dock-bottom justified">

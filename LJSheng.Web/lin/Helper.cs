@@ -139,7 +139,7 @@ namespace LJSheng.Web
             }
         }
         /// <summary>
-        /// 彩链下单
+        /// 链商城下单
         /// </summary>
         /// <param name="Type">订单类型[3=公司发货 4=会员发货 5=会员转让]</param>
         /// <param name="MNumber">转让数量</param>
@@ -207,7 +207,7 @@ namespace LJSheng.Web
                     //Guid? MGid = MO == 0 ? Member.MemberGid : MemberGid;
                     //if (MO != 0 || (MO == 0 && MGid != null))
                     //{
-                    //    //分享奖的彩链等级
+                    //    //分享奖的链商城等级
                     //    int CLLevel = Member.CLLevel;
                     //    //分享奖给推荐人,重设为查询推荐人的等级参数
                     //    if (MO == 0 && MGid != null)
@@ -394,7 +394,7 @@ namespace LJSheng.Web
                             Pay = true;
                             if (b.PayStatus == 1)
                             {
-                                #region 彩链对账逻辑
+                                #region 链商城对账逻辑
                                 if (b.Type != 5)//计算分成
                                 {
                                     //购买用户数据
@@ -466,7 +466,7 @@ namespace LJSheng.Web
                                         //发货人截止的分享差奖励
                                         if (b.Type == 4 && MemberGid != null)
                                         {
-                                            //购买会员彩链分享比例
+                                            //购买会员链商城分享比例
                                             var ML = db.Member.Where(l => l.Gid == MGid).GroupJoin(db.Level,
                                                                 l => l.CLLevel,
                                                                 j => j.LV,
@@ -486,7 +486,7 @@ namespace LJSheng.Web
                                 }
 
                                 //增加购买人的库存
-                                msg += "增加彩链库存=" + AddCLStock(OrderGid, MGid) + rn;
+                                msg += "增加链商城库存=" + AddCLStock(OrderGid, MGid) + rn;
 
                                 //发货人增加货款
                                 if (ShopGid != null)
@@ -534,7 +534,7 @@ namespace LJSheng.Web
         }
 
         /// <summary>
-        /// 彩链团队业绩
+        /// 链商城团队业绩
         /// </summary>
         /// <param name="MemberGid">购买会员Gid</param>
         /// <returns>返回调用结果</returns>
@@ -850,7 +850,7 @@ namespace LJSheng.Web
         }
 
         /// <summary>
-        /// 彩链购买用户的推荐人是否升级
+        /// 链商城购买用户的推荐人是否升级
         /// </summary>
         /// <param name="MemberGid">升级会员的Gid</param>
         /// <param name="lv">等级参数列表</param>
@@ -1629,7 +1629,7 @@ namespace LJSheng.Web
         }
 
         /// <summary>
-        /// 彩链团队业绩
+        /// 链商城团队业绩
         /// </summary>
         /// <param name="MemberGid">购买会员Gid</param>
         /// <returns>返回调用结果</returns>
@@ -2271,7 +2271,7 @@ namespace LJSheng.Web
         /// </summary>
         /// <param name="Gid">会员/商家Gid</param>
         /// <param name="Money">积分</param>
-        /// <param name="Type">类型[1=彩链 2=商城]</param>
+        /// <param name="Type">类型[1=链商城 2=商城]</param>
         /// <param name="Remarks">备注</param>
         /// <returns>返回调用结果</returns>
         public static bool RMBRecordAdd(Guid Gid, decimal Money, int Type, string Remarks = "")
@@ -2478,7 +2478,7 @@ namespace LJSheng.Web
         /// <param name="MemberGid">会员/商家Gid</param>
         /// <param name="Money">积分</param>
         /// <param name="Token">兑换多少Token</param>
-        /// <param name="Type">类型[1=彩链积分 2=商城基数积分 3=商城积分]</param>
+        /// <param name="Type">类型[1=链商城积分 2=商城基数积分 3=商城积分]</param>
         /// <param name="TB">兑换币种[1=BCCB, 2=FBCC]</param>
         /// <param name="Remarks">备注</param>
         /// <returns>返回调用结果</returns>
@@ -2563,9 +2563,9 @@ namespace LJSheng.Web
         }
         #endregion
 
-        #region 彩链模块
+        #region 链商城模块
         /// <summary>
-        /// 查询用户出售彩链库存数量
+        /// 查询用户出售链商城库存数量
         /// </summary>
         public static int GetCLStock(Guid MemberGid)
         {
@@ -2579,7 +2579,7 @@ namespace LJSheng.Web
         }
 
         /// <summary>
-        /// 扣除出售彩链库存
+        /// 扣除出售链商城库存
         /// </summary>
         public static Boolean UPCLStock(Guid MemberGid, int Number)
         {
@@ -2609,7 +2609,7 @@ namespace LJSheng.Web
         {
             using (EFDB db = new EFDB())
             {
-                //增加彩链发货人
+                //增加链商城发货人
                 Consignor c = new Consignor();
                 c.Gid = Guid.NewGuid();
                 c.AddTime = DateTime.Now;
@@ -2811,7 +2811,7 @@ namespace LJSheng.Web
                             Stock.Number = Stock.Number - Number;
                             if (db.SaveChanges() == 1)
                             {
-                                LogManager.WriteLog("彩链扣除库存", msg);
+                                LogManager.WriteLog("链商城扣除库存", msg);
 
                                 #region 发货扣除积分.逻辑8月去除
                                 //减去积分
@@ -2820,12 +2820,12 @@ namespace LJSheng.Web
                                 //    //从发货人扣除积分
                                 //    if (MoneyRecordAdd(OrderGid, ShopGid, -Money, -Integral, 24, "发货扣除积分") == null)
                                 //    {
-                                //        LogManager.WriteLog("彩链库存扣除成功扣除积分失败", msg);
-                                //        return JsonConvert.SerializeObject(new { OrderNo = "", Title = "发货人库存异常", Error = "彩链库存扣除成功,扣除积分失败!" });
+                                //        LogManager.WriteLog("链商城库存扣除成功扣除积分失败", msg);
+                                //        return JsonConvert.SerializeObject(new { OrderNo = "", Title = "发货人库存异常", Error = "链商城库存扣除成功,扣除积分失败!" });
                                 //    }
                                 //    else
                                 //    {
-                                //        LogManager.WriteLog("彩链扣除积分", msg);
+                                //        LogManager.WriteLog("链商城扣除积分", msg);
                                 //    }
                                 //}
                                 #endregion
@@ -2835,8 +2835,8 @@ namespace LJSheng.Web
                             }
                             else
                             {
-                                LogManager.WriteLog("彩链库存更新失败", msg);
-                                //return JsonConvert.SerializeObject(new { OrderNo = "", Title = "发货人库存异常", Error = "彩链库存扣除失败!" });
+                                LogManager.WriteLog("链商城库存更新失败", msg);
+                                //return JsonConvert.SerializeObject(new { OrderNo = "", Title = "发货人库存异常", Error = "链商城库存扣除失败!" });
                             }
                         }
                         else
@@ -2937,8 +2937,8 @@ namespace LJSheng.Web
         /// <param name="Gid">会员Gid</param>
         /// <param name="Money">操作的额度</param>
         /// <param name="CLMoney">原额度</param>
-        /// <param name="Number">操作的彩链包</param>
-        /// <param name="OldNumber">原彩链包</param>
+        /// <param name="Number">操作的链商城包</param>
+        /// <param name="OldNumber">原链商城包</param>
         /// <param name="Remarks">备注</param>
         /// <returns>返回调用结果</returns>
         public static bool CLRecordAdd(Guid Gid, decimal Money, decimal CLMoney, int Number, int OldNumber, string Remarks = "")

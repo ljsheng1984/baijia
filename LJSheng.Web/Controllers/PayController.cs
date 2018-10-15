@@ -218,7 +218,7 @@ namespace LJSheng.Web.Controllers
         /// <param name="out_trade_no">外部订单号，商户网站订单系统中唯一的订单号</param>
         /// <param name="subject">订单名称</param>
         /// <param name="total_amout">会员帐号</param>
-        /// <param name="type">对账类型[1=彩链 2=商城]</param>
+        /// <param name="type">对账类型[1=链商城 2=商城]</param>
         public ActionResult Alipay(string out_trade_no, string subject,string total_amout,int type)
         {
             // 商品描述

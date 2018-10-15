@@ -35,12 +35,12 @@ namespace LJSheng.Web.Controllers
                         {
                             if (Helper.PayOrder(OrderNo, Request.QueryString["TradeNo"], PayType, PayPrice))
                             {
-                                msg = "彩链订单(" + OrderNo + ")已操作成功";
+                                msg = "链商城订单(" + OrderNo + ")已操作成功";
                             }
                         }
                         else
                         {
-                            msg = "彩链订单(" + OrderNo + ")无效";
+                            msg = "链商城订单(" + OrderNo + ")无效";
                         }
                     }
                     else if (type == 2)
@@ -170,7 +170,7 @@ namespace LJSheng.Web.Controllers
         {
             using (EFDB db = new EFDB())
             {
-                //返还24小时被扣除的彩链订单库存
+                //返还24小时被扣除的链商城订单库存
                 {
                     DateTime dt = DateTime.Now.AddHours(-24);
                     var b = db.Order.Where(l => l.ShopGid != null && l.PayStatus == 2 && l.AddTime < dt).Select(l => new
@@ -3340,7 +3340,7 @@ namespace LJSheng.Web.Controllers
             }
             using (EFDB db = new EFDB())
             {
-                //彩链订单统计
+                //链商城订单统计
                 {
                     var order = db.Order.AsQueryable();
                     if (order.Count() > 0)
@@ -5699,7 +5699,7 @@ namespace LJSheng.Web.Controllers
         }
         #endregion
 
-        #region 彩链
+        #region 链商城
         // 列表管理
         //同时支持Get和Post
         //[AcceptVerbs(HttpVerbs.Get | HttpVerbs.Post)]
@@ -5874,7 +5874,7 @@ namespace LJSheng.Web.Controllers
                     //项目分红
                     if (b.ProjectMoney > 0 || b.ProjectIntegral > 0)
                     {
-                        b.ProjectMRGid = Helper.MoneyRecordAdd(null, b.MemberGid, b.ProjectMoney, b.ProjectIntegral, 23, "彩链" + b.Year.ToString() + b.Month.ToString());
+                        b.ProjectMRGid = Helper.MoneyRecordAdd(null, b.MemberGid, b.ProjectMoney, b.ProjectIntegral, 23, "链商城" + b.Year.ToString() + b.Month.ToString());
                         if (b.ProjectMRGid == null)
                         {
                             b.ProjectRemarks = "项目分红失败";
@@ -5883,7 +5883,7 @@ namespace LJSheng.Web.Controllers
                     //股东分红
                     if (b.Money > 0 || b.Integral > 0)
                     {
-                        b.StockRightMRGid = Helper.MoneyRecordAdd(null, b.MemberGid, b.Money, b.Integral, 9, "彩链" + b.Year.ToString() + b.Month.ToString());
+                        b.StockRightMRGid = Helper.MoneyRecordAdd(null, b.MemberGid, b.Money, b.Integral, 9, "链商城" + b.Year.ToString() + b.Month.ToString());
                         if (b.StockRightMRGid == null)
                         {
                             b.StockRightRemarks = "股东分红失败";
@@ -5896,7 +5896,7 @@ namespace LJSheng.Web.Controllers
                     }
                     else
                     {
-                        LogManager.WriteLog("彩链更新分红失败", "资金增加成功.更新分红状态失败,Gid=" + Gid.ToString() + ",ProjectMRGid=" + b.ProjectMRGid.ToString() + ",StockRightMRGid=" + b.StockRightMRGid.ToString());
+                        LogManager.WriteLog("链商城更新分红失败", "资金增加成功.更新分红状态失败,Gid=" + Gid.ToString() + ",ProjectMRGid=" + b.ProjectMRGid.ToString() + ",StockRightMRGid=" + b.StockRightMRGid.ToString());
                     }
                     return Json(new AjaxResult(300, "用户分红失败!"));
                 }
@@ -6044,7 +6044,7 @@ namespace LJSheng.Web.Controllers
                 }
                 else
                 {
-                    LogManager.WriteLog("彩链失败", "当前没有可统计的数据或已有分红的数据,Year=" + Year.ToString() + ",Month=" + Month.ToString());
+                    LogManager.WriteLog("链商城失败", "当前没有可统计的数据或已有分红的数据,Year=" + Year.ToString() + ",Month=" + Month.ToString());
                 }
                 return Json(new AjaxResult(300, "没有需要分红的数据!"));
             }
@@ -6190,7 +6190,7 @@ namespace LJSheng.Web.Controllers
 
         #endregion
 
-        #region 彩链兑换额度记录
+        #region 链商城兑换额度记录
         /// <summary>
         /// 资金记录
         /// </summary>
@@ -6475,7 +6475,7 @@ namespace LJSheng.Web.Controllers
         /// </summary>
         /// <param name="Integral">兑换积分</param>
         /// <param name="TB">兑换币种[1=BCCB, 2=FBCC]</param>
-        /// <param name="Type">类型[1=彩链积分 2=商城基数积分 3=商城积分]</param>
+        /// <param name="Type">类型[1=链商城积分 2=商城基数积分 3=商城积分]</param>
         /// <returns>返回调用结果</returns>
         /// <para name="result">200 是成功其他失败</para>
         /// <para name="data">对象结果</para>
