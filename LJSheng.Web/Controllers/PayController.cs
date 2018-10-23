@@ -219,7 +219,7 @@ namespace LJSheng.Web.Controllers
         /// <param name="subject">订单名称</param>
         /// <param name="total_amout">会员帐号</param>
         /// <param name="type">对账类型[1=链商城 2=商城]</param>
-        public ActionResult Alipay(string out_trade_no, string subject,string total_amout,int type)
+        public ActionResult Alipay(string out_trade_no, string subject,string total_amout,int type,string ReturnType = "0")
         {
             // 商品描述
             string body = "链商支付";
@@ -237,7 +237,7 @@ namespace LJSheng.Web.Controllers
             model.QuitUrl = quit_url;
             AlipayTradeWapPayRequest request = new AlipayTradeWapPayRequest();
             // 设置支付完成同步回调地址
-            request.SetReturnUrl(Help.Url + "/Pay/PayOK?type="+ type.ToString() + "&OrderNo=" + out_trade_no);
+            request.SetReturnUrl(Help.Url + "/Pay/PayOK?type="+ type.ToString() + "&OrderNo=" + out_trade_no + "&ReturnType=" + ReturnType);
             // 设置支付完成异步通知接收地址
             if (type == 1)
             {
@@ -470,6 +470,8 @@ namespace LJSheng.Web.Controllers
             string Address = Request.Form["Addr"];
             string Remarks = Request.Form["Remarks"];
             int PayType = int.Parse(Request.Form["PayType"]);
+            //订单类型 Type=0 非借用订单
+            int ReturnType = int.Parse(Request.Form["ReturnType"]);
             string OrderNo = RandStr.CreateOrderNO();
             decimal RMB = 0;//全部订单金额
             using (EFDB db = new EFDB())
@@ -477,7 +479,7 @@ namespace LJSheng.Web.Controllers
                 Guid MGid = LCookie.GetMemberGid();
                 //如果是积分支付先验证支付密码
                 var m = db.Member.Where(l => l.Gid == MGid).FirstOrDefault();
-                if (PayType==5)
+                if (PayType == 5)
                 {
                     if (m.PayPWD != MD5.GetMD5ljsheng(Request.Form["PayPWD"]))
                     {
@@ -488,35 +490,46 @@ namespace LJSheng.Web.Controllers
                 var c = db.Cart.Where(l => l.MemberGid == MGid && l.State == 1).ToList();
                 if (c != null)
                 {
-                    foreach(var dr in c)
+                    foreach (var dr in c)
                     {
+                        //借用订单的产品Gid
+                        string pg ="";
                         decimal Price = 0;//订单金额
                         //扣除库存
                         var od = db.OrderDetails.Where(l => l.OrderGid == dr.Gid).ToList();
                         foreach (var d in od)
                         {
                             var p = db.ShopProduct.Where(l => l.Gid == d.ProductGid).FirstOrDefault();
-                            if (p.Stock >= d.Number)
+                            pg = p.Gid.ToString();
+                            if (ReturnType == 0 || (ReturnType != 0 && p.Borrow == 1 && db.ShopOrder.Where(l => l.Product == pg && l.PayStatus == 1).Count() == 0))
                             {
-                                //扣除库存
-                                p.Stock = p.Stock - d.Number;
-                                if (db.SaveChanges() == 1)
+                                if (p.Stock >= d.Number)
                                 {
-                                    //库存扣除状态
-                                    if (db.OrderDetails.Where(l => l.Gid == d.Gid).Update(l => new OrderDetails { State = 1 }) == 1)
+                                    //扣除库存
+                                    p.Stock = p.Stock - d.Number;
+                                    if (db.SaveChanges() == 1)
                                     {
-                                        RMB += d.Number * p.Price;
-                                        Price += d.Number * p.Price;
+                                        //库存扣除状态
+                                        if (db.OrderDetails.Where(l => l.Gid == d.Gid).Update(l => new OrderDetails { State = 1 }) == 1)
+                                        {
+                                            RMB += d.Number * p.Price;
+                                            Price += d.Number * p.Price;
+                                        }
+                                        else
+                                        {
+                                            LogManager.WriteLog("库存扣除成功更新OD失败", "Gid=" + d.Gid);
+                                        }
                                     }
-                                    else {
-                                        LogManager.WriteLog("库存扣除成功更新OD失败", "Gid=" + d.Gid);
-                                    }
+                                }
+                                else
+                                {
+                                    //库存不足的直接删除
+                                    db.OrderDetails.Where(l => l.Gid == d.Gid).Delete();
                                 }
                             }
                             else
                             {
-                                //库存不足的直接删除
-                                db.OrderDetails.Where(l => l.Gid == d.Gid).Delete();
+                                return Helper.Redirect("你下手慢了", "history.go(-1);", "你下手慢了,已被借用");
                             }
                         }
                         //生成订单
@@ -541,26 +554,42 @@ namespace LJSheng.Web.Controllers
                         b.Address = Address;
                         b.ContactNumber = ContactNumber;
                         b.RealName = RealName;
+                        b.ReturnType = ReturnType;
+                        if (ReturnType != 0)
+                        {
+                            b.BorrowTime = b.AddTime.AddMonths(3);
+                            b.Product = pg;
+                        }
                         db.ShopOrder.Add(b);
                         if (db.SaveChanges() == 1)
                         {
+                            if (ReturnType != 0 && pg!="")
+                            {
+                                Guid PGid = Guid.Parse(pg);
+                                if (db.ShopProduct.Where(l => l.Gid == PGid).Update(l => new ShopProduct { Borrow = 2 }) != 1)
+                                {
+                                    LogManager.WriteLog("借用订单状态失败", "产品Gid=" + pg + ",订单号=" + b.Gid);
+                                }
+                            }
                             if (db.Cart.Where(l => l.Gid == dr.Gid).Delete() != 1)
                             {
                                 LogManager.WriteLog("删除购物车订单失败", "Gid=" + dr.Gid);
                             }
                         }
-                        else {
+                        else
+                        {
                             LogManager.WriteLog("购物车转订单失败", "Gid=" + dr.Gid);
+                            return Helper.Redirect("失败", "history.go(-1);", "购物车转订单失败");
                         }
                     }
-                    if (RMB>0)
+                    if (RMB > 0)
                     {
                         switch (PayType)
                         {
                             case 1:
-                                return Alipay(OrderNo, "商城订单支付", RMB.ToString(), 2);                                                                                 //return MPay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), paramJson["TotalPrice"].ToString(), Guid.Parse(paramJson["OrderGid"].ToString()));
+                                return Alipay(OrderNo, "商城订单支付", RMB.ToString(), 2, Request.Form["ReturnType"]);                                                                                 //return MPay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), paramJson["TotalPrice"].ToString(), Guid.Parse(paramJson["OrderGid"].ToString()));
                             case 5:
-                                return MShopPay(OrderNo, "商城订单支付", RMB,m.Integral);
+                                return MShopPay(OrderNo, "商城订单支付", RMB, m.Integral, Request.Form["ReturnType"]);
                             case 3:
                                 db.ShopOrder.Where(l => l.OrderNo == OrderNo && l.PayType == 3).Update(l => new ShopOrder { RMB = RMB });
                                 return new RedirectResult("/Home/Bank?Type=2&OrderNo=" + OrderNo + "&Money=" + RMB.ToString());
@@ -594,7 +623,7 @@ namespace LJSheng.Web.Controllers
         /// <remarks>
         /// 2016-06-30 林建生
         /// </remarks>
-        public ActionResult MShopPay(string OrderNo, string subject, decimal PayPrice, decimal Integral)
+        public ActionResult MShopPay(string OrderNo, string subject, decimal PayPrice, decimal Integral,string ReturnType="0")
         {
             Guid MemberGid = LCookie.GetMemberGid();
             using (EFDB db = new EFDB())
@@ -615,7 +644,7 @@ namespace LJSheng.Web.Controllers
                                 }
                             }
                         }
-                        return new RedirectResult("/Pay/PayOK?type=2&OrderNo=" + OrderNo);
+                        return new RedirectResult("/Pay/PayOK?type=2&OrderNo=" + OrderNo+ "&ReturnType=" + ReturnType);
                     }
                     else
                     {

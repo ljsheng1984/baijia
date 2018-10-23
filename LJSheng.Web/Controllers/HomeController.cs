@@ -66,7 +66,7 @@ namespace LJSheng.Web.Controllers
                             b.Voucher = picture;
                             if (db.SaveChanges() == 1)
                             {
-                                return new RedirectResult("/Member/ShopOrder?tab=4");
+                                return new RedirectResult("/Member/ShopOrder?tab=4&ReturnType=0");
                             }
                             else
                             {

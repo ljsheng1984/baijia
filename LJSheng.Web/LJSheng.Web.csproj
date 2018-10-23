@@ -154,6 +154,7 @@
     <Content Include="bin\ThoughtWorks.QRCode.dll" />
     <Content Include="bin\TopSdk.dll" />
     <Content Include="bin\WebGrease.dll" />
+    <Content Include="css\iosSelect.css" />
     <Content Include="css\main.css" />
     <Content Include="css\mobileSelect.css" />
     <Content Include="css\owl.carousel.css" />
@@ -286,7 +287,13 @@
     <Content Include="images\icon\icon-62.png" />
     <Content Include="images\icon\icon-63.png" />
     <Content Include="images\icon\icon-64.png" />
+    <Content Include="images\icon\icon-65.png" />
+    <Content Include="images\icon\icon-66.png" />
+    <Content Include="images\icon\icon-67.png" />
+    <Content Include="images\icon\icon-68.png" />
+    <Content Include="images\icon\icon-69.png" />
     <Content Include="images\icon\icon-7.png" />
+    <Content Include="images\icon\icon-70.png" />
     <Content Include="images\icon\icon-8.png" />
     <Content Include="images\icon\icon-9.png" />
     <Content Include="images\icon\icon_back.png" />
@@ -316,6 +323,7 @@
     <Content Include="images\男.png" />
     <Content Include="js\daochu.js" />
     <Content Include="js\image.js" />
+    <Content Include="js\iosSelect.js" />
     <Content Include="js\jquery.js" />
     <Content Include="js\list.js" />
     <Content Include="js\ljsheng.js" />
@@ -1130,6 +1138,9 @@
     <Content Include="Views\SMall\Classify.cshtml" />
     <Content Include="Views\Home\Map.cshtml" />
     <Content Include="Views\LJSheng\Files.cshtml" />
+    <Content Include="Views\Member\PReturn.cshtml" />
+    <Content Include="Views\Member\UED.cshtml" />
+    <Content Include="Views\Member\Clause.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

@@ -24,6 +24,12 @@
                         <option value="@item.Value">@item.Key</option>
                     }
                 </select>
+                <span class="input-group-addon hidden">商家类型</span>
+                <select class="form-control" name="QX">
+                    <option value="0">=全 部=</option>
+                    <option value="1">可借用</option>
+                    <option value="2">代发货</option>
+                </select>
                 <span class="input-group-addon">手机号</span>
                 <input type="text" name="Account" class="form-control" onkeyup="value=value.replace(/[^\d]/g,'');">
                 <span class="input-group-addon">商家名称</span>
@@ -48,6 +54,8 @@
                 <th>积分</th>>
                 <th>封面</th>
                 <th>状态</th>
+                <th>借用</th>
+                <th>代发</th>
                 <th>分类管理</th>
                 <th>排序</th>
                 <th>商品管理</th>
@@ -73,6 +81,24 @@
                         <span class="label label-danger">已审核</span>
                         {{else}}
                         未知
+                        {{/if}}
+                    </td>
+                    <td>
+                        {{if item.Borrow=="0"}}
+                        <span class="label label-success">未申请</span>
+                        {{else if item.Borrow=="1"}}
+                        <span class="label label-danger">已申请</span>
+                        {{else}}
+                        已审核
+                        {{/if}}
+                    </td>
+                    <td>
+                        {{if item.Consignment=="0"}}
+                        <span class="label label-success">未申请</span>
+                        {{else if item.Consignment=="1"}}
+                        <span class="label label-danger">已申请</span>
+                        {{else}}
+                        已审核
                         {{/if}}
                     </td>
                     <td>

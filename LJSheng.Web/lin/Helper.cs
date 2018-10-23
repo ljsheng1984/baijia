@@ -1494,6 +1494,7 @@ namespace LJSheng.Web
                     b.Profit = 0;
                     b.ConsumptionCode = RandStr.CreateValidateNumber(8);
                     b.Status = 1;
+                    b.ReturnType = 0;
                     db.ShopOrder.Add(b);
                     if (db.SaveChanges() == 1)
                     {

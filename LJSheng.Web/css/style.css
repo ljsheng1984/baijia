@@ -57,6 +57,7 @@ textarea {
 input[type="submit"],
 input[type="reset"],
 input[type="button"],
+input[type="text"],
 button {
     cursor: pointer;
     -webkit-appearance: none;
@@ -1313,6 +1314,7 @@ p.integral-item-tag span {
     overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
+    height: calc(100vh - 50px);
 }
 
     .offline-payment .withdrawal-operation {
@@ -1371,6 +1373,37 @@ p.integral-item-tag span {
         color: #fff;
         font-size: 1.8rem;
     }
+
+    .offline-payment .padding-btn-group {
+        text-align: center;
+        margin: 30px 0 !important;
+    }
+
+        .offline-payment .padding-btn-group #btn {
+            margin: 0 auto;
+            background: #fff;
+            border: none;
+            padding: 15px 0;
+            border-radius: 5px;
+            width: 100%;
+            color: #fff;
+            background: #3C8AD4;
+        }
+
+    .offline-payment .offline-payment-btn {
+        text-align: center;
+    }
+
+        .offline-payment .offline-payment-btn span {
+            width: 50%;
+            height: 40px;
+            display: block;
+            margin: 0 auto;
+            background: #1989FA;
+            color: #fff;
+            line-height: 40px;
+            border-radius: 5px;
+        }
 
 .frozen-record {
     height: -webkit-calc(100vh - 50px);
@@ -2156,7 +2189,7 @@ p.integral-item-tag span {
 
 .order-detial {
     height: -webkit-calc(100vh - 50px);
-    height: calc(100vh - 50x);
+    height: calc(100vh - 50px);
     overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
@@ -2604,6 +2637,7 @@ p.integral-item-tag span {
         .merchants-item a .merchants-item-text {
             width: -webkit-calc(100% - 110px);
             width: calc(100% - 110px);
+            position: relative;
         }
 
         .merchants-item a .merchants-item-title {
@@ -2627,6 +2661,13 @@ p.integral-item-tag span {
             text-decoration: line-through;
             font-size: 1.2rem;
             margin-left: 5px;
+        }
+
+        .merchants-item a .merchants-item-status {
+            position: absolute;
+            bottom: 10px;
+            right: 0;
+            width: 50px;
         }
 
 .shop-detial {
@@ -3304,3 +3345,180 @@ p.integral-item-tag span {
                 background: #F0F2F5;
                 padding: 10px;
             }
+
+.return-header {
+    background: #fff;
+    border-bottom: solid 1px #f5f5f5;
+}
+
+.return-content {
+    background: #F8FBFE;
+}
+
+    .return-content .return-item {
+        padding: 15px;
+        background: #fff;
+        margin-top: 15px;
+        position: relative;
+    }
+
+        .return-content .return-item.active img {
+            display: block;
+        }
+
+        .return-content .return-item img {
+            display: none;
+            position: absolute;
+            width: 20px;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+    .return-content .return-btn {
+        margin: 30px 15px 0 15px;
+        background: #219EFC;
+        color: #fff;
+        text-align: center;
+        border-radius: 5px;
+        padding: 15px 0;
+    }
+
+.express-item {
+    margin: 15px 15px 0 15px;
+    position: relative;
+}
+
+    .express-item img {
+        width: 14px;
+        position: absolute;
+        top: 50%;
+        right: 15px;
+        transform: translateY(-50%);
+    }
+
+    .express-item input {
+        width: 100%;
+        border-radius: 5px;
+        border: solid 1px #eee;
+        padding: 15px 0;
+        text-indent: 15px;
+    }
+
+.use-terms {
+    padding-bottom: 100px;
+}
+
+.use-terms-title {
+    font-size: 14px;
+    padding: 20px 0;
+    text-align: center;
+}
+
+.use-terms-content {
+    padding: 0 15px;
+}
+
+.use-terms-item-title {
+    font-weight: 600;
+    margin: 15px 0;
+}
+
+    .use-terms-item-title span {
+        color: #f00;
+    }
+
+.use-terms-item-title-time {
+    margin-top: 40px;
+}
+
+.use-terms-item ul li {
+    margin-bottom: 5px;
+}
+
+    .use-terms-item ul li .use-terms-item-red {
+        color: #f00;
+    }
+
+.use-terms-item-img {
+    padding: 10px 20px;
+    text-align: center;
+}
+
+    .use-terms-item-img p {
+        margin-top: 10px;
+    }
+
+.use-terms-btn {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    background: #219EFC;
+    color: #fff;
+    text-align: center;
+    border-radius: 5px;
+    padding: 15px 0;
+}
+
+.tip-msg {
+    position: fixed;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, 0);
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    padding: 6px 20px;
+    border-radius: 5px;
+    display: none;
+}
+
+    .tip-msg.active {
+        display: block;
+    }
+
+.return-success {
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 0.4);
+    width: 100%;
+    height: 100%;
+    z-index: 99;
+    display: none;
+}
+
+    .return-success.active {
+        display: block;
+    }
+
+    .return-success .return-success-tip {
+        position: absolute;
+        top: 50%;
+        left: 10%;
+        width: 80%;
+        transform: translateY(-50%);
+    }
+
+    .return-success .return-success-tip-img {
+        width: 55%;
+        margin: 0 auto -80px auto;
+    }
+
+    .return-success .return-success-tip-text {
+        text-align: center;
+        background: #fff;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+        .return-success .return-success-tip-text p {
+            padding: 80px 10px 20px 10px;
+        }
+
+        .return-success .return-success-tip-text span {
+            padding: 15px 0;
+            color: #fff;
+            display: block;
+            background: linear-gradient(to right, #239bfe, #0bbae0);
+        }

@@ -50,6 +50,9 @@
                 <div class="item-text">积分支付(<b>@ViewBag.Integral</b>)</div>
                 <div class="item-text"><input type="password" id="PayPWD" name="PayPWD" placeholder="支付密码" maxlength="6" /></div>
             </div>
+            <div class="item-avatar @(ViewBag.Integral<ViewBag.RMB?"hide":"")" id="paymsg">
+
+            </div>
         </div>
         <div class="item-avatar hide" id="msg">
             <div class="item-text">正在请求支付</div>
@@ -58,6 +61,7 @@
         <input hidden type="text" name="ContactNumber" value="@ViewBag.ContactNumber" />
         <input hidden type="text" name="Addr" value="@ViewBag.Addr" />
         <input hidden type="text" name="PayType" id="PayType" />
+        <input hidden type="text" name="ReturnType" id="ReturnType" value="@Request.QueryString["ReturnType"]" />
     }
     <script src="/js/jquery.js"></script>
     <script>
@@ -75,7 +79,7 @@
                         document.forms[0].submit();
                     }
                     else {
-                        alert("请输入正确的支付密码");
+                        $("#paymsg").html("请输入正确的支付密码");
                         return false;
                     }
                 }

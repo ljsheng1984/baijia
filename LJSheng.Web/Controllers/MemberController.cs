@@ -1487,6 +1487,8 @@ namespace LJSheng.Web.Controllers
                     b.Project = 1;
                     b.Number = 0;
                     b.State = 1;
+                    b.Borrow = 0;
+                    b.Consignment = 0;
                     db.Shop.Add(b);
                     if (db.SaveChanges() == 1)
                     {
@@ -1508,6 +1510,22 @@ namespace LJSheng.Web.Controllers
         /// </remarks>
         public ActionResult ShopOrder()
         {
+            if (Request.QueryString["ReturnType"] == "1" && !string.IsNullOrEmpty(Request.QueryString["OrderGid"]))
+            {
+                using (EFDB db = new EFDB())
+                {
+                    Guid OrderGid = Guid.Parse(Request.QueryString["OrderGid"]);
+                    var b = db.ShopOrder.Where(l => l.Gid == OrderGid).FirstOrDefault();
+                    b.ReturnType = 2;
+                    //归还地址
+                    var s = db.Shop.Where(l => l.Gid == b.ShopGid).FirstOrDefault();
+                    b.RName = s.Name;
+                    b.RAddress = s.Address;
+                    b.RName = s.RealName;
+                    b.RContactNumber = s.ContactNumber;
+                    db.SaveChanges();
+                }
+            }
             return View();
         }
 
@@ -1551,23 +1569,55 @@ namespace LJSheng.Web.Controllers
                         x.Voucher,
                         x.PayStatus,
                         x.ShopGid,
+                        x.ReturnType,
+                        x.RExpress,
+                        x.RExpressNumber,
                         y.FirstOrDefault().RealName,
                         y.FirstOrDefault().Account
                     }).AsQueryable();
-                if (ExpressStatus != 0)
+                int ReturnType = int.Parse(paramJson["ReturnType"].ToString());
+                if (ReturnType == 0)
                 {
-                    if (ExpressStatus == 4)
+                    b = b.Where(l => l.ReturnType == 0);
+                    if (ExpressStatus != 0)
                     {
-                        b = b.Where(l => l.PayStatus == 2 && l.PayType == 3);
+                        if (ExpressStatus == 4)
+                        {
+                            b = b.Where(l => l.PayStatus == 2 && l.PayType == 3);
+                        }
+                        else
+                        {
+                            b = b.Where(l => l.PayStatus == 1 && l.ExpressStatus == ExpressStatus);
+                        }
                     }
                     else
                     {
-                        b = b.Where(l => l.PayStatus == 1 && l.ExpressStatus == ExpressStatus);
+                        b = b.Where(l => l.PayStatus == 1);
                     }
                 }
                 else
                 {
-                    b = b.Where(l => l.PayStatus == 1);
+                    b = b.Where(l => l.ReturnType != 0);
+                    if (ExpressStatus == 0)
+                    {
+                        b = b.Where(l => l.PayStatus == 1);
+                    }
+                    else if (ExpressStatus == 1)
+                    {
+                        b = b.Where(l => l.PayStatus == 1 && l.ExpressStatus == 1);
+                    }
+                    else if (ExpressStatus == 2)
+                    {
+                        b = b.Where(l => l.PayStatus == 1 && l.ReturnType != 0);
+                    }
+                    else if (ExpressStatus == 3)
+                    {
+                        b = b.Where(l => l.PayStatus == 1 && (l.ReturnType == 2 || (l.ReturnType == 1 && l.RExpressNumber!="")));
+                    }
+                    else if (ExpressStatus == 4)
+                    {
+                        b = b.Where(l => l.PayStatus == 3 && l.ReturnType != 0);
+                    }
                 }
                 int pageindex = Int32.Parse(paramJson["pageindex"].ToString());
                 int pagesize = Int32.Parse(paramJson["pagesize"].ToString());
@@ -1607,6 +1657,10 @@ namespace LJSheng.Web.Controllers
                 ViewBag.Remarks = b.Remarks;
                 ViewBag.Express = b.Express;
                 ViewBag.ExpressNumber = b.ExpressNumber;
+                ViewBag.ReturnType = b.ReturnType;
+                ViewBag.RName = b.RName;
+                ViewBag.RContactNumber = b.RContactNumber;
+                ViewBag.RAddress = b.RAddress;
                 ViewBag.ExpressList = db.Express.Where(l => l.Show == 1).OrderBy(l => l.Sort).ToList();
                 return View(db.OrderDetails.Where(l => l.OrderGid == OrderGid).ToList());
             }
@@ -2158,6 +2212,7 @@ namespace LJSheng.Web.Controllers
             }
             return View();
         }
+
         /// <summary>
         /// 链商城转让记录
         /// </summary>
@@ -2222,6 +2277,127 @@ namespace LJSheng.Web.Controllers
         /// 2016-06-30 林建生
         /// </remarks>
         public ActionResult ToShop()
+        {
+            return View();
+        }
+
+        /// <summary>
+        /// 寄快递
+        /// </summary>
+        public ActionResult UED()
+        {
+            //using (EFDB db = new EFDB())
+            //{
+            //    var b = db.Express.OrderBy(l=>l.Sort).ToList();
+            //    System.Text.StringBuilder sb = new System.Text.StringBuilder("[");
+            //    int n = 1;
+            //    foreach (var dr in b)
+            //    {
+            //        sb.Append("{id: " + n.ToString() + ",value: \"" + dr.Name + "\"},");
+            //        n++;
+            //    }
+            //    ViewBag.Express = sb.ToString().TrimEnd(',') + "]";
+            //}
+            return View();
+        }
+        /// <summary>
+        /// 快递归还
+        /// </summary>
+        [HttpPost]
+        public JsonResult UEDOK(Guid OrderGid,string expressName, string expressNum)
+        {
+            if (expressName.Length > 1 && expressNum.Length > 3)
+            {
+                using (EFDB db = new EFDB())
+                {
+                    var b = db.ShopOrder.Where(l => l.Gid == OrderGid).FirstOrDefault();
+                    if (b.ReturnType != 0)
+                    {
+                        b.ReturnType = 1;
+                        b.RExpress = expressName;
+                        b.RExpressNumber = expressNum;
+                        db.SaveChanges();
+                        return Json(new AjaxResult("成功"));
+                    }
+                    else
+                    {
+                        return Json(new AjaxResult(300, "非借用订单"));
+                    }
+                }
+            }
+            else
+            {
+                return Json(new AjaxResult(300, "请输入正确的快递方式"));
+            }
+        }
+
+        /// <summary>
+        /// 借用协议
+        /// </summary>
+        public ActionResult Clause()
+        {
+            if (string.IsNullOrEmpty(Request.QueryString["PGid"]))
+            {
+                return Helper.Redirect("非法访问", "history.go(-1);", "请重新操作");
+            }
+            else
+            {
+                Guid MGid = LCookie.GetMemberGid();
+                if (!string.IsNullOrEmpty(Request.QueryString["PGid"]))
+                {
+                    MGid = Guid.Parse(Request.QueryString["PGid"]);
+                }
+                using (EFDB db = new EFDB())
+                {
+                    var m = db.Member.Where(l => l.Gid == MGid).FirstOrDefault();
+                    if (string.IsNullOrEmpty(m.Address) || string.IsNullOrEmpty(m.RealName) || string.IsNullOrEmpty(m.ContactNumber))
+                    {
+                        return Helper.Redirect("请完善个人资料", "/Member/AddAddress?type=1", "请完善个人资料");
+                    }
+                    else if (string.IsNullOrEmpty(m.Bank) || string.IsNullOrEmpty(m.BankName) || string.IsNullOrEmpty(m.BankNumber))
+                    {
+                        return Helper.Redirect("请完善提现信息", "/Member/AddBank", "请完善提现信息");
+                    }
+                    else
+                    {
+                        Guid PGid = Guid.Parse(Request.QueryString["PGid"]);
+                        if (!string.IsNullOrEmpty(Request.QueryString["OrderGid"]))
+                        {
+                            Guid OrderGid = Guid.Parse(Request.QueryString["OrderGid"]);
+                            var o = db.ShopOrder.Where(l => l.Gid == OrderGid).FirstOrDefault();
+                            ViewBag.SDT = o.AddTime;
+                            ViewBag.EDT = o.BorrowTime;
+                        }
+                        else
+                        {
+                            ViewBag.SDT = DateTime.Now;
+                            ViewBag.EDT = DateTime.Now.AddMonths(3);
+                        }
+                        var p = db.ShopProduct.Where(l => l.Gid == PGid).FirstOrDefault();
+                        var s = db.Shop.Where(l => l.Gid == p.ShopGid).FirstOrDefault();
+                        ViewBag.Address = m.Address;
+                        ViewBag.RealName = m.RealName;
+                        ViewBag.ContactNumber = m.ContactNumber;
+                        ViewBag.Bank = m.Bank;
+                        ViewBag.BankName = m.BankName;
+                        ViewBag.BankNumber = m.BankNumber;
+                        ViewBag.PName = p.Name;
+                        ViewBag.ShopGid = p.ShopGid;
+                        ViewBag.Price = p.Price;
+                        ViewBag.SName = s.Name;
+                        ViewBag.SAddress = s.Address;
+                        ViewBag.SRealName = s.RealName;
+                        ViewBag.SContactNumber = s.ContactNumber;
+                    }
+                }
+            }
+            return View();
+        }
+
+        /// <summary>
+        /// 产品归还
+        /// </summary>
+        public ActionResult PReturn()
         {
             return View();
         }

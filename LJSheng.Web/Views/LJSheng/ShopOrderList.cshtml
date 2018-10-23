@@ -35,6 +35,12 @@
                     <option value="3">已签收</option>
                     <option value="4">退回</option>
                 </select>
+                <span class="input-group-addon fix-padding">-</span>
+                <select class="form-control" name="ReturnType">
+                    <option value="0" selected>= 借用状态 =</option>
+                    <option value="1">非借用</option>
+                    <option value="2">借用单</option>
+                </select>
             </div>
         </div>
         <div class="col-xs-11">
@@ -149,8 +155,8 @@
                             <button class="btn btn-mini">基数分 <span class="label label-badge">{{item.MIntegral}}</span></button>
                         </div>
                     </td>
-                    <td colspan="3"><button class="btn btn-mini disabled">消费码 <span class="label label-badge">{{item.ConsumptionCode}}</span></button></td>
-                    <td colspan="3">
+                    <td><button class="btn btn-mini disabled">消费码 <span class="label label-badge">{{item.ConsumptionCode}}</span></button></td>
+                    <td>
                         <span class="label label-info">
                             {{if item.Status=="1"}}
                             未验证
@@ -158,6 +164,23 @@
                             已验证
                             {{/if}}
                         </span>
+                    </td>
+                    <td>
+                        <span class="label">
+                            {{if item.ReturnType=="0"}}
+                            非借用
+                            {{else if item.ReturnType=="1"}}
+                            快递归还
+                            {{else}}
+                            门店归还
+                            {{/if}}
+                        </span>
+                    </td>
+                    <td colspan="2">
+                        借用到期时间:{{item.BorrowTime}}
+                    </td>
+                    <td>
+                        <a target="_blank" href="/Member/Clause?ShopGid={{item.ShopGid}}&PGid={{item.Product}}&MGid={{item.MemberGid}}&type=0">借用协议</a>
                     </td>
                 </tr>
                 {{/each}}

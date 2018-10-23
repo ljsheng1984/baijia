@@ -108,6 +108,12 @@ namespace LJSheng.Data
         public string ContactNumber { get; set; }
 
         /// <summary>
+        /// 联系人
+        /// </summary>
+        [StringLength(50)]
+        public string RealName { get; set; }
+
+        /// <summary>
         /// 省份
         /// </summary>
         [StringLength(20)]
@@ -142,5 +148,15 @@ namespace LJSheng.Data
         /// </summary>
         [StringLength(500)]
         public string Remarks { get; set; }
+
+        /// <summary>
+        /// 借用权限[0=默认 1=申请中 2=已通过]
+        /// </summary>
+        public int Borrow { get; set; }
+
+        /// <summary>
+        /// 代发货权限[0=默认 1=申请中 2=已通过]
+        /// </summary>
+        public int Consignment { get; set; }
     }
 }

@@ -81,6 +81,7 @@ namespace LJSheng.Web.Controllers
                     }
                     ViewBag.Remarks = b.Remarks;
                     ViewBag.ContactNumber = b.ContactNumber;
+                    ViewBag.RealName = b.RealName;
                     ViewBag.Province = b.Province;
                     ViewBag.City = b.City;
                     ViewBag.Area = b.Area;
@@ -115,6 +116,7 @@ namespace LJSheng.Web.Controllers
                     b.Picture = picture;
                 }
                 b.ContactNumber = Request.Form["ContactNumber"];
+                b.RealName = Request.Form["RealName"];
                 b.Province = Request.Form["Province"];
                 b.City = Request.Form["City"];
                 b.Area = Request.Form["Area"];
@@ -372,6 +374,7 @@ namespace LJSheng.Web.Controllers
                         ViewBag.Company = b.Company;
                         ViewBag.Brand = b.Brand;
                         ViewBag.Prefix = b.Prefix;
+                        ViewBag.Borrow = b.Borrow;
                     }
                     else
                     {
@@ -383,8 +386,10 @@ namespace LJSheng.Web.Controllers
                         ViewBag.Prefix = "";
                         ViewBag.Stock = "";
                         ViewBag.Price = "";
+                        ViewBag.Borrow = 0;
                     }
                     Guid ShopGid = LCookie.GetShopGid();
+                    ViewBag.B = db.Shop.Where(l => l.Gid == ShopGid).FirstOrDefault().Borrow;
                     var sc = db.ShopClassify.Where(l => l.ShopGid == ShopGid).ToList();
                     if (sc.Count() != 0)
                     {
@@ -477,6 +482,17 @@ namespace LJSheng.Web.Controllers
                     //{
                     //    b.GraphicDetails = Request.Form["GraphicDetails"];
                     //}
+                    if (Request.Form["B"] == "0")
+                    {
+                        b.Borrow = 0;
+                    }
+                    else
+                    {
+                        if (b.Borrow != 2)
+                        {
+                            b.Borrow = int.Parse(Request.Form["Borrow"]);
+                        }
+                    }
                     if (Gid == null)
                     {
                         db.ShopProduct.Add(b);

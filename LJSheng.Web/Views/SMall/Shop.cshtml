@@ -70,7 +70,7 @@
                     <script id="tpl" type="text/html">
                         {{each list as item index}}
                         <div class="merchants-item">
-                            <a href="/SMall/Product?ShopGid={{item.ShopGid}}&Gid={{item.Gid}}">
+                            <a href="/SMall/Product?ShopGid={{item.ShopGid}}&Gid={{item.Gid}}&Borrow={{item.Borrow}}">
                                 <div class="merchants-item-img">
                                     <img src="/uploadfiles/shop/{{item.ShopGid}}/{{item.Gid}}/logo.png" />
                                 </div>
@@ -84,6 +84,14 @@
                                         <span>
                                             ￥{{item.OriginalPrice}}
                                         </span>
+                                        <div class="merchants-item-status">
+                                            {{if item.Borrow=="1"}}
+                                            <img src="/images/icon/icon-66.png" />
+                                            {{else if item.Borrow=="2"}}
+                                            <img src="/images/icon/icon-65.png" />
+                                            {{else}}
+                                            {{/if}}
+                                        </div>
                                     </p>
                                 </div>
                             </a>

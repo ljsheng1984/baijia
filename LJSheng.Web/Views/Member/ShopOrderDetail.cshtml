@@ -16,7 +16,13 @@
     {
         <a class="shop-info shop-info-none">
             @(new HtmlString(LJSheng.Web.Helper.GetShopProduct(item.ProductGid)))
-            <div class="price">￥@item.Price X @item.Number</div>
+            <div class="price">
+                <span>￥@item.Price X @item.Number</span>
+                <div class="@(ViewBag.ReturnType==0?"hidden":"")">
+                    <a href="/Member/Clause?PGid=@item.ProductGid&OrderGid=@Request.QueryString["OrderGid"]">查看协议</a>
+                    <a class="return-btn" href="/Member/PReturn?OrderGid=@Request.QueryString["OrderGid"]">归还</a>
+                </div>
+            </div>
         </a>
     }
     <div class="shop-number"><span>共<em>@Request.QueryString["Number"]</em>件商品</span> <span>合计：<b>￥@ViewBag.TotalPrice</b></span></div>
@@ -26,6 +32,9 @@
     <p class="o-time">订单时间: <span>@ViewBag.AddTime</span></p>
     <p class="o-time">快递公司: <span>@ViewBag.Express</span></p>
     <p class="o-time">快递单号: <span>@ViewBag.ExpressNumber</span></p>
+    <p class="o-time @(ViewBag.ReturnType==0?"hidden":"")">归还地址: <span>@ViewBag.RAddress</span></p>
+    <p class="o-time @(ViewBag.ReturnType==0?"hidden":"")">归还姓名: <span>@ViewBag.RName</span></p>
+    <p class="o-time @(ViewBag.ReturnType==0?"hidden":"")">联系方式: <span>@ViewBag.RContactNumber</span></p>
 </div>
 <div class="rob">
     <a class="fix-btn-loading @(ViewBag.Status==2?"hide":"") @(Request.QueryString["type"]=="1"?"":"hide")" onclick="rob('@Request.QueryString["OrderGid"]');" style="left:20%;">
@@ -101,6 +110,7 @@
                     beforeSend: function () { },
                     success: function (data) {
                         tip(data.data);
+                        self.location = "/Shop/Order?tab=1";
                     },
                 });
             }

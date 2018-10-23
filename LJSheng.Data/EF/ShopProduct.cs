@@ -116,5 +116,10 @@ namespace LJSheng.Data
         /// </summary>
         [StringLength(20)]
         public string Prefix { get; set; }
+
+        /// <summary>
+        /// 借用[0=不可借用 1=借用中 2=已借用]
+        /// </summary>
+        public int Borrow { get; set; }
     }
 }

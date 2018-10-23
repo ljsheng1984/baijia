@@ -1,0 +1,204 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=yes">
+    <title>彩链-借用条款</title>
+    <meta name="keywords" content="彩链">
+    <meta name="description" content="彩链">
+    <meta name="author" content="彩链">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="/css/style.css" />
+</head>
+
+<body>
+    <div class="default-header-nav return-header">
+        <span>
+            <a class="icon-arrow-left" onclick="history.go(-1);"><img src="/images/icon/icon-26.png" /></a>
+        </span> 借用条款
+    </div>
+    <div class="frozen-record">
+        <div class="use-terms">
+            <h1 class="use-terms-title">产品借用协议</h1>
+            <div class="use-terms-content">
+                <div class="use-terms-item">
+                    <p class="use-terms-item-title">一.甲方</p>
+                    <ul>
+                        <li>
+                            <span>借用人（甲方）：</span>
+                            <span class="use-terms-item-red">@ViewBag.RealName</span>
+                        </li>
+                        <li>
+                            <span>地址：</span>
+                            <span class="use-terms-item-red">@ViewBag.Address</span>
+                        </li>
+                        <li>
+                            <span>户名：</span>
+                            <span class="use-terms-item-red">@ViewBag.BankName</span>
+                        </li>
+                        <li>
+                            <span>银行账号：</span>
+                            <span class="use-terms-item-red">@ViewBag.BankNumber</span>
+                        </li>
+                        <li>
+                            <span>银行开户地址：</span>
+                            <span class="use-terms-item-red">@ViewBag.Bank</span>
+                        </li>
+                        <li>
+                            <span>联系电话：</span>
+                            <span class="use-terms-item-red">@ViewBag.ContactNumber</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="use-terms-item">
+                    <p class="use-terms-item-title">二.乙方</p>
+                    <ul>
+                        <li>
+                            <span>出借方（乙方）：</span>
+                            <span>@ViewBag.SName</span>
+                        </li>
+                        <li>
+                            <span>地址：</span>
+                            <span>@ViewBag.SAddress</span>
+                        </li>
+                        <li>
+                            <span>联系人：</span>
+                            <span>@ViewBag.SRealName</span>
+                        </li>
+                        <li>
+                            <span>联系电话：</span>
+                            <span>@ViewBag.SContactNumber</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="use-terms-item">
+                    <p class="use-terms-item-title">三.甲方向乙方借如下产品：</p>
+                    <div class="use-terms-item-img">
+                        <img src="/uploadfiles/shop/@ViewBag.ShopGid/@Request.QueryString["PGid"]/logo.png" />
+                        <p>商品详情</p>
+                    </div>
+                    <ul>
+                        <li>
+                            <span>产品名称：</span>
+                            <span class="use-terms-item-red">@ViewBag.PName</span>
+                        </li>
+                        <li>
+                            <span>数量：</span>
+                            <span class="use-terms-item-red">1件</span>
+                        </li>
+                        <li>
+                            <span>押金单价：</span>
+                            <span class="use-terms-item-red">¥@ViewBag.Price</span>
+                        </li>
+                        <li>
+                            <span>商品价格：</span>
+                            <span class="use-terms-item-red">¥@ViewBag.Price</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="use-terms-item">
+                    <p class="use-terms-item-title">四.借用条款：</p>
+                    <ul>
+                        <li>
+                            <span>1.乙方于</span>
+                            <span class="use-terms-item-red">@ViewBag.SDT</span>
+                            <span>向甲方提供本合同所列产品。</span>
+                        </li>
+                        <li>
+                            <span>2.甲方于</span>
+                            <span class="use-terms-item-red">@ViewBag.EDT</span>
+                            <span>将借用产品归还乙方。</span>
+                        </li>
+                        <li>
+                            <span>3.在借用期内，甲方可无偿使用该产品。</span>
+                        </li>
+                        <li>
+                            <span>4.在借用产品归还前或签订相应销售协议前，借用产品的所有权仍然归属乙方。未经乙方书面认可，甲方不得将所借产品销售、转借或租用给第三方。乙方有权检查产品使用和完好情况，甲方应提供一切方便。</span>
+                        </li>
+                        <li>
+                            <span>
+                                5.在借用期间，甲方妥善保管所借产品，如丢失应按本协议第
+                                一条所确定的产品总价值予以赔偿。如因甲方保管不当造成产
+                                品损坏、残缺等，甲方应按损坏程度给予相应赔偿。
+                            </span>
+                        </li>
+                        <li>
+                            <span>
+                                6.在借用期间内，甲方负责所借产品的安全性、完整性。
+
+                            </span>
+                        </li>
+                        <li>
+                            <span>
+                                7.产品归还时，须先经由乙方检测后完好无损(相应标准由乙方
+                                决定)。如果所借产品有任何损坏，则甲方必须向乙方照价赔偿。
+
+                            </span>
+                        </li>
+                        <li>
+                            <span>
+                                8.如果甲方逾期不归还借用产品或不办理延长借用手续，应每日
+                                按该协议产品总价值的5%向乙方支付违约金。逾期五日不归还
+                                视为甲方同意购买协议内产品。
+
+                            </span>
+                        </li>
+                        <li>
+                            <span>
+                                9.若本协议在执行过程中发生纠纷，双方应当协商解决，协商不
+                                成时，由甲方所在地法院裁决。
+
+                            </span>
+                        </li>
+                        <li>
+                            <span>
+                                10.物品在快递途中造成的损毁，导致借方放弃借用，双方协商
+                                解决。其它要求：交易前平台向借用人收取一百元违约金。(当
+                                借用人违约后，违约金将付给出借方）
+
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="use-terms-item">
+                    <p class="use-terms-item-title use-terms-item-title-time">签订日期： <span>@ViewBag.SDT  </span></p>
+                </div>
+            </div>
+        </div>
+        <div class="use-terms-btn @(Request.QueryString["type"]=="1"?"":"hidden")">确定借用</div>
+    </div>
+    <script src="~/js/jquery.js"></script>
+    <script>
+        $(".use-terms-btn").click(function () {
+            $.ajax({
+                url: "/SMall/AddCart",
+                data: "ShopGid=@Request.QueryString["ShopGid"]&Gid=@Request.QueryString["PGid"]&Number=0",
+                type: "post",
+                cache: false,
+                timeout: 8000,
+                dataType: "json",
+                ContentType: "application/json; charset=utf-8",
+                error: function () { alert('请求超时!'); },
+                beforeSend: function () { },
+                success: function (data) {
+                    if (data.result === 200) {
+                        self.location = "/Pay/ShopPay?ReturnType=1";
+                    }
+                    else {
+                        alert(data.data);
+                        if (data.result === 301) {
+                            self.location = "/Home/Login";
+                        }
+                    }
+                },
+            });
+        });
+    </script>
+</body>
+</html>

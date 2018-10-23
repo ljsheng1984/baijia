@@ -28,7 +28,7 @@
         <p>收货地址： @ViewBag.Address</p>
         <p class="price">实付款： <span class="color-red">￥@ViewBag.TotalPrice</span></p>
         <div class="btns">
-            <a class="btn-line" href="/Member/@(Request.QueryString["type"]=="2"?"ShopOrder":"Order")?tab=0">查看订单</a>
+            <a class="btn-line" href="/Member/@(Request.QueryString["type"]=="2"?"ShopOrder":"Order")?tab=0&ReturnType=@Request.QueryString["ReturnType"]">查看订单</a>
             <a class="btn-line btn-green" href="~/Home/Index">返回首页</a>
         </div>
     </div>

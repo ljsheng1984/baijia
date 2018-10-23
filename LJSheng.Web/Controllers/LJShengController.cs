@@ -229,6 +229,18 @@ namespace LJSheng.Web.Controllers
                     foreach (var dr in b)
                     {
                         Guid ShopGid = dr.ShopGid;
+                        //借用订单解除
+                        if (dr.ReturnType != 0)
+                        {
+                            if (!string.IsNullOrEmpty(dr.Product))
+                            {
+                                Guid PGid = Guid.Parse(dr.Product);
+                                if (db.ShopProduct.Where(l => l.Gid == PGid).Update(l => new ShopProduct { Borrow = 1 }) != 1)
+                                {
+                                    LogManager.WriteLog("借用订单恢复失败", "订单=" + ShopGid.ToString() + ",产品=" + PGid);
+                                }
+                            }
+                        }
                         if (db.ShopOrder.Where(l => l.Gid == dr.Gid && l.PayStatus == 2).Update(l => new ShopOrder { PayStatus = 4 }) == 1)
                         {
                             var od = db.OrderDetails.Where(l => l.OrderGid == dr.Gid && l.State == 1).ToList();
@@ -4664,6 +4676,9 @@ namespace LJSheng.Web.Controllers
                     ViewBag.Area = b.Area;
                     ViewBag.Address = b.Address;
                     ViewBag.State = b.State;
+                    ViewBag.Borrow = b.Borrow;
+                    ViewBag.Consignment = b.Consignment;
+                    ViewBag.RealName = b.RealName;
                 }
                 Guid DGid = db.Dictionaries.Where(l => l.DictionaryType == "Shop").FirstOrDefault().Gid;
                 return View(db.DictionariesList.Where(dl => dl.DGid == DGid).OrderBy(dl => dl.Sort).ToList());
@@ -4687,11 +4702,14 @@ namespace LJSheng.Web.Controllers
                 b.Remarks = Request.Form["Remarks"];
                 b.Show = Int32.Parse(Request.Form["Show"]);
                 b.Sort = Int32.Parse(Request.Form["Sort"]);
+                b.Borrow = Int32.Parse(Request.Form["Borrow"]);
+                b.Consignment = Int32.Parse(Request.Form["Consignment"]);
                 if (!string.IsNullOrEmpty(Request.Form["Picture"]))
                 {
                     b.Picture = Request.Form["Picture"];
                 }
                 b.ContactNumber = Request.Form["ContactNumber"];
+                b.RealName = Request.Form["RealName"];
                 b.Province = Request.Form["Province"];
                 b.City = Request.Form["City"];
                 b.Area = Request.Form["Area"];
@@ -4764,6 +4782,8 @@ namespace LJSheng.Web.Controllers
                         l.Sort,
                         l.Project,
                         l.ContactNumber,
+                        l.Borrow,
+                        l.Consignment,
                         j.FirstOrDefault().Account,
                         ProjectName = db.DictionariesList.Where(dl => dl.DGid == DGid && dl.Value == SqlFunctions.StringConvert((double)l.Project).Trim()).FirstOrDefault().Key
                     }).AsQueryable();
@@ -4782,6 +4802,18 @@ namespace LJSheng.Web.Controllers
                 if (Project != 0)
                 {
                     b = b.Where(l => l.Project == Project);
+                }
+                int QX = int.Parse(paramJson["QX"].ToString());
+                if (QX != 0)
+                {
+                    if (QX == 1)
+                    {
+                        b = b.Where(l => l.Borrow == 2);
+                    }
+                    else
+                    {
+                        b = b.Where(l => l.Consignment == 2);
+                    }
                 }
                 //时间查询
                 if (!string.IsNullOrEmpty(STime) || !string.IsNullOrEmpty(ETime))
@@ -4845,6 +4877,7 @@ namespace LJSheng.Web.Controllers
                     ViewBag.Company = b.Company;
                     ViewBag.Brand = b.Brand;
                     ViewBag.Prefix = b.Prefix;
+                    ViewBag.Borrow = b.Borrow;
                 }
                 else
                 {
@@ -4855,6 +4888,7 @@ namespace LJSheng.Web.Controllers
                     ViewBag.Number = 0;
                     ViewBag.Sort = 1;
                     ViewBag.Show = 1;
+                    ViewBag.Borrow = 0;
                     ViewBag.ClassifyGid = Guid.Parse("00000000-0000-0000-0000-000000000000");
                 }
                 Guid ShopGid = Guid.Parse(Request.QueryString["ShopGid"]);
@@ -4894,7 +4928,7 @@ namespace LJSheng.Web.Controllers
                 b.ExpressFee = Int32.Parse(Request.Form["ExpressFee"]);
                 b.Company = Request.Form["Company"];
                 b.Brand = Request.Form["Brand"];
-
+                b.Borrow = int.Parse(Request.Form["Borrow"]);
                 if (!string.IsNullOrEmpty(Request.Form["Picture"]))
                 {
                     b.Picture = Request.Form["Picture"];
@@ -4962,6 +4996,7 @@ namespace LJSheng.Web.Controllers
                         x.Number,
                         x.Stock,
                         x.ShopGid,
+                        x.Borrow,
                         ClassifyName = y.FirstOrDefault().Name
                     }).AsQueryable();
                 if (!string.IsNullOrEmpty(Name))
@@ -5299,10 +5334,19 @@ namespace LJSheng.Web.Controllers
                     ViewBag.Product = b.Product;
                     ViewBag.ConsumptionCode = b.ConsumptionCode;
                     ViewBag.Price = b.Price;
+                    ViewBag.ReturnType = b.ReturnType;
+                    ViewBag.RExpress = b.RExpress;
+                    ViewBag.RExpressNumber = b.RExpressNumber;
+                    ViewBag.RAddress = b.RAddress;
+                    ViewBag.RName = b.RName;
+                    ViewBag.RContactNumber = b.RContactNumber;
+                    ViewBag.PayStatus = b.PayStatus;
                 }
                 else
                 {
+                    ViewBag.ReturnType = 0;
                     ViewBag.Sort = 1;
+                    ViewBag.PayStatus = 1;
                 }
                 return View(db.Express.Where(l => l.Show == 1).OrderBy(l => l.Sort).ToList());
             }
@@ -5322,6 +5366,25 @@ namespace LJSheng.Web.Controllers
                 b.ContactNumber = Request.Form["ContactNumber"];
                 b.ExpressStatus = Int32.Parse(Request.Form["ExpressStatus"]);
                 b.Status = Request.Form["ExpressStatus"] == "3" ? 2 : 1;
+                b.RExpress = Request.Form["RExpress"];
+                b.RExpressNumber = Request.Form["RExpressNumber"];
+                b.RAddress = Request.Form["RAddress"];
+                b.RName = Request.Form["RName"];
+                b.RContactNumber = Request.Form["RContactNumber"];
+                b.ReturnType = Int32.Parse(Request.Form["ReturnType"]);
+                if (b.PayStatus==1 && Request.Form["PayStatus"] == "3")
+                {
+                    b.PayStatus = 3;
+                    //借用订单解除
+                    if (!string.IsNullOrEmpty(b.Product))
+                    {
+                        Guid PGid = Guid.Parse(b.Product);
+                        if (db.ShopProduct.Where(l => l.Gid == PGid).Update(l => new ShopProduct { Borrow = 1 }) != 1)
+                        {
+                            LogManager.WriteLog("借用订单恢复失败", "订单=" + b.Gid.ToString() + ",产品=" + PGid);
+                        }
+                    }
+                }
                 if (db.SaveChanges() == 1)
                 {
                     return Helper.WebRedirect("操作成功！", "history.go(-1);", "操作成功!");
@@ -5378,6 +5441,11 @@ namespace LJSheng.Web.Controllers
                         l.Status,
                         l.ConsumptionCode,
                         l.Voucher,
+                        l.ReturnType,
+                        l.BorrowTime,
+                        l.RName,
+                        l.RAddress,
+                        l.RContactNumber,
                         j.FirstOrDefault().Name,
                         j.FirstOrDefault().ContactNumber
                     }).GroupJoin(db.Member,
@@ -5407,6 +5475,11 @@ namespace LJSheng.Web.Controllers
                         l.Name,
                         l.ContactNumber,
                         l.Voucher,
+                        l.ReturnType,
+                        l.BorrowTime,
+                        l.RName,
+                        l.RAddress,
+                        l.RContactNumber,
                         j.FirstOrDefault().Account,
                         j.FirstOrDefault().RealName,
                         ShopAccount = db.Member.Where(m => m.Gid == l.ShopGid).FirstOrDefault().Account,
@@ -5454,6 +5527,18 @@ namespace LJSheng.Web.Controllers
                 {
                     int ExpressStatus = int.Parse(paramJson["ExpressStatus"].ToString());
                     b = b.Where(l => l.ExpressStatus == ExpressStatus);
+                }
+                int ReturnType = int.Parse(paramJson["ReturnType"].ToString());
+                if (ReturnType!=0)
+                {
+                    if (ReturnType == 1)
+                    {
+                        b = b.Where(l => l.ReturnType == 0);
+                    }
+                    else
+                    {
+                        b = b.Where(l => l.ReturnType != 0);
+                    }
                 }
                 //时间查询
                 if (!string.IsNullOrEmpty(STime) || !string.IsNullOrEmpty(ETime))

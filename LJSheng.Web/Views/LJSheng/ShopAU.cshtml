@@ -102,6 +102,12 @@
             </div>
         </div>
         <div class="form-group">
+            <label class="col-sm-2">联系人</label>
+            <div class="col-md-3 col-sm-5 has-success">
+                <input type="text" name="RealName" value="@ViewBag.RealName" class="form-control" placeholder="必填项">
+            </div>
+        </div>
+        <div class="form-group">
             <label class="col-sm-2">联系方式</label>
             <div class="col-md-3 col-sm-5">
                 <input type="text" name="ContactNumber" value="@ViewBag.ContactNumber" class="form-control">
@@ -146,6 +152,34 @@
             </div>
         </div>
         <div class="form-group">
+            <label class="col-sm-2">借用权限</label>
+            <div class="col-md-3 col-sm-5">
+                <label class="radio-inline">
+                    <input type="radio" name="Borrow" value="0"> 未申请
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" name="Borrow" value="1"> 申请中
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" name="Borrow" value="2"> 通过审核
+                </label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2">代发货权限</label>
+            <div class="col-md-3 col-sm-5">
+                <label class="radio-inline">
+                    <input type="radio" name="Consignment" value="0"> 未申请
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" name="Consignment" value="1"> 申请中
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" name="Consignment" value="2"> 通过审核
+                </label>
+            </div>
+        </div>
+        <div class="form-group">
             <label class="col-sm-2">备注</label>
             <div class="col-md-3 col-sm-5">
                 <textarea class="form-control" rows="3" name="Remarks">@ViewBag.Remarks</textarea>
@@ -168,6 +202,8 @@
     <script src="~/js/pca.js" charset="gb2312"></script>
     <script>
         $(":radio[name='Show'][value='@ViewBag.Show']").prop("checked", "checked");
+        $(":radio[name='Borrow'][value='@ViewBag.Borrow']").prop("checked", "checked");
+        $(":radio[name='Consignment'][value='@ViewBag.Consignment']").prop("checked", "checked");
         var p="@ViewBag.Project";
         if (p!= "") {
             var Project = p.split(",");

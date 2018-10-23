@@ -50,6 +50,7 @@
                 <th>库存</th>
                 <th>排序</th>
                 <th>显示</th>
+                <th>借用</th>
                 <th>图片</th>
                 <th>添加时间</th>
                 <th>管理操作</th>
@@ -79,6 +80,15 @@
                         不显示
                         {{else}}
                         推荐
+                        {{/if}}
+                    </td>
+                    <td>
+                        {{if item.Show=="0"}}
+                        不可
+                        {{else if item.Show=="1"}}
+                        可借
+                        {{else}}
+                        已借
                         {{/if}}
                     </td>
                     <td>

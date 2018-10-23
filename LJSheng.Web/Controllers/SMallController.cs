@@ -259,6 +259,20 @@ namespace LJSheng.Web.Controllers
             }
             else
             {
+                //借用订单处理
+                if (Number == 0)
+                {
+                    Number = 1;
+                    using (EFDB db = new EFDB())
+                    {
+                        var c = db.Cart.Where(l => l.MemberGid == MemberGid).ToList();
+                        foreach(var dr in c)
+                        {
+                            db.Cart.Where(l => l.Gid == dr.Gid).Delete();
+                            db.OrderDetails.Where(l => l.OrderGid == dr.Gid && l.State != 1).Delete();
+                        }
+                    }
+                }
                 if (ShopOrder(Gid, ShopGid, MemberGid, Number))
                 {
                     return Json(new AjaxResult(Helper.OrderRMB(MemberGid)));
@@ -522,6 +536,7 @@ namespace LJSheng.Web.Controllers
                     l.Company,
                     l.Brand,
                     l.ClassifyGid,
+                    l.Borrow,
                     Sales = db.OrderDetails.Where(od => od.ProductGid == l.Gid).GroupJoin(db.ShopOrder,
                     x => x.OrderGid,
                     y => y.Gid,

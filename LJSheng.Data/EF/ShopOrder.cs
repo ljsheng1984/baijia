@@ -159,5 +159,45 @@ namespace LJSheng.Data
         /// 多订单支付总额
         /// </summary>
         public decimal RMB { get; set; }
+
+        /// <summary>
+        /// 归还类型[0=非借用订单 1=快递归还 2=门店归还]
+        /// </summary>
+        public int ReturnType { get; set; }
+
+        /// <summary>
+        /// 借用到期时间
+        /// </summary>
+        public DateTime? BorrowTime { get; set; }
+
+        /// <summary>
+        /// 归还快递公司
+        /// </summary>
+        [StringLength(50)]
+        public string RExpress { get; set; }
+
+        /// <summary>
+        /// 归还快递号
+        /// </summary>
+        [StringLength(50)]
+        public string RExpressNumber { get; set; }
+
+        /// <summary>
+        /// 归还地址
+        /// </summary>
+        [StringLength(100)]
+        public string RAddress { get; set; }
+
+        /// <summary>
+        /// 归还收货人
+        /// </summary>
+        [StringLength(50)]
+        public string RName { get; set; }
+
+        /// <summary>
+        /// 归还联系电话
+        /// </summary>
+        [StringLength(50)]
+        public string RContactNumber { get; set; }
     }
 }

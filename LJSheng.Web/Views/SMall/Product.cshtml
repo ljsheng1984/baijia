@@ -91,10 +91,10 @@
         </div>
         <div class="shop-detial-operation">
             <ul>
-                <li>
-                    <a onclick="history.go(-1);">
-                        <img src="/images/icon/icon-53.png" />
-                        <span>店铺</span>
+                <li style="@(Request.QueryString["Borrow"]=="1"?"":"display:none;")">
+                    <a href="/Member/Clause?ShopGid=@Request.QueryString["ShopGid"]&PGid=@Request.QueryString["Gid"]&type=1">
+                        <img src="/images/icon/icon-67.png" />
+                        <span>借用</span>
                     </a>
                 </li>
                 <li>

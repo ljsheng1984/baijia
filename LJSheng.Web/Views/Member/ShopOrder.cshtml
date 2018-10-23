@@ -28,12 +28,16 @@
     </div>
     <div id="search" hidden>
         <input class="text" name="ExpressStatus" id="ExpressStatus" value="@Request.QueryString["tab"]" />
+        <input class="text" name="ReturnType" id="ReturnType" value="@Request.QueryString["ReturnType"]" />
     </div>
     <div class="order">
         <div class="order-type">
             <ul>
                 <li><a href="/Member/Order?tab=0">溯源码订单</a></li>
-                <li class="active">商城订单</li>
+                <li class="@(Request.QueryString["ReturnType"]=="0"?"active":"")"><a href="/Member/ShopOrder?tab=0&ReturnType=0">商城订单</a></li>
+                <li class="@(Request.QueryString["ReturnType"]=="1"?"active":"")">
+                    <a href="/Member/ShopOrder?tab=0&ReturnType=1">借用订单</a>
+                </li>
             </ul>
         </div>
         <div class="order-status">
@@ -48,15 +52,15 @@
                 </li>
                 <li onclick="getlist(2);">
                     <img src="/images/icon/icon-20.png" />
-                    <span>待收货</span>
+                    <span>@(Request.QueryString["ReturnType"] == "1" ? "借用中" : "待收货")</span>
                 </li>
                 <li onclick="getlist(3);">
                     <img src="/images/icon/icon-21.png" />
-                    <span>已收货</span>
+                    <span>@(Request.QueryString["ReturnType"] == "1" ? "归还中" : "已收货")</span>
                 </li>
                 <li onclick="getlist(4);">
                     <img src="/images/icon/icon-21.png" />
-                    <span>线下付款</span>
+                    <span>@(Request.QueryString["ReturnType"] == "1" ? "已归还" : "线下付款")</span>
                 </li>
             </ul>
         </div>

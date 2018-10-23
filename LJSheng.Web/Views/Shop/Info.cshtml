@@ -52,6 +52,11 @@
             <div id="lxmsg" class="help-text text-red"></div>
         </div>
         <div class="control">
+            <label>联系人</label>
+            <input id="RealName" name="RealName" value="@ViewBag.RealName" type="text" class="input" placeholder="商家联系人">
+            <div id="lxrmsg" class="help-text text-red"></div>
+        </div>
+        <div class="control">
             <label>商家介绍</label>
             <textarea type="text" name="Profile" autocomplete="off" class="input" style="height:5rem;">@ViewBag.Profile</textarea>
         </div>
@@ -108,6 +113,10 @@
 
             if (document.getElementById("ContactNumber").value.length <= 10) {
                 tip("联系方式不完整");
+                return false;
+            }
+            if (document.getElementById("RealName").value.length <= 1) {
+                tip("请填写联系人");
                 return false;
             }
             if (document.getElementById("Province").value == "请选择省份") {

@@ -1,0 +1,124 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=yes">
+    <title>彩链-寄快递</title>
+    <meta name="keywords" content="彩链">
+    <meta name="description" content="彩链">
+    <meta name="author" content="彩链">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="/css/iosSelect.css" />
+    <link rel="stylesheet" type="text/css" href="/css/style.css" />
+</head>
+
+<body>
+    <div class="default-header-nav return-header">
+        <span>
+            <img src="/images/icon/icon-26.png" />
+        </span> 寄快递
+    </div>
+    <div class="frozen-record return-content">
+        <div class="express-content">
+            <div class="express-item">
+                <input type="text" name="expressName" id="expressName" value="" placeholder="请选择快递名称" readonly="readonly" />
+                <img src="/images/icon/icon-69.png" />
+            </div>
+            <div class="express-item">
+                <input type="text" name="expressNum" id="expressNum" value="" placeholder="请输入您的快递单号" />
+            </div>
+        </div>
+        <div class="return-btn">确认归还</div>
+    </div>
+    <div class="tip-msg">提示信息</div>
+    <div class="return-success">
+        <div class="return-success-tip">
+            <div class="return-success-tip-img">
+                <img src="/images/icon/icon-70.png" />
+            </div>
+            <div class="return-success-tip-text">
+                <p>商家收到商品后，检验无误，3个工作日内返回押金</p>
+                <span>知道了</span>
+            </div>
+        </div>
+    </div>
+    <div class="selectContainer"></div>
+    <script src="~/js/jquery.js"></script>
+    <script src="~/js/iosSelect.js"></script>
+    <script>
+        var data = [{ id: 1, value: "顺丰" }, { id: 2, value: "申通" }, { id: 3, value: "圆通" }, { id: 4, value: "韵达" }, { id: 5, value: "中通快运" }, { id: 6, value: "邮政包裹" }, { id: 7, value: "中通" }, { id: 8, value: "天天" }, { id: 9, value: "百世快递" }, { id: 10, value: "盛丰" }, { id: 11, value: "共速达" }, { id: 12, value: "龙邦" }, { id: 13, value: "易通达" }, { id: 14, value: "易达通" }, { id: 15, value: "越丰" }, { id: 16, value: "信丰" }, { id: 17, value: "顺达快递" }, { id: 18, value: "UPS" }, { id: 19, value: "运通" }, { id: 20, value: "急先达" }, { id: 21, value: "中铁物流" }, { id: 22, value: "锦程快递" }, { id: 23, value: "安能" }, { id: 24, value: "DPEX" }, { id: 25, value: "快捷" }, { id: 26, value: "能达" }, { id: 27, value: "中国东方" }, { id: 28, value: "宅急送" }, { id: 29, value: "源安达" }, { id: 30, value: "民航" }, { id: 31, value: "安捷" }, { id: 32, value: "如风达" }, { id: 33, value: "Aramex" }, { id: 34, value: "黑狗" }, { id: 35, value: "FedEx" }, { id: 36, value: "万家物流" }, { id: 37, value: "德邦" }, { id: 38, value: "京广" }, { id: 39, value: "天地华宇" }, { id: 40, value: "佳怡" }, { id: 41, value: "配思航宇" }, { id: 42, value: "联昊通" }, { id: 43, value: "恒路" }, { id: 44, value: "富腾达" }, { id: 45, value: "全峰" }, { id: 46, value: "京东" }, { id: 47, value: "全晨" }, { id: 48, value: "鸿远" }, { id: 49, value: "飞洋" }, { id: 50, value: "百福东方" }, { id: 51, value: "中邮" }, { id: 52, value: "蓝天" }, { id: 53, value: "大田" }, { id: 54, value: "PCA" }, { id: 55, value: "D速" }, { id: 56, value: "新邦" }, { id: 57, value: "嘉里物流" }, { id: 58, value: "安能快递" }, { id: 59, value: "盛辉" }, { id: 60, value: "万庚" }, { id: 61, value: "速尔" }, { id: 62, value: "亚风" }, { id: 63, value: "AAE" }, { id: 64, value: "华企" }, { id: 65, value: "宜送" }, { id: 66, value: "东骏物流" }, { id: 67, value: "万象" }, { id: 68, value: "国通" }, { id: 69, value: "原飞航" }, { id: 70, value: "苏宁" }, { id: 71, value: "佳吉" }, { id: 72, value: "安信达" }, { id: 73, value: "中铁快运" }, { id: 74, value: "远成" }, { id: 75, value: "黄马甲" }, { id: 76, value: "TNT" }, { id: 77, value: "EMS" }, { id: 78, value: "文捷航空" }, { id: 79, value: "芝麻开门" }, { id: 80, value: "九曳" }, { id: 81, value: "百世快运" }, { id: 82, value: "澳邮" }, { id: 83, value: "平安快递" }, { id: 84, value: "全一" }, { id: 85, value: "加运美" }, { id: 86, value: "FedEx国际" }, { id: 87, value: "DHL" }, { id: 88, value: "EWE" }, { id: 89, value: "凤凰" }, { id: 90, value: "秦远物流" }, { id: 91, value: "晋越" }, { id: 92, value: "跨越" }, { id: 93, value: "程光" }, { id: 94, value: "三态" }, { id: 95, value: "优速" }, { id: 96, value: "货运皇" }]
+        //选择快递
+        $("#expressName").click(function () {
+            var bankSelect = new IosSelect(1, [data], {
+                container: '.selectContainer',
+                title: '选择快递',
+                itemHeight: 50,
+                itemShowCount: 5,
+                oneLevelId: 0,
+                callback: function (val) {
+                    $("#expressName").val(val.value);
+                },
+                fallback: function () {
+                    console.log(1);
+                },
+                maskCallback: function () {
+                    console.log(2);
+                }
+            });
+        });
+        //确认归还
+        $(".return-btn").click(function () {
+            var expressName = $("#expressName").val();
+            var expressNum = $("#expressNum").val();
+            if (expressName) {
+                if (expressNum) {
+                    //验证通过
+                    $.ajax({
+                        url: "/Member/UEDOK",
+                        data: "OrderGid=@Request.QueryString["OrderGid"]&expressName=" + expressName + "&expressNum=" + expressNum + "&cache=" + Math.random(),
+                        type: "post",
+                        cache: false,
+                        timeout: 8000,
+                        dataType: "json",
+                        ContentType: "application/json; charset=utf-8",
+                        async: false,//一定要是同步请求，否则会跳转；（ajax默认是异步的）
+                        error: function () { },
+                        beforeSend: function () { },
+                        success: function (data) {
+                            if (data.result === 200) {
+                                $(".return-success").addClass("active");
+                            }
+                            else {
+                                tipMsg(data.data);
+                            }
+                        },
+                    });
+                } else {
+                    tipMsg("请输入快递单号");
+                }
+            } else {
+                tipMsg("请选择快递");
+            }
+        });
+        //提示信息
+        function tipMsg(msg) {
+            $(".tip-msg").html(msg).addClass("active");
+            setTimeout(function () {
+                $(".tip-msg").html("").removeClass("active");
+            }, 2000)
+        }
+        //关闭成功提示
+        $(".return-success-tip-text span").click(function () {
+            $(".return-success").removeClass("active");
+            self.location = "/Member/ShopOrder?tab=0&ReturnType=1";
+        });
+    </script>
+
+</body>
+</html>

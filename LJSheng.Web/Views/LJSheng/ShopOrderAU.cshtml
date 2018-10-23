@@ -85,7 +85,7 @@
                 <input type="text" name="Address" value="@ViewBag.Address" class="form-control">
             </div>
         </div>
-        <div class="form-group">
+        <div class="form-group hidden">
             <label class="col-sm-2">订单状态</label>
             <div class="col-md-3 col-sm-5">
                 <label class="radio-inline">
@@ -100,6 +100,66 @@
                 <label class="radio-inline">
                     <input type="radio" name="ExpressStatus" value="4"> 退回
                 </label>
+            </div>
+        </div>
+        <div class="form-group @(ViewBag.ReturnType!=0?"":"hidden")">
+            <label class="col-sm-2">归还方式</label>
+            <div class="col-md-3 col-sm-5">
+                <label class="radio-inline">
+                    <input type="radio" name="ReturnType" value="0"> 非借用
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" name="ReturnType" value="1"> 快递中
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" name="ReturnType" value="2"> 门店
+                </label>
+            </div>
+        </div>
+        <div class="form-group @(ViewBag.ReturnType!=0?"":"hidden")">
+            <label class="col-sm-2">是否退款</label>
+            <div class="col-md-3 col-sm-5">
+                <label class="radio-inline">
+                    <input type="radio" name="PayStatus" value="1"> 未退款
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" name="PayStatus" value="3"> 已退款
+                </label>
+            </div>
+        </div>
+        <div class="form-group @(ViewBag.ReturnType==1?"":"hidden")">
+            <label class="col-sm-2">归还快递公司</label>
+            <div class="col-md-2 col-sm-2">
+                <select class="form-control" name="RExpress">
+                    @foreach (var item in Model)
+                    {
+                        <option value="@item.Type" @(item.Type == ViewBag.RExpress ? "selected" : "")>@item.Name</option>
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="form-group @(ViewBag.ReturnType==1?"":"hidden")">
+            <label class="col-sm-2">归还快递单号</label>
+            <div class="col-md-2 col-sm-2 has-success">
+                <input type="text" name="RExpressNumber" value="@ViewBag.RExpressNumber" class="form-control">
+            </div>
+        </div>
+        <div class="form-group @(ViewBag.ReturnType==2?"":"hidden")">
+            <label class="col-sm-2">归还人</label>
+            <div class="col-md-2 col-sm-2 has-success">
+                <input type="text" name="RealName" value="@ViewBag.RName" class="form-control">
+            </div>
+        </div>
+        <div class="form-group @(ViewBag.ReturnType==2?"":"hidden")">
+            <label class="col-sm-2">归还电话</label>
+            <div class="col-md-2 col-sm-2 has-success">
+                <input type="text" name="ContactNumber" value="@ViewBag.RContactNumber" class="form-control">
+            </div>
+        </div>
+        <div class="form-group @(ViewBag.ReturnType==2?"":"hidden")">
+            <label class="col-sm-2">归还地址</label>
+            <div class="col-md-5 col-sm-5 has-success">
+                <input type="text" name="Address" value="@ViewBag.RAddress" class="form-control">
             </div>
         </div>
         <div class="form-group">
@@ -118,6 +178,8 @@
     <script src="~/plugins/zui/js/zui.min.js"></script>
     <script>
         $(":radio[name='ExpressStatus'][value='@ViewBag.ExpressStatus']").prop("checked", "checked");
+        $(":radio[name='ReturnType'][value='@ViewBag.ReturnType']").prop("checked", "checked");
+        $(":radio[name='PayStatus'][value='@ViewBag.PayStatus']").prop("checked", "checked");
     </script>
 </body>
 </html>
