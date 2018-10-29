@@ -36,6 +36,10 @@
     </div>
     <script src="~/js/jquery.js"></script>
     <script>
+        var ua = navigator.userAgent.toLowerCase();
+        if (ua.match(/MicroMessenger/i) == "micromessenger" && "@ViewBag.OpenID"== "") {
+            self.location = "/Home/OpenID?tourl=http://baijmc.com/Home/Login";
+        }
         function check() {
             var field = $("input[name='account']");
             if (field.val().length != 11) {

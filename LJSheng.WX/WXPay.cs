@@ -1,19 +1,29 @@
-﻿using LJSheng.Data;
-using System.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Net;
+using System.Net.Security;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Web;
 using System.Xml;
-using LJSheng.Common;
-using Newtonsoft.Json;
 
 namespace LJSheng.WX
 {
     /// <summary>
-    /// 微信支付类
+    /// 微信支付
     /// </summary>
+    /// <param name="openid">用户openid</param>
+    /// <param name="order_no">系统订单号</param>
+    /// <param name="body">商品描述</param>
+    /// <param name="beizhu">备注</param>
+    /// <param name="payrmb">支付金额</param>
+    /// <returns>返回调用结果</returns>
+    /// <para name="result">200 是成功其他失败</para>
+    /// <para name="data">对象结果</para>
     /// <remarks>
     /// 2018-08-18 林建生
     /// </remarks>
@@ -21,33 +31,20 @@ namespace LJSheng.WX
     {
         public static string APPID = Common.Help.appid;
         public static string TENPAY = "1";
-        public static string PARTNER = Common.Help.mch_id;
+        public static string PARTNER = Common.Help.mch_id;//商户号
         public static string PARTNER_KEY = Common.Help.api_key;
 
         //服务器异步通知页面路径(流量卡)
-        public static readonly string NOTIFY_URL_Card_Store = System.Web.Configuration.WebConfigurationManager.AppSettings["url"].ToString() + "/wxpay.ashx";
+        public static readonly string NOTIFY_URL_Card_Store = Common.Help.Url+ "/wxpay.ashx";
 
-        /// <summary>
-        /// 微信支付
-        /// </summary>
-        /// <param name="openid">用户openid</param>
-        /// <param name="OrderNo">系统订单号</param>
-        /// <param name="payrmb">支付金额</param>
-        /// <param name="body">商品描述</param>
-        /// <param name="remarks">备注</param>
-        /// <returns>返回调用结果</returns>
-        /// <para name="result">200 是成功其他失败</para>
-        /// <para name="data">对象结果</para>
-        /// <remarks>
-        /// 2018-08-18 林建生
-        /// </remarks>
-        public static string Get_RequestHtml(string openid, string OrderNo, decimal payrmb, string body, string attach)
+        public static JObject Get_RequestHtml(string openid, string order_no, string body, string beizhu, string payrmb)
         {
             HttpContext Context = HttpContext.Current;
             //设置package订单参数
             SortedDictionary<string, string> dic = new SortedDictionary<string, string>();
-            string total_fee = (decimal.Parse(payrmb.ToString()) * 100).ToString("f0");
-            //string wx_timeStamp = "";
+
+            string total_fee = (decimal.Parse(payrmb) * 100).ToString("f0");
+            string wx_timeStamp = "";
             string wx_nonceStr = getNoncestr();
 
             dic.Add("appid", APPID);
@@ -55,64 +52,33 @@ namespace LJSheng.WX
             dic.Add("device_info", "WEB");//可为空
             dic.Add("nonce_str", wx_nonceStr);
             dic.Add("trade_type", "JSAPI");
-            dic.Add("attach", attach);
+            dic.Add("attach", beizhu);
             dic.Add("openid", openid);
-            dic.Add("out_trade_no", OrderNo);		//商家订单号
+            dic.Add("out_trade_no", order_no);		//商家订单号
             dic.Add("total_fee", total_fee); //商品金额,以分为单位(money * 100).ToString()
             dic.Add("notify_url", NOTIFY_URL_Card_Store.ToLower());//接收通知的URL
             dic.Add("body", body);//商品描述
             dic.Add("spbill_create_ip", Context.Request.UserHostAddress);   //用户的公网ip，不是商户服务器IP
-            string get_sign = BuildRequest(dic, PARTNER_KEY);
-            //设置查询订餐参数的签名
-            SortedDictionary<string, string> paydic = new SortedDictionary<string, string>();
-            paydic.Add("appid", APPID);
-            paydic.Add("mch_id", PARTNER);
-            paydic.Add("nonce_str", wx_nonceStr);
-            paydic.Add("out_trade_no", OrderNo);
-            string pay_sign = BuildRequest(paydic, PARTNER_KEY);
 
-            string url = "https://api.mch.weixin.qq.com/Pay/unifiedorder";
+            string get_sign = BuildRequest(dic, PARTNER_KEY);
+
+            string url = "https://api.mch.weixin.qq.com/pay/unifiedorder";
             string _req_data = "<xml>";
             _req_data += "<appid>" + APPID + "</appid>";
-            _req_data += "<attach><![CDATA[" + attach + "]]></attach>";
+            _req_data += "<attach><![CDATA[" + beizhu + "]]></attach>";
             _req_data += "<body><![CDATA[" + body + "]]></body> ";
             _req_data += "<device_info><![CDATA[WEB]]></device_info> ";
             _req_data += "<mch_id><![CDATA[" + PARTNER + "]]></mch_id> ";
             _req_data += "<openid><![CDATA[" + openid + "]]></openid> ";
             _req_data += "<nonce_str><![CDATA[" + wx_nonceStr + "]]></nonce_str> ";
             _req_data += "<notify_url><![CDATA[" + NOTIFY_URL_Card_Store.ToLower() + "]]></notify_url> ";
-            _req_data += "<out_trade_no><![CDATA[" + OrderNo + "]]></out_trade_no> ";
+            _req_data += "<out_trade_no><![CDATA[" + order_no + "]]></out_trade_no> ";
             _req_data += "<spbill_create_ip><![CDATA[" + Context.Request.UserHostAddress + "]]></spbill_create_ip> ";
             _req_data += "<total_fee><![CDATA[" + total_fee + "]]></total_fee> ";
             _req_data += "<trade_type><![CDATA[JSAPI]]></trade_type> ";
             _req_data += "<sign><![CDATA[" + get_sign + "]]></sign> ";
             _req_data += "</xml>";
-            //订单查询参数
-            string Pay = "<xml>";
-            Pay += "<appid>" + APPID + "</appid>";
-            Pay += "<mch_id><![CDATA[" + PARTNER + "]]></mch_id> ";
-            Pay += "<nonce_str><![CDATA[" + wx_nonceStr + "]]></nonce_str> ";
-            Pay += "<out_trade_no><![CDATA[" + OrderNo + "]]></out_trade_no> ";
-            Pay += "<sign><![CDATA[" + pay_sign + "]]></sign> ";
-            Pay += "</xml>";
-            using (EFDB db = new EFDB())
-            {
-                var b = db.Order.Where(l => l.OrderNo == OrderNo).FirstOrDefault();
-                if (b != null)
-                {
-                    b.Pay = Pay;
-                    if (db.SaveChanges() != 1)
-                    {
-                        LogManager.WriteLog("支付参数失败", "订单号=" + OrderNo + "----------参数=" + _req_data);
-                    }
-                }
-                else
-                {
-                    {
-                        LogManager.WriteLog("找不到订单", "订单号=" + OrderNo + "----------参数=" + _req_data);
-                    }
-                }
-            }
+
             //通知支付接口，拿到prepay_id
             ReturnValue retValue = StreamReaderUtils.StreamReader(url, Encoding.UTF8.GetBytes(_req_data), System.Text.Encoding.UTF8, true);
 
@@ -126,95 +92,41 @@ namespace LJSheng.WX
 
             if (Event != null)
             {
-                return_json = "prepay_id=" + Event.InnerText;
-                //小程序不需要以下代码
-                //string _prepay_id = Event.InnerText;
-                //SortedDictionary<string, string> pay_dic = new SortedDictionary<string, string>();
+                string _prepay_id = Event.InnerText;
 
-                //wx_timeStamp = WXPay.getTimestamp();
-                //wx_nonceStr = WXPay.getNoncestr();
+                SortedDictionary<string, string> pay_dic = new SortedDictionary<string, string>();
 
-                //string _package = "prepay_id=" + _prepay_id;
+                wx_timeStamp = WXPay.getTimestamp();
+                wx_nonceStr = WXPay.getNoncestr();
 
-                //pay_dic.Add("appId", APPID);
-                //pay_dic.Add("timeStamp", wx_timeStamp);
-                //pay_dic.Add("nonceStr", wx_nonceStr);
-                //pay_dic.Add("package", _package);
-                //pay_dic.Add("signType", "MD5");
+                string _package = "prepay_id=" + _prepay_id;
 
-                //string get_PaySign = BuildRequest(pay_dic, PARTNER_KEY);
+                pay_dic.Add("appId", APPID);
+                pay_dic.Add("timeStamp", wx_timeStamp);
+                pay_dic.Add("nonceStr", wx_nonceStr);
+                pay_dic.Add("package", _package);
+                pay_dic.Add("signType", "MD5");
 
-                //return_json = JsonUtils.SerializeToJson(new
-                //{
-                //    appId = APPID,
-                //    timeStamp = wx_timeStamp,
-                //    nonceStr = wx_nonceStr,
-                //    package = _package,
-                //    paySign = get_PaySign,
-                //    signType = "MD5"
-                //});
+                string get_PaySign = BuildRequest(pay_dic, PARTNER_KEY);
+
+                return_json = JsonUtils.SerializeToJson(new
+                {
+                    appId = APPID,
+                    timeStamp = wx_timeStamp,
+                    nonceStr = wx_nonceStr,
+                    package = _package,
+                    paySign = get_PaySign,
+                    signType = "MD5"
+                });
             }
             else
             {
                 XmlNode return_msg = xmldoc.SelectSingleNode("/xml/return_msg");
-                return_json = "下单错误代码: " + return_msg.InnerText;
+                return_json = "{\"appId\":\"payerr\",\"return_msg\":\"下单错误代码:" + return_msg.InnerText + "\"}";
             }
             //Common.LogManager.WriteLog("微信支付package日志", return_json + "\r\n retValue =" + retValue.Message);
-            return return_json;
+            return JsonConvert.DeserializeObject(return_json) as JObject;
         }
-
-        /// <summary>
-        /// 订单查询
-        /// </summary>
-        /// <param name="order">订单号</param>
-        /// <returns>返回调用结果</returns>
-        /// <para name="result">200 是成功其他失败</para>
-        /// <para name="data">对象结果</para>
-        /// <remarks>
-        /// 2018-08-18 林建生
-        /// </remarks>
-        public static string Get_Order(string order)
-        {
-            using (EFDB db = new EFDB())
-            {
-                string return_json = null;
-                var b = db.Order.Where(l => l.OrderNo == order && l.PayStatus == 2).FirstOrDefault();
-                if (b != null)
-                {
-                    ReturnValue retValue = StreamReaderUtils.StreamReader("https://api.mch.weixin.qq.com/Pay/orderquery", Encoding.UTF8.GetBytes(b.Pay), System.Text.Encoding.UTF8, true);
-                    XmlDocument xmldoc = new XmlDocument();
-                    xmldoc.LoadXml(retValue.Message);
-                    string return_code = xmldoc.SelectSingleNode("/xml/return_code").InnerText;
-                    string result_code = xmldoc.SelectSingleNode("/xml/result_code").InnerText;
-                    if (return_code == "SUCCESS" && result_code == "SUCCESS")//验证成功
-                    {
-                        //判断支付状态
-                        string trade_state = xmldoc.SelectSingleNode("/xml/trade_state").InnerText;
-                        if (trade_state == "SUCCESS")
-                        {
-                            //微信支付订单号
-                            string trade_no = xmldoc.SelectSingleNode("/xml/transaction_id").InnerText;
-                            //金额总金额,以分为单位
-                            string total_fee = xmldoc.SelectSingleNode("/xml/total_fee").InnerText;
-                            decimal pay_amount = decimal.Parse(total_fee) / 100;
-                            //备注
-                            string attach = xmldoc.SelectSingleNode("/xml/attach").InnerText;
-                            return_json = JsonConvert.SerializeObject(new { trade_no, pay_type = 2, pay_amount, attach });
-                        }
-                        else
-                        {
-                            LogManager.WriteLog("微信支付状态错误", "trade_state=" + trade_state);
-                        }
-                    }
-                    else
-                    {
-                        LogManager.WriteLog("微信对账失败", return_code + " - " + result_code);
-                    }
-                }
-                return return_json;
-            }
-        }
-
 
         public static string getNoncestr()
         {
@@ -283,7 +195,7 @@ namespace LJSheng.WX
         //加密
         public static string GetMD5(string pwd)
         {
-            System.Security.Cryptography.MD5 md5Hasher = System.Security.Cryptography.MD5.Create();
+            MD5 md5Hasher = MD5.Create();
 
             byte[] data = md5Hasher.ComputeHash(Encoding.UTF8.GetBytes(pwd));
 
@@ -311,7 +223,7 @@ namespace LJSheng.WX
             {
                 inputBye = Encoding.GetEncoding(charset).GetBytes(encypStr);
             }
-            catch
+            catch (Exception ex)
             {
                 inputBye = Encoding.GetEncoding("GB2312").GetBytes(encypStr);
             }
@@ -321,5 +233,285 @@ namespace LJSheng.WX
             retStr = retStr.Replace("-", "").ToUpper();
             return retStr;
         }
+
+        //=======【证书路径设置】===================================== 
+        /* 证书路径,注意应该填写绝对路径（仅退款、撤销订单时需要）
+        */
+        public const string SSLCERT_PATH = "uploadfiles\\cert\\apiclient_cert.p12";
+        public static string SSLCERT_PASSWORD = PARTNER;
+        public const string URL = "https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers";
+
+        /// <summary>
+        /// 企业付款给个人
+        /// </summary>       
+        /// <returns></returns>
+        public static string[] EnterprisePay(decimal rmb, string partner_trade_no, string openid, string real_name, string request_xml, string remarks)
+        {
+            string RequestXML = request_xml;
+            if (remarks != "SYSTEMERROR")
+            {
+                string wx_nonceStr = getNoncestr();
+                string amount = (rmb * 100).ToString("f0");
+                string ip = IP();
+                //设置签名
+                SortedDictionary<string, string> dic = new SortedDictionary<string, string>();
+                dic.Add("mch_appid", APPID);
+                dic.Add("mchid", PARTNER);
+                dic.Add("nonce_str", wx_nonceStr);
+                dic.Add("partner_trade_no", partner_trade_no);
+                dic.Add("openid", openid);
+                //dic.Add("check_name", "NO_CHECK");
+                dic.Add("check_name", "FORCE_CHECK");
+                dic.Add("re_user_name", real_name);
+                dic.Add("amount", amount);
+                dic.Add("desc", "最惠联盟");
+                dic.Add("spbill_create_ip", ip);
+                string get_sign = LJSheng.WX.WXPay.BuildRequest(dic, PARTNER_KEY);
+                //请求参数
+                StringBuilder XML = new StringBuilder();
+                XML.Append("<xml>");
+                XML.Append("<mch_appid>" + APPID + "</mch_appid>");
+                XML.Append("<mchid>" + PARTNER + "</mchid>");
+                XML.Append("<nonce_str>" + wx_nonceStr + "</nonce_str>");
+                XML.Append("<partner_trade_no>" + partner_trade_no + "</partner_trade_no>");
+                XML.Append("<openid>" + openid + "</openid>");
+                //XML.Append("<check_name>NO_CHECK</check_name>");
+                XML.Append("<check_name>FORCE_CHECK</check_name>");
+                XML.Append("<re_user_name>" + real_name + "</re_user_name>");
+                XML.Append("<amount>" + amount + "</amount>");
+                XML.Append("<desc>最惠联盟</desc>");
+                XML.Append("<spbill_create_ip>" + ip + "</spbill_create_ip>");
+                XML.Append("<sign>" + get_sign + "</sign>");
+                XML.Append("</xml>");
+                RequestXML = XML.ToString();
+            }
+            var result = HttpPost(URL, RequestXML, true, 300);
+            string[] str = { result, RequestXML };
+            return str;
+        }
+
+        public static string HttpPost(string postUrl, string paramData, Encoding dataEncode)
+        {
+            string ret = string.Empty;
+            try
+            {
+                byte[] byteArray = dataEncode.GetBytes(paramData); //转化
+                HttpWebRequest webReq = (HttpWebRequest)WebRequest.Create(new Uri(postUrl));
+                webReq.Method = "POST";
+                webReq.ContentType = "application/x-www-form-urlencoded";
+
+                webReq.ContentLength = byteArray.Length;
+                Stream newStream = webReq.GetRequestStream();
+                newStream.Write(byteArray, 0, byteArray.Length);//写入参数
+                newStream.Close();
+                HttpWebResponse response = (HttpWebResponse)webReq.GetResponse();
+                StreamReader sr = new StreamReader(response.GetResponseStream(), Encoding.Default);
+                ret = sr.ReadToEnd();
+                sr.Close();
+                response.Close();
+                newStream.Close();
+            }
+            catch (Exception ex)
+            {
+            }
+            return ret;
+        }
+
+        public static bool CheckValidationResult(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
+        {
+            //直接确认，否则打不开    
+            return true;
+        }
+
+        /// <summary>
+        /// post提交支付
+        /// </summary>
+        /// <param name="xml"></param>
+        /// <param name="url"></param>
+        /// <param name="isUseCert">是否使用证书</param>
+        /// <param name="timeout"></param>
+        /// <returns></returns>
+        public static string HttpPost(string url, string xml, bool isUseCert, int timeout)
+        {
+            System.GC.Collect();//垃圾回收，回收没有正常关闭的http连接
+
+            string result = "";//返回结果
+
+            HttpWebRequest request = null;
+            HttpWebResponse response = null;
+            Stream reqStream = null;
+
+            try
+            {
+                //设置最大连接数
+                ServicePointManager.DefaultConnectionLimit = 200;
+                //设置https验证方式
+                if (url.StartsWith("https", StringComparison.OrdinalIgnoreCase))
+                {
+                    ServicePointManager.ServerCertificateValidationCallback =
+                            new RemoteCertificateValidationCallback(CheckValidationResult);
+                }
+
+                /***************************************************************
+                * 下面设置HttpWebRequest的相关属性
+                * ************************************************************/
+                request = (HttpWebRequest)WebRequest.Create(url);
+
+                request.Method = "POST";
+                request.Timeout = timeout * 1000;
+
+                //设置代理服务器
+                //WebProxy proxy = new WebProxy();                          //定义一个网关对象
+                //proxy.Address = new Uri(PROXY_URL);              //网关服务器端口:端口
+                //request.Proxy = proxy;
+
+                //设置POST的数据类型和长度
+                request.ContentType = "text/xml";
+                byte[] data = System.Text.Encoding.UTF8.GetBytes(xml);
+                request.ContentLength = data.Length;
+
+                //是否使用证书
+                if (isUseCert)
+                {
+                    string path = HttpContext.Current.Request.PhysicalApplicationPath;
+                    //X509Certificate2 cert = new X509Certificate2(path + SSLCERT_PATH, SSLCERT_PASSWORD);
+
+                    //将上面的改成
+                    X509Certificate2 cert = new X509Certificate2(path + SSLCERT_PATH, SSLCERT_PASSWORD, X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.MachineKeySet);//线上发布需要添加
+                    request.ClientCertificates.Add(cert);
+                }
+
+                //往服务器写入数据
+                reqStream = request.GetRequestStream();
+                reqStream.Write(data, 0, data.Length);
+                reqStream.Close();
+
+                //获取服务端返回
+                response = (HttpWebResponse)request.GetResponse();
+
+                //获取服务端返回数据
+                StreamReader sr = new StreamReader(response.GetResponseStream(), Encoding.UTF8);
+                result = sr.ReadToEnd().Trim();
+                sr.Close();
+            }
+            catch (System.Threading.ThreadAbortException e)
+            {
+                System.Threading.Thread.ResetAbort();
+            }
+            catch (WebException e)
+            {
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                }
+                throw new Exception(e.ToString());
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
+            finally
+            {
+                //关闭连接和流
+                if (response != null)
+                {
+                    response.Close();
+                }
+                if (request != null)
+                {
+                    request.Abort();
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 处理http GET请求，返回数据
+        /// </summary>
+        /// <param name="url">请求的url地址</param>
+        /// <returns>http GET成功后返回的数据，失败抛WebException异常</returns>
+        public static string Get(string url)
+        {
+            System.GC.Collect();
+            string result = "";
+
+            HttpWebRequest request = null;
+            HttpWebResponse response = null;
+
+            //请求url以获取数据
+            try
+            {
+                //设置最大连接数
+                ServicePointManager.DefaultConnectionLimit = 200;
+                //设置https验证方式
+                if (url.StartsWith("https", StringComparison.OrdinalIgnoreCase))
+                {
+                    ServicePointManager.ServerCertificateValidationCallback =
+                            new RemoteCertificateValidationCallback(CheckValidationResult);
+                }
+
+                /***************************************************************
+                * 下面设置HttpWebRequest的相关属性
+                * ************************************************************/
+                request = (HttpWebRequest)WebRequest.Create(url);
+
+                request.Method = "GET";
+
+                //设置代理
+                //WebProxy proxy = new WebProxy();
+                //proxy.Address = new Uri(PROXY_URL);
+                //request.Proxy = proxy;
+
+                //获取服务器返回
+                response = (HttpWebResponse)request.GetResponse();
+
+                //获取HTTP返回数据
+                StreamReader sr = new StreamReader(response.GetResponseStream(), Encoding.UTF8);
+                result = sr.ReadToEnd().Trim();
+                sr.Close();
+            }
+            catch (System.Threading.ThreadAbortException e)
+            {
+                System.Threading.Thread.ResetAbort();
+            }
+            catch (WebException e)
+            {
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                }
+                throw new Exception(e.ToString());
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.ToString());
+            }
+            finally
+            {
+                //关闭连接和流
+                if (response != null)
+                {
+                    response.Close();
+                }
+                if (request != null)
+                {
+                    request.Abort();
+                }
+            }
+            return result;
+        }
+
+        #region 获取IP
+        /// <summary>
+        /// 获取IP
+        /// </summary>
+        public static string IP()
+        {
+            string ip = System.Web.HttpContext.Current.Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
+            if (String.IsNullOrEmpty(ip))
+            {
+                ip = System.Web.HttpContext.Current.Request.ServerVariables["REMOTE_ADDR"];
+            }
+            return ip;
+        }
+        #endregion
     }
 }

@@ -40,13 +40,17 @@
             <a class="icon-avatar"><img src="~/images/ic-alipay.png" /></a>
             <div class="item-text">支付宝</div>
         </div>
+        <div class="item-avatar" onclick="return check(2);">
+            <a class="icon-avatar"><img src="~/images/ic-wechat.png" /></a>
+            <div class="item-text">微信支付</div>
+        </div>
         <div class="item-avatar" onclick="return check(3);">
             <a class="icon-avatar"><img src="~/images/ic-meat.png" /></a>
             <div class="item-text">选择线下汇款</div>
         </div>
-        <input hidden type="text" name="RealName" value="@ViewBag.RealName" />
-        <input hidden type="text" name="ContactNumber" value="@ViewBag.ContactNumber" />
-        <input hidden type="text" name="Addr" value="@ViewBag.Addr" />
+        <input hidden type="text" name="RealName" id="RealName" value="@ViewBag.RealName" />
+        <input hidden type="text" name="ContactNumber" id="ContactNumber" value="@ViewBag.ContactNumber" />
+        <input hidden type="text" name="Addr" id="Addr" value="@ViewBag.Addr" />
         <textarea hidden name="shopcart" id="shopcart"></textarea>
         <input hidden type="text" name="PayType" id="PayType" />
         <input hidden type="text" name="OrderNo" id="OrderNo" value="@Request.QueryString["OrderNo"]" />
@@ -77,7 +81,50 @@
                             type: 2
                             , content: '正在请求支付网关...'
                         });
-                        document.forms[0].submit();
+                        if (PayType == 2) {
+                            $.ajax({
+                                url: "/Pay/Pay",
+                                data: "RealName=" + $("#RealName").val() + "&ContactNumber=" + $("#ContactNumber").val() + "&Addr=" + $("#Addr").val() + "&shopcart=" + $("#shopcart").val() + "&PayType=2&Cache=" + Math.random(),
+                                type: "post",
+                                cache: false,
+                                timeout: 8000,
+                                dataType: "json",
+                                ContentType: "application/json; charset=utf-8",
+                                async: false,//一定要是同步请求，否则会跳转；（ajax默认是异步的）
+                                error: function () { alert("AJAX Error"); },
+                                beforeSend: function () { },
+                                success: function (data) {
+                                    if (data.result == 200) {
+                                        WeixinJSBridge.invoke(
+                                            'getBrandWCPayRequest', {
+                                                "appId": data.data.appId, 
+                                                "timeStamp": data.data.timeStamp, 
+                                                "nonceStr": data.data.nonceStr, 
+                                                "package": data.data.package,
+                                                "signType": data.data.signType,
+                                                "paySign": data.data.paySign 
+                                            },
+                                            function (res) {
+                                            switch (res.err_msg) {
+                                                case "get_brand_wcpay_request:ok":
+                                                    self.location = "/Pay/PayOK?type=1&OrderNo=" + data.data.OrderNo+"&ReturnType=0";
+                                                    break;
+                                                default:
+                                                    self.location = "/Home/Index";
+                                                    break;
+                                            }
+                                        });
+                                    }
+                                    else {
+                                        alert(data.data);
+                                        self.location = "/Home/Login";
+                                    }
+                                },
+                            });
+                        }
+                        else {
+                            document.forms[0].submit();
+                        }
                     }
                     else {
                         layer.open({

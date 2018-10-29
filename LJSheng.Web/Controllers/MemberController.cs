@@ -263,7 +263,7 @@ namespace LJSheng.Web.Controllers
                     b.NickName = NickName;
                     b.Gender = Gender;
                     //接收图片
-                    string picture = Helper.jsimg(LJShengHelper.Member, base64Data);
+                    string picture = Helper.jsimg(Help.Member, base64Data);
                     if (!string.IsNullOrEmpty(picture))
                     {
                         b.Picture = picture;
@@ -2343,9 +2343,9 @@ namespace LJSheng.Web.Controllers
             else
             {
                 Guid MGid = LCookie.GetMemberGid();
-                if (!string.IsNullOrEmpty(Request.QueryString["PGid"]))
+                if (!string.IsNullOrEmpty(Request.QueryString["MGid"]))
                 {
-                    MGid = Guid.Parse(Request.QueryString["PGid"]);
+                    MGid = Guid.Parse(Request.QueryString["MGid"]);
                 }
                 using (EFDB db = new EFDB())
                 {

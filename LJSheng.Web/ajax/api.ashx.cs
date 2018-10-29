@@ -24,7 +24,8 @@ namespace LJSheng.Web.ajax
             object returnstr = "当前设备被禁止访问";
             try
             {
-                switch (context.Request["ff"])
+                string ff = string.IsNullOrEmpty(context.Request.Form["ff"]) ? context.Request.QueryString["ff"] : context.Request.Form["ff"];
+                switch (ff)
                 {
                     case "Express":
                         returnstr = Express(context);
@@ -71,6 +72,9 @@ namespace LJSheng.Web.ajax
                     case "mr":
                         returnstr = MR(context);
                         break;
+                    case "oauth2":
+                        oauth2(context);
+                        break;
                     default:
                         break;
                 }
@@ -81,6 +85,42 @@ namespace LJSheng.Web.ajax
             context.Response.Write(JsonConvert.SerializeObject(returnstr));
             context.Response.End();
         }
+
+        #region 微信网页授权页面调用
+        /// <summary> 
+        /// 微信网页授权页面调用
+        /// </summary> 
+        /// <param name="逻辑说明"></param> 
+        /// <param>修改备注</param> 
+        /// 2014-5-20 林建生
+        public void oauth2(HttpContext context)
+        {
+            string tourl = context.Request.QueryString["tourl"];
+            string openid = Common.LCookie.GetCookie("openid");
+            if (String.IsNullOrEmpty(openid))
+            {
+                var code = context.Request.QueryString["code"];
+                if (string.IsNullOrEmpty(code))
+                {
+                    var url = string.Format("https://open.weixin.qq.com/connect/oauth2/authorize?appid={0}&redirect_uri={1}/ajax/api.ashx?ff=oauth2&tourl=" + tourl + "&response_type=code&scope=snsapi_base&state=STATE#wechat_redirect", Help.appid, context.Server.UrlEncode(Help.Url));
+                    context.Response.Redirect(url);
+                }
+                else
+                {
+                    var client = new System.Net.WebClient();
+                    client.Encoding = System.Text.Encoding.UTF8;
+                    var url = string.Format("https://api.weixin.qq.com/sns/oauth2/access_token?appid={0}&secret={1}&code={2}&grant_type=authorization_code", Help.appid, Help.appsecret, code);
+                    JObject jb = JObject.Parse(client.DownloadString(url));
+                    openid = jb["openid"].ToString();
+                    LCookie.AddCookie("openid", openid, 30);
+                }
+            }
+            //跳转
+            //string gourl = tourl.Replace("$", "?").Replace("@", "&");
+            //LogManager.WriteLog("获取openid","openid=" + openid + ",tourl=" + tourl);
+            context.Response.Redirect("/Home/Login");
+        }
+        #endregion
 
         #region 快递
         /// <summary> 

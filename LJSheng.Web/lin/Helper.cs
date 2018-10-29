@@ -7,7 +7,6 @@ using System.IO;
 using System.Web.Mvc;
 using Newtonsoft.Json;
 using LJSheng.Data;
-using static LJSheng.Web.LJShengHelper;
 using LJSheng.Common;
 using System.Drawing;
 using Newtonsoft.Json.Linq;
@@ -375,7 +374,7 @@ namespace LJSheng.Web
                 using (EFDB db = new EFDB())
                 {
                     //支付类型
-                    string payname = ((PayType)Enum.Parse(typeof(LJShengHelper.PayType), PayType.ToString())).ToString();
+                    string payname = ((Help.PayType)Enum.Parse(typeof(Help.PayType), PayType.ToString())).ToString();
                     var b = db.Order.Where(l => l.OrderNo == OrderNo).FirstOrDefault();
                     if (b != null && b.PayStatus == 2)
                     {
@@ -1567,7 +1566,7 @@ namespace LJSheng.Web
                 using (EFDB db = new EFDB())
                 {
                     //支付类型
-                    string payname = ((PayType)Enum.Parse(typeof(LJShengHelper.PayType), PayType.ToString())).ToString();
+                    string payname = ((Help.PayType)Enum.Parse(typeof(Help.PayType), PayType.ToString())).ToString();
                     var b = db.ShopOrder.Where(l => l.Gid == OrderGid).FirstOrDefault();
                     msg = "订单号=" + b.OrderNo + ",RMB=" + b.RMB + rn;
                     if (b != null && b.PayStatus == 2)
@@ -1587,23 +1586,30 @@ namespace LJSheng.Web
                             Pay = true;
                             if (b.PayStatus == 1)
                             {
-                                //基数积分增加
-                                if (ShopRecordAdd(b.Gid, b.MemberGid, PayPrice, 0, 3, 1) == null)
+                                if (b.ReturnType == 0)
                                 {
-                                    msg += "基数积分失败:PayPrice=" + PayPrice.ToString() + rn;
+                                    //基数积分增加
+                                    if (ShopRecordAdd(b.Gid, b.MemberGid, PayPrice, 0, 3, 1) == null)
+                                    {
+                                        msg += "基数积分失败:PayPrice=" + PayPrice.ToString() + rn;
+                                    }
+                                    else
+                                    {
+                                        msg += "基数积分成功=" + PayPrice.ToString() + rn;
+                                    }
+                                    if (PayType != 5)
+                                    {
+                                        //团队获取比例
+                                        List<DictionariesList> dl = db.DictionariesList.Where(l => l.DGid == db.Dictionaries.Where(d => d.DictionaryType == "CL").FirstOrDefault().Gid).ToList();
+                                        //累计团队积分
+                                        msg += "商城团队业绩=" + ShopTeamIntegral(b.MemberGid, PayPrice, b.Gid, dl) + rn;
+                                    }
+                                    LogManager.WriteLog(payname + "商城对账记录", LogMsg + rn + msg);
                                 }
                                 else
                                 {
-                                    msg += "基数积分成功=" + PayPrice.ToString() + rn;
+                                    LogManager.WriteLog(payname + "借用订单不参与", LogMsg + rn + msg);
                                 }
-                                if (PayType != 5)
-                                {
-                                    //团队获取比例
-                                    List<DictionariesList> dl = db.DictionariesList.Where(l => l.DGid == db.Dictionaries.Where(d => d.DictionaryType == "CL").FirstOrDefault().Gid).ToList();
-                                    //累计团队积分
-                                    msg += "商城团队业绩=" + ShopTeamIntegral(b.MemberGid, PayPrice, b.Gid, dl) + rn;
-                                }
-                                LogManager.WriteLog(payname + "商城对账记录", LogMsg + rn + msg);
                             }
                             else
                             {
@@ -2094,7 +2100,9 @@ namespace LJSheng.Web
         {
             using (EFDB db = new EFDB())
             {
-                LCookie.DelALLCookie();
+                LCookie.DelCookie("linjiansheng");
+                LCookie.DelCookie("member");
+                LCookie.DelCookie("city");
                 //会员登录信息
                 var b = db.Member.Where(l => l.Gid == Gid).Select(l => new
                 {
@@ -2124,6 +2132,11 @@ namespace LJSheng.Web
                     b.Gender,
                     b.Level
                 })), 30);
+                //设置用户读取数据的城市
+                if (string.IsNullOrEmpty(LCookie.GetCity().Trim()))
+                {
+                    LCookie.AddCookie("city", string.IsNullOrEmpty(b.City.Trim()) ? "福州市" : b.City, 30);
+                }
             }
         }
 

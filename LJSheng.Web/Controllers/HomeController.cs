@@ -15,6 +15,11 @@ namespace LJSheng.Web.Controllers
 {
     public class HomeController : Controller
     {
+        //OpenID
+        public ActionResult OpenID()
+        {
+            return View();
+        }
         //地图
         public ActionResult Map()
         {
@@ -44,7 +49,7 @@ namespace LJSheng.Web.Controllers
                 else
                 {
                     Guid Gid = LCookie.GetMemberGid();
-                    string picture = Helper.jsimg(LJShengHelper.Voucher, base64Data);
+                    string picture = Helper.jsimg(Help.Voucher, base64Data);
                     if (!string.IsNullOrEmpty(picture))
                     {
                         if (Type == "1")
@@ -93,6 +98,9 @@ namespace LJSheng.Web.Controllers
         public ActionResult LoginOut()
         {
             LCookie.DelCookie("linjiansheng");
+            LCookie.DelCookie("openid");
+            LCookie.DelCookie("member");
+            LCookie.DelCookie("city");
             return new RedirectResult(Request.QueryString["login"]);
         }
 
@@ -134,6 +142,7 @@ namespace LJSheng.Web.Controllers
         /// </remarks>
         public ActionResult Login(string account, string pwd)
         {
+            ViewBag.OpenID = LCookie.GetCookie("openid");
             if (string.IsNullOrEmpty(account) || string.IsNullOrEmpty(pwd))
             {
                 return View();
@@ -152,11 +161,6 @@ namespace LJSheng.Web.Controllers
                             b.LoginIdentifier = LCommon.TimeToUNIX(DateTime.Now);
                             db.SaveChanges();
                             Helper.MLogin(b.Gid);
-                            //设置用户读取数据的城市
-                            if (string.IsNullOrEmpty(LCookie.GetCity().Trim()))
-                            {
-                                LCookie.AddCookie("city", string.IsNullOrEmpty(b.City.Trim()) ? "福州市" : b.City, 30);
-                            }
                             string url = LCookie.Project() == 1 ? "Tea" : "Index";
                             return new RedirectResult("/Home/"+ url);
                         }

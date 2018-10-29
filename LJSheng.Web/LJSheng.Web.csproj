@@ -931,7 +931,6 @@
     <Compile Include="lin\EFOperation.cs" />
     <Compile Include="lin\Helper.cs" />
     <Compile Include="Controllers\LJShengController.cs" />
-    <Compile Include="lin\LJShengHelper.cs" />
     <Compile Include="lin\SController.cs" />
     <Compile Include="lin\ToJsonResult.cs" />
     <Compile Include="Global.asax.cs">
@@ -1141,6 +1140,8 @@
     <Content Include="Views\Member\PReturn.cshtml" />
     <Content Include="Views\Member\UED.cshtml" />
     <Content Include="Views\Member\Clause.cshtml" />
+    <Content Include="Views\Pay\GoWX.cshtml" />
+    <Content Include="Views\Home\OpenID.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

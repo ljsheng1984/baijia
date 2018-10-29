@@ -149,6 +149,27 @@ namespace LJSheng.Web.Controllers
                         {
                             case 1:
                                 return Alipay(paramJson["OrderNo"].ToString(), paramJson["body"].ToString(), paramJson["TotalPrice"].ToString(), 1);
+                            case 2:
+                                if (!string.IsNullOrEmpty(LCookie.GetCookie("openid")))
+                                {
+                                    string beizhu = "cl";//备注
+                                    //开始微信统一下单
+                                    JObject j = WX.WXPay.Get_RequestHtml(LCookie.GetCookie("openid"), paramJson["OrderNo"].ToString(), "彩链订单", beizhu, paramJson["TotalPrice"].ToString());
+                                    return Json(new AjaxResult(new
+                                    {
+                                        OrderNo = paramJson["OrderNo"].ToString(),
+                                        appId = j["appId"].ToString(),
+                                        timeStamp = j["timeStamp"].ToString(),
+                                        nonceStr = j["nonceStr"].ToString(),
+                                        package = j["package"].ToString(),
+                                        paySign = j["paySign"].ToString(),
+                                        signType = j["signType"].ToString()
+                                    }));
+                                }
+                                else
+                                {
+                                    return Json(new AjaxResult(301,"微信支付,请在微信里打开重新登录进行支付"));
+                                }
                             case 3:
                                 return new RedirectResult("/Home/Bank?Type=1&OrderNo=" + paramJson["OrderNo"].ToString() + "&Money=" + paramJson["TotalPrice"].ToString());
                             default:
@@ -540,7 +561,7 @@ namespace LJSheng.Web.Controllers
                         b.ShopGid = dr.ShopGid;
                         b.OrderNo = OrderNo;
                         b.PayStatus = 2;
-                        b.PayType = 3;
+                        b.PayType = PayType;
                         b.RMB = 0;
                         b.TotalPrice = Price;
                         b.Price = Price;
@@ -593,6 +614,27 @@ namespace LJSheng.Web.Controllers
                             case 3:
                                 db.ShopOrder.Where(l => l.OrderNo == OrderNo && l.PayType == 3).Update(l => new ShopOrder { RMB = RMB });
                                 return new RedirectResult("/Home/Bank?Type=2&OrderNo=" + OrderNo + "&Money=" + RMB.ToString());
+                            case 2:
+                                if (!string.IsNullOrEmpty(LCookie.GetCookie("openid")))
+                                {
+                                    string beizhu = "cl";//备注
+                                    //开始微信统一下单
+                                    JObject j = WX.WXPay.Get_RequestHtml(LCookie.GetCookie("openid"), OrderNo, "彩链商城订单", beizhu, RMB.ToString());
+                                    return Json(new AjaxResult(new
+                                    {
+                                        OrderNo,
+                                        appId = j["appId"].ToString(),
+                                        timeStamp = j["timeStamp"].ToString(),
+                                        nonceStr = j["nonceStr"].ToString(),
+                                        package = j["package"].ToString(),
+                                        paySign = j["paySign"].ToString(),
+                                        signType = j["signType"].ToString()
+                                    }));
+                                }
+                                else
+                                {
+                                    return Json(new AjaxResult(301, "微信支付,请在微信里打开重新登录进行支付"));
+                                }
                             default:
                                 return Helper.Redirect("失败", "history.go(-1);", "非法支付");
                         }

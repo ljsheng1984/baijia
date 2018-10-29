@@ -1,0 +1,39 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>正在建立安全连接</title>
+</head>
+<body onload="openid();">
+    <div style="height:100%;text-align:center;margin-top:20%;">
+        正在建立安全连接...
+        <br /><br />
+        <a href="/Home/Index">如果没有反映点这里返回主页</a>
+    </div>
+    <script>
+        function openid()
+        {
+            var ua = navigator.userAgent.toLowerCase();
+            if (ua.match(/MicroMessenger/i) == "micromessenger") {
+                self.location = "/ajax/api.ashx?ff=oauth2&tourl=" + getQueryString("tourl");
+            }
+            else {
+                alert("请在微信里打开!");
+                self.location = "/Home/Index";
+            }
+        }
+        //获取URL参数
+        function getQueryString(name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+            var r = window.location.search.substr(1).match(reg);
+            if (r != null) return r[2]; return null;
+        }
+    </script>
+</body>
+</html>

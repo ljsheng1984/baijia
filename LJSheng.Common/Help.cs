@@ -1,4 +1,7 @@
-﻿namespace LJSheng.Common
+﻿using System.Collections.Generic;
+using System.Text;
+
+namespace LJSheng.Common
 {
     public class Help
     {
@@ -21,6 +24,16 @@
         #endregion
 
         #region 图片路径
+        /// <summary>
+        /// 银行凭证
+        /// </summary>
+        public static string Voucher
+        {
+            get
+            {
+                return "/uploadfiles/voucher/";
+            }
+        }
         /// <summary>
         /// 广告
         /// </summary>
@@ -125,27 +138,6 @@
                 return "http://baijmc.com";
             }
         }
-
-        /// <summary>
-        /// 支付宝对账URL
-        /// </summary>
-        public static string alipay
-        {
-            get
-            {
-                return Url+"/pay/zfbpay.aspx";
-            }
-        }
-        /// <summary>
-        /// 微信对账URL
-        /// </summary>
-        public static string wxpay
-        {
-            get
-            {
-                return Url+"/pay/wxpay.aspx";
-            }
-        }
         #endregion
 
         #region 支付宝支付参数
@@ -242,7 +234,7 @@
         {
             get
             {
-                return "wxb95209e7af00dc95";
+                return "wx26b3d59df47beadd";
             }
         }
         /// <summary>
@@ -252,7 +244,7 @@
         {
             get
             {
-                return "1488757182";
+                return "1516740151";
             }
         }
         /// <summary>
@@ -272,8 +264,59 @@
         {
             get
             {
-                return "80bb93f16787e43ec4f62abf64bacf91";
+                return "6fe2f6d9979957bebeb4010c77e018a3";
             }
+        }
+        #endregion
+
+        #region 微信支付算法
+        public static string BuildRequest(SortedDictionary<string, string> sParaTemp, string key)
+        {
+            //获取过滤后的数组
+            Dictionary<string, string> dicPara = new Dictionary<string, string>();
+            dicPara = FilterPara(sParaTemp);
+
+            //组合参数数组
+            string prestr = CreateLinkString(dicPara);
+            //拼接支付密钥
+            string stringSignTemp = prestr + "&key=" + key;
+
+            //获得加密结果转换为大写的加密串
+            return Common.MD5.GetMD5(stringSignTemp).ToUpper();
+        }
+
+        /// <summary>
+        /// 除去数组中的空值和签名参数并以字母a到z的顺序排序
+        /// </summary>
+        /// <param name="dicArrayPre">过滤前的参数组</param>
+        /// <returns>过滤后的参数组</returns>
+        public static Dictionary<string, string> FilterPara(SortedDictionary<string, string> dicArrayPre)
+        {
+            Dictionary<string, string> dicArray = new Dictionary<string, string>();
+            foreach (KeyValuePair<string, string> temp in dicArrayPre)
+            {
+                if (temp.Key != "sign" && !string.IsNullOrEmpty(temp.Value))
+                {
+                    dicArray.Add(temp.Key, temp.Value);
+                }
+            }
+
+            return dicArray;
+        }
+
+        //组合参数数组
+        public static string CreateLinkString(Dictionary<string, string> dicArray)
+        {
+            StringBuilder prestr = new StringBuilder();
+            foreach (KeyValuePair<string, string> temp in dicArray)
+            {
+                prestr.Append(temp.Key + "=" + temp.Value + "&");
+            }
+
+            int nLen = prestr.Length;
+            prestr.Remove(nLen - 1, 1);
+
+            return prestr.ToString();
         }
         #endregion
 
