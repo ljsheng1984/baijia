@@ -5375,13 +5375,21 @@ namespace LJSheng.Web.Controllers
                 if (b.PayStatus==1 && Request.Form["PayStatus"] == "3")
                 {
                     b.PayStatus = 3;
-                    //借用订单解除
                     if (!string.IsNullOrEmpty(b.Product))
                     {
+                        //借用订单解除
                         Guid PGid = Guid.Parse(b.Product);
                         if (db.ShopProduct.Where(l => l.Gid == PGid).Update(l => new ShopProduct { Borrow = 1 }) != 1)
                         {
                             LogManager.WriteLog("借用订单恢复失败", "订单=" + b.Gid.ToString() + ",产品=" + PGid);
+                        }
+                        else
+                        {
+                            //库存增加
+                            if (db.OrderDetails.Where(l => l.ProductGid == PGid).Update(l => new OrderDetails { Number = l.Number + 1 }) != 1)
+                            {
+                                LogManager.WriteLog("借用订单恢复成功库存增加失败", "订单=" + b.Gid.ToString() + ",产品=" + PGid);
+                            }
                         }
                     }
                 }

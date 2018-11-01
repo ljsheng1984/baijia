@@ -38,8 +38,8 @@
                 <span class="input-group-addon fix-padding">-</span>
                 <select class="form-control" name="ReturnType">
                     <option value="0" selected>= 借用状态 =</option>
-                    <option value="1">非借用</option>
-                    <option value="2">借用单</option>
+                    <option value="1" @(Request.QueryString["ReturnType"]=="1"?"selected":"")>非借用</option>
+                    <option value="2" @(Request.QueryString["ReturnType"]=="2"?"selected":"")>借用单</option>
                 </select>
             </div>
         </div>
@@ -166,21 +166,27 @@
                         </span>
                     </td>
                     <td>
-                        <span class="label">
-                            {{if item.ReturnType=="0"}}
-                            非借用
-                            {{else if item.ReturnType=="1"}}
-                            快递归还
-                            {{else}}
-                            门店归还
-                            {{/if}}
-                        </span>
+                        {{if item.ReturnType=="0"}}
+                            
+                        {{else if item.ReturnType=="1"}}
+                        快递归还
+                        {{else}}
+                        门店归还
+                        {{/if}}
                     </td>
                     <td colspan="2">
-                        借用到期时间:{{item.BorrowTime}}
+                        {{if item.ReturnType!="0"}}
+                            借用到期时间:{{item.BorrowTime}}
+                        {{else}}
+                        
+                        {{/if}}
                     </td>
                     <td>
+                        {{if item.ReturnType!="0"}}
                         <a target="_blank" href="/Member/Clause?ShopGid={{item.ShopGid}}&PGid={{item.Product}}&MGid={{item.MemberGid}}&type=0">借用协议</a>
+                        {{else}}
+
+                        {{/if}}
                     </td>
                 </tr>
                 {{/each}}

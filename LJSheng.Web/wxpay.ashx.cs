@@ -86,7 +86,7 @@ namespace LJSheng.Web
                                 }
                                 if (tl)
                                 {
-                                    LogManager.WriteLog("微信支付成功", "订单号:" + out_trade_no + ",网银订单号:" + trade_no + ",网上支付金额:" + pay_amount + ",状态:" + ResultCode + " - " + ReturnCode + "\r\n" + responseContent);
+                                    LogManager.WriteLog("微信商城支付成功", "订单号:" + out_trade_no + ",网银订单号:" + trade_no + ",网上支付金额:" + pay_amount + ",状态:" + ResultCode + " - " + ReturnCode + "\r\n" + responseContent);
                                 }
                                 else
                                 {

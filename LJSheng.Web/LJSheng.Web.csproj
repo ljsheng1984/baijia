@@ -1091,7 +1091,6 @@
     <Content Include="Views\LJSheng\ShopOrderDetailsList.cshtml" />
     <Content Include="Views\Home\ShopSearch.cshtml" />
     <Content Include="Views\Home\Market.cshtml" />
-    <Content Include="Views\Pay\Buy.cshtml" />
     <Content Include="Views\Member\ProductAU.cshtml" />
     <Content Include="Views\Member\Product.cshtml" />
     <Content Include="Views\Home\Url.cshtml" />
@@ -1140,7 +1139,6 @@
     <Content Include="Views\Member\PReturn.cshtml" />
     <Content Include="Views\Member\UED.cshtml" />
     <Content Include="Views\Member\Clause.cshtml" />
-    <Content Include="Views\Pay\GoWX.cshtml" />
     <Content Include="Views\Home\OpenID.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>

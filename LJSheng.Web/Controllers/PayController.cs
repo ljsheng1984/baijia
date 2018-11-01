@@ -617,7 +617,7 @@ namespace LJSheng.Web.Controllers
                             case 2:
                                 if (!string.IsNullOrEmpty(LCookie.GetCookie("openid")))
                                 {
-                                    string beizhu = "cl";//备注
+                                    string beizhu = "shop";//备注
                                     //开始微信统一下单
                                     JObject j = WX.WXPay.Get_RequestHtml(LCookie.GetCookie("openid"), OrderNo, "彩链商城订单", beizhu, RMB.ToString());
                                     return Json(new AjaxResult(new
