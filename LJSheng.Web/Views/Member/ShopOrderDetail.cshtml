@@ -18,12 +18,12 @@
             @(new HtmlString(LJSheng.Web.Helper.GetShopProduct(item.ProductGid)))
             <div class="price">
                 <span>￥@item.Price X @item.Number</span>
-                <div class="@(ViewBag.ReturnType==0?"hidden":"")">
-                    <a href="/Member/Clause?PGid=@item.ProductGid&OrderGid=@Request.QueryString["OrderGid"]">查看协议</a>
-                    <a class="return-btn" href="/Member/PReturn?OrderGid=@Request.QueryString["OrderGid"]">归还</a>
-                </div>
             </div>
         </a>
+        <div class="shop-detial-operation @(ViewBag.ReturnType==0?"hidden":"")">
+            <a href="/Member/Clause?PGid=@item.ProductGid&OrderGid=@Request.QueryString["OrderGid"]">查看协议</a>
+            <a class="return-btn" href="/Member/PReturn?OrderGid=@Request.QueryString["OrderGid"]">归还</a>
+        </div>
     }
     <div class="shop-number"><span>共<em>@Request.QueryString["Number"]</em>件商品</span> <span>合计：<b>￥@ViewBag.TotalPrice</b></span></div>
 </div>
@@ -36,6 +36,7 @@
     <p class="o-time @(ViewBag.ReturnType==0?"hidden":"")">归还姓名: <span>@ViewBag.RName</span></p>
     <p class="o-time @(ViewBag.ReturnType==0?"hidden":"")">联系方式: <span>@ViewBag.RContactNumber</span></p>
 </div>
+
 <div class="rob">
     <a class="fix-btn-loading @(ViewBag.Status==2?"hide":"") @(Request.QueryString["type"]=="1"?"":"hide")" onclick="rob('@Request.QueryString["OrderGid"]');" style="left:20%;">
         <span id="name">发货</span>

@@ -6331,17 +6331,19 @@ color:darkgray;
             top: 5px;
             width: 16px;
         }
-.user-center .order-item .shop-info .price {
-    font-size: 14px;
-    padding-top: 8px;
+.shop-detial-operation {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin: 10px 0;
 }
 
-    .user-center .order-item .shop-info .price .return-btn,
-    .user-center .order-item .shop-info .price a {
+    .shop-detial-operation .return-btn {
         border: solid 1px #eee;
-        padding: 0px 12px;
+        padding: 2px 15px;
         border-radius: 10px;
     }
+
+.user-center .order-item .shop-info {
+    min-height: initial;
+}
