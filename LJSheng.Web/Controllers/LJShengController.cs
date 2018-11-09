@@ -4856,6 +4856,7 @@ namespace LJSheng.Web.Controllers
         {
             using (EFDB db = new EFDB())
             {
+                ViewBag.Gid = Guid.NewGuid();
                 if (!string.IsNullOrEmpty(Request.QueryString["gid"]))
                 {
                     Guid Gid = Guid.Parse(Request.QueryString["gid"]);
@@ -4877,7 +4878,18 @@ namespace LJSheng.Web.Controllers
                     ViewBag.Company = b.Company;
                     ViewBag.Brand = b.Brand;
                     ViewBag.Prefix = b.Prefix;
-                    ViewBag.Borrow = b.Borrow;
+                    if (!string.IsNullOrEmpty(Request.QueryString["DFHGid"]))
+                    {
+                        ViewBag.DFH = 3;
+                        ViewBag.Borrow = 0;
+                        ViewBag.ClassifyGid = Guid.Parse("00000000-0000-0000-0000-000000000000");
+                    }
+                    else
+                    {
+                        ViewBag.DFH = b.DFH;
+                        ViewBag.Borrow = b.Borrow;
+                        ViewBag.Gid = Request.QueryString["gid"];
+                    }
                 }
                 else
                 {
@@ -4902,21 +4914,22 @@ namespace LJSheng.Web.Controllers
             using (EFDB db = new EFDB())
             {
                 ShopProduct b;
-                if (Gid == null)
+                if (Gid == null || !string.IsNullOrEmpty(Request.Form["DFHGid"]))
                 {
                     b = new ShopProduct();
-                    b.Gid = Guid.NewGuid();
+                    b.Gid = Guid.Parse(Request.Form["Gid"]);
                     b.AddTime = DateTime.Now;
                     b.ShopGid = Guid.Parse(Request.Form["ShopGid"]);
-                    b.Price = decimal.Parse(Request.Form["Price"]);
-                    b.Stock = int.Parse(Request.Form["Stock"]);
                     b.Prefix = Request.Form["Prefix"];
-                    b.Show = Int32.Parse(Request.Form["Show"]);
                 }
                 else
                 {
                     b = db.ShopProduct.Where(l => l.Gid == Gid).FirstOrDefault();
                 }
+                b.Price = decimal.Parse(Request.Form["Price"]);
+                b.Stock = int.Parse(Request.Form["Stock"]);
+                b.Show = Int32.Parse(Request.Form["Show"]);
+
                 b.ClassifyGid = Guid.Parse(Request.Form["ClassifyGid"]);
                 b.Name = Request.Form["Name"];
                 b.OriginalPrice = decimal.Parse(Request.Form["OriginalPrice"]);
@@ -4929,6 +4942,7 @@ namespace LJSheng.Web.Controllers
                 b.Company = Request.Form["Company"];
                 b.Brand = Request.Form["Brand"];
                 b.Borrow = int.Parse(Request.Form["Borrow"]);
+                b.DFH = int.Parse(Request.Form["DFH"]);
                 if (!string.IsNullOrEmpty(Request.Form["Picture"]))
                 {
                     b.Picture = Request.Form["Picture"];
@@ -4937,12 +4951,17 @@ namespace LJSheng.Web.Controllers
                 //{
                 //    b.GraphicDetails = Request.Form["GraphicDetails"];
                 //}
-                if (Gid == null)
+                if (Gid == null || !string.IsNullOrEmpty(Request.Form["DFHGid"]))
                 {
                     db.ShopProduct.Add(b);
                 }
                 if (db.SaveChanges() == 1)
                 {
+                    if (!string.IsNullOrEmpty(Request.Form["DFHGid"]))
+                    {
+                        Guid DFHGid = Guid.Parse(Request.Form["DFHGid"]);
+                        db.DFH.Where(l => l.Gid == DFHGid).Update(l => new DFH { State = 2 });
+                    }
                     return Helper.WebRedirect("操作成功！", "history.go(-1);", "操作成功!");
                 }
                 else
@@ -4997,6 +5016,7 @@ namespace LJSheng.Web.Controllers
                         x.Stock,
                         x.ShopGid,
                         x.Borrow,
+                        x.DFH,
                         ClassifyName = y.FirstOrDefault().Name
                     }).AsQueryable();
                 if (!string.IsNullOrEmpty(Name))
@@ -5012,6 +5032,16 @@ namespace LJSheng.Web.Controllers
                 {
                     Guid ShopGid = Guid.Parse(paramJson["ShopGid"].ToString());
                     b = b.Where(l => l.ShopGid == ShopGid);
+                }
+                if (paramJson["Borrow"].ToString() != "00")
+                {
+                    int Borrow = int.Parse(paramJson["Borrow"].ToString());
+                    b = b.Where(l => l.Borrow == Borrow);
+                }
+                if (paramJson["DFH"].ToString() != "0")
+                {
+                    int DFH = int.Parse(paramJson["DFH"].ToString());
+                    b = b.Where(l => l.DFH == DFH);
                 }
                 //时间查询
                 if (!string.IsNullOrEmpty(STime) || !string.IsNullOrEmpty(ETime))
@@ -5454,6 +5484,10 @@ namespace LJSheng.Web.Controllers
                         l.RName,
                         l.RAddress,
                         l.RContactNumber,
+                        l.DFH,
+                        l.DFHLV,
+                        l.DFHState,
+                        l.DFHProfit,
                         j.FirstOrDefault().Name,
                         j.FirstOrDefault().ContactNumber
                     }).GroupJoin(db.Member,
@@ -5488,6 +5522,10 @@ namespace LJSheng.Web.Controllers
                         l.RName,
                         l.RAddress,
                         l.RContactNumber,
+                        l.DFH,
+                        l.DFHLV,
+                        l.DFHState,
+                        l.DFHProfit,
                         j.FirstOrDefault().Account,
                         j.FirstOrDefault().RealName,
                         ShopAccount = db.Member.Where(m => m.Gid == l.ShopGid).FirstOrDefault().Account,
@@ -6914,6 +6952,124 @@ namespace LJSheng.Web.Controllers
             else
             {
                 return Json(new AjaxResult(300, name + " 删除失败"));
+            }
+        }
+        #endregion
+
+        #region 代发货
+        // 列表管理
+        public ActionResult DFHList()
+        {
+            return View();
+        }
+        [HttpPost]
+        public JsonResult DFH()
+        {
+            //查询的参数json
+            string json = "";
+            using (StreamReader sr = new StreamReader(Request.InputStream))
+            {
+                json = HttpUtility.UrlDecode(sr.ReadLine());
+            }
+            //解析参数
+            JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
+            using (EFDB db = new EFDB())
+            {
+                string STime = paramJson["STime"].ToString();
+                string ETime = paramJson["ETime"].ToString();
+                string ShopName = paramJson["ShopName"].ToString();
+                string ProductName = paramJson["ProductName"].ToString();
+                var b = db.DFH.GroupJoin(db.Shop,
+                    x => x.ShopGid,
+                    y => y.Gid,
+                    (x, y) => new
+                    {
+                        x.Gid,
+                        x.AddTime,
+                        x.State,
+                        x.ShopGid,
+                        x.ProductGid,
+                        ShopName = y.FirstOrDefault().Name,
+                        y.FirstOrDefault().ContactNumber
+                    }).GroupJoin(db.ShopProduct,
+                    x => x.ProductGid,
+                    y => y.Gid,
+                    (x, y) => new
+                    {
+                        x.Gid,
+                        x.AddTime,
+                        x.State,
+                        x.ShopGid,
+                        x.ProductGid,
+                        x.ShopName,
+                        x.ContactNumber,
+                        ProductName = y.FirstOrDefault().Name,
+                        y.FirstOrDefault().Stock,
+                        y.FirstOrDefault().Price,
+                        SGid = y.FirstOrDefault().ShopGid
+                    }).AsQueryable();
+                if (!string.IsNullOrEmpty(ShopName))
+                {
+                    b = b.Where(l => l.ShopName.Contains(ShopName));
+                }
+                if (!string.IsNullOrEmpty(ProductName))
+                {
+                    b = b.Where(l => l.ProductName.Contains(ProductName));
+                }
+                //时间查询
+                if (!string.IsNullOrEmpty(STime) || !string.IsNullOrEmpty(ETime))
+                {
+                    DateTime? st = null;
+                    DateTime? et = null;
+                    if (!string.IsNullOrEmpty(STime) && string.IsNullOrEmpty(ETime))
+                    {
+                        st = et = DateTime.Parse(STime);
+                    }
+                    else if (string.IsNullOrEmpty(STime) && !string.IsNullOrEmpty(ETime))
+                    {
+                        st = et = DateTime.Parse(ETime);
+                    }
+                    else
+                    {
+                        st = DateTime.Parse(STime);
+                        et = DateTime.Parse(ETime);
+                    }
+                    b = b.Where(l => l.AddTime >= st && l.AddTime <= et);
+                }
+                int pageindex = Int32.Parse(paramJson["pageindex"].ToString());
+                int pagesize = Int32.Parse(paramJson["pagesize"].ToString());
+                return Json(new AjaxResult(new
+                {
+                    other = "",
+                    count = b.Count(),
+                    pageindex,
+                    list = b.OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
+                }));
+            }
+        }
+        /// <summary>
+        /// 删除
+        /// </summary>
+        [HttpPost]
+        public JsonResult DFHDelete(Guid Gid)
+        {
+            if (Gid != null)
+            {
+                using (EFDB db = new EFDB())
+                {
+                    if (db.DFH.Where(l => l.Gid == Gid).Delete() == 1)
+                    {
+                        return Json(new AjaxResult("成功"));
+                    }
+                    else
+                    {
+                        return Json(new AjaxResult(300, "失败"));
+                    }
+                }
+            }
+            else
+            {
+                return Json(new AjaxResult(300, "非法参数"));
             }
         }
         #endregion

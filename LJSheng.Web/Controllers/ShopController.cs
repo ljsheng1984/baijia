@@ -28,19 +28,35 @@ namespace LJSheng.Web.Controllers
         {
             using (EFDB db = new EFDB())
             {
-                Guid MemberGid = LCookie.GetMemberGid();
-                var b = db.Shop.Where(l => l.MemberGid == MemberGid).FirstOrDefault();
+                Guid ShopGid = LCookie.GetShopGid();
+                var b = db.Shop.Where(l => l.Gid == ShopGid).FirstOrDefault();
+                Guid MemberGid = b.MemberGid;
                 ViewBag.Name = b.Name;
                 ViewBag.State = b.State;
-                ViewBag.Gid =  b.Gid;
-                ViewBag.Order = db.ShopOrder.Where(l => l.Status == 1 && l.ShopGid==b.Gid).Count();
-                LCookie.AddCookie("shop", DESRSA.DESEnljsheng(JsonConvert.SerializeObject(new
-                {
-                    b.Gid,
-                    b.USCI,
-                    b.LegalPerson,
-                    b.Name
-                })), 1);
+                ViewBag.Gid = ShopGid;
+                var o = db.ShopOrder.Where(l => l.ShopGid == ShopGid && l.PayStatus==1);
+                ViewBag.Order = o.Where(l => l.Status == 1).Count();
+                //本月营业额
+                DateTime MonthFirst = DTime.FirstDayOfMonth(DateTime.Now);
+                DateTime MonthLast = DTime.LastDayOfMonth(DateTime.Parse(DateTime.Now.ToString("yyyy-MM-dd") + " 23:59:59"));
+                ViewBag.MPayPrice = o.Where(l => l.Status == 1 && l.PayTime >= MonthFirst && l.PayTime <= MonthLast).Select(l => l.PayPrice).DefaultIfEmpty(0m).Sum();
+                //本月代发货营业额
+                ViewBag.MDFH = o.Where(l => l.Status == 1 && l.PayTime >= MonthFirst && l.PayTime <= MonthLast && l.DFHProfit>0).Select(l => l.PayPrice).DefaultIfEmpty(0m).Sum();
+                //本月代发货分润总额
+                ViewBag.MDFHProfit = o.Where(l => l.Status == 1 && l.PayTime >= MonthFirst && l.PayTime <= MonthLast && l.DFHProfit > 0).Select(l => l.DFHProfit).DefaultIfEmpty(0m).Sum();
+                //今日营业额
+                string date = DateTime.Now.ToString("yyyy-MM-dd");
+                DateTime SDate = DateTime.Parse(date + " 00:00:00");
+                DateTime EDate = DateTime.Parse(date + " 23:59:59");
+                ViewBag.PayPrice = o.Where(l => l.Status == 1 && l.PayTime >= SDate && l.PayTime <= EDate).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                //今日代发货营业额
+                ViewBag.DFHProfit = o.Where(l => l.Status == 1 && l.PayTime >= SDate && l.PayTime <= EDate && l.DFHProfit > 0).Select(l => l.PayPrice).DefaultIfEmpty(0m).Sum();
+                date = SDate.AddDays(-1).ToString("yyyy-MM-dd");
+                SDate = DateTime.Parse(date + " 00:00:00");
+                EDate = DateTime.Parse(date + " 23:59:59");
+                //昨日代发货总额
+                ViewBag.DFH = o.Where(l => l.Status == 1 && l.PayTime >= SDate && l.PayTime <= EDate && l.DFHProfit > 0).Select(l => l.PayPrice).DefaultIfEmpty(0m).Sum();
+
                 ViewBag.ShopMoney = db.Member.Where(l => l.Gid == MemberGid).FirstOrDefault().ShopMoney;
                 //库存
                 Guid ProductGid = Helper.GetProductGid();
@@ -482,6 +498,7 @@ namespace LJSheng.Web.Controllers
                     //{
                     //    b.GraphicDetails = Request.Form["GraphicDetails"];
                     //}
+                    b.DFH = 1;
                     if (Request.Form["B"] == "0")
                     {
                         b.Borrow = 0;
@@ -988,8 +1005,8 @@ namespace LJSheng.Web.Controllers
         {
             using (EFDB db = new EFDB())
             {
-                Guid gid = LCookie.GetMemberGid();
-                var b = db.Member.Where(l => l.Gid == gid).FirstOrDefault();
+                Guid MemberGid = LCookie.GetMemberGid();
+                var b = db.Member.Where(l => l.Gid == MemberGid).FirstOrDefault();
                 ViewBag.FBCC = AppApi.AVG(2);
                 string T = "";//查询兑换比例类型
                 if (Type == 2)
@@ -1010,7 +1027,7 @@ namespace LJSheng.Web.Controllers
                 }
                 else
                 {
-                    string LogMsg = "gid=" + gid.ToString() + ",Integral=" + Integral.ToString() + ",Type=" + Type + ",TB=" + TB;
+                    string LogMsg = "MemberGid=" + MemberGid.ToString() + ",Integral=" + Integral.ToString() + ",Type=" + Type + ",TB=" + TB;
                     if (Integral > ViewBag.Integral)
                     {
                         return Helper.Redirect("失败", "history.go(-1);", "可提积分不足");
@@ -1020,7 +1037,7 @@ namespace LJSheng.Web.Controllers
                         //获取兑换比例积分
                         decimal Token = Integral;
                         Guid TRGid = Guid.NewGuid();
-                        if (Helper.TokenRecordAdd(TRGid, gid, Integral, Token, Type, TB))
+                        if (Helper.TokenRecordAdd(TRGid, MemberGid, Integral, Token, Type, TB))
                         {
                             //提交到APP
                             if (AppApi.AddMB(b.Account, TB == 1 ? "BCCB" : "FBCC", Token.ToString()))
@@ -1028,7 +1045,7 @@ namespace LJSheng.Web.Controllers
                                 //提取基数分后判断剩下的是否满足冻结条件
                                 if (Type == 2)
                                 {
-                                    Helper.FrozenIntegral(gid, b.MIntegral - Integral, b.TIntegral, 2, 2, "提取基数分满足冻结");
+                                    Helper.FrozenIntegral(MemberGid, b.MIntegral - Integral, b.TIntegral, 2, 2, "提取基数分满足冻结");
                                 }
                                 return Helper.Redirect("成功", "/Shop/IntegralAPP?type=" + Type, "恭喜你,兑换成功!");
                             }
@@ -1065,8 +1082,8 @@ namespace LJSheng.Web.Controllers
         {
             using (EFDB db = new EFDB())
             {
-                Guid gid = LCookie.GetMemberGid();
-                var b = db.Member.Where(l => l.Gid == gid).FirstOrDefault();
+                Guid MemberGid = LCookie.GetMemberGid();
+                var b = db.Member.Where(l => l.Gid == MemberGid).FirstOrDefault();
                 string T="";//查询兑换比例类型
                 if (Type == 2)
                 {
@@ -1086,7 +1103,7 @@ namespace LJSheng.Web.Controllers
                 }
                 else
                 {
-                    string LogMsg = "gid=" + gid.ToString() + ",Integral=" + Integral.ToString() + ",Type=" + Type + ",TB=" + TB;
+                    string LogMsg = "MemberGid=" + MemberGid.ToString() + ",Integral=" + Integral.ToString() + ",Type=" + Type + ",TB=" + TB;
                     if (Integral > ViewBag.Integral)
                     {
                         return Helper.Redirect("失败", "history.go(-1);", "可提积分不足");
@@ -1096,7 +1113,7 @@ namespace LJSheng.Web.Controllers
                         //获取兑换比例积分
                         decimal Token = Integral * ViewBag.MT;
                         Guid TRGid = Guid.NewGuid();
-                        if (Helper.TokenRecordAdd(TRGid, gid, Integral, Token, Type, TB))
+                        if (Helper.TokenRecordAdd(TRGid, MemberGid, Integral, Token, Type, TB))
                         {
                             //提交到APP
                             if (AppApi.AddMB(b.Account, TB == 1 ? "BCCB" : "FBCC", Token.ToString()))
@@ -1104,7 +1121,7 @@ namespace LJSheng.Web.Controllers
                                 //提取基数分后判断剩下的是否满足冻结条件
                                 if (Type == 2)
                                 {
-                                    Helper.FrozenIntegral(gid, b.MIntegral- Integral, b.TIntegral, 2, 2, "提取基数分满足冻结");
+                                    Helper.FrozenIntegral(MemberGid, b.MIntegral- Integral, b.TIntegral, 2, 2, "提取基数分满足冻结");
                                 }
                                 return Helper.Redirect("成功", "/Shop/IntegralAPP?type=" + Type, "恭喜你,兑换成功!");
                             }
@@ -1150,6 +1167,34 @@ namespace LJSheng.Web.Controllers
             }
         }
         #endregion
+
+        /// <summary>
+        /// 代发货选择
+        /// </summary>
+        /// <param name="Gid">订单Gid</param>
+        /// <returns>返回调用结果</returns>
+        /// <para name="result">200 是成功其他失败</para>
+        /// <para name="data">结果提示</para>
+        /// <remarks>
+        /// 2016-06-30 林建生
+        /// </remarks>
+        [HttpPost]
+        public JsonResult FH(Guid Gid)
+        {
+            using (EFDB db = new EFDB())
+            {
+                var b = db.ShopOrder.Where(l => l.Gid == Gid).FirstOrDefault();
+                if (b != null)
+                {
+                    b.DFH = 2;
+                    return Json(new AjaxResult(db.SaveChanges()));
+                }
+                else
+                {
+                    return Json(new AjaxResult(300, "订单不存在"));
+                }
+            }
+        }
 
         #region 新页面
         /// <summary>
@@ -1228,8 +1273,8 @@ namespace LJSheng.Web.Controllers
         {
             using (EFDB db = new EFDB())
             {
-                Guid Gid = LCookie.GetShopGid();
-                var b = db.Shop.Where(l => l.Gid == Gid).FirstOrDefault();
+                Guid ShopGid = LCookie.GetShopGid();
+                var b = db.Shop.Where(l => l.Gid == ShopGid).FirstOrDefault();
                 if (b != null)
                 {
                     ViewBag.LegalPerson = Help.Shop + b.LegalPerson;
@@ -1244,10 +1289,10 @@ namespace LJSheng.Web.Controllers
         {
             using (EFDB db = new EFDB())
             {
-                Guid Gid = LCookie.GetShopGid();
-                if (Gid != Guid.Parse("00000000-0000-0000-0000-000000000000"))
+                Guid ShopGid = LCookie.GetShopGid();
+                if (ShopGid != Guid.Parse("00000000-0000-0000-0000-000000000000"))
                 {
-                    var b = db.Shop.Where(l => l.Gid == Gid).FirstOrDefault();
+                    var b = db.Shop.Where(l => l.Gid == ShopGid).FirstOrDefault();
                     if (b != null)
                     {
                         string LegalPerson = Helper.jsimg(Help.Shop, Request.Form["base64Data"]);
@@ -1296,6 +1341,7 @@ namespace LJSheng.Web.Controllers
                 }
             }
         }
+
         #endregion
     }
 }

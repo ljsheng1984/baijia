@@ -500,6 +500,10 @@ namespace LJSheng.Web.Controllers
                 Guid MGid = LCookie.GetMemberGid();
                 //如果是积分支付先验证支付密码
                 var m = db.Member.Where(l => l.Gid == MGid).FirstOrDefault();
+                //代发货利润
+                decimal DFHProfit = 0;
+                //代发货等级比例
+                decimal DFHLV = db.Level.Where(l => l.LV == m.CLLevel).FirstOrDefault().EquityProfit;
                 if (PayType == 5)
                 {
                     if (m.PayPWD != MD5.GetMD5ljsheng(Request.Form["PayPWD"]))
@@ -522,6 +526,10 @@ namespace LJSheng.Web.Controllers
                         {
                             var p = db.ShopProduct.Where(l => l.Gid == d.ProductGid).FirstOrDefault();
                             pg = p.Gid.ToString();
+                            if (p.DFH == 3)
+                            {
+                                DFHProfit += p.Price * DFHLV;
+                            }
                             if (ReturnType == 0 || (ReturnType != 0 && p.Borrow == 1 && db.ShopOrder.Where(l => l.Product == pg && l.PayStatus == 1).Count() == 0))
                             {
                                 if (p.Stock >= d.Number)
@@ -566,11 +574,19 @@ namespace LJSheng.Web.Controllers
                         b.TotalPrice = Price;
                         b.Price = Price;
                         b.CouponPrice = 0;
-                        b.ExpressStatus = 1;
                         b.PayPrice = 0;
                         b.Profit = 0;
                         b.ConsumptionCode = RandStr.CreateValidateNumber(8);
-                        b.Status = 1;
+                        if (DFHProfit > 0)
+                        {
+                            b.Status = 2;
+                            b.ExpressStatus = 3;
+                        }
+                        else
+                        {
+                            b.Status = 1;
+                            b.ExpressStatus = 1;
+                        }
                         b.Remarks = Remarks;
                         b.Address = Address;
                         b.ContactNumber = ContactNumber;
@@ -581,6 +597,11 @@ namespace LJSheng.Web.Controllers
                             b.BorrowTime = b.AddTime.AddMonths(3);
                             b.Product = pg;
                         }
+                        //代发货
+                        b.DFHProfit = DFHProfit;
+                        b.DFHLV = DFHLV;
+                        b.DFHState = 1;
+                        b.DFH = 1;
                         db.ShopOrder.Add(b);
                         if (db.SaveChanges() == 1)
                         {

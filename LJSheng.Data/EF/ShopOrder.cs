@@ -199,5 +199,25 @@ namespace LJSheng.Data
         /// </summary>
         [StringLength(50)]
         public string RContactNumber { get; set; }
+
+        /// <summary>
+        /// 发货利润-为0不是代发货订单
+        /// </summary>
+        public decimal DFHProfit { get; set; }
+
+        /// <summary>
+        /// 发货分润比例
+        /// </summary>
+        public decimal DFHLV { get; set; }
+
+        /// <summary>
+        /// 发货结算[1=未结算 2=已结算]
+        /// </summary>
+        public int DFHState { get; set; }
+
+        /// <summary>
+        /// 发货类型[1=商家 2=公司]
+        /// </summary>
+        public int DFH { get; set; }
     }
 }

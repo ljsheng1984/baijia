@@ -24,6 +24,20 @@
                         <option value="@item.Gid">@item.Name</option>
                     }
                 </select>
+                <span class="input-group-addon fix-padding">-</span>
+                <select class="form-control" name="Borrow">
+                    <option value="00">借用商品</option>
+                    <option value="0">不可</option>
+                    <option value="1">可借</option>
+                    <option value="2">已借用</option>
+                </select>
+                <span class="input-group-addon fix-padding">-</span>
+                <select class="form-control" name="DFH">
+                    <option value="0">代发商品</option>
+                    <option value="1">不可</option>
+                    <option value="2">可代发</option>
+                    <option value="3">代发商品</option>
+                </select>
                 <span class="input-group-addon">名称</span>
                 <input type="text" name="Name" class="form-control">
                 <span class="input-group-addon">时间</span>
@@ -51,6 +65,7 @@
                 <th>排序</th>
                 <th>显示</th>
                 <th>借用</th>
+                <th>代发</th>
                 <th>图片</th>
                 <th>添加时间</th>
                 <th>管理操作</th>
@@ -89,6 +104,15 @@
                         可借
                         {{else}}
                         已借
+                        {{/if}}
+                    </td>
+                    <td>
+                        {{if item.DFH=="1"}}
+                        不可
+                        {{else if item.DFH=="2"}}
+                        可代发
+                        {{else}}
+                        代发商品
                         {{/if}}
                     </td>
                     <td>

@@ -91,7 +91,7 @@
         </div>
         <div class="shop-detial-operation">
             <ul>
-                <li style="@(Request.QueryString["Borrow"]=="1"?"":"display:none;")">
+                <li style="@(ViewBag.Borrow==1?"":"display:none;") @(ViewBag.DFH!=3?"":"display:none;")">
                     <a href="/Member/Clause?ShopGid=@Request.QueryString["ShopGid"]&PGid=@Request.QueryString["Gid"]&type=1">
                         <img src="/images/icon/icon-67.png" />
                         <span>借用</span>
@@ -104,8 +104,8 @@
                     </a>
                 </li>
             </ul>
-            <span class="add-to-cart-btn" onclick="buy(1,1);">加入购物车<b id="add" class="hidden" style="color:red;">+1</b></span>
-            <span class="buy-now-btn" onclick="buy(2,1);">立即购买</span>
+            <span class="add-to-cart-btn" onclick="buy(1,1,@ViewBag.DFH);">加入购物车<b id="add" class="hidden" style="color:red;">+1</b></span>
+            <span class="buy-now-btn" onclick="buy(2,1,@ViewBag.DFH);">立即购买</span>
         </div>
     </div>
     <a class="toTop" href="#top">
@@ -125,10 +125,10 @@
             lazyLoad: true,
             scrollPerPage: false,
         });
-        function buy(type, Number) {
+        function buy(type, Number,DFH) {
             $.ajax({
                 url: "/SMall/AddCart",
-                data: "ShopGid=@Request.QueryString["ShopGid"]&Gid=@Request.QueryString["Gid"]&Number=" + Number,
+                data: "ShopGid=@Request.QueryString["ShopGid"]&Gid=@Request.QueryString["Gid"]&Number=" + Number + "&DFH=" + DFH,
                 type: "post",
                 cache: false,
                 timeout: 8000,

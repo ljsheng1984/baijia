@@ -1492,6 +1492,7 @@ namespace LJSheng.Web.Controllers
                     db.Shop.Add(b);
                     if (db.SaveChanges() == 1)
                     {
+                        Helper.SLogin(b.Gid);
                         return Json(new AjaxResult("申请成功,请上传商家证件等待审核!"));
                     }
                 }
@@ -1552,7 +1553,7 @@ namespace LJSheng.Web.Controllers
             Guid MemberGid = LCookie.GetMemberGid();
             using (EFDB db = new EFDB())
             {
-                var b = db.ShopOrder.Where(l => l.MemberGid == MemberGid && l.PayStatus < 3).GroupJoin(db.Member,
+                var b = db.ShopOrder.Where(l => l.MemberGid == MemberGid && l.PayStatus < 3 && l.DFHProfit==0).GroupJoin(db.Member,
                     x => x.MemberGid,
                     y => y.Gid,
                     (x, y) => new
@@ -1661,6 +1662,8 @@ namespace LJSheng.Web.Controllers
                 ViewBag.RName = b.RName;
                 ViewBag.RContactNumber = b.RContactNumber;
                 ViewBag.RAddress = b.RAddress;
+                ViewBag.DFHProfit = b.DFHProfit;
+                ViewBag.FH = b.DFH;
                 ViewBag.ExpressList = db.Express.Where(l => l.Show == 1).OrderBy(l => l.Sort).ToList();
                 return View(db.OrderDetails.Where(l => l.OrderGid == OrderGid).ToList());
             }
@@ -2400,6 +2403,75 @@ namespace LJSheng.Web.Controllers
         public ActionResult PReturn()
         {
             return View();
+        }
+
+        /// <summary>
+        /// 代发货订单
+        /// </summary>
+        public ActionResult DFH()
+        {
+            return View();
+        }
+
+        /// <summary>
+        /// 获取订单
+        /// </summary>
+        /// <param name="ExpressStatus">快递状态</param>
+        /// <returns>返回调用结果</returns>
+        /// <para name="result">200 是成功其他失败</para>
+        /// <para name="data">结果提示</para>
+        /// <remarks>
+        /// 2016-06-30 林建生
+        /// </remarks>
+        [HttpPost]
+        public JsonResult DFHData()
+        {
+            string json = "";
+            using (StreamReader sr = new StreamReader(Request.InputStream))
+            {
+                json = HttpUtility.UrlDecode(sr.ReadLine());
+            }
+            JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
+            Guid MemberGid = LCookie.GetMemberGid();
+            using (EFDB db = new EFDB())
+            {
+                var b = db.ShopOrder.Where(l => l.MemberGid == MemberGid && l.PayStatus < 3 && l.DFHProfit>0).AsQueryable();
+                int pageindex = Int32.Parse(paramJson["pageindex"].ToString());
+                int pagesize = Int32.Parse(paramJson["pagesize"].ToString());
+                return Json(new AjaxResult(new
+                {
+                    other = "",
+                    count = b.Count(),
+                    pageindex,
+                    list = b.OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).Select(l => new
+                    {
+                        l.Gid,
+                        l.ShopGid,
+                        l.Product,
+                        l.ExpressStatus,
+                        l.TotalPrice,
+                        l.OrderNo,
+                        l.TradeNo,
+                        l.RealName,
+                        l.ContactNumber,
+                        l.Address,
+                        l.Voucher,
+                        l.DFHState,
+                        Number = db.OrderDetails.Where(od => od.OrderGid == l.Gid).Sum(od => od.Number),
+                        list = db.OrderDetails.Where(o => o.OrderGid == l.Gid).GroupJoin(db.Product,
+                                x => x.ProductGid,
+                                j => j.Gid,
+                                (x, j) => new
+                                {
+                                    x.ProductGid,
+                                    x.Number,
+                                    x.Price,
+                                    j.FirstOrDefault().Name,
+                                    j.FirstOrDefault().Picture
+                                })
+                    }).ToList()
+                }));
+            }
         }
         #endregion
     }

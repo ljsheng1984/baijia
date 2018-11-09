@@ -361,6 +361,10 @@ p.integral-item-tag span {
         width: 30px;
     }
 
+.header-nav-white {
+    background: #fff;
+}
+
 .header-nav-blue {
     color: #fff;
     background: #1989FA;
@@ -2619,51 +2623,58 @@ p.integral-item-tag span {
     border-bottom: solid 1px #EEEEEE;
 }
 
-    .merchants-item a {
+    .merchants-item {
         display: flex;
         justify-content: space-between;
     }
 
-        .merchants-item a .merchants-item-img {
+        .merchants-item .merchants-item-img {
             width: 94px;
             height: 94px;
         }
 
-            .merchants-item a .merchants-item-img img {
+            .merchants-item .merchants-item-img img {
                 width: 100%;
                 height: 100%;
             }
 
-        .merchants-item a .merchants-item-text {
+        .merchants-item .merchants-item-text {
             width: -webkit-calc(100% - 110px);
             width: calc(100% - 110px);
             position: relative;
         }
 
-        .merchants-item a .merchants-item-title {
+        .merchants-item .merchants-item-title {
             font-size: 1.6rem;
             height: 48px;
             overflow: hidden;
         }
 
-        .merchants-item a .merchants-item-sales {
+        .merchants-item .merchants-item-sales {
             color: #666666;
             font-size: 1.2rem;
             margin: 8px 0;
         }
 
-        .merchants-item a .merchants-item-price span:first-child {
+            .merchants-item .merchants-item-sales span {
+                color: #F8D957;
+                border: solid 1px #F8D957;
+                padding: 1px 5px;
+                margin-left: 5px;
+            }
+
+        .merchants-item .merchants-item-price span:first-child {
             color: #D93838;
         }
 
-        .merchants-item a .merchants-item-price span:last-child {
+        .merchants-item .merchants-item-price span:last-child {
             color: #999999;
             text-decoration: line-through;
             font-size: 1.2rem;
             margin-left: 5px;
         }
 
-        .merchants-item a .merchants-item-status {
+        .merchants-item .merchants-item-status {
             position: absolute;
             bottom: 10px;
             right: 0;
@@ -3522,3 +3533,154 @@ p.integral-item-tag span {
             display: block;
             background: linear-gradient(to right, #239bfe, #0bbae0);
         }
+
+.undertakes-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 99;
+    display: none;
+}
+
+    .undertakes-modal.active {
+        display: block;
+    }
+
+    .undertakes-modal .undertakes-modal-content {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        left: 20%;
+        width: 60%;
+        background: #fff;
+        border-radius: 10px;
+    }
+
+    .undertakes-modal .undertakes-modal-text {
+        padding: 20px;
+        text-align: center;
+    }
+
+        .undertakes-modal .undertakes-modal-text ul li {
+            text-align: left;
+        }
+
+            .undertakes-modal .undertakes-modal-text ul li:nth-child(2) {
+                margin: 10px 0;
+            }
+
+    .undertakes-modal .undertakes-modal-btn {
+        padding: 10px 0;
+        color: #2F8AFF;
+        border-top: solid 1px #f5f5f5;
+        text-align: center;
+    }
+
+.turnover ul {
+    overflow: hidden;
+    padding-top: 15px;
+}
+
+    .turnover ul li {
+        float: left;
+        width: 50%;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+        .turnover ul li span {
+            display: block;
+            color: #999;
+        }
+
+            .turnover ul li span:first-child {
+                color: #024C93;
+                margin-bottom: 10px;
+                font-size: 16px;
+            }
+
+.drop-shipping {
+    height: calc(100vh - 50px);
+    box-sizing: border-box;
+    background: #F6F6F6;
+    padding: 15px 15px 0 15px;
+    overflow-y: auto;
+}
+
+    .drop-shipping .drop-shipping-item {
+        background: #fff;
+        margin-bottom: 15px;
+    }
+
+        .drop-shipping .drop-shipping-item .drop-shipping-item-title,
+        .drop-shipping .drop-shipping-item .drop-shipping-item-goods,
+        .drop-shipping .drop-shipping-item .drop-shipping-item-percentage {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .drop-shipping .drop-shipping-item .drop-shipping-item-title {
+            padding: 15px;
+            border-bottom: solid 1px #F5F5F5;
+        }
+
+            .drop-shipping .drop-shipping-item .drop-shipping-item-title .drop-shipping-status-ok {
+                color: #EB485F;
+            }
+
+            .drop-shipping .drop-shipping-item .drop-shipping-item-title .drop-shipping-status-no {
+                color: #41D670;
+            }
+
+        .drop-shipping .drop-shipping-item .drop-shipping-item-goods {
+            margin: 0 15px;
+        }
+
+            .drop-shipping .drop-shipping-item .drop-shipping-item-goods .drop-shipping-item-goods-img {
+                width: 100px;
+                height: 100px;
+                overflow: hidden;
+            }
+
+                .drop-shipping .drop-shipping-item .drop-shipping-item-goods .drop-shipping-item-goods-img img {
+                    width: 100%;
+                    height: 100%;
+                }
+
+            .drop-shipping .drop-shipping-item .drop-shipping-item-goods .drop-shipping-item-goods-text {
+                width: calc(100% - 110px);
+            }
+
+                .drop-shipping .drop-shipping-item .drop-shipping-item-goods .drop-shipping-item-goods-text p {
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+
+                    .drop-shipping .drop-shipping-item .drop-shipping-item-goods .drop-shipping-item-goods-text p:nth-child(2) {
+                        margin: 5px 0;
+                        color: #666;
+                    }
+
+        .drop-shipping .drop-shipping-item .drop-shipping-item-percentage {
+            margin: 0 15px;
+            padding: 10px 0;
+            border-top: solid 1px #F5F5F5;
+            border-bottom: solid 1px #F5F5F5;
+        }
+
+            .drop-shipping .drop-shipping-item .drop-shipping-item-percentage span:last-child {
+                color: #6AA9E9;
+            }
+
+        .drop-shipping .drop-shipping-item .drop-shipping-item-time {
+            margin: 0 15px;
+            padding: 10px 0;
+        }
+
+            .drop-shipping .drop-shipping-item .drop-shipping-item-time span {
+                color: #666;
+            }

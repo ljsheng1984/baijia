@@ -73,6 +73,7 @@
     <Compile Include="EF\Cart.cs" />
     <Compile Include="EF\CLRecord.cs" />
     <Compile Include="EF\Consignor.cs" />
+    <Compile Include="EF\DFH.cs" />
     <Compile Include="EF\Level.cs" />
     <Compile Include="EF\LV.cs" />
     <Compile Include="EF\MoneyRecord.cs" />

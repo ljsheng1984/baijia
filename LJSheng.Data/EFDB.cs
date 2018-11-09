@@ -201,5 +201,9 @@ namespace LJSheng.Data
         /// 购物车
         /// </summary>
         public DbSet<Cart> Cart { get; set; }
+        /// <summary>
+        /// 代发货商品申请列表
+        /// </summary>
+        public DbSet<DFH> DFH { get; set; }
     }
 }

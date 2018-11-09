@@ -54,9 +54,9 @@
                     <div class="make-order-nums">
                         <span>购买数量</span>
                         <p class="make-order-num">
-                            <span onclick="buy('{{item.ShopGid}}', '{{od.ProductGid}}','{{od.Gid}}', -1);">-</span>
+                            <span onclick="buy('{{item.ShopGid}}', '{{od.ProductGid}}','{{od.Gid}}', -1,{{od.DFH}});">-</span>
                             <input type="text" value="{{od.Number}}" readonly />
-                            <span onclick="buy('{{item.ShopGid}}', '{{od.ProductGid}}','{{od.Gid}}', 1);">+</span>
+                            <span onclick="buy('{{item.ShopGid}}', '{{od.ProductGid}}','{{od.Gid}}', 1,{{od.DFH}});">+</span>
                         </p>
                     </div>
                 </div>
@@ -96,10 +96,10 @@
                 },
             });
         }
-        function buy(ShopGid, ProductGid, Gid, num) {
+        function buy(ShopGid, ProductGid, Gid, num, DFH)  {
             $.ajax({
                 url: "/SMall/AddCart",
-                data: "ShopGid=" + ShopGid + "&Gid=" + ProductGid + "&Number=" + num,
+                data: "ShopGid=" + ShopGid + "&Gid=" + ProductGid + "&Number=" + num + "&DFH=" + DFH,
                 type: "post",
                 cache: false,
                 timeout: 8000,

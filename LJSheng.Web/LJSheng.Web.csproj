@@ -1140,6 +1140,8 @@
     <Content Include="Views\Member\UED.cshtml" />
     <Content Include="Views\Member\Clause.cshtml" />
     <Content Include="Views\Home\OpenID.cshtml" />
+    <Content Include="Views\Member\DFH.cshtml" />
+    <Content Include="Views\LJSheng\DFHList.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

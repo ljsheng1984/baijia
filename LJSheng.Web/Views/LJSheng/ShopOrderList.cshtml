@@ -85,7 +85,7 @@
             <script id="tpl" type="text/html">
                 {{each list as item index}}
                 <tr id="{{item.Gid}}" style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
-                    <td rowspan="2">{{index+1}}</td>
+                    <td rowspan="3">{{index+1}}</td>
                     <td>{{item.OrderNo}}<br />{{item.TradeNo}}</td>
                     <td>{{item.AddTime}}<br />{{item.PayTime}}</td>
                     <td title="查看购买详情" onclick="Show('{{item.OrderNo}}','ShopOrderDetailsList?gid={{item.Gid}}');">查看商品</td>
@@ -167,7 +167,7 @@
                     </td>
                     <td>
                         {{if item.ReturnType=="0"}}
-                            
+
                         {{else if item.ReturnType=="1"}}
                         快递归还
                         {{else}}
@@ -176,16 +176,35 @@
                     </td>
                     <td colspan="2">
                         {{if item.ReturnType!="0"}}
-                            借用到期时间:{{item.BorrowTime}}
+                        借用到期时间:{{item.BorrowTime}}
                         {{else}}
-                        
                         {{/if}}
                     </td>
                     <td>
                         {{if item.ReturnType!="0"}}
                         <a target="_blank" href="/Member/Clause?ShopGid={{item.ShopGid}}&PGid={{item.Product}}&MGid={{item.MemberGid}}&type=0">借用协议</a>
                         {{else}}
-
+                        {{/if}}
+                    </td>
+                </tr>
+                <tr id="{{item.Gid}}" style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
+                    <td colspan="2"><button class="btn btn-mini disabled">发货利润 <span class="label label-badge">{{item.DFHProfit}}</span></button></td>
+                    <td colspan="4"><button class="btn btn-mini disabled">会员享受发货比例 <span class="label label-badge">{{item.DFHLV}}</span></button></td>
+                    <td colspan="2">
+                        发货=
+                        <span class="label label-info">
+                            {{if item.DFH=="1"}}
+                            商家
+                            {{else}}
+                            公司
+                            {{/if}}
+                        </span>
+                    </td>
+                    <td colspan="2">
+                        {{if item.DFHState=="1"}}
+                        未结算
+                        {{else}}
+                        已结算
                         {{/if}}
                     </td>
                 </tr>

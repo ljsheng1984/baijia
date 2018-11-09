@@ -1494,6 +1494,11 @@ namespace LJSheng.Web
                     b.ConsumptionCode = RandStr.CreateValidateNumber(8);
                     b.Status = 1;
                     b.ReturnType = 0;
+                    //代发货
+                    b.DFHProfit = 0;
+                    b.DFHLV = 0;
+                    b.DFHState = 1;
+                    b.DFH = 1;
                     db.ShopOrder.Add(b);
                     if (db.SaveChanges() == 1)
                     {
@@ -2103,6 +2108,7 @@ namespace LJSheng.Web
                 LCookie.DelCookie("linjiansheng");
                 LCookie.DelCookie("member");
                 LCookie.DelCookie("city");
+                LCookie.DelCookie("shop");
                 //会员登录信息
                 var b = db.Member.Where(l => l.Gid == Gid).Select(l => new
                 {
@@ -2132,10 +2138,16 @@ namespace LJSheng.Web
                     b.Gender,
                     b.Level
                 })), 30);
+                //商家登录信息
+                var s = db.Shop.Where(l => l.MemberGid == b.Gid).FirstOrDefault();
+                if (s != null)
+                {
+                    SLogin(s.Gid);
+                }
                 //设置用户读取数据的城市
                 if (string.IsNullOrEmpty(LCookie.GetCity().Trim()))
                 {
-                    LCookie.AddCookie("city", string.IsNullOrEmpty(b.City.Trim()) ? "福州市" : b.City, 30);
+                    LCookie.AddCookie("city", string.IsNullOrEmpty(b.City.Trim()) ? "全国" : b.City, 30);
                 }
             }
         }
@@ -2161,14 +2173,18 @@ namespace LJSheng.Web
                     l.Gid,
                     l.Name,
                     l.USCI,
-                    l.LegalPerson
+                    l.LegalPerson,
+                    l.Licence,
+                    l.Picture
                 }).FirstOrDefault();
                 LCookie.AddCookie("shop", DESRSA.DESEnljsheng(JsonConvert.SerializeObject(new
                 {
                     b.Gid,
+                    b.Name,
                     b.USCI,
                     b.LegalPerson,
-                    b.Name
+                    b.Licence,
+                    b.Picture
                 })), 1);
             }
         }

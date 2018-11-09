@@ -38,8 +38,13 @@
 </div>
 
 <div class="rob">
-    <a class="fix-btn-loading @(ViewBag.Status==2?"hide":"") @(Request.QueryString["type"]=="1"?"":"hide")" onclick="rob('@Request.QueryString["OrderGid"]');" style="left:20%;">
-        <span id="name">发货</span>
+    <a class="fix-btn-loading @(ViewBag.FH==2?"hide":"") @(ViewBag.Status==2?"hide":"") @(Request.QueryString["type"]=="1"?"":"hide")" onclick="rob('@Request.QueryString["OrderGid"]');" style="left:20%;">
+        <span id="name">商家发货</span>
+        <span class="default"></span>
+        <span class="active"></span>
+    </a>
+    <a class="fix-btn-loading @(ViewBag.DFHProfit==0?"hide":"") @(ViewBag.Status==2?"hide":"") @(Request.QueryString["type"]=="1"?"":"hide")" onclick="fh('@Request.QueryString["OrderGid"]');" style="left:50%;">
+        <span id="name">公司发货</span>
         <span class="default"></span>
         <span class="active"></span>
     </a>
@@ -68,7 +73,7 @@
         </div>
         <span class="cert-down"></span>
     </div>
-    <a class="fix-btn-loading @(ViewBag.Status==2?"hide":"") @(Request.QueryString["type"]=="1"?"":"hide")" onclick="code('@Request.QueryString["OrderGid"]');" style="left:80%;">
+    <a class="fix-btn-loading @(ViewBag.FH==2?"hide":"") @(ViewBag.Status==2?"hide":"") @(Request.QueryString["type"]=="1"?"":"hide")" onclick="code('@Request.QueryString["OrderGid"]');" style="left:80%;">
         <span id="name">验证</span>
         <span class="default"></span>
         <span class="active"></span>
@@ -152,6 +157,26 @@
                 tip("请录入正确的消费码");
             }
         }
+    }
+    function fh(gid) {
+        $.ajax({
+            url: "/Shop/FH",
+            data: "Gid=" + gid,
+            type: "post",
+            cache: false,
+            timeout: 8000,
+            dataType: "json",
+            ContentType: "application/json; charset=utf-8",
+            async: false,//一定要是同步请求，否则会跳转；（ajax默认是异步的）
+            error: function () { },
+            beforeSend: function () { },
+            success: function (data) {
+                if (data.data != 1) {
+                    tip(data.data);
+                }
+                location.reload();
+            },
+        });
     }
     function tip(msg) {
         layer.open({

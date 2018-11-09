@@ -1,0 +1,74 @@
+﻿
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=yes">
+    <title>彩链-代发货分润明细</title>
+    <meta name="keywords" content="彩链">
+    <meta name="description" content="彩链">
+    <meta name="author" content="彩链">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="/css/style.css" />
+    <link href="/plugins/mescroll/mescroll.css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="default-header-nav header-nav-white">
+        <span>
+            <a href="/Member/Index">
+                <img src="/images/icon/icon-26.png" />
+            </a>
+        </span> 代发货分润明细
+    </div>
+    <div id="search" hidden></div>
+    <div class="mescroll" id="scroll">
+        <div class="drop-shipping" id="dataList">
+            <script id="tpl" type="text/html">
+                {{each list as item index}}
+                <div class="drop-shipping-item">
+                    <div class="drop-shipping-item-title">
+                        <span>订单号：{{item.OrderNo}}</span>
+                        {{if item.DFHState==1}}
+                        <span class="drop-shipping-status-ok">已结算</span>
+                        {{else}}
+                        <span class="drop-shipping-status-no">未结算</span>
+                        {{/if}}
+                    </div>
+                    {{each item.list as od index}}
+                    <div class="drop-shipping-item-goods">
+                        <div class="drop-shipping-item-goods-img">
+                            <img src="/uploadfiles/shop/{{item.ShopGid}}/{{od.Gid}}/logo.png" />
+                        </div>
+                        <div class="drop-shipping-item-goods-text">
+                            <p>{{od.Name}}</p>
+                            <p>x{{od.Number}}</p>
+                            <p>￥{{od.Price}}</p>
+                        </div>
+                    </div>
+                    {{/each}}
+                    <div class="drop-shipping-item-percentage">
+                        <span>分润百分比：{{item.DFHLV}}</span>
+                        <span>分润金额：￥{{item.DFHProfit}}</span>
+                    </div>
+                    <div class="drop-shipping-item-time">
+                        交易日期：<span>{{item.AddTime}}</span>
+                    </div>
+                </div>
+                {{/each}}
+            </script>
+        </div>
+    </div>
+    <script src="/js/jquery.js"></script>
+    <script src="/js/template-web.js"></script>
+    <script src="/plugins/mescroll/mescroll.js"></script>
+    <script src="/js/mlist.js"></script>
+</body>
+
+</html>

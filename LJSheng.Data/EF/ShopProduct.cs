@@ -121,5 +121,10 @@ namespace LJSheng.Data
         /// 借用[0=不可借用 1=借用中 2=已借用]
         /// </summary>
         public int Borrow { get; set; }
+
+        /// <summary>
+        /// 代发[1=不可代发 2=可代发 3=代发产品]
+        /// </summary>
+        public int DFH { get; set; }
     }
 }

@@ -217,6 +217,8 @@ namespace LJSheng.Web.Controllers
                 ViewBag.Name = b.Name;
                 ViewBag.Content = b.Content;
                 ViewBag.Profile = b.Profile;
+                ViewBag.DFH = b.DFH;
+                ViewBag.Borrow = b.Borrow;
                 string path = "/uploadfiles/shop/" + ShopGid + "/" + Gid + "/";
                 List<FileInfo> files = new List<FileInfo>();
                 ///获取文件列表信息  
@@ -243,6 +245,7 @@ namespace LJSheng.Web.Controllers
         /// <param name="ShopGid">商家Gid</param>
         /// <param name="Gid">产品Gid</param>
         /// <param name="Number">数量</param>
+        /// <param name="DFH">是否代发货产品</param>
         /// <returns>返回调用结果</returns>
         /// <para name="result">200 是成功其他失败</para>
         /// <para name="data">结果提示</para>
@@ -250,7 +253,7 @@ namespace LJSheng.Web.Controllers
         /// 2016-06-30 林建生
         /// </remarks>
         [HttpPost]
-        public JsonResult AddCart(Guid ShopGid, Guid Gid, int Number)
+        public JsonResult AddCart(Guid ShopGid, Guid Gid, int Number, int DFH=0)
         {
             Guid MemberGid = LCookie.GetMemberGid();
             if (MemberGid == Guid.Parse("00000000-0000-0000-0000-000000000000"))
@@ -259,8 +262,8 @@ namespace LJSheng.Web.Controllers
             }
             else
             {
-                //借用订单处理
-                if (Number == 0)
+                //借用订单处理,代发货处理
+                if (Number == 0 || DFH==3)
                 {
                     Number = 1;
                     using (EFDB db = new EFDB())
@@ -273,6 +276,25 @@ namespace LJSheng.Web.Controllers
                         }
                     }
                 }
+                //else
+                //{
+                //    //有其他产品时候 删除代发货的产品
+                //    using (EFDB db = new EFDB())
+                //    {
+                //        var c = db.Cart.Where(l => l.MemberGid == MemberGid).ToList();
+                //        foreach (var dr in c)
+                //        {
+                //            db.Cart.Where(l => l.Gid == dr.Gid).Delete();
+                //            db.OrderDetails.Where(l => l.OrderGid == dr.Gid && l.State != 1).GroupJoin(db.ShopProduct,
+                //                                    l => l.ProductGid,
+                //                                    j => j.Gid,
+                //                                    (l, j) => new
+                //                                    {
+                //                                        j.FirstOrDefault().DFH
+                //                                    }).Where(l=>l.DFH==3).Delete();
+                //        }
+                //    }
+                //}
                 if (ShopOrder(Gid, ShopGid, MemberGid, Number))
                 {
                     return Json(new AjaxResult(Helper.OrderRMB(MemberGid)));
@@ -415,7 +437,8 @@ namespace LJSheng.Web.Controllers
                                     x.Number,
                                     y.FirstOrDefault().Name,
                                     y.FirstOrDefault().Picture,
-                                    y.FirstOrDefault().Price
+                                    y.FirstOrDefault().Price,
+                                    y.FirstOrDefault().DFH
                                 })
                     });
                 return Json(new AjaxResult(new
@@ -537,6 +560,7 @@ namespace LJSheng.Web.Controllers
                     l.Brand,
                     l.ClassifyGid,
                     l.Borrow,
+                    l.DFH,
                     Sales = db.OrderDetails.Where(od => od.ProductGid == l.Gid).GroupJoin(db.ShopOrder,
                     x => x.OrderGid,
                     y => y.Gid,
@@ -666,6 +690,48 @@ namespace LJSheng.Web.Controllers
                     pageindex,
                     list = b.OrderByDescending(l => l.Sales).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
                 }));
+            }
+        }
+
+        /// <summary>
+        /// 代发货申请
+        /// </summary>
+        /// <param name="ProductGid">申请的商品</param>
+        /// <returns>返回调用结果</returns>
+        /// <para name="result">200 是成功其他失败</para>
+        /// <para name="data">结果提示</para>
+        /// <remarks>
+        /// 2016-06-30 林建生
+        /// </remarks>
+        [HttpPost]
+        public JsonResult DFHSQ(Guid ProductGid)
+        {
+            Guid ShopGid = LCookie.GetShopGid();
+            if (ShopGid == Guid.Parse("00000000-0000-0000-0000-000000000000"))
+            {
+                return Json(new AjaxResult(300, "请先申请商家!"));
+            }
+            else
+            {
+                using (EFDB db = new EFDB())
+                {
+                    var d = db.DFH.Where(l => l.ShopGid == ShopGid && l.ProductGid == ProductGid).FirstOrDefault();
+                    if (d == null)
+                    {
+                        var b = new DFH();
+                        b.Gid = Guid.NewGuid();
+                        b.AddTime = DateTime.Now;
+                        b.ShopGid = ShopGid;
+                        b.ProductGid = ProductGid;
+                        b.State = 1;
+                        db.DFH.Add(b);
+                        return Json(new AjaxResult(db.SaveChanges()));
+                    }
+                    else
+                    {
+                        return Json(new AjaxResult(d.State == 1 ? "正在审核中" : "已申请发布过了"));
+                    }
+                }
             }
         }
     }

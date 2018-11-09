@@ -101,6 +101,41 @@
                     </ul>
                 </div>
             </div>
+
+            <div class="default-block">
+                <div class="default-block-title">
+                    营业额
+                </div>
+                <div class="turnover">
+                    <ul>
+                        <li>
+                            <span>￥@ViewBag.MPayPrice</span>
+                            <span>本月营业额</span>
+                        </li>
+                        <li>
+                            <span>￥@ViewBag.MDFH</span>
+                            <span>本月代发货营业额</span>
+                        </li>
+                        <li>
+                            <span>￥@ViewBag.PayPrice</span>
+                            <span>今日营业额</span>
+                        </li>
+                        <li>
+                            <span>￥@ViewBag.DFHProfit</span>
+                            <span>今日代发货营业额</span>
+                        </li>
+                        <li>
+                            <span>￥@ViewBag.MDFHProfit</span>
+                            <span>本月代发货分润总额</span>
+                        </li>
+                        <li>
+                            <span>￥@ViewBag.DFH</span>
+                            <span>昨日代发货总额</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
             <div class="freeze-integral-detail">
                 <div class="default-block integral">
                     <div class="default-block-title">
@@ -142,6 +177,13 @@
                                 <span>(可提：@ViewBag.ShopMoney )</span>
                             </span>
                             <img class="" src="/images/icon/icon-24.png" />
+                        </a>
+                        <a href="/Member/DFH" class="freeze-integral-item">
+                            <span>
+                                <img src="/images/icon/icon-71.png">
+                                代发货分润明细
+                            </span>
+                            <img class="" src="/images/icon/icon-24.png">
                         </a>
                         <a href="/Shop/CLMoney" class="freeze-integral-item">
                             <span>

@@ -70,31 +70,31 @@
                     <script id="tpl" type="text/html">
                         {{each list as item index}}
                         <div class="merchants-item">
-                            <a href="/SMall/Product?ShopGid={{item.ShopGid}}&Gid={{item.Gid}}&Borrow={{item.Borrow}}">
-                                <div class="merchants-item-img">
+                            <div class="merchants-item-img">
+                                <a href="/SMall/Product?ShopGid={{item.ShopGid}}&Gid={{item.Gid}}&Borrow={{item.Borrow}}">
                                     <img src="/uploadfiles/shop/{{item.ShopGid}}/{{item.Gid}}/logo.png" />
-                                </div>
-                                <div class="merchants-item-text">
-                                    <p class="merchants-item-title">{{item.Name}}</p>
-                                    <p class="merchants-item-sales">月销{{item.Sales}}</p>
-                                    <p class="merchants-item-price">
-                                        <span>
-                                            ￥{{item.Price}}
-                                        </span>
-                                        <span>
-                                            ￥{{item.OriginalPrice}}
-                                        </span>
-                                        <div class="merchants-item-status">
-                                            {{if item.Borrow=="1"}}
-                                            <img src="/images/icon/icon-66.png" />
-                                            {{else if item.Borrow=="2"}}
-                                            <img src="/images/icon/icon-65.png" />
-                                            {{else}}
-                                            {{/if}}
-                                        </div>
-                                    </p>
-                                </div>
-                            </a>
+                                </a>
+                            </div>
+                            <div class="merchants-item-text">
+                                <p class="merchants-item-title"><a href="/SMall/Product?ShopGid={{item.ShopGid}}&Gid={{item.Gid}}&Borrow={{item.Borrow}}">{{item.Name}}</a></p>
+                                <p class="merchants-item-sales">月销{{item.Sales}}<span onclick="df('{{item.Gid}}');" class="{{item.DFH==2?"":"hidden"}}">可代发</span></p>
+                                <p class="merchants-item-price">
+                                    <span>
+                                        ￥{{item.Price}}
+                                    </span>
+                                    <span>
+                                        ￥{{item.OriginalPrice}}
+                                    </span>
+                                    <div class="merchants-item-status">
+                                        {{if item.Borrow=="1"}}
+                                        <img src="/images/icon/icon-66.png" />
+                                        {{else if item.Borrow=="2"}}
+                                        <img src="/images/icon/icon-65.png" />
+                                        {{else}}
+                                        {{/if}}
+                                    </div>
+                                </p>
+                            </div>
                         </div>
                         {{/each}}
                     </script>
@@ -106,9 +106,73 @@
         <input name="ShopGid" type="text" value="@Request.QueryString["Gid"]" class="hidden">
         <input name="ClassifyGid" type="text" value="@Request.QueryString["ClassifyGid"]" class="hidden">
     </div>
+
+    <div class="undertakes-modal ok">
+        <div class="undertakes-modal-content">
+            <div class="undertakes-modal-text">
+                恭喜你,申请成功
+            </div>
+            <div class="undertakes-modal-text">
+                <ul>
+                    <li>电话客服: <a href="tel:059187660172">0591-87660172</a></li>
+                    <li>电话客服 : FJLSKF</li>
+                    <li>QQ客服 : 3379407843</li>
+                </ul>
+            </div>
+            <div class="undertakes-modal-btn">
+                确定
+            </div>
+        </div>
+    </div>
+
+    <div class="undertakes-modal shop">
+        <div class="undertakes-modal-content">
+            <div class="undertakes-modal-text">
+                请申请成为商家
+            </div>
+            <div class="undertakes-modal-btn">
+                <a href="/Member/ToShop">确定</a>
+            </div>
+        </div>
+    </div>
+
+
     <script src="/js/jquery.js"></script>
     <script src="/js/template-web.js"></script>
     <script src="/plugins/mescroll/mescroll.js"></script>
     <script src="/js/mlist.js"></script>
+    <script>
+        function df(ProductGid) {
+            $.ajax({
+                url: "/SMall/DFHSQ",
+                data: "ProductGid=" + ProductGid,
+                type: "post",
+                cache: false,
+                timeout: 8000,
+                dataType: "json",
+                ContentType: "application/json; charset=utf-8",
+                error: function () { alert('请求超时!'); },
+                beforeSend: function () { },
+                success: function (data) {
+                    if (data.result === 200) {
+                        if (data.data == 1) {
+                            $(".ok").addClass("active");
+                        }
+                        else {
+                            alert(data.data);
+                        }
+                    }
+                    else {
+                        $(".shop").addClass("active");
+                    }
+                },
+            });
+        }
+        //关闭模态框
+        $(".undertakes-modal").click(function () {
+            $(this).removeClass("active");
+        });
+    </script>
+
 </body>
 </html>
