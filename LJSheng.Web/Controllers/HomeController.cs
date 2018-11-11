@@ -27,7 +27,7 @@ namespace LJSheng.Web.Controllers
         }
         public ActionResult APP()
         {
-            return new RedirectResult("https://fir.im/frkm");
+            return new RedirectResult("https://fir.im/du9t");
         }
         /// <summary>
         /// 项目跳转

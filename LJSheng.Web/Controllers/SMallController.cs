@@ -263,9 +263,8 @@ namespace LJSheng.Web.Controllers
             else
             {
                 //借用订单处理,代发货处理
-                if (Number == 0 || DFH==3)
+                if (DFH==3)
                 {
-                    Number = 1;
                     using (EFDB db = new EFDB())
                     {
                         var c = db.Cart.Where(l => l.MemberGid == MemberGid).ToList();
@@ -276,25 +275,32 @@ namespace LJSheng.Web.Controllers
                         }
                     }
                 }
-                //else
-                //{
-                //    //有其他产品时候 删除代发货的产品
-                //    using (EFDB db = new EFDB())
-                //    {
-                //        var c = db.Cart.Where(l => l.MemberGid == MemberGid).ToList();
-                //        foreach (var dr in c)
-                //        {
-                //            db.Cart.Where(l => l.Gid == dr.Gid).Delete();
-                //            db.OrderDetails.Where(l => l.OrderGid == dr.Gid && l.State != 1).GroupJoin(db.ShopProduct,
-                //                                    l => l.ProductGid,
-                //                                    j => j.Gid,
-                //                                    (l, j) => new
-                //                                    {
-                //                                        j.FirstOrDefault().DFH
-                //                                    }).Where(l=>l.DFH==3).Delete();
-                //        }
-                //    }
-                //}
+                else
+                {
+                    //有其他产品时候 删除代发货的产品
+                    using (EFDB db = new EFDB())
+                    {
+                        var cop = db.OrderDetails.Where(l => l.State != 1).GroupJoin(db.Cart.Where(c=>c.MemberGid == MemberGid),
+                                                    l => l.OrderGid,
+                                                    j => j.Gid,
+                                                    (l, j) => new
+                                                    {
+                                                        l.Gid,
+                                                        l.ProductGid
+                                                    }).GroupJoin(db.ShopProduct,
+                                                    l => l.ProductGid,
+                                                    j => j.Gid,
+                                                    (l, j) => new
+                                                    {
+                                                        l.Gid,
+                                                        j.FirstOrDefault().DFH
+                                                    }).Where(l => l.DFH == 3).ToList();
+                        foreach (var dr in cop)
+                        {
+                            db.OrderDetails.Where(l => l.Gid == dr.Gid).Delete();
+                        }
+                    }
+                }
                 if (ShopOrder(Gid, ShopGid, MemberGid, Number))
                 {
                     return Json(new AjaxResult(Helper.OrderRMB(MemberGid)));

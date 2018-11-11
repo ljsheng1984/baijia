@@ -178,7 +178,7 @@
         $(".use-terms-btn").click(function () {
             $.ajax({
                 url: "/SMall/AddCart",
-                data: "ShopGid=@Request.QueryString["ShopGid"]&Gid=@Request.QueryString["PGid"]&Number=0",
+                data: "ShopGid=@Request.QueryString["ShopGid"]&Gid=@Request.QueryString["PGid"]&Number=1&DFH=3",
                 type: "post",
                 cache: false,
                 timeout: 8000,
