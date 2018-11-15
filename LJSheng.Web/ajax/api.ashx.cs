@@ -458,7 +458,10 @@ namespace LJSheng.Web.ajax
                     //更新抢单信息
                     b.Express = Express;
                     b.ExpressNumber = ExpressNumber;
-                    b.ExpressStatus = 2;
+                    if (b.ExpressStatus < 3)
+                    {
+                        b.ExpressStatus = 2;
+                    }
                     b.DeliveryTime = DateTime.Now;
                     if (db.SaveChanges() == 1)
                     {

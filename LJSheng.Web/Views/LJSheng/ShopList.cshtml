@@ -28,7 +28,7 @@
                 <select class="form-control" name="QX">
                     <option value="0">=全 部=</option>
                     <option value="1">可借用</option>
-                    <option value="2">代发货</option>
+                    <option value="2">待发货</option>
                 </select>
                 <span class="input-group-addon">手机号</span>
                 <input type="text" name="Account" class="form-control" onkeyup="value=value.replace(/[^\d]/g,'');">
@@ -111,7 +111,7 @@
                     <td>
                         <div class="btn-group">
                             <button class="btn" onclick="Show('{{item.Name}}','ShopProductList?ShopGid={{item.Gid}}');">查看商品</button>
-                            <button class="btn hidden" onclick="Show('{{item.Name}}','ShopProductAU?ShopGid={{item.Gid}}');">添加商品</button>
+                            <button class="btn" onclick="Show('{{item.Name}}','ShopProductAU?ShopGid={{item.Gid}}');">添加商品</button>
                         </div>
                     </td>
                     <td>

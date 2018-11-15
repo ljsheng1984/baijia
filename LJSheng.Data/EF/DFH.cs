@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 namespace LJSheng.Data
 {
     /// <summary>
-    /// 代发货申请
+    /// 待发货申请
     /// </summary>
     public partial class DFH
     {

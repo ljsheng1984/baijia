@@ -2085,7 +2085,9 @@ namespace LJSheng.Web.Controllers
                     ViewBag.Type = 1;
                     ViewBag.Sort = 1;
                     ViewBag.Show = 1;
+                    ViewBag.BuyPrice = 0;
                     ViewBag.MPrice = 0;
+                    ViewBag.GiveStock = 0;
                     ViewBag.ClassifyGid = Guid.Parse("00000000-0000-0000-0000-000000000000");
                 }
                 int Project = Int32.Parse(Request.QueryString["Project"]);
@@ -4893,6 +4895,8 @@ namespace LJSheng.Web.Controllers
                 }
                 else
                 {
+                    ViewBag.Type = "Add";
+                    ViewBag.DFH = 1;
                     ViewBag.Prefix = "";
                     ViewBag.Stock = "";
                     ViewBag.Price = "";
@@ -4914,7 +4918,7 @@ namespace LJSheng.Web.Controllers
             using (EFDB db = new EFDB())
             {
                 ShopProduct b;
-                if (Gid == null || !string.IsNullOrEmpty(Request.Form["DFHGid"]))
+                if (Gid == null || Request.Form["Type"] == "Add" || !string.IsNullOrEmpty(Request.Form["DFHGid"]))
                 {
                     b = new ShopProduct();
                     b.Gid = Guid.Parse(Request.Form["Gid"]);
@@ -4951,7 +4955,7 @@ namespace LJSheng.Web.Controllers
                 //{
                 //    b.GraphicDetails = Request.Form["GraphicDetails"];
                 //}
-                if (Gid == null || !string.IsNullOrEmpty(Request.Form["DFHGid"]))
+                if (Gid == null || Request.Form["Type"] == "Add" || !string.IsNullOrEmpty(Request.Form["DFHGid"]))
                 {
                     db.ShopProduct.Add(b);
                 }
@@ -5585,6 +5589,11 @@ namespace LJSheng.Web.Controllers
                     {
                         b = b.Where(l => l.ReturnType != 0);
                     }
+                }
+                int DFH = int.Parse(paramJson["DFH"].ToString());
+                if (DFH != 0)
+                {
+                    b = b.Where(l => l.DFH == DFH);
                 }
                 //时间查询
                 if (!string.IsNullOrEmpty(STime) || !string.IsNullOrEmpty(ETime))
@@ -6956,7 +6965,7 @@ namespace LJSheng.Web.Controllers
         }
         #endregion
 
-        #region 代发货
+        #region 待发货
         // 列表管理
         public ActionResult DFHList()
         {

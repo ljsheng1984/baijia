@@ -202,7 +202,7 @@ namespace LJSheng.Data
         /// </summary>
         public DbSet<Cart> Cart { get; set; }
         /// <summary>
-        /// 代发货商品申请列表
+        /// 待发货商品申请列表
         /// </summary>
         public DbSet<DFH> DFH { get; set; }
     }

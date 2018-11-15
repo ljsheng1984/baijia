@@ -580,6 +580,7 @@ namespace LJSheng.Web.Controllers
                 ViewBag.OrderNo = b.OrderNo;
                 ViewBag.TradeNo = b.TradeNo;
                 ViewBag.Remarks = b.Remarks;
+                ViewBag.ExpressStatus = b.ExpressStatus;
                 ViewBag.Express = b.Express;
                 ViewBag.ExpressNumber = b.ExpressNumber;
                 if (b.RobGid != null)
@@ -1692,14 +1693,22 @@ namespace LJSheng.Web.Controllers
                     b.ExpressStatus = 3;
                     if (db.SaveChanges() == 1)
                     {
-                        Guid ShopGid = db.Shop.Where(l => l.Gid == b.ShopGid).FirstOrDefault().MemberGid;
-                        if (db.Member.Where(l => l.Gid == ShopGid).Update(l => new Member { ShopMoney = l.ShopMoney + b.PayPrice }) == 1)
+                        //正常订单才加货款
+                        if (b.DFHProfit == 0)
                         {
-                            return Json(new AjaxResult("确认成功"));
+                            Guid ShopGid = db.Shop.Where(l => l.Gid == b.ShopGid).FirstOrDefault().MemberGid;
+                            if (db.Member.Where(l => l.Gid == ShopGid).Update(l => new Member { ShopMoney = l.ShopMoney + b.PayPrice }) == 1)
+                            {
+                                return Json(new AjaxResult("确认成功"));
+                            }
+                            else
+                            {
+                                LogManager.WriteLog("确认订单成功货款失败", "商家=" + ShopGid + ",订单=" + Gid + ",操作会员=" + MemberGid + ", PayPrice=" + b.PayPrice);
+                            }
                         }
                         else
                         {
-                            LogManager.WriteLog("确认订单成功货款失败", "商家=" + ShopGid + ",订单=" + Gid+ ",操作会员="+ MemberGid +", PayPrice=" + b.PayPrice);
+                            return Json(new AjaxResult("确认成功"));
                         }
                     }
                 }
@@ -1950,7 +1959,7 @@ namespace LJSheng.Web.Controllers
                 ViewBag.Integral = b.Money;
                 //获取兑换比例积分
                 decimal avg = AppApi.AVG(TB);
-                ViewBag.FBCC = avg;
+                ViewBag.BCCB = avg;
                 ////查询兑换比例
                 //ViewBag.BCCB = 1 / AppApi.AVG(1);
                 //ViewBag.FBCC = 1 / AppApi.AVG(2);
@@ -2406,7 +2415,7 @@ namespace LJSheng.Web.Controllers
         }
 
         /// <summary>
-        /// 代发货订单
+        /// 待发货订单
         /// </summary>
         public ActionResult DFH()
         {
@@ -2432,10 +2441,10 @@ namespace LJSheng.Web.Controllers
                 json = HttpUtility.UrlDecode(sr.ReadLine());
             }
             JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
-            Guid MemberGid = LCookie.GetMemberGid();
+            Guid ShopGid = LCookie.GetShopGid();
             using (EFDB db = new EFDB())
             {
-                var b = db.ShopOrder.Where(l => l.MemberGid == MemberGid && l.PayStatus < 3 && l.DFHProfit>0).AsQueryable();
+                var b = db.ShopOrder.Where(l => l.ShopGid == ShopGid && l.PayStatus < 3 && l.DFHProfit>0).AsQueryable();
                 int pageindex = Int32.Parse(paramJson["pageindex"].ToString());
                 int pagesize = Int32.Parse(paramJson["pagesize"].ToString());
                 return Json(new AjaxResult(new

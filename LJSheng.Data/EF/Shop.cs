@@ -155,7 +155,7 @@ namespace LJSheng.Data
         public int Borrow { get; set; }
 
         /// <summary>
-        /// 代发货权限[0=默认 1=申请中 2=已通过]
+        /// 待发货权限[0=默认 1=申请中 2=已通过]
         /// </summary>
         public int Consignment { get; set; }
     }

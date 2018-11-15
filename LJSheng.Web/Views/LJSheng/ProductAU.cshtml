@@ -93,13 +93,13 @@
                 <input type="text" name="Price" value="@ViewBag.Price" class="form-control" placeholder="必填项,需要支付价格" onkeyup="value=value.replace(/[^\d.]/g,'');">
             </div>
         </div>
-        <div class="form-group">
+        <div class="form-group hidden">
             <label class="col-sm-2">进货价</label>
             <div class="col-md-3 col-sm-5">
                 <input type="text" name="BuyPrice" value="@ViewBag.BuyPrice" class="form-control" placeholder="必填项,只能是数字" onkeyup="value=value.replace(/[^\d.]/g,'');">
             </div>
         </div>
-        <div class="form-group">
+        <div class="form-group hidden">
             <label class="col-sm-2">会员单价</label>
             <div class="col-md-3 col-sm-5">
                 <input type="text" name="MPrice" value="@ViewBag.MPrice" class="form-control" placeholder="必填项,只能是数字" onkeyup="value=value.replace(/[^\d.]/g,'');">

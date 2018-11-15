@@ -500,9 +500,9 @@ namespace LJSheng.Web.Controllers
                 Guid MGid = LCookie.GetMemberGid();
                 //如果是积分支付先验证支付密码
                 var m = db.Member.Where(l => l.Gid == MGid).FirstOrDefault();
-                //代发货利润
+                //待发货利润
                 decimal DFHProfit = 0;
-                //代发货等级比例
+                //待发货等级比例
                 decimal DFHLV = db.Level.Where(l => l.LV == m.CLLevel).FirstOrDefault().EquityProfit;
                 if (PayType == 5)
                 {
@@ -577,27 +577,19 @@ namespace LJSheng.Web.Controllers
                         b.PayPrice = 0;
                         b.Profit = 0;
                         b.ConsumptionCode = RandStr.CreateValidateNumber(8);
-                        if (DFHProfit > 0)
-                        {
-                            b.Status = 2;
-                            b.ExpressStatus = 3;
-                        }
-                        else
-                        {
-                            b.Status = 1;
-                            b.ExpressStatus = 1;
-                        }
-                        b.Remarks = Remarks;
-                        b.Address = Address;
-                        b.ContactNumber = ContactNumber;
-                        b.RealName = RealName;
                         b.ReturnType = ReturnType;
                         if (ReturnType != 0)
                         {
                             b.BorrowTime = b.AddTime.AddMonths(3);
                             b.Product = pg;
                         }
-                        //代发货
+                        b.Status = 1;
+                        b.ExpressStatus = 1;
+                        b.Remarks = Remarks;
+                        b.Address = Address;
+                        b.ContactNumber = ContactNumber;
+                        b.RealName = RealName;
+                        //待发货
                         b.DFHProfit = DFHProfit;
                         b.DFHLV = DFHLV;
                         b.DFHState = 1;

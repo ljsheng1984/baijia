@@ -201,7 +201,7 @@ namespace LJSheng.Data
         public string RContactNumber { get; set; }
 
         /// <summary>
-        /// 发货利润-为0不是代发货订单
+        /// 发货利润-为0不是待发货订单
         /// </summary>
         public decimal DFHProfit { get; set; }
 

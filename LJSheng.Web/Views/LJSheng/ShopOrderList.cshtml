@@ -38,8 +38,14 @@
                 <span class="input-group-addon fix-padding">-</span>
                 <select class="form-control" name="ReturnType">
                     <option value="0" selected>= 借用状态 =</option>
-                    <option value="1" @(Request.QueryString["ReturnType"]=="1"?"selected":"")>非借用</option>
-                    <option value="2" @(Request.QueryString["ReturnType"]=="2"?"selected":"")>借用单</option>
+                    <option value="1" @(Request.QueryString["ReturnType"] == "1" ? "selected" : "")>非借用</option>
+                    <option value="2" @(Request.QueryString["ReturnType"] == "2" ? "selected" : "")>借用单</option>
+                </select>
+                <span class="input-group-addon fix-padding">-</span>
+                <select class="form-control" name="DFH">
+                    <option value="0" selected>= 发货状态 =</option>
+                    <option value="1" @(Request.QueryString["DFH"] == "1" ? "selected" : "")>商家</option>
+                    <option value="2" @(Request.QueryString["DFH"] == "2" ? "selected" : "")>公司</option>
                 </select>
             </div>
         </div>

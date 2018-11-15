@@ -27,7 +27,14 @@ namespace LJSheng.Web.Controllers
                     }
                     else
                     {
-                        return Helper.Redirect("当前城市没有开通", "history.go(-1);", "当前城市没有开通");
+                        if (City != "全国")
+                        {
+                            LCookie.AddCookie("city", "全国", 30);
+                        }
+                        else
+                        {
+                            return Helper.Redirect("当前城市没有开通", "history.go(-1);", "当前城市没有开通");
+                        }
                     }
                 }
                 //获取广告
@@ -72,7 +79,11 @@ namespace LJSheng.Web.Controllers
                         j.FirstOrDefault().Show,
                         j.FirstOrDefault().State,
                         j.FirstOrDefault().City
-                    }).Where(l => l.Show == 1 && l.State == 2 && l.City == City).DistinctBy(l => new { l.ShopGid }).AsQueryable();
+                    }).Where(l => l.Show == 1 && l.State == 2).DistinctBy(l => new { l.ShopGid }).AsQueryable();
+                if (City != "全国")
+                {
+                    b = b.Where(l => l.City == City);
+                }
                 if (paramJson["Project"].ToString()!="00")
                 {
                     int Project = int.Parse(paramJson["Project"].ToString());
@@ -245,7 +256,7 @@ namespace LJSheng.Web.Controllers
         /// <param name="ShopGid">商家Gid</param>
         /// <param name="Gid">产品Gid</param>
         /// <param name="Number">数量</param>
-        /// <param name="DFH">是否代发货产品</param>
+        /// <param name="DFH">是否待发货产品</param>
         /// <returns>返回调用结果</returns>
         /// <para name="result">200 是成功其他失败</para>
         /// <para name="data">结果提示</para>
@@ -262,7 +273,7 @@ namespace LJSheng.Web.Controllers
             }
             else
             {
-                //借用订单处理,代发货处理
+                //借用订单处理,待发货处理
                 if (DFH==3)
                 {
                     using (EFDB db = new EFDB())
@@ -277,7 +288,7 @@ namespace LJSheng.Web.Controllers
                 }
                 else
                 {
-                    //有其他产品时候 删除代发货的产品
+                    //有其他产品时候 删除待发货的产品
                     using (EFDB db = new EFDB())
                     {
                         var cop = db.OrderDetails.Where(l => l.State != 1).GroupJoin(db.Cart.Where(c=>c.MemberGid == MemberGid),
@@ -700,7 +711,7 @@ namespace LJSheng.Web.Controllers
         }
 
         /// <summary>
-        /// 代发货申请
+        /// 待发货申请
         /// </summary>
         /// <param name="ProductGid">申请的商品</param>
         /// <returns>返回调用结果</returns>
@@ -721,21 +732,37 @@ namespace LJSheng.Web.Controllers
             {
                 using (EFDB db = new EFDB())
                 {
-                    var d = db.DFH.Where(l => l.ShopGid == ShopGid && l.ProductGid == ProductGid).FirstOrDefault();
-                    if (d == null)
+                    int State = db.Shop.Where(l => l.Gid == ShopGid).FirstOrDefault().State;
+                    if (State == 1)
                     {
-                        var b = new DFH();
-                        b.Gid = Guid.NewGuid();
-                        b.AddTime = DateTime.Now;
-                        b.ShopGid = ShopGid;
-                        b.ProductGid = ProductGid;
-                        b.State = 1;
-                        db.DFH.Add(b);
-                        return Json(new AjaxResult(db.SaveChanges()));
+                        return Json(new AjaxResult(301,"商家还在审核阶段"));
                     }
                     else
                     {
-                        return Json(new AjaxResult(d.State == 1 ? "正在审核中" : "已申请发布过了"));
+                        int c = db.ShopClassify.Where(l => l.ShopGid == ShopGid).Count();
+                        if (c == 0)
+                        {
+                            return Json(new AjaxResult(302,"请先添加商家分类之后再来申请"));
+                        }
+                        else
+                        {
+                            var d = db.DFH.Where(l => l.ShopGid == ShopGid && l.ProductGid == ProductGid).FirstOrDefault();
+                            if (d == null)
+                            {
+                                var b = new DFH();
+                                b.Gid = Guid.NewGuid();
+                                b.AddTime = DateTime.Now;
+                                b.ShopGid = ShopGid;
+                                b.ProductGid = ProductGid;
+                                b.State = 1;
+                                db.DFH.Add(b);
+                                return Json(new AjaxResult(db.SaveChanges()));
+                            }
+                            else
+                            {
+                                return Json(new AjaxResult(d.State == 1 ? "正在审核中" : "已申请发布过了"));
+                            }
+                        }
                     }
                 }
             }

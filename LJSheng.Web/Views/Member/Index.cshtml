@@ -49,9 +49,19 @@
                     <span>@ViewBag.FBCC</span>
                 </span>
             </div>
-            <div class="my-token-item">
+            <div class="my-token-item" style="display:none;">
                 <img src="/images/icon/icon-2.png" />
-                <span class="my-token-item-titlt">我的溯源码:</span>
+                <span class="my-token-item-titlt">我的金字塔:</span>
+                <span class="my-token-item-price">
+                    库存=@ViewBag.Stock
+                    <a href="/Member/CL?LockStock=@ViewBag.LockStock">
+                        <img src="/images/icon/icon-25.png" />
+                    </a>
+                </span>
+            </div>
+            <div class="my-token-item" style="display:none;">
+                <img src="/images/icon/icon-2.png" />
+                <span class="my-token-item-titlt">能量塔待处理订单</span>
                 <span class="my-token-item-price">
                     库存=@ViewBag.Stock
                     <a href="/Member/CL?LockStock=@ViewBag.LockStock">
@@ -157,7 +167,7 @@
             <div class="concat-item">
                 <a href="/Member/SendCL">
                     <img src="/images/icon/icon-9.png" />
-                    <p>转赠溯源码</p>
+                    <p>转赠金字塔</p>
                 </a>
             </div>
             <div class="concat-item">

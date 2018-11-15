@@ -56,7 +56,7 @@ namespace LJSheng.Data
         public decimal Profit { get; set; }
 
         /// <summary>
-        /// 代发货利润
+        /// 待发货利润
         /// </summary>
         public decimal EquityProfit { get; set; }
 

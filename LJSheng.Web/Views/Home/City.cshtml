@@ -11,6 +11,7 @@
     <span class="search-btn" onclick="s();">搜索</span>
 </div>
 <ul class="city-ul">
+    <li class="cell"><a href="/SMall/Index?City=全国">全国</a></li>
     @foreach (var item in Model)
     {
         <li class="cell"><a href="/SMall/Index?City=@item.City">@item.City</a></li>

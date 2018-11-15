@@ -136,6 +136,28 @@
         </div>
     </div>
 
+    <div class="undertakes-modal shop301">
+        <div class="undertakes-modal-content">
+            <div class="undertakes-modal-text">
+                商家还在审核阶段
+            </div>
+            <div class="undertakes-modal-btn">
+                <a href="/Shop/Index">确定</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="undertakes-modal shop302">
+        <div class="undertakes-modal-content">
+            <div class="undertakes-modal-text">
+                请先添加商家分类之后再来申请
+            </div>
+            <div class="undertakes-modal-btn">
+                <a href="/Shop/ShopClassify">确定</a>
+            </div>
+        </div>
+    </div>
+
 
     <script src="/js/jquery.js"></script>
     <script src="/js/template-web.js"></script>
@@ -163,7 +185,11 @@
                         }
                     }
                     else {
-                        $(".shop").addClass("active");
+                        if (data.result === 301) { $(".shop301").addClass("active"); }
+                        else if (data.result === 302) { $(".shop302").addClass("active"); }
+                        else {
+                            $(".shop").addClass("active");
+                        }
                     }
                 },
             });

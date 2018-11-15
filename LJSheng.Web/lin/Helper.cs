@@ -187,12 +187,13 @@ namespace LJSheng.Web
                 //购买增加的库存
                 int Number = Product.AllStock;
                 //需要支付金额
-                decimal TotalPrice = Member.BuyPrice == 0 ? Product.Price : Member.BuyPrice * Product.Stock;
+                decimal TotalPrice = Product.Price;
+                //decimal TotalPrice = Member.BuyPrice == 0 ? Product.Price : Member.BuyPrice * Product.Stock;
                 //要是会员价大于实际商品价格按商品价格
-                if (TotalPrice > Product.Price)
-                {
-                    TotalPrice = Product.Price;
-                }
+                //if (TotalPrice > Product.Price)
+                //{
+                //    TotalPrice = Product.Price;
+                //}
                 //获得的积分和购物积分
                 decimal Money = 0;
                 decimal Integral = 0;
@@ -1494,7 +1495,7 @@ namespace LJSheng.Web
                     b.ConsumptionCode = RandStr.CreateValidateNumber(8);
                     b.Status = 1;
                     b.ReturnType = 0;
-                    //代发货
+                    //待发货
                     b.DFHProfit = 0;
                     b.DFHLV = 0;
                     b.DFHState = 1;
@@ -2109,6 +2110,7 @@ namespace LJSheng.Web
                 LCookie.DelCookie("member");
                 LCookie.DelCookie("city");
                 LCookie.DelCookie("shop");
+                LCookie.DelCookie("openid");
                 //会员登录信息
                 var b = db.Member.Where(l => l.Gid == Gid).Select(l => new
                 {
@@ -2139,11 +2141,7 @@ namespace LJSheng.Web
                     b.Level
                 })), 30);
                 //商家登录信息
-                var s = db.Shop.Where(l => l.MemberGid == b.Gid).FirstOrDefault();
-                if (s != null)
-                {
-                    SLogin(s.Gid);
-                }
+                SLogin(Gid);
                 //设置用户读取数据的城市
                 if (string.IsNullOrEmpty(LCookie.GetCity().Trim()))
                 {
@@ -2166,26 +2164,20 @@ namespace LJSheng.Web
         {
             using (EFDB db = new EFDB())
             {
-                LCookie.DelCookie("shop");
                 //会员登录信息
-                var b = db.Shop.Where(l => l.Gid == Gid).Select(l => new
+                var b = db.Shop.Where(l => l.MemberGid == Gid).Select(l => new
                 {
                     l.Gid,
-                    l.Name,
-                    l.USCI,
-                    l.LegalPerson,
-                    l.Licence,
-                    l.Picture
+                    l.Name
                 }).FirstOrDefault();
-                LCookie.AddCookie("shop", DESRSA.DESEnljsheng(JsonConvert.SerializeObject(new
+                if (b != null)
                 {
-                    b.Gid,
-                    b.Name,
-                    b.USCI,
-                    b.LegalPerson,
-                    b.Licence,
-                    b.Picture
-                })), 1);
+                    LCookie.AddCookie("shop", DESRSA.DESEnljsheng(JsonConvert.SerializeObject(new
+                    {
+                        b.Gid,
+                        b.Name
+                    })), 30);
+                }
             }
         }
         #endregion

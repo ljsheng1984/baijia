@@ -30,40 +30,47 @@ namespace LJSheng.Web.Controllers
             {
                 Guid ShopGid = LCookie.GetShopGid();
                 var b = db.Shop.Where(l => l.Gid == ShopGid).FirstOrDefault();
-                Guid MemberGid = b.MemberGid;
-                ViewBag.Name = b.Name;
-                ViewBag.State = b.State;
-                ViewBag.Gid = ShopGid;
-                var o = db.ShopOrder.Where(l => l.ShopGid == ShopGid && l.PayStatus==1);
-                ViewBag.Order = o.Where(l => l.Status == 1).Count();
-                //本月营业额
-                DateTime MonthFirst = DTime.FirstDayOfMonth(DateTime.Now);
-                DateTime MonthLast = DTime.LastDayOfMonth(DateTime.Parse(DateTime.Now.ToString("yyyy-MM-dd") + " 23:59:59"));
-                ViewBag.MPayPrice = o.Where(l => l.Status == 1 && l.PayTime >= MonthFirst && l.PayTime <= MonthLast).Select(l => l.PayPrice).DefaultIfEmpty(0m).Sum();
-                //本月代发货营业额
-                ViewBag.MDFH = o.Where(l => l.Status == 1 && l.PayTime >= MonthFirst && l.PayTime <= MonthLast && l.DFHProfit>0).Select(l => l.PayPrice).DefaultIfEmpty(0m).Sum();
-                //本月代发货分润总额
-                ViewBag.MDFHProfit = o.Where(l => l.Status == 1 && l.PayTime >= MonthFirst && l.PayTime <= MonthLast && l.DFHProfit > 0).Select(l => l.DFHProfit).DefaultIfEmpty(0m).Sum();
-                //今日营业额
-                string date = DateTime.Now.ToString("yyyy-MM-dd");
-                DateTime SDate = DateTime.Parse(date + " 00:00:00");
-                DateTime EDate = DateTime.Parse(date + " 23:59:59");
-                ViewBag.PayPrice = o.Where(l => l.Status == 1 && l.PayTime >= SDate && l.PayTime <= EDate).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
-                //今日代发货营业额
-                ViewBag.DFHProfit = o.Where(l => l.Status == 1 && l.PayTime >= SDate && l.PayTime <= EDate && l.DFHProfit > 0).Select(l => l.PayPrice).DefaultIfEmpty(0m).Sum();
-                date = SDate.AddDays(-1).ToString("yyyy-MM-dd");
-                SDate = DateTime.Parse(date + " 00:00:00");
-                EDate = DateTime.Parse(date + " 23:59:59");
-                //昨日代发货总额
-                ViewBag.DFH = o.Where(l => l.Status == 1 && l.PayTime >= SDate && l.PayTime <= EDate && l.DFHProfit > 0).Select(l => l.PayPrice).DefaultIfEmpty(0m).Sum();
+                if (b != null)
+                {
+                    Guid MemberGid = b.MemberGid;
+                    ViewBag.Name = b.Name;
+                    ViewBag.State = b.State;
+                    ViewBag.Gid = ShopGid;
+                    var o = db.ShopOrder.Where(l => l.ShopGid == ShopGid && l.PayStatus == 1);
+                    ViewBag.Order = o.Where(l => l.Status == 1).Count();
+                    //本月营业额
+                    DateTime MonthFirst = DTime.FirstDayOfMonth(DateTime.Now);
+                    DateTime MonthLast = DTime.LastDayOfMonth(DateTime.Parse(DateTime.Now.ToString("yyyy-MM-dd") + " 23:59:59"));
+                    ViewBag.MPayPrice = o.Where(l => l.Status == 1 && l.PayTime >= MonthFirst && l.PayTime <= MonthLast).Select(l => l.PayPrice).DefaultIfEmpty(0m).Sum();
+                    //本月待发货营业额
+                    ViewBag.MDFH = o.Where(l => l.Status == 1 && l.PayTime >= MonthFirst && l.PayTime <= MonthLast && l.DFHProfit > 0).Select(l => l.PayPrice).DefaultIfEmpty(0m).Sum();
+                    //本月待发货分润总额
+                    ViewBag.MDFHProfit = o.Where(l => l.Status == 1 && l.PayTime >= MonthFirst && l.PayTime <= MonthLast && l.DFHProfit > 0).Select(l => l.DFHProfit).DefaultIfEmpty(0m).Sum();
+                    //今日营业额
+                    string date = DateTime.Now.ToString("yyyy-MM-dd");
+                    DateTime SDate = DateTime.Parse(date + " 00:00:00");
+                    DateTime EDate = DateTime.Parse(date + " 23:59:59");
+                    ViewBag.PayPrice = o.Where(l => l.Status == 1 && l.PayTime >= SDate && l.PayTime <= EDate).Select(l => l.Price).DefaultIfEmpty(0m).Sum();
+                    //今日待发货营业额
+                    ViewBag.DFHProfit = o.Where(l => l.Status == 1 && l.PayTime >= SDate && l.PayTime <= EDate && l.DFHProfit > 0).Select(l => l.PayPrice).DefaultIfEmpty(0m).Sum();
+                    date = SDate.AddDays(-1).ToString("yyyy-MM-dd");
+                    SDate = DateTime.Parse(date + " 00:00:00");
+                    EDate = DateTime.Parse(date + " 23:59:59");
+                    //昨日待发货总额
+                    ViewBag.DFH = o.Where(l => l.Status == 1 && l.PayTime >= SDate && l.PayTime <= EDate && l.DFHProfit > 0).Select(l => l.PayPrice).DefaultIfEmpty(0m).Sum();
 
-                ViewBag.ShopMoney = db.Member.Where(l => l.Gid == MemberGid).FirstOrDefault().ShopMoney;
-                //库存
-                Guid ProductGid = Helper.GetProductGid();
-                var ms = db.Stock.Where(l => l.MemberGid == MemberGid && l.ProductGid == ProductGid).FirstOrDefault();
-                ViewBag.Stock = ms == null ? 0 : ms.Number;
+                    ViewBag.ShopMoney = db.Member.Where(l => l.Gid == MemberGid).FirstOrDefault().ShopMoney;
+                    //库存
+                    Guid ProductGid = Helper.GetProductGid();
+                    var ms = db.Stock.Where(l => l.MemberGid == MemberGid && l.ProductGid == ProductGid).FirstOrDefault();
+                    ViewBag.Stock = ms == null ? 0 : ms.Number;
+                    return View();
+                }
+                else
+                {
+                    return Helper.Redirect("操作失败", "/Member/ToShop", "请先去申请为商家");
+                }
             }
-            return View();
         }
         /// <summary>
         /// 增加编辑
@@ -183,7 +190,7 @@ namespace LJSheng.Web.Controllers
                 }
                 if (db.SaveChanges() == 1)
                 {
-                    Helper.SLogin(Gid);
+                    Helper.SLogin(b.MemberGid);
                     return Helper.Redirect("操作成功！", "history.go(-1);", "操作成功!");
                 }
                 else
@@ -214,7 +221,7 @@ namespace LJSheng.Web.Controllers
                 }
                 if (db.SaveChanges() == 1)
                 {
-                    Helper.SLogin(Gid);
+                    Helper.SLogin(b.MemberGid);
                     return Helper.Redirect("操作成功！", "history.go(-1);", "操作成功!");
                 }
                 else
@@ -436,18 +443,19 @@ namespace LJSheng.Web.Controllers
                 {
                     var m = db.Member.Where(l => l.Gid == gid).FirstOrDefault();
                     CLMoney = m.CLMoney;
-                    if (CLMoney >= RMB)
-                    {
-                        m.CLMoney = CLMoney - RMB;
-                        if (db.SaveChanges() != 1)
-                        {
-                            tf = false;
-                        }
-                    }
-                    else
-                    {
-                        return Helper.Redirect("操作失败！", "/Shop/CLMoney", "你的额度(" + CLMoney.ToString() + ")不足发布总价(" + RMB.ToString() + ")" + ",请先兑换!");
-                    }
+                    //扣除发布的彩链包额度
+                    //if (CLMoney >= RMB)
+                    //{
+                    //    m.CLMoney = CLMoney - RMB;
+                    //    if (db.SaveChanges() != 1)
+                    //    {
+                    //        tf = false;
+                    //    }
+                    //}
+                    //else
+                    //{
+                    //    return Helper.Redirect("操作失败！", "/Shop/CLMoney", "你的额度(" + CLMoney.ToString() + ")不足发布总价(" + RMB.ToString() + ")" + ",请先兑换!");
+                    //}
                 }
                 if (tf)
                 {
@@ -455,7 +463,7 @@ namespace LJSheng.Web.Controllers
                     if (Gid == null)
                     {
                         Guid spgid = Guid.NewGuid();
-                        Helper.CLRecordAdd(gid, -RMB, CLMoney, 0, 0, "额度扣除=" + spgid.ToString());
+                        //Helper.CLRecordAdd(gid, -RMB, CLMoney, 0, 0, "额度扣除=" + spgid.ToString());
                         b = new ShopProduct();
                         b.Gid = spgid;
                         b.AddTime = DateTime.Now;
@@ -520,10 +528,10 @@ namespace LJSheng.Web.Controllers
                     }
                     else
                     {
-                        if (Gid == null)
-                        {
-                            LogManager.WriteLog("额度扣除成功发布商品失败", "会员=" + gid.ToString() + ",商品Gid="+ b.Gid + ",额度=" + RMB.ToString());
-                        }
+                        //if (Gid == null)
+                        //{
+                        //    LogManager.WriteLog("额度扣除成功发布商品失败", "会员=" + gid.ToString() + ",商品Gid="+ b.Gid + ",额度=" + RMB.ToString());
+                        //}
                         return Helper.Redirect("操作失败,请检查录入的数据！", "history.go(-1);", "操作失败,请检查录入的数据!");
                     }
                 }
@@ -1169,7 +1177,7 @@ namespace LJSheng.Web.Controllers
         #endregion
 
         /// <summary>
-        /// 代发货选择
+        /// 待发货选择
         /// </summary>
         /// <param name="Gid">订单Gid</param>
         /// <returns>返回调用结果</returns>

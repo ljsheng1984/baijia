@@ -48,8 +48,8 @@
                 <th>分类</th>
                 <th>名称</th>
                 <th>销售价</th>
-                <th>会员价</th>
-                <th>进货价</th>
+                <th class="hidden">会员价</th>
+                <th class="hidden">进货价</th>
                 <th>库存</th>
                 <th>购买获得</th>
                 <th>排序</th>
@@ -70,8 +70,8 @@
                         品牌:{{item.Brand}}
                     </td>
                     <td>{{item.Price}}</td>
-                    <td>{{item.MPrice}}</td>
-                    <td>{{item.BuyPrice}}</td>
+                    <td class="hidden">{{item.MPrice}}</td>
+                    <td class="hidden">{{item.BuyPrice}}</td>
                     <td>{{item.Stock}}</td>
                     <td>
                         积分:{{item.Money}}<br />

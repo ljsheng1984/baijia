@@ -100,6 +100,7 @@ namespace LJSheng.Web.Controllers
             LCookie.DelCookie("linjiansheng");
             LCookie.DelCookie("openid");
             LCookie.DelCookie("member");
+            LCookie.DelCookie("shop");
             LCookie.DelCookie("city");
             return new RedirectResult(Request.QueryString["login"]);
         }
@@ -309,7 +310,7 @@ namespace LJSheng.Web.Controllers
                                             {
                                                 Helper.MRelation(Gid, (Guid)MemberGid);
                                             }
-                                            LCookie.DelCookie("linjiansheng");
+                                            LCookie.DelALLCookie();
                                             return Helper.Redirect("成功", "/Home/Login", "注册成功,请登录");
                                         }
                                         else
@@ -393,7 +394,7 @@ namespace LJSheng.Web.Controllers
                                 b.LoginIdentifier = LCommon.TimeToUNIX(DateTime.Now);
                                 if (db.SaveChanges() == 1)
                                 {
-                                    LCookie.DelCookie("linjiansheng");
+                                    LCookie.DelALLCookie();
                                     AppApi.PWD(account, pwd, type);
                                     return Helper.Redirect("成功！", "/Home/Login", "修改密码成功,请点确定重新登录!");
                                 }
@@ -710,12 +711,12 @@ namespace LJSheng.Web.Controllers
                         {
                             ViewBag.Stock = b.Stock;
                             //进货价是0就是产品价格X库存,有进货价的话就是进货价X库存
-                            ViewBag.Price = BuyPrice == 0 ? b.Price : BuyPrice * b.Stock;
-                            if (BuyPrice * b.Stock > b.Price)
-                            {
-                                ViewBag.Price = b.Price;
-                            }
-                            ViewBag.RMB = b.Price;
+                            //ViewBag.Price = BuyPrice == 0 ? b.Price : BuyPrice * b.Stock;
+                            //if (BuyPrice * b.Stock > b.Price)
+                            //{
+                            //    ViewBag.Price = b.Price;
+                            //}
+                            ViewBag.Price = ViewBag.RMB = b.Price;
                         }
                         else
                         {

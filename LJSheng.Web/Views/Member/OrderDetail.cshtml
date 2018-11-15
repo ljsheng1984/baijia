@@ -26,6 +26,26 @@
     <p class="o-number">网银单号: <span>@ViewBag.TradeNo</span></p>
     <p class="o-time">创建时间: <span>@ViewBag.AddTime</span></p>
     <p class="o-time">付款时间: <span>@ViewBag.PayTime</span></p>
+    <p class="o-time">快递状态: 
+        <span>
+            @if (ViewBag.ExpressStatus == 1)
+            {
+                @("待发货");
+            }
+            else if (ViewBag.ExpressStatus == 1)
+            {
+                @("快递中");
+            }
+            else if (ViewBag.ExpressStatus == 2)
+            {
+                @("已签收");
+            }
+            else
+            {
+                @("已退货");
+            }
+            </span>
+    </p>
     <p class="o-time">快递公司: <span>@ViewBag.Express</span></p>
     <p class="o-time">快递单号: <span>@ViewBag.ExpressNumber</span></p>
 </div>
