@@ -1,5 +1,5 @@
 ﻿@{
-    ViewBag.Title = "订单详情";
+    ViewBag.Title = "商城订单详情";
     Layout = "~/Views/Shared/_MLayout.cshtml";
 }
 <div class="double-icon-item">
@@ -35,15 +35,36 @@
     <p class="o-time @(ViewBag.ReturnType==0?"hide":"")">归还地址: <span>@ViewBag.RAddress</span></p>
     <p class="o-time @(ViewBag.ReturnType==0?"hide":"")">归还姓名: <span>@ViewBag.RName</span></p>
     <p class="o-time @(ViewBag.ReturnType==0?"hide":"")">联系方式: <span>@ViewBag.RContactNumber</span></p>
+    <p class="o-time">
+        快递状态:
+        <span>
+            @if (ViewBag.ExpressStatus == 1)
+            {
+                @("待发货");
+            }
+            else if (ViewBag.ExpressStatus == 2)
+            {
+                @("快递中");
+            }
+            else if (ViewBag.ExpressStatus == 3)
+            {
+                @("已签收");
+            }
+            else
+            {
+                @("已退货");
+            }
+        </span>
+    </p>
 </div>
 
 <div class="rob">
-    <a class="fix-btn-loading @(ViewBag.FH==2?"hide":"") @(Request.QueryString["type"]=="1"?"":"hide")" onclick="rob('@Request.QueryString["OrderGid"]');" style="left:20%;">
+    <a class="fix-btn-loading @(ViewBag.FH==2?"hide":"") @(ViewBag.ExpressStatus!=1?"hide":"") @(Request.QueryString["type"]=="1"?"":"hide")" onclick="rob('@Request.QueryString["OrderGid"]');" style="left:20%;">
         <span id="name">商家发货</span>
         <span class="default"></span>
         <span class="active"></span>
     </a>
-    <a class="fix-btn-loading @(ViewBag.DFHProfit==0?"hide":"") @(Request.QueryString["type"]=="1"?"":"hide")" onclick="fh('@Request.QueryString["OrderGid"]');" style="left:50%;">
+    <a class="fix-btn-loading @(ViewBag.DFHProfit==0?"hide":"") @(ViewBag.ExpressStatus!=1?"hide":"") @(Request.QueryString["type"]=="1"?"":"hide")" onclick="fh('@Request.QueryString["OrderGid"]');" style="left:50%;">
         <span id="name">公司发货</span>
         <span class="default"></span>
         <span class="active"></span>
@@ -73,7 +94,7 @@
         </div>
         <span class="cert-down"></span>
     </div>
-    <a class="fix-btn-loading @(ViewBag.FH==2?"hide":"") @(Request.QueryString["type"]=="1"?"":"hide")" onclick="code('@Request.QueryString["OrderGid"]');" style="left:80%;">
+    <a class="fix-btn-loading @(ViewBag.FH==2?"hide":"") @(ViewBag.ExpressStatus!=1?"hide":"") @(Request.QueryString["type"]=="1"?"":"hide")" onclick="code('@Request.QueryString["OrderGid"]');" style="left:80%;">
         <span id="name">验证</span>
         <span class="default"></span>
         <span class="active"></span>

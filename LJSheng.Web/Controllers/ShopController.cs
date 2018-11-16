@@ -68,7 +68,7 @@ namespace LJSheng.Web.Controllers
                 }
                 else
                 {
-                    return Helper.Redirect("操作失败", "/Member/ToShop", "请先去申请为商家");
+                    return Helper.Redirect("操作失败", "/Member/Login", "登录异常,请重新登录");
                 }
             }
         }
@@ -878,7 +878,7 @@ namespace LJSheng.Web.Controllers
 
         #region 订单中心
         /// <summary>
-        /// 我的订单
+        /// 商城订单
         /// </summary>
         /// <returns>返回调用结果</returns>
         /// <para name="result">200 是成功其他失败</para>
@@ -886,13 +886,13 @@ namespace LJSheng.Web.Controllers
         /// <remarks>
         /// 2016-06-30 林建生
         /// </remarks>
-        public ActionResult Order()
+        public ActionResult ShopOrder()
         {
             return View();
         }
 
         /// <summary>
-        /// 获取订单
+        /// 获取商城订单
         /// </summary>
         /// <param name="ExpressStatus">快递状态</param>
         /// <returns>返回调用结果</returns>
@@ -902,7 +902,7 @@ namespace LJSheng.Web.Controllers
         /// 2016-06-30 林建生
         /// </remarks>
         [HttpPost]
-        public JsonResult OrderData()
+        public JsonResult ShopOrderData()
         {
             string json = "";
             using (StreamReader sr = new StreamReader(Request.InputStream))
@@ -946,52 +946,91 @@ namespace LJSheng.Web.Controllers
         }
 
         /// <summary>
-        /// 订单详情
+        /// 我的订单
         /// </summary>
-        /// <param name="OrderGid">订单GID</param>
         /// <returns>返回调用结果</returns>
         /// <para name="result">200 是成功其他失败</para>
         /// <para name="data">结果提示</para>
         /// <remarks>
         /// 2016-06-30 林建生
         /// </remarks>
-        public ActionResult OrderDetail(Guid OrderGid)
+        public ActionResult Order()
         {
+            return View();
+        }
+
+        /// <summary>
+        /// 获取订单
+        /// </summary>
+        /// <param name="ExpressStatus">快递状态</param>
+        /// <returns>返回调用结果</returns>
+        /// <para name="result">200 是成功其他失败</para>
+        /// <para name="data">结果提示</para>
+        /// <remarks>
+        /// 2016-06-30 林建生
+        /// </remarks>
+        [HttpPost]
+        public JsonResult OrderData()
+        {
+            string json = "";
+            using (StreamReader sr = new StreamReader(Request.InputStream))
+            {
+                json = HttpUtility.UrlDecode(sr.ReadLine());
+            }
+            JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
+            int ExpressStatus = int.Parse(paramJson["ExpressStatus"].ToString());
+            Guid ShopGid = LCookie.GetShopGid();
             using (EFDB db = new EFDB())
             {
-                var b = db.ShopOrder.Where(l => l.Gid == OrderGid).FirstOrDefault();
-                ViewBag.RealName = b.RealName;
-                ViewBag.ContactNumber = b.ContactNumber;
-                ViewBag.Address = b.Address;
-                ViewBag.AddTime = b.AddTime;;
-                ViewBag.TotalPrice = b.TotalPrice;
-                ViewBag.OrderNo = b.OrderNo;
-                ViewBag.Remarks = b.Remarks;
-                ViewBag.Express = b.Express;
-                ViewBag.ExpressNumber = b.ExpressNumber;
-                //if (b.RobGid != null)
-                //{
-                //    ViewBag.Status = b.ExpressStatus;
-                //    if (string.IsNullOrEmpty(b.ExpressNumber))
-                //    {
-                //        //抢单成功.待发货1
-                //        ViewBag.btName = "发货";
-                //    }
-                //    else
-                //    {
-                //        //抢单成功.已发货2
-                //        ViewBag.btName = "查看";
-                //    }
-                //}
-                //else
-                //{
-                //    ViewBag.Status = 0;
-                //    ViewBag.btName = "抢单";
-                //}
-                ViewBag.Express = b.Express;
-                ViewBag.ExpressNumber = b.ExpressNumber;
-                ViewBag.ExpressList = db.Express.Where(l => l.Show == 1).OrderBy(l => l.Sort).ToList();
-                return View(db.OrderDetails.Where(l => l.OrderGid == OrderGid).ToList());
+                var b = db.Order.Where(l => l.ShopGid == ShopGid).AsQueryable();
+                if (ExpressStatus != 0)
+                {
+                    if (ExpressStatus == 4)
+                    {
+                        b = b.Where(l => l.PayStatus == 2 && l.PayType == 3);
+                    }
+                    else
+                    {
+                        b = b.Where(l => l.PayStatus == 1 && l.ExpressStatus == ExpressStatus);
+                    }
+                }
+                else
+                {
+                    b = b.Where(l => l.PayStatus == 1);
+                }
+                int pageindex = Int32.Parse(paramJson["pageindex"].ToString());
+                int pagesize = Int32.Parse(paramJson["pagesize"].ToString());
+                return Json(new AjaxResult(new
+                {
+                    other = "",
+                    count = b.Count(),
+                    pageindex,
+                    list = b.OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).Select(l => new
+                    {
+                        l.Gid,
+                        l.Product,
+                        l.ExpressStatus,
+                        l.TotalPrice,
+                        l.OrderNo,
+                        l.TradeNo,
+                        l.RealName,
+                        l.ContactNumber,
+                        l.Address,
+                        l.Voucher,
+                        Number = db.OrderDetails.Where(od => od.OrderGid == l.Gid).Sum(od => od.Number),
+                        list = db.OrderDetails.Where(o => o.OrderGid == l.Gid).GroupJoin(db.Product,
+                                x => x.ProductGid,
+                                j => j.Gid,
+                                (x, j) => new
+                                {
+                                    x.ProductGid,
+                                    x.Number,
+                                    x.Price,
+                                    j.FirstOrDefault().Name,
+                                    j.FirstOrDefault().Picture
+                                })
+                    }).ToList()
+                }));
             }
         }
         #endregion

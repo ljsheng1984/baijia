@@ -59,16 +59,6 @@
                     </a>
                 </span>
             </div>
-            <div class="my-token-item" style="display:none;">
-                <img src="/images/icon/icon-2.png" />
-                <span class="my-token-item-titlt">能量塔待处理订单</span>
-                <span class="my-token-item-price">
-                    库存=@ViewBag.Stock
-                    <a href="/Member/CL?LockStock=@ViewBag.LockStock">
-                        <img src="/images/icon/icon-25.png" />
-                    </a>
-                </span>
-            </div>
         </div>
         <!--积分-->
         <div class="default-block integral">
@@ -130,7 +120,7 @@
                 <div class="integral-item">
                     <a href="/Shop/Order?tab=1">
                         <img src="/images/icon/icon-6.png" />
-                        <p class="integral-item-tag"><span>待处理订单</span></p>
+                        <p class="integral-item-tag">商城待处理订单</p>
                         <p><span>@ViewBag.SOC</span></p>
                     </a>
                 </div>
@@ -139,6 +129,22 @@
                         <img src="/images/icon/icon-7.png" />
                         <p>可提货款</p>
                         <p><span>@ViewBag.ShopMoney</span></p>
+                    </a>
+                </div>
+            </div>
+            <div class="integral-content">
+                <div class="integral-item">
+                    <a href="/Shop/Order?tab=1">
+                        <img src="/images/icon/icon-6.png" />
+                        <p class="integral-item-tag">能量塔待处理订单</p>
+                        <p><span>@ViewBag.OC</span></p>
+                    </a>
+                </div>
+                <div class="integral-item">
+                    <a href="/Shop/Money">
+                        <img src="/images/icon/icon-7.png" />
+                        <p>可提货款</p>
+                        <p><span>@ViewBag.ProductMoney</span></p>
                     </a>
                 </div>
             </div>

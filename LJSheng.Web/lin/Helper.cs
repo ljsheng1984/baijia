@@ -388,7 +388,6 @@ namespace LJSheng.Web
                         b.PayTime = DateTime.Now;
                         b.PayType = PayType;
                         b.PayPrice = PayPrice;
-                        b.ExpressStatus = 1;
                         if (db.SaveChanges() == 1)
                         {
                             Pay = true;
@@ -430,6 +429,8 @@ namespace LJSheng.Web
                                             if (UPCLLevel > 24)
                                             {
                                                 msg += "，更新发货人=" + Consignor(MGid) + rn;
+                                                //联合/创始人增加无限库存-2018-11-16
+                                                UPStock(Member.Gid);
                                             }
                                             //判断上级团队升级条件
                                             if (MemberGid != null)
@@ -488,22 +489,22 @@ namespace LJSheng.Web
                                 //增加购买人的库存
                                 msg += "增加链商城库存=" + AddCLStock(OrderGid, MGid) + rn;
 
-                                //发货人增加货款
-                                if (ShopGid != null)
-                                {
-                                    if (db.Member.Where(l => l.Gid == b.ShopGid).Update(l => new Member { ProductMoney = l.ProductMoney + PayPrice }) != 1)
-                                    {
-                                        msg += "发货人的订单收入失败:金额=" + PayPrice.ToString() + rn;
-                                    }
-                                    else
-                                    {
-                                        msg += "发货人的订单收入金额 =" + PayPrice.ToString() + rn;
-                                    }
-                                }
-                                else
-                                {
-                                    msg += "没有发货人" + rn;
-                                }
+                                //等确认收货以后才可以收到货款2018-11-16
+                                //if (ShopGid != null && ShopGid == GetConsignor())
+                                //{
+                                //    if (db.Member.Where(l => l.Gid == b.ShopGid).Update(l => new Member { ProductMoney = l.ProductMoney + PayPrice }) != 1)
+                                //    {
+                                //        msg += "发货人的订单收入失败:金额=" + PayPrice.ToString() + rn;
+                                //    }
+                                //    else
+                                //    {
+                                //        msg += "发货人的订单收入金额 =" + PayPrice.ToString() + rn;
+                                //    }
+                                //}
+                                //else
+                                //{
+                                //    msg += "没有发货人" + rn;
+                                //}
 
                                 #endregion
 
@@ -927,10 +928,12 @@ namespace LJSheng.Web
                             if (db.SaveChanges() == 1)
                             {
                                 msg += "团队升级会员=" + MemberGid.ToString() + "原等级=" + CLLevel + ",升级到=" + UPLevel.ToString();
-                                //更新发货人
                                 if (UPLevel > 24)
                                 {
+                                    //更新发货人
                                     Helper.Consignor(MemberGid);
+                                    //联合/创始人增加无限库存-2018-11-16
+                                    UPStock(MemberGid);
                                 }
                                 //继续升级上面的推荐人
                                 if (m.MemberGid != null)
@@ -1064,6 +1067,15 @@ namespace LJSheng.Web
                 msg += err.Message + "\r\n";
             }
             return msg;
+        }
+
+        /// <summary>
+        /// 升级联合/创始人增加无限库存
+        /// </summary>
+        /// <param name="MemberGid"></param>
+        public static void UPStock(Guid MemberGid)
+        {
+            AddCLStock(Guid.NewGuid(),MemberGid,1000000);
         }
 
         /// <summary>
@@ -1298,7 +1310,7 @@ namespace LJSheng.Web
         /// <remarks>
         /// 2018-08-18 林建生
         /// </remarks>
-        public static string AddCLStock(Guid OrderGid, Guid MemberGid)
+        public static string AddCLStock(Guid OrderGid, Guid MemberGid,int Number=0)
         {
             string msg = "";
             try
@@ -1307,6 +1319,10 @@ namespace LJSheng.Web
                 {
                     Guid ProductGid = Helper.GetProductGid();
                     var od = db.OrderDetails.Where(l => l.OrderGid == OrderGid).FirstOrDefault();
+                    if (Number == 0)
+                    {
+                        Number = od.Number;
+                    }
                     Stock s = db.Stock.Where(l => l.ProductGid == ProductGid && l.MemberGid == MemberGid).FirstOrDefault();
                     if (s == null)
                     {
@@ -1315,20 +1331,20 @@ namespace LJSheng.Web
                         s.AddTime = DateTime.Now;
                         s.MemberGid = MemberGid;
                         s.ProductGid = ProductGid;
-                        s.Number = od.Number;
+                        s.Number = Number;
                         db.Stock.Add(s);
                     }
                     else
                     {
-                        s.Number = s.Number + od.Number;
+                        s.Number = s.Number + Number;
                     }
                     if (db.SaveChanges() == 1)
                     {
-                        msg += "增加数量=" + od.Number.ToString();
+                        msg += "增加数量=" + Number.ToString();
                     }
                     else
                     {
-                        msg += "增加失败:数量=" + od.Number.ToString();
+                        msg += "增加失败:数量=" + Number.ToString();
                     }
                 }
             }

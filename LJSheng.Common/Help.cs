@@ -135,7 +135,7 @@ namespace LJSheng.Common
         {
             get
             {
-                return "http://baijmc.com";
+                return "http://ceshi.baijmc.com";
             }
         }
         #endregion

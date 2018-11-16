@@ -32,7 +32,7 @@
     <div class="order">
         <div class="order-type">
             <ul>
-                <li class="active">溯源码订单</li>
+                <li class="active">能量塔订单</li>
                 <li><a href="/Member/ShopOrder?tab=0&ReturnType=0">商城订单</a></li>
                 <li>
                     <a href="/Member/ShopOrder?tab=0&ReturnType=1">借用订单</a>
@@ -82,9 +82,37 @@
                         <div class="order-item-num">￥<span>{{od.Price}}</span></div>
                     </a>
                     {{/each}}
-                    <li class="confirm-goods"><a href="/Home/Bank?Type=1&OrderNo={{item.OrderNo}}&Money={{item.TotalPrice}}&Voucher={{item.Voucher}}">付款凭证</a></li>
+                    <div class="order-detial-btn">
+                        <ul>
+                            <li>
+                                {{if item.PayStatus=="1"}}
+                                已付款
+                                {{else if item.PayStatus=="2"}}
+                                未付款
+                                {{else if item.PayStatus=="3"}}
+                                已退款
+                                {{else}}
+                                已关闭
+                                {{/if}}
+                            </li>
+                            <li id="{{item.Gid}}" class="confirm-goods" onclick="show('{{item.Gid}}','{{item.Product}}');">{{item.ExpressStatus==1?"确认收货":"已收货"}}</li>
+                            <li class="confirm-goods"><a href="/Home/Bank?Type=1&OrderNo={{item.OrderNo}}&Money={{item.TotalPrice}}&Voucher={{item.Voucher}}">付款凭证</a></li>
+                        </ul>
+                    </div>
                     {{/each}}
                 </script>
+            </div>
+        </div>
+    </div>
+    <!--确认收货模态框    active显示-->
+    <div class="confirm-goods-dialog">
+        <input type="text" id="Gid" hidden />
+        <div class="confirm-goods-dialog-content">
+            <p>确认收货</p>
+            <p id="Name"></p>
+            <div class="confirm-goods-dialog-btn">
+                <span onclick="ok();">是</span>
+                <span>否</span>
             </div>
         </div>
     </div>
@@ -94,6 +122,28 @@
     <script src="/plugins/mescroll/mescroll.js"></script>
     <script src="/js/mlist.js"></script>
     <script>
+        function show(Gid, Name) {
+            $("#Gid").val(Gid);
+            $("#Name").html(Name);
+            $(".confirm-goods-dialog").addClass("active");
+        }
+        function ok() {
+            $.ajax({
+                url: "/Member/OrderOK",
+                data: "Gid=" + $("#Gid").val() + "&cache=" + Math.random(),
+                type: "post",
+                cache: false,
+                timeout: 8000,
+                dataType: "json",
+                ContentType: "application/json; charset=utf-8",
+                error: function () { alert("请求超时!"); },
+                beforeSend: function () { },
+                success: function (data) {
+                    $("#" + $("#Gid").val()).html(data.data);
+                },
+            });
+        }
+
         function getlist(ExpressStatus, ev) {
             $("#ExpressStatus").val(ExpressStatus);
             $(".order-status li").removeClass("active");

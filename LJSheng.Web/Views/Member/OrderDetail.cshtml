@@ -32,11 +32,11 @@
             {
                 @("待发货");
             }
-            else if (ViewBag.ExpressStatus == 1)
+            else if (ViewBag.ExpressStatus == 2)
             {
                 @("快递中");
             }
-            else if (ViewBag.ExpressStatus == 2)
+            else if (ViewBag.ExpressStatus == 3)
             {
                 @("已签收");
             }
@@ -57,7 +57,7 @@
     </a>
     <div class="task @(ViewBag.btName=="发货"?"":"hide")">
         <div class="i">
-            <div class="remarks">已抢单成功,请录入物流信息</div>
+            <div class="remarks">请录入物流信息</div>
             <div class="signle-item">
                 <div class="cell">
                     <div class="cell-left">快递公司</div>

@@ -6965,7 +6965,7 @@ namespace LJSheng.Web.Controllers
         }
         #endregion
 
-        #region 待发货
+        #region 代发货逻辑
         // 列表管理
         public ActionResult DFHList()
         {
@@ -7073,6 +7073,34 @@ namespace LJSheng.Web.Controllers
                     else
                     {
                         return Json(new AjaxResult(300, "失败"));
+                    }
+                }
+            }
+            else
+            {
+                return Json(new AjaxResult(300, "非法参数"));
+            }
+        }
+
+        /// <summary>
+        /// 商城订单结算
+        /// </summary>
+        /// <param name="Gid">订单Gid</param>
+        /// <returns></returns>
+        [HttpPost]
+        public JsonResult JS(Guid Gid)
+        {
+            if (Gid != null)
+            {
+                using (EFDB db = new EFDB())
+                {
+                    if (db.ShopOrder.Where(l => l.Gid == Gid).Update(l => new ShopOrder { DFHState = 2 }) == 1)
+                    {
+                        return Json(new AjaxResult("结算成功"));
+                    }
+                    else
+                    {
+                        return Json(new AjaxResult(300, "结算失败"));
                     }
                 }
             }

@@ -1,0 +1,66 @@
+﻿@{
+    ViewBag.Title = "商城订单列表";
+    Layout = "~/Views/Shared/_SLayout.cshtml";
+}
+<div id="search" hidden>
+    <input class="text" name="ExpressStatus" id="ExpressStatus" value="@Request.QueryString["tab"]" />
+</div>
+<div class="mescroll" id="scroll">
+    <div class="list section" id="dataList">
+        <script id="tpl" type="text/html">
+            {{each list as item index}}
+            <a class="item multi-lines with-avatar" href="/Member/ShopOrderDetail?OrderGid={{item.Gid}}&Number={{item.Number}}&type=1">
+                <div class="avatar circle red outline">{{item.Number}}</div>
+                <div class="content">
+                    <span class="title">{{item.Product}}</span>
+                    <div class="pull-right">￥{{item.TotalPrice}}</div>
+                    <div>
+                        <small class="text-green">NO.{{item.OrderNo}}</small>&nbsp;
+                        <small class="muted">{{item.AddTime}}</small>
+                    </div>
+                    <div>
+                        <small>会员.{{item.Account}}</small>&nbsp;
+                        <small class="muted">{{item.RealName}}</small>
+                        <div class="pull-right label red-pale text-tint">
+                            {{if item.ExpressStatus=="3"}}
+                            已验证
+                            {{else if item.ExpressStatus=="4"}}
+                            已撤销
+                            {{else}}
+                            未验证
+                            {{/if}}
+                        </div>
+                    </div>
+                </div>
+            </a>
+            <div class="divider"></div>
+            {{/each}}
+        </script>
+    </div>
+</div>
+<nav class="nav affix dock-top justified">
+    <a href="/shop/index"><i class="icon-5x icon-arrow-left"></i></a>
+    <a>订单列表</a>
+    <a href="/Home/Url"><i class="icon-home"></i></a>
+</nav>
+<nav class="nav affix dock-bottom justified">
+    <a onclick="getlist(0);">全部</a>
+    <a onclick="getlist(1);">待发货</a>
+    <a onclick="getlist(2);">待收货</a>
+    <a onclick="getlist(3);">已收货</a>
+</nav>
+<script>
+    $(".dock-bottom a").removeClass("active");
+    $(".dock-bottom a")[@Request.QueryString["tab"]].className = "active";
+    function getlist(ExpressStatus, ev) {
+        $("#ExpressStatus").val(ExpressStatus);
+        $(".dock-bottom a").removeClass("active");
+        ev = ev || window.event;
+        var tmp = ev.target || ev.srcElement;
+        tmp.className = "active";
+        //重置列表数据
+        scroll.resetUpScroll();
+        //隐藏回到顶部按钮
+        scroll.hideTopBtn();
+    }
+</script>

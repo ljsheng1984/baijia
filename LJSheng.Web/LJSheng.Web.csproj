@@ -1143,6 +1143,7 @@
     <Content Include="Views\Home\OpenID.cshtml" />
     <Content Include="Views\Member\DFH.cshtml" />
     <Content Include="Views\LJSheng\DFHList.cshtml" />
+    <Content Include="Views\Shop\ShopOrder.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

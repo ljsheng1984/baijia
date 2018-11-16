@@ -90,8 +90,8 @@
         <tbody id="tbody">
             <script id="tpl" type="text/html">
                 {{each list as item index}}
-                <tr id="{{item.Gid}}" style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
-                    <td rowspan="3">{{index+1}}</td>
+                <tr style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
+                    <td rowspan="{{item.DFHProfit>0?"3":"2"}}">{{index+1}}</td>
                     <td>{{item.OrderNo}}<br />{{item.TradeNo}}</td>
                     <td>{{item.AddTime}}<br />{{item.PayTime}}</td>
                     <td title="查看购买详情" onclick="Show('{{item.OrderNo}}','ShopOrderDetailsList?gid={{item.Gid}}');">查看商品</td>
@@ -149,7 +149,7 @@
                         <a target="_blank" href="/uploadfiles/voucher/{{item.Voucher}}"><img data-caption="{{item.Account}}" data-toggle="lightbox" src="/uploadfiles/voucher/{{item.Voucher}}" class="img-thumbnail" onerror="this.src='/images/nopic.png'" style="width:80px;height:80px;"></a>
                     </td>
                 </tr>
-                <tr id="{{item.Gid}}" style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
+                <tr style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
                     <td colspan="3" onclick="Show('{{item.OrderNo}}','ShopRecordList?OrderNo={{item.OrderNo}}');">
                         <div class="btn-group">
                             <button class="btn btn-mini">团队分配</button>
@@ -193,7 +193,7 @@
                         {{/if}}
                     </td>
                 </tr>
-                <tr id="{{item.Gid}}" style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};">
+                <tr style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};" class="{{item.DFHProfit>0?"":"hidden"}}">
                     <td colspan="2"><button class="btn btn-mini disabled">发货利润 <span class="label label-badge">{{item.DFHProfit}}</span></button></td>
                     <td colspan="4"><button class="btn btn-mini disabled">会员享受发货比例 <span class="label label-badge">{{item.DFHLV}}</span></button></td>
                     <td colspan="2">
@@ -206,9 +206,9 @@
                             {{/if}}
                         </span>
                     </td>
-                    <td colspan="2">
+                    <td colspan="2" id="{{item.Gid}}">
                         {{if item.DFHState=="1"}}
-                        未结算
+                        <button class="btn btn-mini" onclick="JS('{{item.Gid}}');">设为已结算</button>
                         {{else}}
                         已结算
                         {{/if}}
@@ -225,5 +225,31 @@
     <script src="~/js/template-web.js"></script>
     <script src="~/plugins/My97DatePicker/WdatePicker.js"></script>
     <script src="~/js/list.js"></script>
+    <script>
+        function JS(gid) {
+            if (window.confirm('请确定已结算给对方了?操作不可修改!')) {
+                $.ajax({
+                    url: "/LJSheng/JS",
+                    data: "gid=" + gid + "&cache=" + Math.random(),
+                    type: "post",
+                    cache: false,
+                    timeout: 8000,
+                    dataType: "json",
+                    ContentType: "application/json; charset=utf-8",
+                    error: function () { new $.zui.Messager('请求超时!').show(); },
+                    beforeSend: function () { },
+                    success: function (data) {
+                        if (data.result == 200) {
+                            $("#" + gid).html("已结算");
+                        }
+                        Messager(data.data, data.result);
+                    },
+                });
+                return true;
+            } else {
+                return false;
+            }
+        }
+    </script>
 </body>
 </html>

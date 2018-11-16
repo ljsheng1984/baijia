@@ -9,7 +9,7 @@
     <div class="list section" id="dataList">
         <script id="tpl" type="text/html">
             {{each list as item index}}
-            <a class="item multi-lines with-avatar" href="/Member/ShopOrderDetail?OrderGid={{item.Gid}}&Number={{item.Number}}&type=1">
+            <a class="item multi-lines with-avatar" href="/Member/OrderDetail?OrderGid={{item.Gid}}&Number={{item.Number}}&type=1">
                 <div class="avatar circle red outline">{{item.Number}}</div>
                 <div class="content">
                     <span class="title">{{item.Product}}</span>
@@ -22,12 +22,14 @@
                         <small>会员.{{item.Account}}</small>&nbsp;
                         <small class="muted">{{item.RealName}}</small>
                         <div class="pull-right label red-pale text-tint">
-                            {{if item.ExpressStatus=="3"}}
-                            已验证
-                            {{else if item.ExpressStatus=="4"}}
-                            已撤销
+                            {{if item.ExpressStatus=="1"}}
+                            待发货
+                            {{else if item.ExpressStatus=="2"}}
+                            快递中
+                            {{else if item.ExpressStatus=="3"}}
+                            已签收
                             {{else}}
-                            未验证
+                            退回
                             {{/if}}
                         </div>
                     </div>

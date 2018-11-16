@@ -207,13 +207,8 @@ namespace LJSheng.Web.Controllers
                 ViewBag.TIntegral = b.TIntegral;
                 //商城查询
                 var so = db.ShopOrder.Where(l => l.PayStatus == 1).ToList();
-                //待处理订单
-                Guid ShopGid = LCookie.GetShopGid();
-                ViewBag.SOC = so.Where(l => l.ShopGid == ShopGid && l.Status==1).Count();
                 //商城消费金额
                 ViewBag.ShopOrder = so.Where(l => l.MemberGid == MemberGid).Select(l => l.TotalPrice).DefaultIfEmpty(0).Sum();
-                //商城货款
-                ViewBag.ShopMoney = b.ShopMoney;
                 //冻结积分
                 ViewBag.ShopRecord = db.ShopRecord.Where(l => l.MemberGid == MemberGid && l.Type == 2 && l.State == 2).Select(l => l.TIntegral).DefaultIfEmpty(0).Sum();
                 //倍数积分
@@ -222,6 +217,16 @@ namespace LJSheng.Web.Controllers
                 int Year = DateTime.Now.Year;
                 int Month = DateTime.Now.Month;
                 ViewBag.TMoney = db.Achievement.Where(l => l.Year == Year && l.Month == Month && l.MemberGid == MemberGid).Select(l => l.TMoney).DefaultIfEmpty(0).Sum();
+                //商家数据
+                //商城待处理订单
+                Guid ShopGid = LCookie.GetShopGid();
+                ViewBag.SOC = so.Where(l => l.ShopGid == ShopGid && l.Status == 1).Count();
+                //商城货款
+                ViewBag.ShopMoney = b.ShopMoney;
+                //待处理订单
+                var o = db.Order.Where(l => l.ShopGid == ShopGid && l.PayStatus == 1).ToList();
+                ViewBag.OC = o.Where(l => l.ExpressStatus == 1).Count();
+                ViewBag.ProductMoney = b.ProductMoney;
                 //APP数据
                 ViewBag.BCCB = AppApi.MB(b.Account, "BCCB");
                 ViewBag.FBCC = AppApi.MB(b.Account, "FBCC");
@@ -583,27 +588,79 @@ namespace LJSheng.Web.Controllers
                 ViewBag.ExpressStatus = b.ExpressStatus;
                 ViewBag.Express = b.Express;
                 ViewBag.ExpressNumber = b.ExpressNumber;
-                if (b.RobGid != null)
+                if (string.IsNullOrEmpty(b.ExpressNumber))
                 {
-                    ViewBag.Status = b.ExpressStatus;
-                    if (string.IsNullOrEmpty(b.ExpressNumber))
+                    ViewBag.btName = "发货";
+                }
+                else
+                {
+                    ViewBag.btName = "查看";
+                }
+                //if (b.RobGid != null)
+                //{
+                //    ViewBag.Status = b.ExpressStatus;
+                //    if (string.IsNullOrEmpty(b.ExpressNumber))
+                //    {
+                //        //抢单成功.待发货1
+                //        ViewBag.btName = "发货";
+                //    }
+                //    else
+                //    {
+                //        //抢单成功.已发货2
+                //        ViewBag.btName = "查看";
+                //    }
+                //}
+                //else
+                //{
+                //    ViewBag.Status = 0;
+                //    ViewBag.btName = "抢单";
+                //}
+                ViewBag.ExpressList = db.Express.Where(l => l.Show == 1).OrderBy(l => l.Sort).ToList();
+                return View(db.OrderDetails.Where(l => l.OrderGid == OrderGid).ToList());
+            }
+        }
+
+        /// <summary>
+        /// 订单确认收货增加货款
+        /// </summary>
+        /// <param name="Gid"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public JsonResult OrderOK(Guid Gid)
+        {
+            Guid MemberGid = LCookie.GetMemberGid();
+            using (EFDB db = new EFDB())
+            {
+                var b = db.Order.Where(l => l.MemberGid == MemberGid && l.Gid == Gid && l.ExpressStatus==2).FirstOrDefault();
+                if (b.ShopGid != null)
+                {
+                    b.Status = 2;
+                    b.ExpressStatus = 3;
+                    if (db.SaveChanges() == 1)
                     {
-                        //抢单成功.待发货1
-                        ViewBag.btName = "发货";
+                        decimal PayPrice = b.PayPrice;
+                        if (db.Member.Where(l => l.Gid == b.ShopGid).Update(l => new Member { ProductMoney = l.ProductMoney + PayPrice }) != 1)
+                        {
+                            LogManager.WriteLog("确认订单货款", "确认收货成功,收款失败OrderGid=" + Gid);
+                            return Json(new AjaxResult(300, "失败,请刷新重试!"));
+                        }
+                        else
+                        {
+                            LogManager.WriteLog("确认订单货款", "收款成功OrderGid=" + Gid);
+                            return Json(new AjaxResult("收货成功"));
+                        }
                     }
                     else
                     {
-                        //抢单成功.已发货2
-                        ViewBag.btName = "查看";
+                        LogManager.WriteLog("确认订单货款", "确认收货失败OrderGid=" + Gid);
+                        return Json(new AjaxResult(300, "确认收货失败"));
                     }
                 }
                 else
                 {
-                    ViewBag.Status = 0;
-                    ViewBag.btName = "抢单";
+                    LogManager.WriteLog("确认订单货款", "没有发货人OrderGid=" + Gid);
+                    return Json(new AjaxResult(300, "已收货,请不要重复操作!"));
                 }
-                ViewBag.ExpressList = db.Express.Where(l => l.Show == 1).OrderBy(l => l.Sort).ToList();
-                return View(db.OrderDetails.Where(l => l.OrderGid == OrderGid).ToList());
             }
         }
         #endregion
@@ -1657,6 +1714,7 @@ namespace LJSheng.Web.Controllers
                 ViewBag.TotalPrice = b.TotalPrice;
                 ViewBag.OrderNo = b.OrderNo;
                 ViewBag.Remarks = b.Remarks;
+                ViewBag.ExpressStatus = b.ExpressStatus;
                 ViewBag.Express = b.Express;
                 ViewBag.ExpressNumber = b.ExpressNumber;
                 ViewBag.ReturnType = b.ReturnType;
@@ -2455,6 +2513,7 @@ namespace LJSheng.Web.Controllers
                     list = b.OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).Select(l => new
                     {
                         l.Gid,
+                        l.AddTime,
                         l.ShopGid,
                         l.Product,
                         l.ExpressStatus,
@@ -2466,8 +2525,10 @@ namespace LJSheng.Web.Controllers
                         l.Address,
                         l.Voucher,
                         l.DFHState,
+                        l.DFHLV,
+                        l.DFHProfit,
                         Number = db.OrderDetails.Where(od => od.OrderGid == l.Gid).Sum(od => od.Number),
-                        list = db.OrderDetails.Where(o => o.OrderGid == l.Gid).GroupJoin(db.Product,
+                        list = db.OrderDetails.Where(o => o.OrderGid == l.Gid).GroupJoin(db.ShopProduct,
                                 x => x.ProductGid,
                                 j => j.Gid,
                                 (x, j) => new
@@ -2475,8 +2536,7 @@ namespace LJSheng.Web.Controllers
                                     x.ProductGid,
                                     x.Number,
                                     x.Price,
-                                    j.FirstOrDefault().Name,
-                                    j.FirstOrDefault().Picture
+                                    j.FirstOrDefault().Name
                                 })
                     }).ToList()
                 }));

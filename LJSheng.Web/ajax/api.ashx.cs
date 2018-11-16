@@ -341,7 +341,9 @@ namespace LJSheng.Web.ajax
         {
             using (EFDB db = new EFDB())
             {
-                var b = db.Order.Where(l => l.Gid == gid && l.PayStatus == 1 && l.RobGid != null).FirstOrDefault();
+                //旧的抢单逻辑
+                //var b = db.Order.Where(l => l.Gid == gid && l.PayStatus == 1 && l.RobGid != null).FirstOrDefault();
+                var b = db.Order.Where(l => l.Gid == gid && l.PayStatus == 1).FirstOrDefault();
                 if (b != null)
                 {
                     //更新抢单信息
