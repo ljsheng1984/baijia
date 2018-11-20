@@ -979,7 +979,8 @@ namespace LJSheng.Web.Controllers
             }
             JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
             int ExpressStatus = int.Parse(paramJson["ExpressStatus"].ToString());
-            Guid ShopGid = LCookie.GetShopGid();
+            //之前彩链订单商家ID是用会员的ID做关联
+            Guid ShopGid = LCookie.GetMemberGid();
             using (EFDB db = new EFDB())
             {
                 var b = db.Order.Where(l => l.ShopGid == ShopGid).AsQueryable();

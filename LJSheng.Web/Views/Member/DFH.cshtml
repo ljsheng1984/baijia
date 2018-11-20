@@ -10,7 +10,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="format-detection" content="telephone=yes">
-    <title>彩链-待发货分润明细</title>
+    <title>彩链-代发货分润明细</title>
     <meta name="keywords" content="彩链">
     <meta name="description" content="彩链">
     <meta name="author" content="彩链">
@@ -25,10 +25,10 @@
             <a href="/Member/Index">
                 <img src="/images/icon/icon-26.png" />
             </a>
-        </span> 待发货分润明细
+        </span> 代发货分润明细
     </div>
     <div id="search" hidden></div>
-    <div class="mescroll" id="scroll">
+    <div class="mescroll" id="scroll" style="width: 100%;height: 90%;overflow-y: auto;">
         <div class="drop-shipping" id="dataList">
             <script id="tpl" type="text/html">
                 {{each list as item index}}
@@ -36,9 +36,9 @@
                     <div class="drop-shipping-item-title">
                         <span>订单号：{{item.OrderNo}}</span>
                         {{if item.DFHState==1}}
-                        <span class="drop-shipping-status-ok">已结算</span>
+                        <span class="drop-shipping-status-ok">未结算</span>
                         {{else}}
-                        <span class="drop-shipping-status-no">未结算</span>
+                        <span class="drop-shipping-status-no">已结算</span>
                         {{/if}}
                     </div>
                     {{each item.list as od index}}
@@ -54,7 +54,7 @@
                     </div>
                     {{/each}}
                     <div class="drop-shipping-item-percentage">
-                        <span>分润百分比：{{item.DFHLV}}</span>
+                        <span>分润百分比：{{item.DFHLV * 100}}%</span>
                         <span>分润金额：￥{{item.DFHProfit}}</span>
                     </div>
                     <div class="drop-shipping-item-time">

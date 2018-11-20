@@ -5670,6 +5670,88 @@ namespace LJSheng.Web.Controllers
                 }));
             }
         }
+
+        /// <summary>
+        /// 导出需要结算的订单
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult JS()
+        {
+            using (EFDB db = new EFDB())
+            {
+                //获取list数据
+                var list = db.ShopOrder.Where(l => l.DFHProfit > 0 && l.DFHState==1).GroupJoin(db.Shop,
+                    l => l.ShopGid,
+                    j => j.Gid,
+                    (l, j) => new
+                    {
+                        l.Gid,
+                        l.AddTime,
+                        l.ShopGid,
+                        l.OrderNo,
+                        l.DFHProfit,
+                        l.DFHState,
+                        j.FirstOrDefault().Name,
+                        j.FirstOrDefault().ContactNumber,
+                        j.FirstOrDefault().MemberGid
+                    }).GroupJoin(db.Member,
+                    l => l.MemberGid,
+                    j => j.Gid,
+                    (l, j) => new
+                    {
+                        l.Gid,
+                        l.AddTime,
+                        l.ShopGid,
+                        l.OrderNo,
+                        l.DFHProfit,
+                        l.DFHState,
+                        l.Name,
+                        l.ContactNumber,
+                        j.FirstOrDefault().Bank,
+                        j.FirstOrDefault().BankName,
+                        j.FirstOrDefault().BankNumber,
+                        RMB= db.ShopOrder.Where(o=>o.ShopGid==l.ShopGid && o.DFHProfit > 0 && o.DFHState == 1).Select(o=>o.DFHProfit).DefaultIfEmpty(0m).Sum()
+                    }).OrderByDescending(l => l.AddTime).OrderBy(l => l.AddTime).ToList();
+
+                //创建Excel文件的对象
+                NPOI.HSSF.UserModel.HSSFWorkbook book = new NPOI.HSSF.UserModel.HSSFWorkbook();
+                //添加一个sheet
+                NPOI.SS.UserModel.ISheet sheet1 = book.CreateSheet("Sheet1");
+
+                //给sheet1添加第一行的头部标题
+                NPOI.SS.UserModel.IRow row1 = sheet1.CreateRow(0);
+                row1.CreateCell(0).SetCellValue("标识");
+                row1.CreateCell(1).SetCellValue("订单号");
+                row1.CreateCell(2).SetCellValue("该订单利润");
+                row1.CreateCell(3).SetCellValue("总未结算");
+                row1.CreateCell(4).SetCellValue("商家名称");
+                row1.CreateCell(5).SetCellValue("联系方式");
+                row1.CreateCell(6).SetCellValue("开户银行");
+                row1.CreateCell(7).SetCellValue("开户名");
+                row1.CreateCell(8).SetCellValue("卡号");
+                //将数据逐步写入sheet1各个行
+                int i = 0;
+                for (i = 0; i < list.Count; i++)
+                {
+                    NPOI.SS.UserModel.IRow rowtemp = sheet1.CreateRow(i + 1);
+                    rowtemp.CreateCell(0).SetCellValue(list[i].Gid.ToString());
+                    rowtemp.CreateCell(1).SetCellValue(list[i].OrderNo.ToString());
+                    rowtemp.CreateCell(2).SetCellValue(list[i].DFHProfit.ToString());
+                    rowtemp.CreateCell(3).SetCellValue(list[i].RMB.ToString());
+                    rowtemp.CreateCell(4).SetCellValue(list[i].Name.ToString());
+                    rowtemp.CreateCell(5).SetCellValue(list[i].ContactNumber.ToString());
+                    rowtemp.CreateCell(6).SetCellValue(list[i].Bank.ToString());
+                    rowtemp.CreateCell(7).SetCellValue(list[i].BankName.ToString());
+                    rowtemp.CreateCell(8).SetCellValue(list[i].BankNumber.ToString());
+                }
+                NPOI.SS.UserModel.IRow rowend = sheet1.CreateRow(i + 1);
+                // 写入到客户端 
+                System.IO.MemoryStream ms = new System.IO.MemoryStream();
+                book.Write(ms);
+                ms.Seek(0, SeekOrigin.Begin);
+                return File(ms, "application/vnd.ms-excel", "未结算列表" + DateTime.Now.ToString("MMddHHmm") + ".xls");
+            }
+        }
         #endregion
 
         #region 商家分类模块

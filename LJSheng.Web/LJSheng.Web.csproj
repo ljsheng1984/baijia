@@ -331,6 +331,7 @@
     <Content Include="js\mlist.js" />
     <Content Include="js\mobileSelect.js" />
     <Content Include="js\owl.carousel.min.js" />
+    <Content Include="js\page.js" />
     <Content Include="js\pca.js" />
     <Content Include="js\selectDate.js" />
     <Content Include="js\shopcart.js" />

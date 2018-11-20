@@ -193,7 +193,7 @@ namespace LJSheng.Web.Controllers
                 //库存
                 Guid ProductGid = Helper.GetProductGid();
                 var ms = db.Stock.Where(l => l.MemberGid == MemberGid && l.ProductGid == ProductGid).FirstOrDefault();
-                ViewBag.Stock = ms == null ? 0 : ms.Number;
+                ViewBag.Stock = ms == null ? 0 : b.CLLevel > 24 ? ms.Number - 100000 : ms.Number;
                 //未付款库存
                 ViewBag.LockStock = db.Order.Where(l => l.ShopGid == MemberGid && l.PayStatus == 2).Select(l => new
                 {
@@ -205,10 +205,8 @@ namespace LJSheng.Web.Controllers
                 ViewBag.ShopIntegral = b.ShopIntegral;
                 ViewBag.MIntegral = b.MIntegral;
                 ViewBag.TIntegral = b.TIntegral;
-                //商城查询
-                var so = db.ShopOrder.Where(l => l.PayStatus == 1).ToList();
                 //商城消费金额
-                ViewBag.ShopOrder = so.Where(l => l.MemberGid == MemberGid).Select(l => l.TotalPrice).DefaultIfEmpty(0).Sum();
+                ViewBag.ShopOrder = db.ShopOrder.Where(l => l.PayStatus == 1 && l.MemberGid == MemberGid).Select(l => l.TotalPrice).DefaultIfEmpty(0).Sum();
                 //冻结积分
                 ViewBag.ShopRecord = db.ShopRecord.Where(l => l.MemberGid == MemberGid && l.Type == 2 && l.State == 2).Select(l => l.TIntegral).DefaultIfEmpty(0).Sum();
                 //倍数积分
@@ -218,15 +216,17 @@ namespace LJSheng.Web.Controllers
                 int Month = DateTime.Now.Month;
                 ViewBag.TMoney = db.Achievement.Where(l => l.Year == Year && l.Month == Month && l.MemberGid == MemberGid).Select(l => l.TMoney).DefaultIfEmpty(0).Sum();
                 //商家数据
-                //商城待处理订单
                 Guid ShopGid = LCookie.GetShopGid();
-                ViewBag.SOC = so.Where(l => l.ShopGid == ShopGid && l.Status == 1).Count();
-                //商城货款
-                ViewBag.ShopMoney = b.ShopMoney;
-                //待处理订单
-                var o = db.Order.Where(l => l.ShopGid == ShopGid && l.PayStatus == 1).ToList();
-                ViewBag.OC = o.Where(l => l.ExpressStatus == 1).Count();
-                ViewBag.ProductMoney = b.ProductMoney;
+                if (ShopGid != Guid.Parse("00000000-0000-0000-0000-000000000000"))
+                {
+                    //商城待处理订单
+                    ViewBag.SOC = db.ShopOrder.Where(l => l.PayStatus == 1 && l.ShopGid == ShopGid && l.ExpressStatus == 1).Count();
+                    //商城货款
+                    ViewBag.ShopMoney = b.ShopMoney;
+                    //待处理订单,之前彩链订单商家ID是用会员的ID做关联
+                    ViewBag.OC = db.Order.Where(l => l.ShopGid == MemberGid && l.PayStatus == 1 && l.ExpressStatus == 1).Count();
+                    ViewBag.ProductMoney = b.ProductMoney;
+                }
                 //APP数据
                 ViewBag.BCCB = AppApi.MB(b.Account, "BCCB");
                 ViewBag.FBCC = AppApi.MB(b.Account, "FBCC");
@@ -1611,7 +1611,7 @@ namespace LJSheng.Web.Controllers
             Guid MemberGid = LCookie.GetMemberGid();
             using (EFDB db = new EFDB())
             {
-                var b = db.ShopOrder.Where(l => l.MemberGid == MemberGid && l.PayStatus < 3 && l.DFHProfit==0).GroupJoin(db.Member,
+                var b = db.ShopOrder.Where(l => l.MemberGid == MemberGid && l.PayStatus < 3).GroupJoin(db.Member,
                     x => x.MemberGid,
                     y => y.Gid,
                     (x, y) => new

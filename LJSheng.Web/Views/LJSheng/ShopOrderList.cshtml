@@ -195,7 +195,7 @@
                 </tr>
                 <tr style="background-color:{{index%2 ==0 ?"#FAF4FF":""}};" class="{{item.DFHProfit>0?"":"hidden"}}">
                     <td colspan="2"><button class="btn btn-mini disabled">发货利润 <span class="label label-badge">{{item.DFHProfit}}</span></button></td>
-                    <td colspan="4"><button class="btn btn-mini disabled">会员享受发货比例 <span class="label label-badge">{{item.DFHLV}}</span></button></td>
+                    <td colspan="4"><button class="btn btn-mini disabled">会员享受发货比例 <span class="label label-badge">{{item.DFHLV * 100}}%</span></button></td>
                     <td colspan="2">
                         发货=
                         <span class="label label-info">
@@ -215,6 +215,9 @@
                     </td>
                 </tr>
                 {{/each}}
+                <tr>
+                    <td colspan="11" class="center @(Request.QueryString["DFH"]=="2"?"":"hidden")"><a href="/LJSheng/JS" class="btn">导出未结算的数据</a></td>
+                </tr>
             </script>
         </tbody>
     </table>

@@ -82,7 +82,7 @@
         <div class="hcon">
             <p>
                 <a target="list" href="~/LJSheng/MemberList">会员总数<br /><em id="member">0</em></a>
-                <a target="list" href="@(LJSheng.Common.LCookie.Getljsheng("Jurisdiction")=="管理员"?"/LJSheng/OrderList":"#")">订单总数<br /><em id="order">0</em></a>
+                <a target="list" href="@(LJSheng.Common.LCookie.Getljsheng("Jurisdiction")=="管理员"?"/LJSheng/OrderList":"#")">能量塔订单<br /><em id="order">0</em></a>
                 <a target="list" href="@(LJSheng.Common.LCookie.Getljsheng("Jurisdiction")=="管理员"?"/LJSheng/OrderList?ExpressStatus=1":"#")">需要发货<br /><em id="orderES">0</em></a>
                 <a target="list" href="@(LJSheng.Common.LCookie.Getljsheng("Jurisdiction")=="管理员"?"/LJSheng/WithdrawalsList":"#")">链商城提现<br /><em id="bank">0</em></a>
                 <a target="list" href="@(LJSheng.Common.LCookie.Getljsheng("Jurisdiction")=="管理员"?"/LJSheng/WithdrawalsList?State=1":"#")">待提现<br /><em id="bankState">0</em></a>
@@ -90,6 +90,8 @@
                 <a target="list" href="@(LJSheng.Common.LCookie.Getljsheng("Jurisdiction")=="管理员"?"/LJSheng/ShopOrderList":"#")">商城订单<br /><em id="shoporder">0</em></a>
                 <a target="list" href="@(LJSheng.Common.LCookie.Getljsheng("Jurisdiction")=="管理员"?"/LJSheng/ShopWithdrawalsList":"#")">商城提现<br /><em id="shopbank">0</em></a>
                 <a target="list" href="@(LJSheng.Common.LCookie.Getljsheng("Jurisdiction")=="管理员"?"/LJSheng/ShopWithdrawalsList?State=1":"#")">待提现<br /><em id="shopbankState">0</em></a>
+                <a target="list" href="@(LJSheng.Common.LCookie.Getljsheng("Jurisdiction")=="管理员"?"/LJSheng/ShopOrderList?ReturnType=2":"#")">借用订单<br /><em id="jyorder">0</em></a>
+                <a target="list" href="@(LJSheng.Common.LCookie.Getljsheng("Jurisdiction")=="管理员"?"/LJSheng/ShopOrderList?DFH=2":"#")">代发货订单<br /><em id="dfhorder">0</em></a>
             </p>
             <tt><a href="/LJSheng/index" target="list">后台首页</a>|<a href="/Home/Url" target="_blank">前台首页</a>|<a href="/Home/LoginOut?login=/LJSheng/Login" target="_top">您好,@(LJSheng.Common.LCookie.Getljsheng("Jurisdiction")) 安全退出</a></tt>
         </div>
@@ -125,6 +127,8 @@
                         $("#shoporder").html(data.data.shoporder);
                         $("#shopbank").html(data.data.shopbank); 
                         $("#shopbankState").html(data.data.shopbankState); 
+                        $("#jyorder").html(data.data.jyorder); 
+                        $("#dfhorder").html(data.data.dfhorder); 
                     }
                 }
             });

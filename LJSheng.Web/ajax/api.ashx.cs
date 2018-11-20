@@ -386,11 +386,14 @@ namespace LJSheng.Web.ajax
                 decimal bank = w.Select(l => l.Money).DefaultIfEmpty(0m).Sum();
                 int bankState = w.Where(l => l.State == 1).Count();
                 int shop = db.Shop.Where(l => l.State == 1).Count();
-                int shoporder = db.ShopOrder.Where(l => l.PayStatus == 1).Count();
+                var so = db.ShopOrder.Where(l => l.PayStatus == 1);
+                int shoporder = so.Count();
+                int jyorder = so.Where(l => l.ReturnType != 0 && l.ExpressStatus==1).Count();
+                int dfhorder = so.Where(l=>l.DFH==2 && l.ExpressStatus == 1).Count();
                 var sw = db.ShopWithdrawals;
                 decimal shopbank = sw.Select(l => l.Money).DefaultIfEmpty(0m).Sum();
                 int shopbankState = sw.Where(l => l.State == 1).Count();
-                return new AjaxResult(new { member , order , orderStatus , orderES, money, integral, bank, bankState, shop, shoporder, shopbank, shopbankState });
+                return new AjaxResult(new { member , order , orderStatus , orderES, money, integral, bank, bankState, shop, shoporder, shopbank, shopbankState, jyorder, dfhorder });
             }
         }
         #endregion

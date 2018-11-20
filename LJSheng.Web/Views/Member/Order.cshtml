@@ -95,7 +95,23 @@
                                 已关闭
                                 {{/if}}
                             </li>
-                            <li id="{{item.Gid}}" class="confirm-goods" onclick="show('{{item.Gid}}','{{item.Product}}');">{{item.ExpressStatus==1?"确认收货":"已收货"}}</li>
+
+                            {{if item.ExpressStatus=="1"}}
+                            <li class="confirm-goods">等待发货</li>
+                            {{else if item.ExpressStatus=="2"}}
+                            <li id="{{item.Gid}}" class="confirm-goods" onclick="show('{{item.Gid}}','{{item.Product}}');">
+                                确认收货
+                            </li>
+                            {{else if item.ExpressStatus=="3"}}
+                            <li class="confirm-goods">
+                                已收货
+                            </li>
+                                {{else}}
+                            <li class="confirm-goods">
+                                已退回
+                            </li>
+                                {{/if}}
+
                             <li class="confirm-goods"><a href="/Home/Bank?Type=1&OrderNo={{item.OrderNo}}&Money={{item.TotalPrice}}&Voucher={{item.Voucher}}">付款凭证</a></li>
                         </ul>
                     </div>
@@ -112,7 +128,7 @@
             <p id="Name"></p>
             <div class="confirm-goods-dialog-btn">
                 <span onclick="ok();">是</span>
-                <span>否</span>
+                <span onclick="no();">否</span>
             </div>
         </div>
     </div>
@@ -127,6 +143,9 @@
             $("#Name").html(Name);
             $(".confirm-goods-dialog").addClass("active");
         }
+        function no() {
+            $(".confirm-goods-dialog").addClass("active");
+        }
         function ok() {
             $.ajax({
                 url: "/Member/OrderOK",
@@ -139,6 +158,7 @@
                 error: function () { alert("请求超时!"); },
                 beforeSend: function () { },
                 success: function (data) {
+                    $(".confirm-goods-dialog").removeClass("active");
                     $("#" + $("#Gid").val()).html(data.data);
                 },
             });
