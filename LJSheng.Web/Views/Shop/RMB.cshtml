@@ -43,14 +43,14 @@
                     <p class="can-make-payment">可提货款 :<span>@ViewBag.Money 元</span></p>
                     <div class="withdrawal-operation-input">
                         <span class="withdrawal-operation-tag">￥</span>
-                        <input type="text" id="Money" name="Money" placeholder="最少提现100" onkeyup="value=value.replace(/[^\d.]/g,'');" onchange="MB();" />
+                        <input type="text" id="Money" name="Money" placeholder="最少提现100" onkeyup="value=value.replace(/[^\d.]/g,'');" onchange="MB();" />元
                     </div>
                 </div>
                 <div class="withdrawal-operation">
                     <p class="can-make-payment">现有BCCB值 :<span>@ViewBag.BCCB</span></p>
                     <div class="withdrawal-operation-input">
                         <span class="withdrawal-operation-tag">#</span>
-                        <input type="text" id="BCCB" name="BCCB" placeholder="需要手续费" onkeyup="value=value.replace(/[^\d.]/g,'');" readonly />
+                        <input type="text" id="BCCB" name="BCCB" placeholder="需要手续费" onkeyup="value=value.replace(/[^\d.]/g,'');" readonly />BCCB
                     </div>
                 </div>
                 <div class="withdrawal-text">

@@ -79,6 +79,63 @@
                 </a>
             </div>
         </div>
+        <div class="default-block integral">
+            <div class="default-block-title">
+                能量塔
+                <a href="/Shop/Order?tab=0" class="more-btn">
+                    查看更多<img src="/images/icon/icon-24.png">
+                </a>
+            </div>
+            <div class="integral-content">
+                <div class="integral-item">
+                    <a href="/Shop/Order?tab=1">
+                        <img src="/images/icon/icon-6.png" />
+                        <p class="integral-item-tag">能量塔待处理订单</p>
+                        <p><span>@ViewBag.OC</span></p>
+                    </a>
+                </div>
+                <div class="integral-item">
+                    <a href="/Member/Withdrawals">
+                        <img src="/images/icon/icon-7.png" />
+                        <p>可提货款</p>
+                        <p><span>@ViewBag.ProductMoney</span></p>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="default-block @(ViewBag.Shop !=0?"":"hidden")">
+            <div class="default-block-title">
+                能量塔订单
+            </div>
+            <div class="order-status order-status-merchants">
+                <ul>
+                    <li>
+                        <a href="/Shop/Order?tab=0">
+                            <img src="/images/icon/icon-18.png" />
+                            <span>全部</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/Shop/Order?tab=1">
+                            <img src="/images/icon/icon-19.png" />
+                            <span>待发货</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/Shop/Order?tab=2">
+                            <img src="/images/icon/icon-20.png" />
+                            <span>待收货</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/Shop/Order?tab=3">
+                            <img src="/images/icon/icon-21.png" />
+                            <span>已收货</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
         <!--商城积分-->
         <div class="default-block mall-points">
             <div class="default-block-title">
@@ -132,22 +189,6 @@
                     </a>
                 </div>
             </div>
-            <div class="integral-content">
-                <div class="integral-item">
-                    <a href="/Shop/Order?tab=1">
-                        <img src="/images/icon/icon-6.png" />
-                        <p class="integral-item-tag">能量塔待处理订单</p>
-                        <p><span>@ViewBag.OC</span></p>
-                    </a>
-                </div>
-                <div class="integral-item">
-                    <a href="/Shop/Money">
-                        <img src="/images/icon/icon-7.png" />
-                        <p>可提货款</p>
-                        <p><span>@ViewBag.ProductMoney</span></p>
-                    </a>
-                </div>
-            </div>
         </div>
         <!--我的团队-->
         <div class="default-block my-team">
@@ -169,7 +210,8 @@
                 </a>
             </div>
         </div>
-        <div class="default-block concat-us" style="display:none;">>
+        <div class="default-block concat-us" style="display:none;">
+            >
             <div class="concat-item">
                 <a href="/Member/SendCL">
                     <img src="/images/icon/icon-9.png" />
@@ -198,7 +240,7 @@
                 </a>
             </div>
             <div class="concat-item">
-                <a href="">
+                <a href="tel:0591-87660172">
                     <img src="/images/icon/icon-9.png" />
                     <p>联系我们</p>
                 </a>

@@ -1145,6 +1145,7 @@
     <Content Include="Views\Member\DFH.cshtml" />
     <Content Include="Views\LJSheng\DFHList.cshtml" />
     <Content Include="Views\Shop\ShopOrder.cshtml" />
+    <Content Include="Views\Member\TeamIntegral.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

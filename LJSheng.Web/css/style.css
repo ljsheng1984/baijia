@@ -789,22 +789,22 @@ p.integral-item-tag span {
             width: 12px;
         }
 
-    .order-detial-item .order-detial-btn {
-        padding: 10px;
-        text-align: right;
+.order-detial-btn {
+    padding: 10px;
+    text-align: right;
+}
+
+    .order-detial-btn ul li {
+        display: inline-block;
+        border: solid 1px #BBB;
+        padding: 2px 8px;
+        border-radius: 5px;
+        margin-left: 5px;
     }
 
-        .order-detial-item .order-detial-btn ul li {
-            display: inline-block;
-            border: solid 1px #BBB;
-            padding: 2px 8px;
-            border-radius: 5px;
-            margin-left: 5px;
+        .order-detial-btn ul li:first-child {
+            margin: 0;
         }
-
-            .order-detial-item .order-detial-btn ul li:first-child {
-                margin: 0;
-            }
 
 .confirm-goods-dialog {
     position: fixed;
@@ -2621,65 +2621,62 @@ p.integral-item-tag span {
 .merchants-item {
     padding: 15px;
     border-bottom: solid 1px #EEEEEE;
+    display: flex;
+    justify-content: space-between;
 }
 
-    .merchants-item {
-        display: flex;
-        justify-content: space-between;
+    .merchants-item .merchants-item-img {
+        width: 94px;
+        height: 94px;
     }
 
-        .merchants-item .merchants-item-img {
-            width: 94px;
-            height: 94px;
+        .merchants-item .merchants-item-img img {
+            width: 100%;
+            height: 100%;
         }
 
-            .merchants-item .merchants-item-img img {
-                width: 100%;
-                height: 100%;
-            }
+    .merchants-item .merchants-item-text {
+        width: -webkit-calc(100% - 110px);
+        width: calc(100% - 110px);
+        position: relative;
+    }
 
-        .merchants-item .merchants-item-text {
-            width: -webkit-calc(100% - 110px);
-            width: calc(100% - 110px);
-            position: relative;
-        }
+    .merchants-item .merchants-item-title {
+        font-size: 1.6rem;
+        height: 48px;
+        overflow: hidden;
+    }
 
-        .merchants-item .merchants-item-title {
-            font-size: 1.6rem;
-            height: 48px;
-            overflow: hidden;
-        }
+    .merchants-item .merchants-item-sales {
+        color: #666666;
+        font-size: 1.2rem;
+        margin: 8px 0;
+    }
 
-        .merchants-item .merchants-item-sales {
-            color: #666666;
-            font-size: 1.2rem;
-            margin: 8px 0;
-        }
-
-            .merchants-item .merchants-item-sales span {
-                color: #F8D957;
-                border: solid 1px #F8D957;
-                padding: 1px 5px;
-                margin-left: 5px;
-            }
-
-        .merchants-item .merchants-item-price span:first-child {
-            color: #D93838;
-        }
-
-        .merchants-item .merchants-item-price span:last-child {
-            color: #999999;
-            text-decoration: line-through;
-            font-size: 1.2rem;
+        .merchants-item .merchants-item-sales span {
+            color: #F8D957;
+            border: solid 1px #F8D957;
+            padding: 1px 5px;
             margin-left: 5px;
         }
 
-        .merchants-item .merchants-item-status {
-            position: absolute;
-            bottom: 10px;
-            right: 0;
-            width: 50px;
-        }
+    .merchants-item .merchants-item-price span:first-child {
+        color: #D93838;
+    }
+
+    .merchants-item .merchants-item-price span:last-child {
+        color: #999999;
+        text-decoration: line-through;
+        font-size: 1.2rem;
+        margin-left: 5px;
+    }
+
+    .merchants-item .merchants-item-status {
+        position: absolute;
+        bottom: 10px;
+        right: 0;
+        width: 50px;
+    }
 
 .shop-detial {
     position: relative;
@@ -3448,7 +3445,8 @@ p.integral-item-tag span {
 }
 
     .use-terms-item ul li .use-terms-item-red {
-        color: #f00;
+        color: #000;
+        font-weight: bold;
     }
 
 .use-terms-item-img {

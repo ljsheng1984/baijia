@@ -1,0 +1,49 @@
+﻿@{
+    ViewBag.Title = "团队积分";
+    Layout = "~/Views/Shared/_LLayout.cshtml";
+}
+<div id="search" hidden>
+</div>
+<div class="mescroll" id="scroll">
+    <ul class="bonus-team-ul" id="dataList">
+        <script id="tpl" type="text/html">
+            {{each list as item index}}
+            <li class="cell">
+                <a class="img">
+                    <img src="/uploadfiles/member/{{item.Picture}}" onerror="this.src='/images/{{item.Gender}}.png'" />
+                </a>
+                <span>
+                    {{if item.Type=="4"}}
+                    第1级奖励
+                    {{else if item.Type=="5"}}
+                    第2级奖励
+                    {{else if item.Type=="6"}}
+                    第3级奖励
+                    {{else}}
+                    未知={{item.Type}}
+                    {{/if}}
+                </span>
+                <span>{{item.Account}}({{item.RealName}})</span>
+                <h1>{{item.Product}}</h1>
+                <div class="i">
+                    <a class="time">时间: {{item.AddTime}}</a>
+                </div>
+                <div class="number"><b>{{item.TIntegral}}</b>积分</div>
+            </li>
+            {{/each}}
+        </script>
+    </ul>
+</div>
+<script>
+    function getlist(type, ev) {
+        $("#type").val(type);
+        $(".bonus-tabs div").removeClass("active");
+        ev = ev || window.event;
+        var tmp = ev.target || ev.srcElement;
+        tmp.className = "active";
+        //重置列表数据
+        scroll.resetUpScroll();
+        //隐藏回到顶部按钮
+        scroll.hideTopBtn();
+    }
+</script>

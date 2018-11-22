@@ -1522,6 +1522,72 @@ namespace LJSheng.Web.Controllers
         }
         #endregion
 
+        #region 团队积分
+        /// <summary>
+        /// 团队积分
+        /// </summary>
+        /// <returns>返回调用结果</returns>
+        /// <para name="result">200 是成功其他失败</para>
+        /// <para name="data">对象结果</para>
+        /// <remarks>
+        /// 2018-08-18 林建生
+        /// </remarks>
+        public ActionResult TeamIntegral()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public JsonResult TeamIntegralData()
+        {
+            string json = "";
+            using (StreamReader sr = new StreamReader(Request.InputStream))
+            {
+                json = HttpUtility.UrlDecode(sr.ReadLine());
+            }
+            JObject paramJson = JsonConvert.DeserializeObject(json) as JObject;
+            Guid MemberGid = LCookie.GetMemberGid();
+            using (EFDB db = new EFDB())
+            {
+                var b = db.ShopRecord.Where(l => l.Type>3 && l.Type<7 && l.MemberGid == MemberGid && l.OrderGid != null).GroupJoin(db.Order,
+                    l => l.OrderGid,
+                    j => j.Gid,
+                    (l, j) => new
+                    {
+                        l.Gid,
+                        l.TIntegral,
+                        l.AddTime,
+                        l.Type,
+                        j.FirstOrDefault().Product,
+                        j.FirstOrDefault().MemberGid
+                    }).GroupJoin(db.Member,
+                    l => l.MemberGid,
+                    j => j.Gid,
+                    (l, j) => new
+                    {
+                        l.Gid,
+                        l.TIntegral,
+                        l.AddTime,
+                        l.Type,
+                        l.Product,
+                        j.FirstOrDefault().Account,
+                        j.FirstOrDefault().Picture,
+                        j.FirstOrDefault().RealName,
+                        j.FirstOrDefault().Gender
+                    }).AsQueryable();
+                int pageindex = Int32.Parse(paramJson["pageindex"].ToString());
+                int pagesize = Int32.Parse(paramJson["pagesize"].ToString());
+                return Json(new AjaxResult(new
+                {
+                    other = "",
+                    count = b.Count(),
+                    pageindex,
+                    list = b.OrderByDescending(l => l.AddTime).Skip(pagesize * (pageindex - 1)).Take(pagesize).ToList()
+                }));
+            }
+        }
+        #endregion
+
         #region 商家
         /// <summary>
         /// 商家申请入驻
