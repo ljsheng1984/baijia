@@ -2100,42 +2100,53 @@ namespace LJSheng.Web.Controllers
                     }
                     else
                     {
-                        if (avg > 0)
+                        if (Helper.TokenRecordAdd(Guid.NewGuid(), gid, Integral, 0, 1, TB))
                         {
-                            decimal Token = Integral * (1 / avg);
-                            LogMsg += ",Token=" + Token;
-                            Guid TRGid = Guid.NewGuid();
-                            if (Helper.TokenRecordAdd(TRGid, gid, Integral, Token, 1, TB))
-                            {
-                                //提交到APP
-                                if (AppApi.AddMB(b.Account, TB == 1 ? "BCCB" : "FBCC", Token.ToString()))
-                                {
-                                    return Helper.Redirect("成功", "/Member/IntegralAPP", "恭喜你,兑换成功!");
-                                }
-                                else
-                                {
-                                    LogManager.WriteLog("链商城积分兑换记录成功兑换APP钱包失败", LogMsg);
-                                    string Remarks = "钱包兑换接口失败";
-                                    //撤销兑换的积分
-                                    //b.Money = b.Money + Integral;
-                                    //if (db.SaveChanges() == 1)
-                                    //{
-                                    //    Remarks = "已退回账户";
-                                    //}
-                                    db.TokenRecord.Where(l => l.Gid == TRGid).Update(l => new TokenRecord { Remarks = Remarks, State = 2 });
-                                    return Helper.Redirect("失败", "/Member/IntegralAPP", "链商城积分兑换记录成功兑换APP钱包失败");
-                                }
-                            }
-                            else
-                            {
-                                LogManager.WriteLog("链商城积分兑换记录失败", LogMsg);
-                                return Helper.Redirect("失败", "history.go(-1);", "积分兑换记录失败");
-                            }
+                            return Helper.Redirect("成功", "/Member/IntegralAPP", "恭喜你,兑换成功!");
                         }
                         else
                         {
-                            return Helper.Redirect("失败", "history.go(-1);", "APP返回均价失败");
+                            LogManager.WriteLog("链商城积分兑换记录失败", LogMsg);
+                            return Helper.Redirect("失败", "history.go(-1);", "积分兑换记录失败");
                         }
+
+                        //20181130去掉APP兑换
+                        //if (avg > 0)
+                        //{
+                        //    decimal Token = Integral * (1 / avg);
+                        //    LogMsg += ",Token=" + Token;
+                        //    Guid TRGid = Guid.NewGuid();
+                        //    if (Helper.TokenRecordAdd(TRGid, gid, Integral, Token, 1, TB))
+                        //    {
+                        //        //提交到APP
+                        //        if (AppApi.AddMB(b.Account, TB == 1 ? "BCCB" : "FBCC", Token.ToString()))
+                        //        {
+                        //            return Helper.Redirect("成功", "/Member/IntegralAPP", "恭喜你,兑换成功!");
+                        //        }
+                        //        else
+                        //        {
+                        //            LogManager.WriteLog("链商城积分兑换记录成功兑换APP钱包失败", LogMsg);
+                        //            string Remarks = "钱包兑换接口失败";
+                        //            //撤销兑换的积分
+                        //            //b.Money = b.Money + Integral;
+                        //            //if (db.SaveChanges() == 1)
+                        //            //{
+                        //            //    Remarks = "已退回账户";
+                        //            //}
+                        //            db.TokenRecord.Where(l => l.Gid == TRGid).Update(l => new TokenRecord { Remarks = Remarks, State = 2 });
+                        //            return Helper.Redirect("失败", "/Member/IntegralAPP", "链商城积分兑换记录成功兑换APP钱包失败");
+                        //        }
+                        //    }
+                        //    else
+                        //    {
+                        //        LogManager.WriteLog("链商城积分兑换记录失败", LogMsg);
+                        //        return Helper.Redirect("失败", "history.go(-1);", "积分兑换记录失败");
+                        //    }
+                        //}
+                        //else
+                        //{
+                        //    return Helper.Redirect("失败", "history.go(-1);", "APP返回均价失败");
+                        //}
                     }
                 }
             }
